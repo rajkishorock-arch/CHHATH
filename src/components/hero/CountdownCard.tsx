@@ -87,16 +87,16 @@ export const CountdownCard: React.FC = () => {
             <Clock className="w-4 h-4 text-stone-950 animate-pulse" />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-mukta font-bold tracking-[0.2em] text-amber-400 block">
+            <span className="text-[10px] uppercase font-mukta font-bold tracking-[0.2em] text-amber-600 dark:text-amber-400 block">
               VEDIC ASTROLOGICAL HOROLOGIUM
             </span>
-            <h3 className="font-rozha text-xl sm:text-2xl text-stone-100 font-bold">
+            <h3 className="font-rozha text-xl sm:text-2xl text-stone-900 dark:text-stone-100 font-bold">
               {t.countdownTitle}
             </h3>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-xs font-bold text-amber-300 swarna-gold-sheen">
-          <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-xs font-bold text-amber-700 dark:text-amber-300 swarna-gold-sheen">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-yellow-300" />
           <span>कार्तिक मास महासंयोग 2026</span>
         </div>
       </div>
@@ -157,24 +157,24 @@ export const CountdownCard: React.FC = () => {
             key={idx}
             className={`p-3.5 rounded-xl border transition-all text-left relative overflow-hidden ${
               item.active 
-                ? 'bg-gradient-to-br from-amber-500/25 to-stone-900 border-amber-400 shadow-lg ring-1 ring-amber-300/60' 
-                : 'bg-stone-900/70 border-amber-500/25 hover:border-amber-400/50 hover:bg-stone-850'
+                ? 'bg-gradient-to-br from-amber-500/25 to-amber-100/60 dark:to-stone-900 border-amber-500 dark:border-amber-400 shadow-lg ring-1 ring-amber-400/60' 
+                : 'bg-stone-100/90 dark:bg-stone-900/70 border-amber-500/25 hover:border-amber-400/50 hover:bg-amber-50/50 dark:hover:bg-stone-850'
             }`}
           >
             {item.active && (
               <div className="absolute -top-6 -right-6 w-14 h-14 bg-amber-400/20 rounded-full blur-sm"></div>
             )}
-            <div className="flex items-center justify-between text-xs mb-1 font-bold text-amber-300">
+            <div className="flex items-center justify-between text-xs mb-1 font-bold text-amber-700 dark:text-amber-300">
               <span className="uppercase tracking-wider">{item.day}</span>
-              <Calendar className="w-3.5 h-3.5 text-amber-400" />
+              <Calendar className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             </div>
-            <h4 className="font-mukta font-bold text-sm text-stone-100 leading-tight">
+            <h4 className="font-mukta font-bold text-sm text-stone-900 dark:text-stone-100 leading-tight">
               {item.title}
             </h4>
-            <div className="text-[11px] text-amber-300/80 font-mukta mt-0.5">
+            <div className="text-[11px] text-amber-800 dark:text-amber-300/80 font-mukta mt-0.5 font-semibold">
               {item.date}
             </div>
-            <p className="text-[11px] text-stone-300 font-mukta mt-1 line-clamp-1">
+            <p className="text-[11px] text-stone-600 dark:text-stone-300 font-mukta mt-1 line-clamp-1">
               {item.desc}
             </p>
           </div>
