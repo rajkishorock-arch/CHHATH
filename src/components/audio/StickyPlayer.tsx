@@ -93,7 +93,7 @@ export const StickyPlayer: React.FC = () => {
       {/* Sleek, Compact Bottom Music Player Bar */}
       <div 
         id="sticky-player" 
-        className="fixed bottom-0 lg:bottom-4 left-0 lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-4xl z-40 bg-stone-900/98 text-stone-100 backdrop-blur-xl border-t lg:border border-amber-500/40 lg:rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] p-2.5 sm:px-5 transition-all duration-300"
+        className="fixed bottom-14 lg:bottom-4 left-0 lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-4xl z-30 bg-stone-900/98 text-stone-100 backdrop-blur-xl border-t lg:border border-amber-500/40 lg:rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] p-2 sm:px-5 transition-all duration-300"
       >
         <div className="flex items-center justify-between gap-3">
           

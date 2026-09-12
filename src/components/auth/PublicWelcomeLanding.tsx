@@ -42,7 +42,7 @@ export const PublicWelcomeLanding: React.FC = () => {
             <h1 className="font-rozha text-xl sm:text-2xl font-black gold-foil-text leading-tight">
               छठ महापर्व
             </h1>
-            <span className="text-[10px] font-mukta font-bold uppercase tracking-[0.2em] text-amber-400">
+            <span className="hidden sm:block text-[10px] font-mukta font-bold uppercase tracking-[0.2em] text-amber-400">
               वैयक्तिकृत डिजिटल आध्यात्मिक मंच
             </span>
           </div>

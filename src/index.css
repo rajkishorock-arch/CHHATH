@@ -83,11 +83,17 @@ html {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
 }
 
 body {
   min-height: 100vh;
   overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+  position: relative;
   line-height: 1.6;
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -97,6 +103,7 @@ body {
 #root {
   width: 100%;
   max-width: 100%;
+  overflow-x: hidden;
   margin: 0;
   padding: 0;
   display: flex;
@@ -633,6 +640,13 @@ body {
   margin-right: auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .container-custom {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* Section Spacing */

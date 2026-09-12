@@ -72,7 +72,7 @@ export const CountdownCard: React.FC = () => {
   }, []);
 
   return (
-    <div className="royal-card-luxury rounded-3xl p-6 sm:p-9 shadow-2xl border border-amber-400/50 w-full max-w-5xl mx-auto backdrop-blur-2xl relative overflow-hidden">
+    <div className="royal-card-luxury rounded-3xl p-4 sm:p-9 shadow-2xl border border-amber-400/50 w-full max-w-5xl mx-auto backdrop-blur-2xl relative overflow-hidden">
       
       {/* Traditional Auspicious Corner Emblems */}
       <div className="absolute top-2.5 left-3 text-amber-400/40 text-xs font-serif select-none pointer-events-none">卐</div>
@@ -102,48 +102,48 @@ export const CountdownCard: React.FC = () => {
       </div>
 
       {/* Countdown Digits in 24K Gold Metallic Bevel Pods */}
-      <div className="grid grid-cols-4 gap-2.5 sm:gap-5 my-7 text-center">
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-5 my-5 sm:my-7 text-center">
         
         {/* Days */}
-        <div className="p-3 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
+        <div className="p-2 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
           <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-300/80 to-transparent"></div>
-          <span className="font-rozha text-3xl sm:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
+          <span className="font-rozha text-2xl sm:text-5xl md:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
             {String(timeLeft.days).padStart(2, '0')}
           </span>
-          <span className="text-xs sm:text-sm font-mukta font-bold text-amber-200 mt-1.5 block uppercase tracking-wider">
+          <span className="text-[10px] sm:text-sm font-mukta font-bold text-amber-200 mt-1 sm:mt-1.5 block uppercase tracking-wider truncate">
             {t.daysRemaining}
           </span>
         </div>
 
         {/* Hours */}
-        <div className="p-3 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
+        <div className="p-2 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
           <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-300/80 to-transparent"></div>
-          <span className="font-rozha text-3xl sm:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
+          <span className="font-rozha text-2xl sm:text-5xl md:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
             {String(timeLeft.hours).padStart(2, '0')}
           </span>
-          <span className="text-xs sm:text-sm font-mukta font-bold text-amber-200 mt-1.5 block uppercase tracking-wider">
+          <span className="text-[10px] sm:text-sm font-mukta font-bold text-amber-200 mt-1 sm:mt-1.5 block uppercase tracking-wider truncate">
             {t.hours}
           </span>
         </div>
 
         {/* Minutes */}
-        <div className="p-3 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
+        <div className="p-2 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
           <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-300/80 to-transparent"></div>
-          <span className="font-rozha text-3xl sm:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
+          <span className="font-rozha text-2xl sm:text-5xl md:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
             {String(timeLeft.minutes).padStart(2, '0')}
           </span>
-          <span className="text-xs sm:text-sm font-mukta font-bold text-amber-200 mt-1.5 block uppercase tracking-wider">
+          <span className="text-[10px] sm:text-sm font-mukta font-bold text-amber-200 mt-1 sm:mt-1.5 block uppercase tracking-wider truncate">
             {t.minutes}
           </span>
         </div>
 
         {/* Seconds */}
-        <div className="p-3 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
+        <div className="p-2 sm:p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-stone-900/80 to-stone-950 border border-amber-400/40 shadow-2xl relative overflow-hidden group hover:border-amber-300 transition-all">
           <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-amber-300/80 to-transparent"></div>
-          <span className="font-rozha text-3xl sm:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
+          <span className="font-rozha text-2xl sm:text-5xl md:text-6xl font-black gold-foil-text block tracking-wider group-hover:scale-105 transition-transform">
             {String(timeLeft.seconds).padStart(2, '0')}
           </span>
-          <span className="text-xs sm:text-sm font-mukta font-bold text-amber-200 mt-1.5 block uppercase tracking-wider">
+          <span className="text-[10px] sm:text-sm font-mukta font-bold text-amber-200 mt-1 sm:mt-1.5 block uppercase tracking-wider truncate">
             {t.seconds}
           </span>
         </div>
