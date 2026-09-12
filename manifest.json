@@ -1,0 +1,16 @@
+{
+  "short_name": "छठ महापर्व",
+  "name": "छठ महापर्व — राष्ट्रीय डिजिटल सांस्कृतिक मंच",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0c0a09",
+  "theme_color": "#d97706",
+  "display": "standalone",
+  "orientation": "portrait"
+}
