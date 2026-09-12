@@ -19,9 +19,20 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { songs } = useChhathData();
-  const [currentSong, setCurrentSong] = useState<Song | null>(songs[0] || null);
+  const [currentSong, setCurrentSong] = useState<Song | null>(() => songs[0] || null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolumeState] = useState<number>(0.75);
+
+  React.useEffect(() => {
+    if (currentSong && !songs.some(s => s.id === currentSong.id)) {
+      setCurrentSong(songs.length > 0 ? songs[0] : null);
+      if (songs.length === 0) {
+        setIsPlaying(false);
+      }
+    } else if (!currentSong && songs.length > 0) {
+      setCurrentSong(songs[0]);
+    }
+  }, [songs, currentSong]);
 
   const playSong = (song: Song) => {
     setCurrentSong(song);

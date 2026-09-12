@@ -801,58 +801,65 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
                   </div>
 
                   <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-                    {songs.map((song) => (
-                      <div
-                        key={song.id}
-                        className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 flex items-center justify-between gap-3 text-xs hover:border-amber-500/40 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <button
-                            onClick={() => playSong(song)}
-                            className="w-9 h-9 rounded-lg bg-orange-600 text-white flex items-center justify-center shrink-0 hover:scale-105 transition-transform shadow"
-                            title="गीत चलाएं (Play Song)"
-                          >
-                            <Play className="w-4 h-4 ml-0.5 fill-white" />
-                          </button>
-                          
-                          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-amber-500/30 bg-stone-900">
-                            <img src={song.thumbnail} alt={song.title} className="w-full h-full object-cover" />
-                          </div>
-
-                          <div className="min-w-0">
-                            <strong className="text-stone-900 dark:text-stone-100 block text-sm truncate">
-                              {song.title}
-                            </strong>
-                            <span className="text-stone-500 dark:text-stone-400 truncate block text-[11px]">
-                              {song.singer} • {song.category} • {song.language}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          {song.youtubeId && (
-                            <a
-                              href={`https://www.youtube.com/watch?v=${song.youtubeId}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-2.5 py-1.5 rounded-lg bg-red-600/15 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white transition-colors flex items-center gap-1 font-bold text-[11px]"
-                              title="यूट्यूब पर देखें"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              <span className="hidden sm:inline">YouTube</span>
-                            </a>
-                          )}
-
-                          <button
-                            onClick={() => handleDeleteSong(song.id, song.title)}
-                            className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                            title="हटाएं (Delete)"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                    {songs.length === 0 ? (
+                      <div className="p-8 text-center rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-dashed border-stone-300 dark:border-stone-700 text-stone-500 space-y-1 font-mukta">
+                        <p className="text-sm font-bold text-stone-700 dark:text-stone-300">कोई डिफ़ॉल्ट गीत नहीं है।</p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">ऊपर यूट्यूब लिंक पेस्ट करके अपना पसंदीदा कोई भी छठ गीत जोड़ें!</p>
                       </div>
-                    ))}
+                    ) : (
+                      songs.map((song) => (
+                        <div
+                          key={song.id}
+                          className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 flex items-center justify-between gap-3 text-xs hover:border-amber-500/40 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <button
+                              onClick={() => playSong(song)}
+                              className="w-9 h-9 rounded-lg bg-orange-600 text-white flex items-center justify-center shrink-0 hover:scale-105 transition-transform shadow"
+                              title="गीत चलाएं (Play Song)"
+                            >
+                              <Play className="w-4 h-4 ml-0.5 fill-white" />
+                            </button>
+                            
+                            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-amber-500/30 bg-stone-900">
+                              <img src={song.thumbnail} alt={song.title} className="w-full h-full object-cover" />
+                            </div>
+
+                            <div className="min-w-0">
+                              <strong className="text-stone-900 dark:text-stone-100 block text-sm truncate">
+                                {song.title}
+                              </strong>
+                              <span className="text-stone-500 dark:text-stone-400 truncate block text-[11px]">
+                                {song.singer} • {song.category} • {song.language}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            {song.youtubeId && (
+                              <a
+                                href={`https://www.youtube.com/watch?v=${song.youtubeId}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-2.5 py-1.5 rounded-lg bg-red-600/15 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white transition-colors flex items-center gap-1 font-bold text-[11px]"
+                                title="यूट्यूब पर देखें"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">YouTube</span>
+                              </a>
+                            )}
+
+                            <button
+                              onClick={() => handleDeleteSong(song.id, song.title)}
+                              className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                              title="हटाएं (Delete)"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
