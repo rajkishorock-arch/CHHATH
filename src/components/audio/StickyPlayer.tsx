@@ -14,23 +14,15 @@ import {
 export const StickyPlayer: React.FC = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } = useAudio();
   
-  // Video popup toggle: default false so audio plays smoothly without screen obstruction
-  const [showVideo, setShowVideo] = useState(false);
+  // Video popup toggle: default true on song change so user actually sees and hears playback!
+  const [showVideo, setShowVideo] = useState(true);
 
-  // Auto-collapse video to audio mode on page scroll, WITHOUT resetting or interrupting audio
+  // Automatically show video window when a new song starts playing
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (Math.abs(currentScrollY - lastScrollY) > 35) {
-        setShowVideo(false);
-        lastScrollY = currentScrollY;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (isPlaying && currentSong) {
+      setShowVideo(true);
+    }
+  }, [currentSong?.id, isPlaying]);
 
   if (!currentSong) return null;
 
@@ -38,37 +30,36 @@ export const StickyPlayer: React.FC = () => {
     <>
       {/* 
         CRITICAL ARCHITECTURE: Single Persistent Iframe!
-        We NEVER unmount this iframe when scrolling or clicking cut/close (✕).
+        We NEVER unmount this iframe so audio continues playing without interruption.
         When showVideo is true -> floating PiP video box is visible.
-        When showVideo is false -> shrinks to 1px offscreen without unmounting,
-        so the audio continues playing seamlessly from the exact same second without restarting!
+        When showVideo is false -> stays active in background without being suspended by browser autoplay policy!
       */}
       {isPlaying && (currentSong.youtubeId || currentSong.playlistId) && (
         <div 
           key={currentSong.id}
           className={`fixed z-50 transition-all duration-300 font-mukta ${
             showVideo
-              ? 'bottom-20 right-4 sm:right-8 w-72 sm:w-84 rounded-2xl overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.85)] border border-amber-500/50 bg-stone-950 opacity-100 scale-100 pointer-events-auto'
-              : 'bottom-0 right-0 w-1 h-1 overflow-hidden opacity-0 pointer-events-none scale-0'
+              ? 'bottom-32 lg:bottom-24 right-3 sm:right-6 w-72 sm:w-84 rounded-2xl overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.85)] border border-amber-500/50 bg-stone-950 opacity-100 scale-100 pointer-events-auto'
+              : 'bottom-16 right-4 w-12 h-12 rounded-xl overflow-hidden opacity-30 hover:opacity-100 pointer-events-auto shadow-md border border-amber-500/40 bg-stone-950'
           }`}
         >
-          {/* Header bar with title and close / cut button */}
-          <div className="flex items-center justify-between px-3.5 py-2 bg-stone-900/95 border-b border-amber-500/20 text-xs">
-            <span className="truncate max-w-[200px] text-amber-300 font-bold flex items-center gap-1.5">
+          {/* Header bar with title and close / minimize button */}
+          <div className={`flex items-center justify-between px-3 py-1.5 bg-stone-900/95 border-b border-amber-500/20 text-xs ${!showVideo ? 'hidden' : ''}`}>
+            <span className="truncate max-w-[190px] text-amber-300 font-bold flex items-center gap-1.5">
               <span>{currentSong.isPlaylist ? '🎶' : '🎬'}</span>
-              <span>{currentSong.title}</span>
+              <span className="truncate">{currentSong.title}</span>
             </span>
             <button 
               onClick={() => setShowVideo(false)}
-              className="w-6 h-6 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition-colors"
-              title="वीडियो बंद करें (गाना ऑडियो में चलता रहेगा)"
+              className="w-6 h-6 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition-colors shrink-0"
+              title="वीडियो छोटा करें (गाना ऑडियो में बजता रहेगा)"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
           
           {/* Single Continuous Video/Playlist Iframe */}
-          <div className={showVideo ? "h-44 sm:h-48 bg-black" : "w-1 h-1"}>
+          <div className={showVideo ? "h-44 sm:h-48 bg-black" : "w-full h-full bg-black cursor-pointer"} onClick={() => !showVideo && setShowVideo(true)}>
             <iframe
               src={
                 currentSong.playlistId 
@@ -83,8 +74,14 @@ export const StickyPlayer: React.FC = () => {
           </div>
 
           {showVideo && (
-            <div className="px-3 py-1.5 text-[10px] text-stone-400 bg-stone-900/95 text-center border-t border-amber-500/10">
-              <span>💡 {currentSong.isPlaylist ? 'प्लेलिस्ट के सभी गाने लगातार बजेंगे' : 'वीडियो काटने पर भी गीत ऑडियो में लगातार बजता रहेगा'}</span>
+            <div className="px-3 py-1 text-[10px] text-stone-400 bg-stone-900/95 text-center border-t border-amber-500/10 flex items-center justify-between">
+              <span className="truncate">💡 {currentSong.isPlaylist ? 'सम्पूर्ण प्लेलिस्ट' : 'लाइव वीडियो'}</span>
+              <button 
+                onClick={() => setShowVideo(false)} 
+                className="text-amber-400 font-bold hover:underline shrink-0 ml-2"
+              >
+                छोटा करें &times;
+              </button>
             </div>
           )}
         </div>

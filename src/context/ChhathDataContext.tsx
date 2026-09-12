@@ -74,24 +74,18 @@ interface ChhathDataContextType {
 
 const ChhathDataContext = createContext<ChhathDataContextType | undefined>(undefined);
 
-const DEFAULT_UNPLAYABLE_SONG_IDS = new Set([
-  'song-1', 'song-2', 'song-3', 'song-4', 'song-5',
-  'song-6', 'song-7', 'song-8', 'song-9',
-  'playlist-1', 'playlist-2', 'playlist-3', 'playlist-4'
-]);
-
 export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Songs with localStorage persistence (purging unplayable default placeholder songs)
+  // 1. Songs with localStorage persistence (verified real playable songs v2)
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
-      const saved = localStorage.getItem('chhath_custom_songs');
-      if (!saved) return defaultSongs.filter(s => !DEFAULT_UNPLAYABLE_SONG_IDS.has(s.id));
-      const parsed: Song[] = JSON.parse(saved);
-      const cleaned = parsed.filter(s => !DEFAULT_UNPLAYABLE_SONG_IDS.has(s.id));
-      localStorage.setItem('chhath_custom_songs', JSON.stringify(cleaned));
-      return cleaned;
+      const saved = localStorage.getItem('chhath_custom_songs_v2');
+      if (saved) {
+        const parsed: Song[] = JSON.parse(saved);
+        if (parsed && parsed.length > 0) return parsed;
+      }
+      return defaultSongs;
     } catch {
-      return [];
+      return defaultSongs;
     }
   });
 
@@ -199,7 +193,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem('chhath_custom_songs', JSON.stringify(songs));
+    localStorage.setItem('chhath_custom_songs_v2', JSON.stringify(songs));
   }, [songs]);
 
   useEffect(() => {

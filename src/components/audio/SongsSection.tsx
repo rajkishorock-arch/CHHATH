@@ -420,8 +420,30 @@ export const SongsSection: React.FC = () => {
                   value={searchQuery}
                   onFocus={() => setIsDropdownOpen(true)}
                   onChange={(e) => {
-                    setSearchQuery(e.target.value);
+                    const val = e.target.value;
+                    setSearchQuery(val);
                     setIsDropdownOpen(true);
+
+                    // Auto-detect direct YouTube URL pasted into search bar!
+                    const match = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+                    if (match && match[1]) {
+                      const ytId = match[1];
+                      const newSong: Song = {
+                        id: `yt-link-${Date.now()}`,
+                        title: 'यूट्यूब छठ गीत / भजन',
+                        singer: 'यूट्यूब कलाकार',
+                        language: 'Bhojpuri',
+                        category: 'Traditional',
+                        duration: 'लाइव',
+                        audioUrl: `https://www.youtube.com/watch?v=${ytId}`,
+                        youtubeId: ytId,
+                        thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+                      };
+                      addSong(newSong);
+                      playSong(newSong);
+                      setSearchQuery('');
+                      setIsDropdownOpen(false);
+                    }
                   }}
                   placeholder={t.searchSongPlaceholder}
                   className="w-full pl-12 pr-10 py-3.5 rounded-full bg-white dark:bg-stone-900 border-2 border-amber-500/40 text-stone-800 dark:text-stone-100 font-mukta placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-md text-sm"
@@ -529,8 +551,19 @@ export const SongsSection: React.FC = () => {
                         );
                       })
                     ) : (
-                      <div className="p-6 text-center space-y-2">
-                        <p className="text-xs text-stone-500">कोई सीधा परिणाम नहीं मिला।</p>
+                      <div className="p-6 text-center space-y-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">
+                          स्थानीय सूची में कोई सीधा परिणाम नहीं मिला।
+                        </p>
+                        <a
+                          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + ' chhath geet')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow transition-all"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>YouTube पर &ldquo;{searchQuery}&rdquo; खोजें</span>
+                        </a>
                       </div>
                     )}
                   </div>
@@ -825,30 +858,39 @@ export const SongsSection: React.FC = () => {
                 <Music className="w-12 h-12 text-orange-600 mx-auto opacity-70" />
                 <div>
                   <h4 className="font-bold text-lg text-stone-900 dark:text-stone-100">
-                    &ldquo;{searchQuery}&rdquo; के लिए कोई गीत नहीं मिला
+                    &ldquo;{searchQuery}&rdquo; के लिए कोई स्थानीय गीत नहीं मिला
                   </h4>
                   <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                    आप नीचे दिए गए लोकप्रिय गायकों के नाम पर क्लिक करके सीधे गीत सुन सकते हैं:
+                    आप सीधे यूट्यूब पर इस गीत को खोजकर लिंक पेस्ट कर सकते हैं या नीचे दिए गए लोकप्रिय गायकों के गीत सुन सकते हैं:
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 pt-2">
+                  <a
+                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + ' chhath geet')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-1.5 rounded-full text-xs font-bold bg-red-600 text-white shadow hover:bg-red-700 flex items-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>YouTube पर खोजें</span>
+                  </a>
                   <button
                     onClick={() => setSearchQuery('शारदा सिन्हा')}
-                    className="px-3 py-1 rounded-full text-xs font-bold bg-orange-600 text-white shadow"
+                    className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-600 text-white shadow"
                   >
                     🌟 शारदा सिन्हा
                   </button>
                   <button
                     onClick={() => setSearchQuery('पवन सिंह')}
-                    className="px-3 py-1 rounded-full text-xs font-bold bg-orange-600 text-white shadow"
+                    className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-600 text-white shadow"
                   >
                     🎤 पवन सिंह
                   </button>
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="px-3 py-1 rounded-full text-xs font-bold bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200"
+                    className="px-3 py-1.5 rounded-full text-xs font-bold bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200"
                   >
-                    सभी गीत देखें
+                    सभी 16+ गीत देखें
                   </button>
                 </div>
               </div>
