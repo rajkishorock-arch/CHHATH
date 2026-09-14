@@ -43,6 +43,7 @@ interface SearchModalProps {
   onSelectSong?: (song: Song) => void;
   onSelectReel?: (reelId: string, matchingReels?: DynamicReel[]) => void;
   onSelectUser?: (username: string) => void;
+  onNavigate?: (url: string) => void;
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({

@@ -574,7 +574,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           
           {/* Card 1: Calendar */}
           <a
@@ -591,7 +591,22 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
             <span className="text-[11px] text-stone-500 dark:text-stone-400 block">4 दिनों की तारीख</span>
           </a>
 
-          {/* Card 2: Puja Vidhi */}
+          {/* Card 2: Chhath Puja Date 2026 */}
+          <a
+            href="/CHHATH/chhath-puja-date-2026/"
+            onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-date-2026/'); }}
+            className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 hover:shadow-md transition-all text-center space-y-2 text-decoration-none group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Clock className="w-5 h-5" />
+            </div>
+            <h4 className="font-rozha text-sm font-bold text-stone-900 dark:text-amber-100 group-hover:text-amber-600">
+              छठ तिथियां 2026
+            </h4>
+            <span className="text-[11px] text-stone-500 dark:text-stone-400 block">तिथि एवं समय चक्र</span>
+          </a>
+
+          {/* Card 3: Puja Vidhi */}
           <a
             href="/CHHATH/chhath-puja-vidhi/"
             onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-vidhi/'); }}
@@ -606,7 +621,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
             <span className="text-[11px] text-stone-500 dark:text-stone-400 block">नहाय-खाय से पारण</span>
           </a>
 
-          {/* Card 3: Samagri */}
+          {/* Card 4: Samagri */}
           <a
             href="/CHHATH/chhath-samagri/"
             onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-samagri/'); }}
@@ -621,7 +636,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
             <span className="text-[11px] text-stone-500 dark:text-stone-400 block">Checklist 2026</span>
           </a>
 
-          {/* Card 4: Arghya Time */}
+          {/* Card 5: Arghya Time */}
           <a
             href="/CHHATH/chhath-arghya-time-2026/"
             onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time-2026/'); }}
@@ -636,7 +651,22 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
             <span className="text-[11px] text-stone-500 dark:text-stone-400 block">सूर्योदय/सूर्यास्त</span>
           </a>
 
-          {/* Card 5: Songs */}
+          {/* Card 6: Patna Ganga Ghat Chhath */}
+          <a
+            href="/CHHATH/patna-chhath-puja-2026/"
+            onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/patna-chhath-puja-2026/'); }}
+            className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 hover:shadow-md transition-all text-center space-y-2 text-decoration-none group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <h4 className="font-rozha text-sm font-bold text-stone-900 dark:text-amber-100 group-hover:text-amber-600">
+              पटना गंगा घाट
+            </h4>
+            <span className="text-[11px] text-stone-500 dark:text-stone-400 block">घाट व स्थानीय समय</span>
+          </a>
+
+          {/* Card 7: Songs */}
           <a
             href="/CHHATH/chhath-puja-geet/"
             onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-geet/'); }}
@@ -651,7 +681,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
             <span className="text-[11px] text-stone-500 dark:text-stone-400 block">लोकगीत व भजन</span>
           </a>
 
-          {/* Card 6: Katha */}
+          {/* Card 8: Katha */}
           <a
             href="/CHHATH/chhath-puja-katha/"
             onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-katha/'); }}

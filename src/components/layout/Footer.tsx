@@ -14,7 +14,11 @@ import {
 } from 'lucide-react';
 import { LegalModals } from '../legal/LegalModals';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (url: string) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'deletion' | 'guidelines' | 'report' | null>(null);
 
@@ -58,9 +62,11 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-sm font-mukta text-stone-400 list-none p-0">
               <li><a href="/CHHATH/chhath-calendar-2026/" className="hover:text-amber-400 transition-colors">छठ पूजा कैलेंडर 2026</a></li>
+              <li><a href="/CHHATH/chhath-puja-date-2026/" className="hover:text-amber-400 transition-colors">छठ पूजा 2026 तिथियां एवं समय</a></li>
               <li><a href="/CHHATH/chhath-puja-vidhi/" className="hover:text-amber-400 transition-colors">छठ पूजा विधि 2026</a></li>
               <li><a href="/CHHATH/chhath-samagri/" className="hover:text-amber-400 transition-colors">छठ पूजा सामग्री सूची</a></li>
               <li><a href="/CHHATH/chhath-arghya-time-2026/" className="hover:text-amber-400 transition-colors">छठ अर्घ्य समय 2026</a></li>
+              <li><a href="/CHHATH/patna-chhath-puja-2026/" className="hover:text-amber-400 transition-colors">पटना गंगा घाट छठ पूजा 2026</a></li>
               <li><a href="/CHHATH/thekua-recipe/" className="hover:text-amber-400 transition-colors">ठेकुआ प्रसाद रेसिपी</a></li>
               <li><a href="/CHHATH/chhath-puja-geet/" className="hover:text-amber-400 transition-colors">छठ पूजा के गीत 2026</a></li>
               <li><a href="/CHHATH/chhath-puja-katha/" className="hover:text-amber-400 transition-colors">छठ पूजा कथा 2026</a></li>

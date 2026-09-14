@@ -13,7 +13,9 @@ const routes = [
   'thekua-recipe',
   'chhath-puja-geet',
   'chhath-puja-katha',
-  'chhath-calendar-2026'
+  'chhath-calendar-2026',
+  'chhath-puja-date-2026',
+  'patna-chhath-puja-2026'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');

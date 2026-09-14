@@ -46,7 +46,7 @@ const SUGGESTED_QUERIES = [
   'पापा के लिए एक भावुक बधाई संदेश लिखो'
 ];
 
-export const ChhathiAssistantModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+export const ChhathiAssistantModal: React.FC<{ isOpen: boolean; onClose: () => void; onNavigate?: (tab: string) => void }> = ({ isOpen, onClose, onNavigate }) => {
   const { userLocation } = useChhathData();
   const { playSong } = useAudio();
   const { openReelsPlatform } = useReels();

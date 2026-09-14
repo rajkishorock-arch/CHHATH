@@ -14,7 +14,11 @@ import {
 } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 
-export const StickyPlayer: React.FC = () => {
+interface StickyPlayerProps {
+  onOpenMixer?: () => void;
+}
+
+export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
   const {
     currentSong,
     isPlaying,

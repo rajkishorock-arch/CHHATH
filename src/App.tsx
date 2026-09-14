@@ -50,6 +50,8 @@ import { ThekuaRecipePage } from './components/pages/ThekuaRecipePage';
 import { ChhathGeetPage } from './components/pages/ChhathGeetPage';
 import { ChhathKathaPage } from './components/pages/ChhathKathaPage';
 import { ChhathCalendarPage } from './components/pages/ChhathCalendarPage';
+import { ChhathDatePage } from './components/pages/ChhathDatePage';
+import { PatnaChhathPage } from './components/pages/PatnaChhathPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -93,6 +95,12 @@ const getInitialTabFromLocation = (): string => {
   if (path.endsWith('chhath-calendar-2026') || path.endsWith('chhath-calendar') || hash === '#chhath-calendar-2026' || hash === '#calendar') {
     return 'chhath-calendar-2026';
   }
+  if (path.endsWith('chhath-puja-date-2026') || hash === '#chhath-puja-date-2026' || hash === '#date') {
+    return 'chhath-puja-date-2026';
+  }
+  if (path.endsWith('patna-chhath-puja-2026') || hash === '#patna-chhath-puja-2026' || hash === '#patna') {
+    return 'patna-chhath-puja-2026';
+  }
 
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
   if (hash === '#ghats') return 'ghats';
@@ -105,15 +113,7 @@ const getInitialTabFromLocation = (): string => {
 };
 
 const MainContent: React.FC = () => {
-  const { openReelsPlatform, openCreateModal, openProfileModal } = useReels();
-  const { playSong } = useAudio();
-  const { 
-    currentUser, 
-    isAuthenticated, 
-    onboardingModalOpen, 
-    closeOnboarding, 
-    openAuthModal 
-  } = useAuth();
+  const { openReelsPlatform } = useReels();
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
 
@@ -139,62 +139,41 @@ const MainContent: React.FC = () => {
         openReelsPlatform('foryou', id);
       } else if (hash === '#reels/following') {
         openReelsPlatform('following');
-      } else if (hash === '#reels/trending') {
-        openReelsPlatform('trending');
-      } else if (hash === '#reels/latest') {
-        openReelsPlatform('latest');
-      } else if (hash === '#reels' || hash === '#reels/foryou' || hash === '#reels/explore') {
-        openReelsPlatform('foryou');
-      } else if (hash === '#create-reel') {
-        openCreateModal();
-      } else if (hash.startsWith('#user/')) {
-        const username = hash.replace('#user/', '');
-        openProfileModal(username);
       }
     };
 
-    handleUrlChange();
-    window.addEventListener('hashchange', handleUrlChange);
     window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
     return () => {
-      window.removeEventListener('hashchange', handleUrlChange);
       window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
     };
-  }, [openReelsPlatform, openCreateModal, openProfileModal]);
-
-  const handleCompleteCinematicIntro = () => {
-    sessionStorage.setItem('chhath_intro_seen', 'true');
-    setShowCinematicIntro(false);
-  };
+  }, [openReelsPlatform]);
 
   const handleNavigate = (tab: string) => {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    let targetUrl = '/CHHATH/';
-    if (tab === 'chhath-puja-vidhi') targetUrl = '/CHHATH/chhath-puja-vidhi/';
-    else if (tab === 'chhath-samagri') targetUrl = '/CHHATH/chhath-samagri/';
-    else if (tab === 'chhath-arghya-time-2026' || tab === 'chhath-arghya-time' || tab === 'arghya') targetUrl = '/CHHATH/chhath-arghya-time-2026/';
-    else if (tab === 'thekua-recipe') targetUrl = '/CHHATH/thekua-recipe/';
-    else if (tab === 'chhath-puja-geet' || tab === 'geet') targetUrl = '/CHHATH/chhath-puja-geet/';
-    else if (tab === 'chhath-puja-katha' || tab === 'katha') targetUrl = '/CHHATH/chhath-puja-katha/';
-    else if (tab === 'chhath-calendar-2026' || tab === 'calendar') targetUrl = '/CHHATH/chhath-calendar-2026/';
+    let urlPath = '/CHHATH/';
+    if (tab === 'chhath-puja-vidhi') urlPath = '/CHHATH/chhath-puja-vidhi/';
+    else if (tab === 'chhath-samagri') urlPath = '/CHHATH/chhath-samagri/';
+    else if (tab === 'chhath-arghya-time-2026') urlPath = '/CHHATH/chhath-arghya-time-2026/';
+    else if (tab === 'thekua-recipe') urlPath = '/CHHATH/thekua-recipe/';
+    else if (tab === 'chhath-puja-geet') urlPath = '/CHHATH/chhath-puja-geet/';
+    else if (tab === 'chhath-puja-katha') urlPath = '/CHHATH/chhath-puja-katha/';
+    else if (tab === 'chhath-calendar-2026') urlPath = '/CHHATH/chhath-calendar-2026/';
+    else if (tab === 'chhath-puja-date-2026') urlPath = '/CHHATH/chhath-puja-date-2026/';
+    else if (tab === 'patna-chhath-puja-2026') urlPath = '/CHHATH/patna-chhath-puja-2026/';
+    else if (tab !== 'home') urlPath = `/CHHATH/#${tab}`;
 
-    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'arghya' || tab === 'thekua-recipe' || tab === 'geet' || tab === 'katha' || tab === 'calendar' || tab === 'home')) {
-      try {
-        window.history.pushState(null, '', targetUrl);
-      } catch {
-        // Fallback gracefully
-      }
-    }
+    window.history.pushState(null, '', urlPath);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] relative">
-      
-      {/* 1. Cinematic Intro Modal */}
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col relative transition-colors duration-300">
+      {/* Cinematic Intro Splash (shown once per session) */}
       {showCinematicIntro && (
-        <CinematicIntro onComplete={handleCompleteCinematicIntro} />
+        <CinematicIntro onComplete={() => setShowCinematicIntro(false)} />
       )}
 
       {/* Real-time Scroll Progress Bar */}
@@ -242,19 +221,19 @@ const MainContent: React.FC = () => {
           <ChhathCalendarPage onNavigate={handleNavigate} />
         )}
 
+        {activeTab === 'chhath-puja-date-2026' && (
+          <ChhathDatePage onNavigate={handleNavigate} />
+        )}
+
+        {activeTab === 'patna-chhath-puja-2026' && (
+          <PatnaChhathPage onNavigate={handleNavigate} />
+        )}
 
         {activeTab === 'guide' && (
           <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
             <FourDaysTimeline />
             <PujaVidhi />
             <SamagriChecklist />
-          </div>
-        )}
-
-        {activeTab === 'arghya' && (
-          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
-            <ArghyaTimeCalc />
-            <ArghyaWeatherIntel />
           </div>
         )}
 
@@ -279,119 +258,61 @@ const MainContent: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'my-chhath' && (
+          <MyChhathDashboard />
+        )}
+
         {activeTab === 'explore' && (
           <Suspense fallback={<ComponentLoader />}>
             <ExploreView />
           </Suspense>
         )}
-
-        {activeTab === 'my-chhath' && (
-          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
-            {isAuthenticated && currentUser ? (
-              <>
-                <MyChhathDashboard />
-                <FamilyChhathHub />
-              </>
-            ) : (
-              <div className="p-8 sm:p-12 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-center space-y-4 max-w-xl mx-auto my-12">
-                <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center mx-auto">
-                  <Lock className="w-8 h-8" />
-                </div>
-                <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
-                  मेरी छठ — व्यक्तिगत सेवा
-                </h2>
-                <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
-                  अपनी पूजा सामग्री सूची सहेजने, पसंदीदा गीत संजोने, परिवार के साथ दउरा/प्रसाद कार्य साझा करने और व्यक्तिगत सूचनाएं पाने के लिए निःशुल्क खाता बनाएं या लॉग इन करें।
-                </p>
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button
-                    onClick={() => openAuthModal('login', 'अपनी व्यक्तिगत पूजा सूची और परिवार के कार्य सहेजने के लिए लॉग इन करें।')}
-                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold font-mukta text-sm shadow-md transition-all flex items-center justify-center gap-2"
-                  >
-                    <LogIn className="w-4 h-4 text-stone-950" />
-                    <span>लॉग इन करें</span>
-                  </button>
-                  <button
-                    onClick={() => openAuthModal('signup', 'अपना निःशुल्क छठ महापर्व खाता बनाएं।')}
-                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold font-mukta text-sm border border-amber-500/30 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>निःशुल्क खाता बनाएं</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </main>
 
-      {/* Footer */}
-      <Footer />
-
-      {/* Sticky Mini Audio Player & Audio Modals */}
-      <StickyPlayer />
+      {/* Global Interactive Dock & Persistent Audio Player */}
+      <StickyPlayer onOpenMixer={() => setMixerModalOpen(true)} />
       <ExpandedPlayerModal />
       <PlaybackQueueModal />
 
-      {/* Mobile Bottom Navigation Bar */}
-      <MobileNav
-        activeTab={activeTab}
-        onNavigate={handleNavigate}
-      />
+      {/* Footer Component */}
+      <Footer onNavigate={handleNavigate} />
 
-      {/* Personalization Wizard Modal */}
-      <PersonalizationWizard
-        isOpen={Boolean(currentUser && (!currentUser.onboardingCompleted || onboardingModalOpen))}
-        onClose={closeOnboarding}
-      />
+      {/* Mobile Bottom Navigation */}
+      <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />
 
-      {/* Auth Modal */}
+      {/* Global Modals */}
+      {locationModalOpen && (
+        <LocationOnboardingModal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)} />
+      )}
+
+      {searchModalOpen && (
+        <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} onNavigate={handleNavigate} />
+      )}
+
+      {assistantModalOpen && (
+        <ChhathiAssistantModal isOpen={assistantModalOpen} onClose={() => setAssistantModalOpen(false)} onNavigate={handleNavigate} />
+      )}
+
+      {mixerModalOpen && (
+        <AtmosphereAudioMixer isOpen={mixerModalOpen} onClose={() => setMixerModalOpen(false)} />
+      )}
+
       <AuthModal />
 
-      {/* Global Smart Search Engine Modal */}
-      <SearchModal
-        isOpen={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-        onSelectSong={(song) => playSong(song)}
-        onSelectReel={(reelId) => openReelsPlatform('foryou', reelId)}
-        onSelectUser={(username) => openProfileModal(username)}
-      />
-
-      {/* Location Onboarding Modal */}
-      <LocationOnboardingModal
-        isOpen={locationModalOpen}
-        onClose={() => setLocationModalOpen(false)}
-      />
-
-      {/* AI Chhati Sahayak Assistant Modal */}
-      <ChhathiAssistantModal
-        isOpen={assistantModalOpen}
-        onClose={() => setAssistantModalOpen(false)}
-      />
-
-      {/* Atmosphere Audio Mixer Modal */}
-      <AtmosphereAudioMixer
-        isOpen={mixerModalOpen}
-        onClose={() => setMixerModalOpen(false)}
-      />
-
-      {/* Lazy Loaded Heavy Modals */}
       <Suspense fallback={null}>
+        {adminModalOpen && (
+          <AdminDashboard isOpen={adminModalOpen} onClose={() => setAdminModalOpen(false)} />
+        )}
         <ReelsPlatformModal />
         <ChhathConnectModal />
         <CallScreenModal />
         <ShareToChatModal />
-        <AdminDashboard
-          isOpen={adminModalOpen}
-          onClose={() => setAdminModalOpen(false)}
-        />
       </Suspense>
-
     </div>
   );
 };
 
-export default function App() {
+export function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -411,4 +332,4 @@ export default function App() {
   );
 }
 
-
+export default App;
