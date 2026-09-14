@@ -122,11 +122,22 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {utilityCards.map((card) => {
             const Icon = card.icon;
+            const cardHref = card.id === 'chhath-arghya-time-2026' || card.id === 'arghya' ? '/CHHATH/chhath-arghya-time-2026/'
+              : card.id === 'chhath-puja-vidhi' || card.id === 'guide' ? '/CHHATH/chhath-puja-vidhi/'
+              : card.id === 'chhath-samagri' || card.id === 'samagri' ? '/CHHATH/chhath-samagri/'
+              : card.id === 'thekua-recipe' || card.id === 'prasad' ? '/CHHATH/thekua-recipe/'
+              : `#${card.id}`;
             return (
-              <button
+              <a
                 key={card.id}
-                onClick={() => onNavigate(card.id)}
-                className="group p-6 rounded-3xl bg-white dark:bg-stone-900 border border-amber-500/20 shadow-sm hover:shadow-md hover:border-amber-400 text-left transition-all flex flex-col justify-between"
+                href={cardHref}
+                onClick={(e) => {
+                  if (cardHref.startsWith('/CHHATH/')) {
+                    e.preventDefault();
+                    onNavigate(card.id);
+                  }
+                }}
+                className="group p-6 rounded-3xl bg-white dark:bg-stone-900 border border-amber-500/20 shadow-sm hover:shadow-md hover:border-amber-400 text-left transition-all flex flex-col justify-between text-decoration-none min-h-[160px]"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -151,7 +162,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                   <span>देखें</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
-              </button>
+              </a>
             );
           })}
         </div>

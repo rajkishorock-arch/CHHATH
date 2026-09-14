@@ -57,23 +57,53 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        {/* Primary Action Buttons */}
+        {/* Primary & Quick Action Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => handleNav('guide')}
-            className="px-6 py-3.5 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-base shadow-md transition-all flex items-center gap-2"
+          <a
+            href="/CHHATH/chhath-puja-vidhi/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onNavigate) onNavigate('chhath-puja-vidhi');
+            }}
+            className="px-6 py-3.5 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm sm:text-base shadow-md transition-all flex items-center gap-2 text-decoration-none min-h-[44px]"
           >
             <BookOpen className="w-5 h-5 text-stone-950" />
-            <span>आज की पूजा देखें</span>
-          </button>
+            <span>छठ पूजा विधि देखें</span>
+          </a>
 
-          <button
-            onClick={() => handleNav('arghya')}
-            className="px-6 py-3.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-900 dark:text-amber-300 font-bold text-base transition-all flex items-center gap-2"
+          <a
+            href="/CHHATH/chhath-arghya-time-2026/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onNavigate) onNavigate('chhath-arghya-time-2026');
+            }}
+            className="px-6 py-3.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-900 dark:text-amber-300 font-bold text-sm sm:text-base transition-all flex items-center gap-2 text-decoration-none min-h-[44px]"
           >
             <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            <span>अर्घ्य समय जानें</span>
-          </button>
+            <span>अर्घ्य समय देखें</span>
+          </a>
+
+          <a
+            href="/CHHATH/chhath-samagri/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onNavigate) onNavigate('chhath-samagri');
+            }}
+            className="px-5 py-3 rounded-full bg-stone-900/10 hover:bg-amber-500/15 dark:bg-stone-900 dark:hover:bg-stone-800 border border-amber-500/30 text-stone-800 dark:text-amber-200 font-bold text-xs sm:text-sm transition-all text-decoration-none min-h-[44px] flex items-center gap-1.5"
+          >
+            <span>पूजा सामग्री</span>
+          </a>
+
+          <a
+            href="/CHHATH/thekua-recipe/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onNavigate) onNavigate('thekua-recipe');
+            }}
+            className="px-5 py-3 rounded-full bg-stone-900/10 hover:bg-amber-500/15 dark:bg-stone-900 dark:hover:bg-stone-800 border border-amber-500/30 text-stone-800 dark:text-amber-200 font-bold text-xs sm:text-sm transition-all text-decoration-none min-h-[44px] flex items-center gap-1.5"
+          >
+            <span>ठेकुआ रेसिपी</span>
+          </a>
         </div>
 
         {/* Compact Location-Aware Arghya Countdown Card */}

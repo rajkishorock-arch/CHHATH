@@ -73,6 +73,18 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'my-chhath', label: 'मेरी छठ', href: '#my-chhath', highlight: true }
   ];
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+        setLangDropdownOpen(false);
+        setUserMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleNavClick = (e: React.MouseEvent, id: string) => {
     if (onNavigate) {
       e.preventDefault();

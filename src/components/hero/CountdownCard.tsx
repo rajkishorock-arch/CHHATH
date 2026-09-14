@@ -88,7 +88,7 @@ export const CountdownCard: React.FC = () => {
           </div>
           <div>
             <span className="text-[10px] uppercase font-mukta font-bold tracking-[0.2em] text-amber-600 dark:text-amber-400 block">
-              VEDIC ASTROLOGICAL HOROLOGIUM
+              {language === 'en' ? 'VEDIC ASTROLOGICAL HOROLOGIUM' : 'वैदिक पंचांग एवं समय गणना'}
             </span>
             <h3 className="font-rozha text-xl sm:text-2xl text-stone-900 dark:text-stone-100 font-bold">
               {t.countdownTitle}
