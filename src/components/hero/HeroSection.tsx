@@ -48,8 +48,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
 
         {/* Clean Devotional Heading & Subheading */}
         <div className="space-y-3 max-w-3xl mx-auto">
-          <h1 className="font-rozha text-4xl sm:text-6xl md:text-7xl font-black text-stone-900 dark:text-amber-100 tracking-tight leading-tight">
-            छठ की तैयारी, श्रद्धा के साथ
+          <h1 className="font-rozha text-4xl sm:text-6xl md:text-7xl font-black text-stone-...">
+              छठ महापर्व 2026 — श्रद्धा, आस्था और सूर्य उपासना
           </h1>
 
           <p className="font-mukta text-lg sm:text-2xl text-stone-700 dark:text-stone-300 font-medium max-w-2xl mx-auto leading-relaxed">
