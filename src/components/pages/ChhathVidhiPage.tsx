@@ -47,6 +47,35 @@ export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
     },
     {
       '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      'name': 'छठ पूजा विधि 2026 (Chhath Puja 4 Days Ritual Guide)',
+      'description': description,
+      'image': 'https://rajkishorock-arch.github.io/CHHATH/images/hero_sunrise.jpg',
+      'step': [
+        {
+          '@type': 'HowToStep',
+          'name': '1. नहाय-खाय (13 नवंबर 2026)',
+          'text': daysData[0]?.meaning || 'कार्तिक शुक्ल चतुर्थी को स्नान कर सात्विक कद्दू-भात का प्रसाद ग्रहण किया जाता है।'
+        },
+        {
+          '@type': 'HowToStep',
+          'name': '2. खरना / लोहंडा (14 नवंबर 2026)',
+          'text': daysData[1]?.meaning || 'कार्तिक शुक्ल पंचमी को दिनभर उपवास के बाद शाम को गुड़ की खीर व रोटी का प्रसाद ग्रहण किया जाता है।'
+        },
+        {
+          '@type': 'HowToStep',
+          'name': '3. संध्या अर्घ्य (15 नवंबर 2026)',
+          'text': daysData[2]?.meaning || 'कार्तिक शुक्ल षष्ठी को अस्ताचलगामी सूर्य देव को पवित्र घाट पर खड़े होकर पहला अर्घ्य समर्पित किया जाता है।'
+        },
+        {
+          '@type': 'HowToStep',
+          'name': '4. उषा अर्घ्य एवं पारण (16 नवंबर 2026)',
+          'text': daysData[3]?.meaning || 'कार्तिक शुक्ल सप्तमी को भोर में उदित होते सूर्य नारायण को अंतिम अर्घ्य अर्पित कर 36 घंटे के निर्जला व्रत का पारण किया जाता है।'
+        }
+      ]
+    },
+    {
+      '@context': 'https://schema.org',
       '@type': 'FAQPage',
       'mainEntity': [
         {

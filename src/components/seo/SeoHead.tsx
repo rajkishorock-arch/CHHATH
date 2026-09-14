@@ -32,13 +32,19 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       el.setAttribute('content', content);
     };
 
-    // Update Meta Description
+    // Update Meta Description & Open Graph
     updateMeta('name', 'description', description);
     updateMeta('property', 'og:title', title);
     updateMeta('property', 'og:description', description);
     updateMeta('property', 'og:url', canonicalUrl);
     updateMeta('property', 'og:type', ogType);
     updateMeta('property', 'og:image', ogImage);
+
+    // Update Twitter / X Cards
+    updateMeta('name', 'twitter:card', 'summary_large_image');
+    updateMeta('name', 'twitter:title', title);
+    updateMeta('name', 'twitter:description', description);
+    updateMeta('name', 'twitter:image', ogImage);
 
     // Update Canonical
     let canonicalEl = document.querySelector('link[rel="canonical"]');

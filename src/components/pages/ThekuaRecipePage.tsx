@@ -94,6 +94,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
+        ogImage="https://rajkishorock-arch.github.io/CHHATH/images/thekua_prasad.jpg"
         jsonLd={jsonLd}
       />
 
