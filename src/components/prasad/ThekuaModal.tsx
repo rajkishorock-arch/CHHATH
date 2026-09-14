@@ -19,9 +19,15 @@ export const ThekuaModal: React.FC<ThekuaModalProps> = ({ isOpen, onClose }) => 
         {/* Header Hero Banner */}
         <div className="relative h-52 sm:h-64 overflow-hidden rounded-t-3xl">
           <img
-            src="/images/thekua_prasad.jpg"
+            src="/CHHATH/images/thekua_prasad.jpg"
             alt="छठ पूजा का पारंपरिक ठेकुआ प्रसाद"
             className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.includes('/CHHATH/images/')) {
+                target.src = '/images/thekua_prasad.jpg';
+              }
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent"></div>
 

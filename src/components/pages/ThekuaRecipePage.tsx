@@ -116,13 +116,19 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
         </header>
 
         {/* Hero Image Section */}
-        <div className="rounded-3xl overflow-hidden shadow-lg border border-amber-500/30 max-h-96 relative">
+        <div className="rounded-3xl overflow-hidden shadow-lg border border-amber-500/30 relative bg-stone-900 min-h-[220px] sm:min-h-[360px]">
           <img
-            src="/images/thekua_prasad.jpg"
+            src="/CHHATH/images/thekua_prasad.jpg"
             alt="छठ पूजा का पारंपरिक ठेकुआ प्रसाद"
-            className="w-full h-full object-cover"
+            className="w-full h-56 sm:h-96 object-cover block"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src.includes('/CHHATH/images/')) {
+                target.src = '/images/thekua_prasad.jpg';
+              }
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent flex items-end p-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/30 to-transparent flex items-end p-4 sm:p-6">
             <div className="text-white font-mukta">
               <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">पवित्र महाप्रसाद</span>
               <span className="text-xl sm:text-2xl font-rozha font-bold">पारंपरिक खस्ता ठेकुआ (खजूरिया)</span>
