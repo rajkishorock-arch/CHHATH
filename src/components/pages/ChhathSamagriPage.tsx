@@ -318,8 +318,8 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
                 <ArrowRight className="w-4 h-4 text-amber-500" />
               </a>
               <a
-                href="/CHHATH/chhath-arghya-time/"
-                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time/'); }}
+                href="/CHHATH/chhath-arghya-time-2026/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time-2026/'); }}
                 className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
               >
                 <span>संध्या व उषा अर्घ्य समय जानें</span>

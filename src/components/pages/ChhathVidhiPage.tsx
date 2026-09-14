@@ -207,7 +207,7 @@ export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
               छठ पूजा की तैयारी
             </h2>
             <p className="text-sm sm:text-base leading-relaxed">
-              छठ पूजा की तैयारी पर्व से कई दिन पूर्व घर की लिपाई-पुताई और पवित्रता से शुरू होती है। गेहूं को धोकर छत पर सुखाया जाता है, जिसकी रखवाली पक्षियों से भी की जाती है। नया मिट्टी का चूल्हा, आम की सूखी लकड़ियां, नए वस्त्र और बांस के सूप-दउरा पहले ही साफ करके सुरक्षित रखे जाते हैं।
+              छठ पूजा की तैयारी पर्व से कई दिन पूर्व घर की लिपाई-पुताई और पवित्रता से शुरू होती है। गेहूं को धोकर छत पर सुखाया जाता है, जिसकी रखवाली पक्षियों से भी की जाती है। नया मिट्टी का चूल्हा, आम की सूखी लकड़ियां, नए वस्त्र और बांस के सूप-दउरा पहले ही साफ करके सुरक्षित रखे जाते हैं। पूजा की संपूर्ण तैयारी हेतु <a href="/CHHATH/chhath-samagri/" onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-samagri/'); }} className="text-amber-600 dark:text-amber-400 font-bold hover:underline">छठ पूजा सामग्री सूची 2026</a> देखें।
             </p>
           </section>
 
@@ -217,10 +217,10 @@ export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
               संध्या अर्घ्य की पूजा विधि
             </h2>
             <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base">
-              <li>दोपहर के समय पूर्ण पवित्रता से ठेकुआ प्रसाद तैयार करें।</li>
+              <li>दोपहर के समय पूर्ण पवित्रता से महाप्रसाद तैयार करें। (विस्तार से जानने हेतु <a href="/CHHATH/thekua-recipe/" onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/thekua-recipe/'); }} className="text-amber-600 dark:text-amber-400 font-bold hover:underline">ठेकुआ प्रसाद रेसिपी</a> देखें)।</li>
               <li>बांस के सूप में ठेकुआ, भुसवा, ईख, डाभा नींबू, केला, सुथनी और नया कंद सजाएं।</li>
               <li>सूप में दीपक जलाकर पीला वस्त्र या अल्पना ढंकें।</li>
-              <li>परिवार के साथ पारंपरिक छठ गीत गाते हुए नंगे पांव घाट की ओर प्रस्थान करें।</li>
+              <li>परिवार के साथ पारंपरिक छठ गीत गाते हुए नंगे पांव घाट की ओर प्रस्थान करें। (अपने स्थान का सही समय जानने हेतु <a href="/CHHATH/chhath-arghya-time-2026/" onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time-2026/'); }} className="text-amber-600 dark:text-amber-400 font-bold hover:underline">छठ अर्घ्य समय 2026</a> देखें)।</li>
               <li>सूर्यास्त के समय कमर तक शीतल जल में खड़े होकर अस्ताचलगामी सूर्य देव को दूध व जल से अर्घ्य दें।</li>
             </ul>
           </section>
@@ -291,8 +291,8 @@ export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
                 <ArrowRight className="w-4 h-4 text-amber-500" />
               </a>
               <a
-                href="/CHHATH/chhath-arghya-time/"
-                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time/'); }}
+                href="/CHHATH/chhath-arghya-time-2026/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time-2026/'); }}
                 className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
               >
                 <span>आज का अर्घ्य समय एवं कैलकुलेटर</span>
