@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chhath-yt-search",
+  "main": "worker.js",
+  "compatibility_date": "2024-09-01",
+  "observability": {
+    "enabled": true
+  }
+}
