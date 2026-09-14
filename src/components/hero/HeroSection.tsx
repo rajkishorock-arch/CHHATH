@@ -108,8 +108,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
         </div>
 
         {/* Compact Location-Aware Arghya Countdown Card */}
-        <div className="pt-6 max-w-3xl mx-auto">
-          <CountdownCard />
+        <div className="pt-6 max-w-5xl mx-auto">
+          <CountdownCard onNavigate={onNavigate} />
         </div>
 
       </div>
