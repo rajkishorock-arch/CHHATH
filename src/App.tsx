@@ -63,22 +63,23 @@ const ComponentLoader: React.FC = () => (
 
 const getInitialTabFromLocation = (): string => {
   if (typeof window === 'undefined') return 'home';
-  const path = window.location.pathname.toLowerCase();
+  const rawPath = window.location.pathname.toLowerCase();
+  const path = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
   const hash = window.location.hash.toLowerCase();
-  const search = window.location.search.toLowerCase();
 
-  if (path.includes('chhath-puja-vidhi') || hash === '#chhath-puja-vidhi' || search.includes('p=/chhath-puja-vidhi')) {
+  if (path.endsWith('chhath-puja-vidhi') || hash === '#chhath-puja-vidhi') {
     return 'chhath-puja-vidhi';
   }
-  if (path.includes('chhath-samagri') || hash === '#chhath-samagri' || search.includes('p=/chhath-samagri')) {
+  if (path.endsWith('chhath-samagri') || hash === '#chhath-samagri') {
     return 'chhath-samagri';
   }
-  if (path.includes('chhath-arghya-time') || hash === '#chhath-arghya-time' || search.includes('p=/chhath-arghya-time')) {
+  if (path.endsWith('chhath-arghya-time') || hash === '#chhath-arghya-time') {
     return 'chhath-arghya-time';
   }
-  if (path.includes('thekua-recipe') || hash === '#thekua-recipe' || search.includes('p=/thekua-recipe')) {
+  if (path.endsWith('thekua-recipe') || hash === '#thekua-recipe') {
     return 'thekua-recipe';
   }
+
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
   if (hash === '#arghya' || hash === '#arghya-times') return 'arghya';
   if (hash === '#ghats') return 'ghats';
