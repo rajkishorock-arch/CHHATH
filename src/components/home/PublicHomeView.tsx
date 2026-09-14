@@ -157,6 +157,126 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         </div>
       </section>
 
+      {/* 2.5. Dedicated SEO Guides Section */}
+      <section className="container-custom max-w-5xl mx-auto px-4">
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/30 space-y-6 shadow-sm">
+          <div className="text-center space-y-2">
+            <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
+              छठ पूजा 2026 की महत्वपूर्ण गाइड
+            </h2>
+            <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
+              संपूर्ण नियम, सामग्री, अर्घ्य समय और ठेकुआ रेसिपी की विस्तृत गाइड
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a
+              href="/CHHATH/chhath-puja-vidhi/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('chhath-puja-vidhi');
+                window.history.pushState(null, '', '/CHHATH/chhath-puja-vidhi/');
+              }}
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <h3 className="font-rozha text-lg font-bold text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300">
+                  छठ पूजा विधि
+                </h3>
+                <p className="font-mukta text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
+                  चारों दिनों के विस्तृत नियम, नहाय-खाय, खरना, संध्या व उषा अर्घ्य विधि।
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
+                <span>विस्तार से पढ़ें</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </a>
+
+            <a
+              href="/CHHATH/chhath-samagri/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('chhath-samagri');
+                window.history.pushState(null, '', '/CHHATH/chhath-samagri/');
+              }}
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <CheckSquare className="w-5 h-5" />
+                </div>
+                <h3 className="font-rozha text-lg font-bold text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300">
+                  छठ पूजा सामग्री
+                </h3>
+                <p className="font-mukta text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
+                  दउरा, सूप, फल, ठेकुआ व अर्घ्य सामग्री की संपूर्ण चेकलिस्ट।
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
+                <span>सामग्री सूची देखें</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </a>
+
+            <a
+              href="/CHHATH/chhath-arghya-time/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('chhath-arghya-time');
+                window.history.pushState(null, '', '/CHHATH/chhath-arghya-time/');
+              }}
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Sun className="w-5 h-5" />
+                </div>
+                <h3 className="font-rozha text-lg font-bold text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300">
+                  छठ अर्घ्य समय
+                </h3>
+                <p className="font-mukta text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
+                  15 एवं 16 नवंबर 2026 संध्या व उषा अर्घ्य का सटीक समय।
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
+                <span>समय देखें</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </a>
+
+            <a
+              href="/CHHATH/thekua-recipe/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('thekua-recipe');
+                window.history.pushState(null, '', '/CHHATH/thekua-recipe/');
+              }}
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Utensils className="w-5 h-5" />
+                </div>
+                <h3 className="font-rozha text-lg font-bold text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300">
+                  ठेकुआ रेसिपी
+                </h3>
+                <p className="font-mukta text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
+                  पारंपरिक खस्ता ठेकुआ बनाने की प्रामाणिक सात्विक विधि।
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
+                <span>रेसिपी देखें</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* 3. Section Containers according to user choice */}
 
       {/* Today's Arghya Details */}

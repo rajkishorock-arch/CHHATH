@@ -40,6 +40,12 @@ import { MyChhathDashboard } from './components/dashboard/MyChhathDashboard';
 import { FamilyChhathHub } from './components/family/FamilyChhathHub';
 import { Lock, LogIn, Sparkles } from 'lucide-react';
 
+// Dedicated SEO Pages
+import { ChhathVidhiPage } from './components/pages/ChhathVidhiPage';
+import { ChhathSamagriPage } from './components/pages/ChhathSamagriPage';
+import { ChhathArghyaTimePage } from './components/pages/ChhathArghyaTimePage';
+import { ThekuaRecipePage } from './components/pages/ThekuaRecipePage';
+
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -55,6 +61,35 @@ const ComponentLoader: React.FC = () => (
   </div>
 );
 
+const getInitialTabFromLocation = (): string => {
+  if (typeof window === 'undefined') return 'home';
+  const path = window.location.pathname.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+  const search = window.location.search.toLowerCase();
+
+  if (path.includes('chhath-puja-vidhi') || hash === '#chhath-puja-vidhi' || search.includes('p=/chhath-puja-vidhi')) {
+    return 'chhath-puja-vidhi';
+  }
+  if (path.includes('chhath-samagri') || hash === '#chhath-samagri' || search.includes('p=/chhath-samagri')) {
+    return 'chhath-samagri';
+  }
+  if (path.includes('chhath-arghya-time') || hash === '#chhath-arghya-time' || search.includes('p=/chhath-arghya-time')) {
+    return 'chhath-arghya-time';
+  }
+  if (path.includes('thekua-recipe') || hash === '#thekua-recipe' || search.includes('p=/thekua-recipe')) {
+    return 'thekua-recipe';
+  }
+  if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
+  if (hash === '#arghya' || hash === '#arghya-times') return 'arghya';
+  if (hash === '#ghats') return 'ghats';
+  if (hash === '#prasad') return 'prasad';
+  if (hash === '#aarti' || hash === '#songs') return 'aarti';
+  if (hash === '#explore') return 'explore';
+  if (hash === '#my-chhath') return 'my-chhath';
+
+  return 'home';
+};
+
 const MainContent: React.FC = () => {
   const { openReelsPlatform, openCreateModal, openProfileModal } = useReels();
   const { playSong } = useAudio();
@@ -66,7 +101,7 @@ const MainContent: React.FC = () => {
     openAuthModal 
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
 
   const [showCinematicIntro, setShowCinematicIntro] = useState<boolean>(() => {
     return !sessionStorage.getItem('chhath_intro_seen');
@@ -79,9 +114,11 @@ const MainContent: React.FC = () => {
   const [assistantModalOpen, setAssistantModalOpen] = useState(false);
   const [mixerModalOpen, setMixerModalOpen] = useState(false);
 
-  // Deep-linking URL hash listener
+  // Deep-linking & URL route listener
   React.useEffect(() => {
-    const handleHashChange = () => {
+    const handleUrlChange = () => {
+      const tab = getInitialTabFromLocation();
+      setActiveTab(tab);
       const hash = window.location.hash;
       if (hash.startsWith('#reel/')) {
         const id = hash.replace('#reel/', '');
@@ -99,26 +136,16 @@ const MainContent: React.FC = () => {
       } else if (hash.startsWith('#user/')) {
         const username = hash.replace('#user/', '');
         openProfileModal(username);
-      } else if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') {
-        setActiveTab('guide');
-      } else if (hash === '#arghya' || hash === '#arghya-times') {
-        setActiveTab('arghya');
-      } else if (hash === '#ghats') {
-        setActiveTab('ghats');
-      } else if (hash === '#prasad') {
-        setActiveTab('prasad');
-      } else if (hash === '#aarti' || hash === '#songs') {
-        setActiveTab('aarti');
-      } else if (hash === '#explore') {
-        setActiveTab('explore');
-      } else if (hash === '#my-chhath') {
-        setActiveTab('my-chhath');
       }
     };
 
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    handleUrlChange();
+    window.addEventListener('hashchange', handleUrlChange);
+    window.addEventListener('popstate', handleUrlChange);
+    return () => {
+      window.removeEventListener('hashchange', handleUrlChange);
+      window.removeEventListener('popstate', handleUrlChange);
+    };
   }, [openReelsPlatform, openCreateModal, openProfileModal]);
 
   const handleCompleteCinematicIntro = () => {
@@ -129,6 +156,20 @@ const MainContent: React.FC = () => {
   const handleNavigate = (tab: string) => {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    let targetUrl = '/CHHATH/';
+    if (tab === 'chhath-puja-vidhi') targetUrl = '/CHHATH/chhath-puja-vidhi/';
+    else if (tab === 'chhath-samagri') targetUrl = '/CHHATH/chhath-samagri/';
+    else if (tab === 'chhath-arghya-time') targetUrl = '/CHHATH/chhath-arghya-time/';
+    else if (tab === 'thekua-recipe') targetUrl = '/CHHATH/thekua-recipe/';
+
+    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'thekua-recipe' || tab === 'home')) {
+      try {
+        window.history.pushState(null, '', targetUrl);
+      } catch {
+        // Fallback gracefully
+      }
+    }
   };
 
   return (
@@ -154,6 +195,22 @@ const MainContent: React.FC = () => {
       <main className="flex-1 pb-20 lg:pb-12">
         {activeTab === 'home' && (
           <PublicHomeView onNavigate={handleNavigate} />
+        )}
+
+        {activeTab === 'chhath-puja-vidhi' && (
+          <ChhathVidhiPage onNavigate={handleNavigate} />
+        )}
+
+        {activeTab === 'chhath-samagri' && (
+          <ChhathSamagriPage onNavigate={handleNavigate} />
+        )}
+
+        {activeTab === 'chhath-arghya-time' && (
+          <ChhathArghyaTimePage onNavigate={handleNavigate} />
+        )}
+
+        {activeTab === 'thekua-recipe' && (
+          <ThekuaRecipePage onNavigate={handleNavigate} />
         )}
 
         {activeTab === 'guide' && (
