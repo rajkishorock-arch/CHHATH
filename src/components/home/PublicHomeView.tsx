@@ -9,14 +9,14 @@ import { PrasadSection } from '../prasad/PrasadSection';
 import { MantraAarti } from '../spiritual/MantraAarti';
 import { SongsSection } from '../audio/SongsSection';
 import { MyFirstChhath } from '../beginner/MyFirstChhath';
-import { 
-  Sun, 
-  Calendar, 
-  CheckSquare, 
-  MapPin, 
-  Utensils, 
-  Music, 
-  ShieldCheck, 
+import {
+  Sun,
+  Calendar,
+  CheckSquare,
+  MapPin,
+  Utensils,
+  Music,
+  ShieldCheck,
   ArrowRight,
   Sparkles,
   Info,
@@ -112,7 +112,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       <section className="container-custom max-w-5xl mx-auto px-4">
         <div className="text-center space-y-2 mb-8">
           <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-amber-100">
-            मुख्य छठ सेवाएं एवं गाइड
+            छठ पूजा 2026: मुख्य सेवाएं एवं गाइड
           </h2>
           <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300">
             आपकी पूजा की संपूर्ण तैयारी के लिए आवश्यक 6 मुख्य अनुभाग
@@ -238,7 +238,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {sampleCommunityStories.map((story) => (
-              <div 
+              <div
                 key={story.id}
                 className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/15 space-y-2.5 shadow-sm"
               >

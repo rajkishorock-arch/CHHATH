@@ -15,16 +15,16 @@ export const ThekuaModal: React.FC<ThekuaModalProps> = ({ isOpen, onClose }) => 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-amber-500/30 font-mukta">
-        
+
         {/* Header Hero Banner */}
         <div className="relative h-52 sm:h-64 overflow-hidden rounded-t-3xl">
           <img
             src="/images/thekua_prasad.jpg"
-            alt="Thekua Prasad"
+            alt="छठ पूजा का पारंपरिक ठेकुआ प्रसाद"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent"></div>
-          
+
           <button
             onClick={onClose}
             className="absolute top-4 right-4 w-9 h-9 rounded-full bg-stone-900/80 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
@@ -50,7 +50,7 @@ export const ThekuaModal: React.FC<ThekuaModalProps> = ({ isOpen, onClose }) => 
 
         {/* Content Body */}
         <div className="p-6 sm:p-8 space-y-6">
-          
+
           {/* Ingredients list */}
           <div>
             <h3 className="font-mukta font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2 mb-3 border-b border-amber-500/20 pb-1.5">

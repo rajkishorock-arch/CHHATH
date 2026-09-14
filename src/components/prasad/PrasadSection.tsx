@@ -14,7 +14,7 @@ export const PrasadSection: React.FC = () => {
   return (
     <section id="prasad" className="section-padding bg-gradient-to-b from-transparent via-orange-500/5 to-amber-500/5 relative overflow-hidden">
       <div className="container-custom">
-        
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <div className="badge-saffron">
@@ -34,7 +34,7 @@ export const PrasadSection: React.FC = () => {
           <div className="w-full md:w-1/2 h-64 sm:h-80 rounded-2xl overflow-hidden relative shadow-lg">
             <img
               src="/images/thekua_prasad.jpg"
-              alt="Traditional Thekua"
+              alt="छठ पूजा का पारंपरिक ठेकुआ प्रसाद"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-orange-600 text-white font-bold text-xs shadow">
