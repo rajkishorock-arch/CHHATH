@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SeoHead } from '../seo/SeoHead';
 import { Breadcrumbs } from '../common/Breadcrumbs';
 import { CheckSquare, ArrowRight, HelpCircle, ShoppingBag, CheckCircle, Info } from 'lucide-react';
@@ -10,8 +10,8 @@ interface PageProps {
 
 export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
   const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-samagri/';
-  const title = 'Chhath Puja Samagri List 2026 | छठ पूजा सामग्री की पूरी सूची';
-  const description = 'Chhath Puja 2026 के लिए आवश्यक संपूर्ण पूजा सामग्री सूची: दउरा, सूप, ठेकुआ सामग्री, अर्घ्य फल, घाट की वस्तुएं व तैयारी चेकलिस्ट की पूरी जानकारी।';
+  const title = 'Chhath Puja Samagri 2026 | छठ पूजा सामग्री Checklist';
+  const description = 'Chhath Puja 2026 की पूरी सामग्री सूची देखें और इंटरैक्टिव checklist से अपनी तैयारी पूरी करें। पूजा सामग्री, प्रसाद, फल, सूप-डाला और घाट की जरूरी सामग्री।';
 
   const breadcrumbs = [
     { label: 'छठ पूजा सामग्री', url: '/CHHATH/chhath-samagri/' }
@@ -138,30 +138,30 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
         <Breadcrumbs items={breadcrumbs} onNavigate={onNavigate} />
 
         {/* Page Hero Header */}
-        <header className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 font-mukta font-bold text-xs">
+        <header className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 text-center space-y-4 shadow-xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 font-mukta font-bold text-xs border border-amber-500/30">
             <ShoppingBag className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span>छठ महापर्व 2026 • प्रामाणिक चेकलिस्ट</span>
+            <span>छठ महापर्व 2026 • प्रामाणिक इंटरैक्टिव चेकलिस्ट</span>
           </div>
           <h1 className="font-rozha text-3xl sm:text-5xl font-black text-stone-900 dark:text-amber-100 tracking-tight">
-            छठ पूजा सामग्री सूची 2026
+            छठ पूजा सामग्री Checklist 2026
           </h1>
           <p className="font-mukta text-base sm:text-lg text-stone-700 dark:text-stone-300 max-w-2xl mx-auto leading-relaxed">
             दउरा, सूप, अर्घ्य फल, ठेकुआ सामग्री व घाट की संपूर्ण पूजा सामग्री की सुव्यवस्थित एवं प्रामाणिक चेकलिस्ट।
           </p>
         </header>
 
-        {/* Interactive Checklist Component Reuse */}
+        {/* Interactive Checklist Component */}
         <section className="space-y-4">
           <SamagriChecklist />
         </section>
 
-        {/* Categorized Samagri Section */}
+        {/* Categorized Samagri Text Section (Crawlable for Googlebot) */}
         <article className="space-y-10 font-mukta text-stone-800 dark:text-stone-200">
           
           <section className="space-y-6">
             <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100 border-l-4 border-amber-500 pl-3">
-              छठ पूजा सामग्री की पूरी सूची
+              छठ पूजा सामग्री की संपूर्ण वर्गीकृत सूची
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -303,12 +303,12 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
             </div>
           </section>
 
-          {/* Section: Crawlable Internal Links */}
+          {/* Crawlable Internal Links */}
           <section className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-4">
             <h2 className="font-rozha text-2xl font-bold text-stone-900 dark:text-amber-100">
               संबंधित छठ गाइड
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <a
                 href="/CHHATH/chhath-puja-vidhi/"
                 onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-vidhi/'); }}
@@ -333,6 +333,30 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
                 <span>ठेकुआ बनाने की सरल विधि</span>
                 <ArrowRight className="w-4 h-4 text-amber-500" />
               </a>
+              <a
+                href="/CHHATH/chhath-puja-geet/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-geet/'); }}
+                className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
+              >
+                <span>छठ पूजा लोकगीत 🎵</span>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </a>
+              <a
+                href="/CHHATH/chhath-puja-katha/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-katha/'); }}
+                className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
+              >
+                <span>छठ पूजा पौराणिक कथा 📜</span>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </a>
+              <a
+                href="/CHHATH/chhath-calendar-2026/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-calendar-2026/'); }}
+                className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
+              >
+                <span>छठ पूजा कैलेंडर 2026 देखें</span>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </a>
             </div>
           </section>
 
@@ -341,3 +365,4 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
     </div>
   );
 };
+

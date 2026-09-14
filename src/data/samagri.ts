@@ -1,7 +1,7 @@
 import { SamagriItem } from '../types';
 
 export const chhathSamagriList: SamagriItem[] = [
-  // Puja Vessels & Traditional Woven Items
+  // Puja Vessels & Traditional Woven Items (1-6)
   {
     id: "sam-1",
     name: "बाँस का दउरा (Bamboo Daura)",
@@ -39,7 +39,7 @@ export const chhathSamagriList: SamagriItem[] = [
     description: "मन्नत पूरी होने पर कोसी भरने हेतु मिट्टी का हाथी और दीप।"
   },
 
-  // Seasonal Fruits & Holy Crops
+  // Seasonal Fruits & Holy Crops (7-14, 36)
   {
     id: "sam-7",
     name: "पत्ता सहित साबुत गन्ना (Sugarcane with leaves)",
@@ -89,7 +89,7 @@ export const chhathSamagriList: SamagriItem[] = [
     description: "ऋतु फल जैसे नाशपाती, अनानास, शरीफा, अनार।"
   },
 
-  // Prasad Ingredients
+  // Prasad Ingredients (15-20, 29, 30, 31, 40)
   {
     id: "sam-15",
     name: "ठेकुआ हेतु शुद्ध गेहूँ का आटा (Wheat Flour)",
@@ -127,7 +127,7 @@ export const chhathSamagriList: SamagriItem[] = [
     description: "नहाय-खाय के दिन की मुख्य सात्विक सब्जी।"
   },
 
-  // Sacred Ritual Items
+  // Sacred Ritual Items (21-27, 28, 32, 33, 34, 35, 37, 38, 39)
   {
     id: "sam-21",
     name: "गाय का कच्चा दूध (Fresh Raw Cow Milk)",
@@ -169,5 +169,86 @@ export const chhathSamagriList: SamagriItem[] = [
     name: "पीला व लाल वस्त्र / साड़ी (Sacred Vastra)",
     category: "rituals_sacred",
     description: "दउरा ढकने हेतु सूती पीला कपड़ा एवं व्रती हेतु नई बिना सिली धोती/साड़ी।"
+  },
+
+  // Additional Traditional Items (28-40)
+  {
+    id: "sam-28",
+    name: "दउरा ढकने हेतु सूती पीला/लाल कपड़ा (Cotton Cover Cloth)",
+    category: "rituals_sacred",
+    description: "सूप और दउरा को ढककर पवित्रता से घाट ले जाने के लिए वस्त्र।"
+  },
+  {
+    id: "sam-29",
+    name: "सेंधा नमक (Rock Salt for Satvik Meals)",
+    category: "prasad_ingredients",
+    description: "नहाय-खाय कद्दू-भात बनाने के लिए शुद्ध सेंधा नमक।"
+  },
+  {
+    id: "sam-30",
+    name: "किशमिश, काजू व सूखा मेवा (Dry Fruits for Prasad)",
+    category: "prasad_ingredients",
+    description: "ठेकुआ, रसियाव एवं कसार महाप्रसाद में मिलाने हेतु सूखे मेवे।"
+  },
+  {
+    id: "sam-31",
+    name: "सौंफ एवं इलायची (Fennel & Cardamom for Aroma)",
+    category: "prasad_ingredients",
+    description: "ठेकुआ के स्वाद और सुगंध हेतु हरी सौंफ व इलायची।"
+  },
+  {
+    id: "sam-32",
+    name: "रोली, रोली-अक्षत व पीला चंदन (Roli & Sandalwood Paste)",
+    category: "rituals_sacred",
+    description: "सूप, कलश व तिलक हेतु पीला चंदन एवं रोली।"
+  },
+  {
+    id: "sam-33",
+    name: "गेंदे की माला एवं लाल कनेर पुष्प (Fresh Flowers)",
+    category: "rituals_sacred",
+    description: "भगवान सूर्य एवं छठी मईया के अर्घ्य हेतु ताजे फूल।"
+  },
+  {
+    id: "sam-34",
+    name: "आम की सूखी लकड़ी (Mango Wood for Stove)",
+    category: "rituals_sacred",
+    description: "खरना एवं ठेकुआ का प्रसाद पकाने हेतु आम की पवित्र लकड़ी।"
+  },
+  {
+    id: "sam-35",
+    name: "माचिस एवं दीया स्टैंड (Matchbox & Diya Stand)",
+    category: "puja_vessels",
+    description: "घाट पर दिया प्रज्वलित करने के लिए माचिस व स्टैंड।"
+  },
+  {
+    id: "sam-36",
+    name: "बैंगन, मूली, ओल एवं अरबी (Seasonal Roots & Veggies)",
+    category: "fruits_crops",
+    description: "पारण के दिन बनने वाली पारंपरिक पंचरत्न तरकारी हेतु।"
+  },
+  {
+    id: "sam-37",
+    name: "कुश की चटाई व बैठने का आसन (Kusha Mat for Vrati)",
+    category: "rituals_sacred",
+    description: "पूजा व ध्यान के समय व्रती के बैठने हेतु पवित्र कुश का आसन।"
+  },
+  {
+    id: "sam-38",
+    name: "आम के पल्लव / पत्ते (Mango Leaves)",
+    category: "rituals_sacred",
+    description: "कलश स्थापना और गंगाजल छिड़कने हेतु ताजे आम के पत्ते।"
+  },
+  {
+    id: "sam-39",
+    name: "घाट हेतु टॉर्च या प्रकाश साधन (Ghat Lighting)",
+    category: "puja_vessels",
+    description: "भोर के समय उषा अर्घ्य हेतु घाट पर रोशनी की व्यवस्था।"
+  },
+  {
+    id: "sam-40",
+    name: "पारण हेतु जल, कच्चा दूध, अदरक व गुड़ (Paran Items)",
+    category: "prasad_ingredients",
+    description: "36 घंटे के निर्जला व्रत के पारण हेतु अति आवश्यक सामग्री।"
   }
 ];
+
