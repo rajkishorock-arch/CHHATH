@@ -48,6 +48,7 @@ import { ChhathSamagriPage } from './components/pages/ChhathSamagriPage';
 import { ChhathArghyaTimePage } from './components/pages/ChhathArghyaTimePage';
 import { ThekuaRecipePage } from './components/pages/ThekuaRecipePage';
 import { ChhathGeetPage } from './components/pages/ChhathGeetPage';
+import { ChhathKathaPage } from './components/pages/ChhathKathaPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -84,6 +85,9 @@ const getInitialTabFromLocation = (): string => {
   }
   if (path.endsWith('chhath-puja-geet') || hash === '#chhath-puja-geet' || hash === '#geet') {
     return 'chhath-puja-geet';
+  }
+  if (path.endsWith('chhath-puja-katha') || hash === '#chhath-puja-katha' || hash === '#katha') {
+    return 'chhath-puja-katha';
   }
 
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
@@ -169,8 +173,9 @@ const MainContent: React.FC = () => {
     else if (tab === 'chhath-arghya-time-2026' || tab === 'chhath-arghya-time' || tab === 'arghya') targetUrl = '/CHHATH/chhath-arghya-time-2026/';
     else if (tab === 'thekua-recipe') targetUrl = '/CHHATH/thekua-recipe/';
     else if (tab === 'chhath-puja-geet' || tab === 'geet') targetUrl = '/CHHATH/chhath-puja-geet/';
+    else if (tab === 'chhath-puja-katha' || tab === 'katha') targetUrl = '/CHHATH/chhath-puja-katha/';
 
-    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'arghya' || tab === 'thekua-recipe' || tab === 'geet' || tab === 'home')) {
+    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'arghya' || tab === 'thekua-recipe' || tab === 'geet' || tab === 'katha' || tab === 'home')) {
       try {
         window.history.pushState(null, '', targetUrl);
       } catch {
@@ -222,6 +227,10 @@ const MainContent: React.FC = () => {
 
         {activeTab === 'chhath-puja-geet' && (
           <ChhathGeetPage onNavigate={handleNavigate} />
+        )}
+
+        {activeTab === 'chhath-puja-katha' && (
+          <ChhathKathaPage onNavigate={handleNavigate} />
         )}
 
         {activeTab === 'guide' && (
