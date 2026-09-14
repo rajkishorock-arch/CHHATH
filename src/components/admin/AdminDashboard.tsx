@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getImageUrl } from '../../utils/imageUtils';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAudio } from '../../context/AudioContext';
 import { 
@@ -228,7 +229,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
     try {
       let rawTitle = '';
       let authorName = '';
-      let thumbUrl = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : '/images/hero_sunrise.jpg';
+      let thumbUrl = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : getImageUrl('/images/hero_sunrise.jpg');
 
       // If it is an individual song or video with playlist
       if (yId) {

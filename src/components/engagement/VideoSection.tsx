@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Play, Video, Film, ExternalLink } from 'lucide-react';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 interface VideoItem {
   id: string;
@@ -124,9 +125,10 @@ export const VideoSection: React.FC = () => {
                   onClick={() => setPlayingVideo(video)}
                 >
                   <img
-                    src={video.thumbnail}
+                    src={getImageUrl(video.thumbnail)}
                     alt={video.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
                   />
                   <div className="absolute inset-0 bg-stone-950/40 group-hover:bg-stone-950/20 transition-colors flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-orange-600 text-white flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
@@ -200,9 +202,10 @@ export const VideoSection: React.FC = () => {
               {/* Simulated Responsive Video Frame */}
               <div className="my-4 aspect-video rounded-2xl overflow-hidden bg-black flex flex-col items-center justify-center relative border border-stone-800">
                 <img 
-                  src={playingVideo.thumbnail} 
+                  src={getImageUrl(playingVideo.thumbnail)} 
                   alt={playingVideo.title}
                   className="absolute inset-0 w-full h-full object-cover opacity-30" 
+                  onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
                 />
                 <div className="relative z-10 text-center space-y-3 p-4">
                   <div className="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-2xl mx-auto">

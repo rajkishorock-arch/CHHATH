@@ -21,6 +21,7 @@ import { Ghat } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { ReelsStorage } from '../../services/reelsStorage';
+import { getImageUrl } from '../../utils/imageUtils';
 
 export const GhatFinder: React.FC = () => {
   const { t } = useLanguage();
@@ -31,7 +32,7 @@ export const GhatFinder: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedState, setSelectedState] = useState<string>('All');
   const [selectedTab, setSelectedTab] = useState<'all' | 'myCity' | 'saved'>('all');
-  const [selectedGhat, setSelectedGhat] = useState<Ghat>(ghats[0]);
+  const [selectedGhat, setSelectedGhat] = useState<Ghat>(ghats[0] || {});
   const [savedGhatIds, setSavedGhatIds] = useState<string[]>(currentUser?.savedGhats || []);
 
   useEffect(() => {
@@ -335,7 +336,7 @@ export const GhatFinder: React.FC = () => {
                       id: selectedGhat.id,
                       title: selectedGhat.name,
                       subtitle: `${selectedGhat.city}, ${selectedGhat.state}`,
-                      thumbnail: '/images/sandhya_arghya.jpg',
+                      thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
                       metadata: { ghat: selectedGhat }
                     });
                   }}
@@ -352,7 +353,7 @@ export const GhatFinder: React.FC = () => {
             <div className="h-44 sm:h-52 rounded-2xl bg-stone-900 relative overflow-hidden border border-emerald-500/30 shadow-inner flex items-center justify-center">
               <div 
                 className="absolute inset-0 opacity-40 bg-cover bg-center"
-                style={{ backgroundImage: `url('/images/sandhya_arghya.jpg')` }}
+                style={{ backgroundImage: `url('${getImageUrl('/images/sandhya_arghya.jpg')}')` }}
               ></div>
               <div className="relative z-10 text-center text-white space-y-2 p-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/80 backdrop-blur-md text-xs font-bold text-amber-300 border border-amber-500/40">

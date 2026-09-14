@@ -5,6 +5,7 @@ import { ThekuaCalculator } from './ThekuaCalculator';
 import { useLanguage } from '../../context/LanguageContext';
 import { Utensils, ChefHat, Sparkles, BookOpen, ArrowRight } from 'lucide-react';
 import { PrasadItem } from '../../types';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 export const PrasadSection: React.FC = () => {
   const { t } = useLanguage();
@@ -33,15 +34,10 @@ export const PrasadSection: React.FC = () => {
         <div className="chhath-glass rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-2xl mb-12 max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
           <div className="w-full md:w-1/2 h-64 sm:h-80 rounded-2xl overflow-hidden relative shadow-lg">
             <img
-              src="/CHHATH/images/thekua_prasad.jpg"
+              src={getImageUrl('/images/thekua_prasad.jpg')}
               alt="छठ पूजा का पारंपरिक ठेकुआ प्रसाद"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src.includes('/CHHATH/images/')) {
-                  target.src = '/images/thekua_prasad.jpg';
-                }
-              }}
+              onError={(e) => handleImageError(e, '/images/thekua_prasad.jpg')}
             />
             <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-orange-600 text-white font-bold text-xs shadow">
               सर्वोच्च महाप्रसाद

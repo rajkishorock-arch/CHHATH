@@ -1,4 +1,5 @@
 import { PrasadItem } from '../types';
+import { getImageUrl } from '../utils/imageUtils';
 
 export const chhathPrasadItems: PrasadItem[] = [
   {
@@ -24,7 +25,7 @@ export const chhathPrasadItems: PrasadItem[] = [
       "लोहे अथवा पीतल की कड़ाही में देशी घी को मध्यम आंच पर गरम करें और धीमी आंच पर सुनहरा-भूरा व कुरकुरा होने तक तलें।"
     ],
     culturalSignificance: "ठेकुआ केवल एक मिष्ठान नहीं अपितु भक्ति, अनुशासन और प्रेम का प्रतीक है। इसे बनाते समय पूर्ण मौन व पवित्रता का पालन किया जाता है।",
-    image: "/images/thekua_prasad.jpg"
+    image: getImageUrl("/images/thekua_prasad.jpg")
   },
   {
     id: "rasiyaw",
@@ -44,7 +45,7 @@ export const chhathPrasadItems: PrasadItem[] = [
       "केले के पत्ते पर नैवेद्य अर्पित कर छठी मईया को भोग लगाएं।"
     ],
     culturalSignificance: "खरना के दिन व्रती यही खीर और घी लगी सोहारी खाकर अपना 36 घंटे का निर्जला व्रत आरंभ करते हैं।",
-    image: "/images/thekua_prasad.jpg"
+    image: getImageUrl("/images/thekua_prasad.jpg")
   },
   {
     id: "kasar",
@@ -63,7 +64,7 @@ export const chhathPrasadItems: PrasadItem[] = [
       "गुनगुने मिश्रण को हाथों से दबाकर गोल-गोल लड्डू बांध लें।"
     ],
     culturalSignificance: "चावल और गुड़ का यह संयोजन शरीर को स्फूर्ति और शीत ऋतु में आंतरिक गर्मी प्रदान करता है।",
-    image: "/images/daura_arghya.jpg"
+    image: getImageUrl("/images/daura_arghya.jpg")
   },
   {
     id: "sugarcane-prasad",
@@ -73,7 +74,7 @@ export const chhathPrasadItems: PrasadItem[] = [
     ingredients: ["साबुत ताजे गन्ने की गांठें हरी पत्तियों समेत"],
     method: ["धोकर स्वच्छ कर अर्घ्य के सूप में खड़ा किया जाता है अथवा 5 गन्नों का मंडप बनाया जाता है।"],
     culturalSignificance: "गन्ना प्रकृति का अनमोल उपहार है जो बिना किसी कृत्रिम प्रसंस्करण के शुद्धतम प्राकृतिक रस प्रदान करता है।",
-    image: "/images/daura_arghya.jpg"
+    image: getImageUrl("/images/daura_arghya.jpg")
   },
   {
     id: "fruits-prasad",
@@ -83,7 +84,7 @@ export const chhathPrasadItems: PrasadItem[] = [
     ingredients: ["डाभा नींबू", "केला का घवद", "जटादार नारियल", "सुथनी", "शकरकंद", "सिंघाड़ा"],
     method: ["पवित्र जल से प्रक्षालन कर धूप-दीप के साथ सूप में सजाया जाता है।"],
     culturalSignificance: "यह दर्शाता है कि सनातन धर्म में पेड़-पौधों, प्रकृति और ऋतु-उत्पादों के प्रति आदर ही साक्षात ईश्वर की आराधना है।",
-    image: "/images/daura_arghya.jpg"
+    image: getImageUrl("/images/daura_arghya.jpg")
   }
 ];
 

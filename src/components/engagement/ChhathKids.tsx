@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { Sparkles, Sun, Heart, Cookie, Droplet, Star } from 'lucide-react';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 export const ChhathKids: React.FC = () => {
   const { t } = useLanguage();
@@ -41,31 +42,29 @@ export const ChhathKids: React.FC = () => {
   return (
     <section id="kids" className="section-padding bg-gradient-to-b from-amber-500/10 via-orange-500/5 to-transparent relative overflow-hidden">
       <div className="container-custom">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 text-pink-700 dark:text-pink-300 text-xs font-bold">
+        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
+          <div className="badge-saffron">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>बाल वाटिका • नन्हे-मुन्नों के लिए छठ</span>
+            <span>बाल वाटिका (Kids Corner)</span>
           </div>
           <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-900 dark:text-stone-100">
-            {t.kidsTitle}
+            बच्चों के लिए छठ की पावन कहानियां 🎨
           </h2>
           <p className="font-mukta text-base sm:text-lg text-stone-600 dark:text-stone-300">
-            सरल, रोचक और चित्रमय कहानियों के माध्यम से नई पीढ़ी को अपनी समृद्ध संस्कृति और प्रकृति-प्रेम से परिचित कराएं।
+            चित्रमय कहानियों और सरल भाषा के माध्यम से नई पीढ़ी को अपनी समृद्ध संस्कृति से जोड़ें।
           </p>
         </div>
 
-        {/* Illustrated Showcase Layout */}
         <div className="chhath-glass p-6 sm:p-10 rounded-3xl border border-amber-500/30 shadow-2xl w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
           {/* Left: Illustrated Storybook Picture */}
           <div className="lg:col-span-5 relative">
             <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-amber-400/40 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
               <img
-                src="/images/kids_chhath.jpg"
+                src={getImageUrl('/images/kids_chhath.jpg')}
                 alt="Children celebrating Chhath"
                 className="w-full h-auto object-cover"
+                onError={(e) => handleImageError(e, '/images/kids_chhath.jpg')}
               />
             </div>
             <div className="p-3 bg-white/90 dark:bg-stone-900/90 rounded-xl shadow border border-amber-500/20 text-center text-xs font-mukta font-bold text-amber-800 dark:text-amber-300 mt-3">

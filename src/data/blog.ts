@@ -1,4 +1,5 @@
 import { BlogPost } from '../types';
+import { getImageUrl } from '../utils/imageUtils';
 
 export const chhathBlogPosts: BlogPost[] = [
   {
@@ -10,7 +11,7 @@ export const chhathBlogPosts: BlogPost[] = [
     date: "28 अक्टूबर 2026",
     readTime: "5 मिनट",
     category: "Culture",
-    image: "/images/hero_sunrise.jpg"
+    image: getImageUrl("/images/hero_sunrise.jpg")
   },
   {
     id: "blog-2",
@@ -21,7 +22,7 @@ export const chhathBlogPosts: BlogPost[] = [
     date: "02 नवंबर 2026",
     readTime: "4 मिनट",
     category: "Music",
-    image: "/images/daura_arghya.jpg"
+    image: getImageUrl("/images/daura_arghya.jpg")
   },
   {
     id: "blog-3",
@@ -32,7 +33,7 @@ export const chhathBlogPosts: BlogPost[] = [
     date: "05 नवंबर 2026",
     readTime: "6 मिनट",
     category: "History",
-    image: "/images/sandhya_arghya.jpg"
+    image: getImageUrl("/images/sandhya_arghya.jpg")
   },
   {
     id: "blog-4",
@@ -43,6 +44,6 @@ export const chhathBlogPosts: BlogPost[] = [
     date: "08 नवंबर 2026",
     readTime: "4 मिनट",
     category: "Food",
-    image: "/images/thekua_prasad.jpg"
+    image: getImageUrl("/images/thekua_prasad.jpg")
   }
 ];

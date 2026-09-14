@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Camera, X, ZoomIn, Sparkles, Filter } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 interface GalleryItem {
   id: string;
@@ -110,9 +111,10 @@ export const PhotoGallery: React.FC = () => {
               className="group relative h-72 rounded-2xl overflow-hidden shadow-md cursor-pointer border border-amber-500/20 hover:border-amber-500/50 transition-all hover:-translate-y-1"
             >
               <img
-                src={item.src}
+                src={getImageUrl(item.src)}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                onError={(e) => handleImageError(e, item.src)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
               
@@ -154,9 +156,10 @@ export const PhotoGallery: React.FC = () => {
 
               <div className="max-h-[70vh] overflow-hidden bg-black flex items-center justify-center">
                 <img
-                  src={lightboxImage.src}
+                  src={getImageUrl(lightboxImage.src)}
                   alt={lightboxImage.title}
                   className="w-full h-full object-contain max-h-[70vh]"
+                  onError={(e) => handleImageError(e, lightboxImage.src)}
                 />
               </div>
 

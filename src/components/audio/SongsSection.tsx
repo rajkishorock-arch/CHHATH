@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { getImageUrl } from '../../utils/imageUtils';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAudio } from '../../context/AudioContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -111,7 +112,7 @@ export const SongsSection: React.FC = () => {
                 const mins = Math.floor((r.trackTimeMillis || 180000) / 60000);
                 const secs = Math.floor(((r.trackTimeMillis || 180000) % 60000) / 1000);
                 const durStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                const artwork = r.artworkUrl100 ? r.artworkUrl100.replace('100x100bb', '600x600bb') : '/images/hero_sunrise.jpg';
+                const artwork = r.artworkUrl100 ? r.artworkUrl100.replace('100x100bb', '600x600bb') : getImageUrl('/images/hero_sunrise.jpg');
                 return {
                   id: `world-${r.trackId}`,
                   title: r.trackName || 'विश्व संगीत',
@@ -312,7 +313,7 @@ export const SongsSection: React.FC = () => {
     try {
       let title = pId ? 'उपयोगकर्ता द्वारा चुनी गई यूट्यूब प्लेलिस्ट' : 'उपयोगकर्ता द्वारा चुना गया छठ गीत';
       let singer = 'यूट्यूब ऑडियो';
-      let thumb = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : '/images/hero_sunrise.jpg';
+      let thumb = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : getImageUrl('/images/hero_sunrise.jpg');
 
       if (yId) {
         try {

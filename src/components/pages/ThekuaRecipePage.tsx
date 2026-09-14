@@ -3,6 +3,7 @@ import { SeoHead } from '../seo/SeoHead';
 import { Breadcrumbs } from '../common/Breadcrumbs';
 import { Utensils, CheckCircle2, ArrowRight, HelpCircle, Flame, Sparkles } from 'lucide-react';
 import { chhathPrasadItems } from '../../data/prasad';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 interface PageProps {
   onNavigate: (url: string) => void;
@@ -118,15 +119,10 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
         {/* Hero Image Section */}
         <div className="rounded-3xl overflow-hidden shadow-lg border border-amber-500/30 relative bg-stone-900 min-h-[220px] sm:min-h-[360px]">
           <img
-            src="/CHHATH/images/thekua_prasad.jpg"
+            src={getImageUrl('/images/thekua_prasad.jpg')}
             alt="छठ पूजा का पारंपरिक ठेकुआ प्रसाद"
             className="w-full h-56 sm:h-96 object-cover block"
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (target.src.includes('/CHHATH/images/')) {
-                target.src = '/images/thekua_prasad.jpg';
-              }
-            }}
+            onError={(e) => handleImageError(e, '/images/thekua_prasad.jpg')}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/30 to-transparent flex items-end p-4 sm:p-6">
             <div className="text-white font-mukta">

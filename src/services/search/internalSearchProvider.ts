@@ -1,4 +1,5 @@
 import { NormalizedSearchResult, QueryAnalysis } from './types';
+import { getImageUrl } from '../../utils/imageUtils';
 import { ReelsStorage } from '../reelsStorage';
 import { chhathSongs } from '../../data/songs';
 import { chhathPrasadItems } from '../../data/prasad';
@@ -317,7 +318,7 @@ export class InternalSearchProvider {
           type: 'article',
           title: k.title,
           description: k.moral,
-          thumbnail: '/images/surya_chhathi_divine.jpg',
+          thumbnail: getImageUrl('/images/surya_chhathi_divine.jpg'),
           relevanceScore: score,
           badge: '📜 पावन व्रत कथा',
           metadata: {
@@ -359,7 +360,7 @@ export class InternalSearchProvider {
           type: 'ghat',
           title: g.name,
           description: `${g.river} • ${g.city} • भीड़: ${g.crowdStatus}`,
-          thumbnail: '/images/sandhya_arghya.jpg',
+          thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
           relevanceScore: score,
           badge: '🌊 छठ घाट',
           metadata: {
@@ -398,7 +399,7 @@ export class InternalSearchProvider {
           type: 'mantra',
           title: m.title,
           description: m.hindiMeaning,
-          thumbnail: '/images/surya_chhathi_divine.jpg',
+          thumbnail: getImageUrl('/images/surya_chhathi_divine.jpg'),
           relevanceScore: score,
           badge: '🪔 मंत्र व आरती',
           metadata: {
@@ -423,7 +424,7 @@ export class InternalSearchProvider {
           type: 'samagri',
           title: sm.name,
           description: sm.description,
-          thumbnail: '/images/daura_arghya.jpg',
+          thumbnail: getImageUrl('/images/daura_arghya.jpg'),
           relevanceScore: 70,
           badge: '🧺 पूजा सामग्री',
           metadata: {
@@ -445,7 +446,7 @@ export class InternalSearchProvider {
             type: 'event',
             title: `${c.cityName} में अर्घ्य मुहूर्त २०२६`,
             description: `संध्या अर्घ्य: ${c.sandhyaSunset} • उषा अर्घ्य: ${c.ushaSunrise} • तापमान: ${c.weatherTemp}`,
-            thumbnail: '/images/sandhya_arghya.jpg',
+            thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
             relevanceScore: 95,
             badge: '🌅 सूर्य अर्घ्य मुहूर्त',
             metadata: {
@@ -473,7 +474,7 @@ export class InternalSearchProvider {
           type: 'hashtag',
           title: tag,
           description: `छठ रील्स और पोस्ट्स में प्रयुक्त लोकप्रिय हैशटैग`,
-          thumbnail: '/images/sandhya_arghya.jpg',
+          thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
           relevanceScore: 75,
           badge: '#️⃣ Hashtag',
           metadata: {

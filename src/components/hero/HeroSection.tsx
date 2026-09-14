@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { CountdownCard } from './CountdownCard';
 import { Sun, BookOpen } from 'lucide-react';
+import { getImageUrl } from '../../utils/imageUtils';
 
 interface HeroSectionProps {
   onNavigate?: (tab: string) => void;
@@ -26,7 +27,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-30 pointer-events-none"
         style={{
-          backgroundImage: `url('/images/hero_sunrise.jpg')`,
+          backgroundImage: `url('${getImageUrl('/images/hero_sunrise.jpg')}')`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-transparent to-[var(--bg-primary)]"></div>

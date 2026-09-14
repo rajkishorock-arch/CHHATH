@@ -7,6 +7,7 @@ import {
   ReelUser
 } from '../../types';
 import { ReelsStorage } from '../reelsStorage';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const KEYS = {
   CONVERSATIONS: 'chhath_connect_conversations',
@@ -654,7 +655,7 @@ export const ChatStorage = {
           songId: 'song-1',
           songTitle: 'काँच ही बाँस के बहँगिया (Kanch Hi Baans Ke Bahangiya)',
           songSinger: 'शारदा सिन्हा (Sharda Sinha)',
-          songThumbnail: '/images/daura_arghya.jpg'
+          songThumbnail: getImageUrl('/images/daura_arghya.jpg')
         },
         status: 'read',
         readBy: { [meId]: new Date().toISOString() },

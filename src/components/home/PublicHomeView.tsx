@@ -1,5 +1,6 @@
 import React from 'react';
 import { HeroSection } from '../hero/HeroSection';
+import { getImageUrl } from '../../utils/imageUtils';
 import { ArghyaTimeCalc } from '../astronomy/ArghyaTimeCalc';
 import { FourDaysTimeline } from '../timeline/FourDaysTimeline';
 import { SamagriChecklist } from '../vidhi/SamagriChecklist';
@@ -85,21 +86,21 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       author: 'सुनीता देवी (पटना)',
       title: 'गंगा घाट की पावन संध्या आरती व दीप दान',
       time: '2 घंटे पहले',
-      image: '/images/hero_sunrise.jpg'
+      image: getImageUrl('/images/hero_sunrise.jpg')
     },
     {
       id: '2',
       author: 'राजेश सिंह (मुजफ्फरपुर)',
       title: 'घर के आँगन में पारंपरिक ठेकुआ प्रसाद निर्माण',
       time: '5 घंटे पहले',
-      image: '/images/hero_sunrise.jpg'
+      image: getImageUrl('/images/hero_sunrise.jpg')
     },
     {
       id: '3',
       author: 'अंजली गुप्ता (वाराणसी)',
       title: 'परिवार के साथ दउरा सजाने की सुंदर परंपरा',
       time: '1 दिन पहले',
-      image: '/images/hero_sunrise.jpg'
+      image: getImageUrl('/images/hero_sunrise.jpg')
     }
   ];
 

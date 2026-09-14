@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { getImageUrl } from '../../utils/imageUtils';
 import { 
   Sparkles, 
   X, 
@@ -68,19 +69,19 @@ export const AIReelStudioModal: React.FC<{ isOpen: boolean; onClose: () => void 
         {
           id: 'sc-1',
           name: 'दृश्य 1: सूप व दउरा सज्जा (Preparation)',
-          thumbnail: '/images/daura_arghya.jpg',
+          thumbnail: getImageUrl('/images/daura_arghya.jpg'),
           suggestedDuration: '0:12'
         },
         {
           id: 'sc-2',
           name: 'दृश्य 2: गंगा तट की पावन शोभा (Ghat Procession)',
-          thumbnail: '/images/hero_sunrise.jpg',
+          thumbnail: getImageUrl('/images/hero_sunrise.jpg'),
           suggestedDuration: '0:18'
         },
         {
           id: 'sc-3',
           name: 'दृश्य 3: अस्ताचलगामी सूर्य को अर्घ्य (Sandhya Arghya)',
-          thumbnail: '/images/chhath_sandhya_arghya.jpg',
+          thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
           suggestedDuration: '0:15'
         }
       ];
@@ -105,7 +106,7 @@ export const AIReelStudioModal: React.FC<{ isOpen: boolean; onClose: () => void 
       category,
       tags: selectedTags,
       videoUrl: '/videos/sample3.mp4', // Local high-performance video stream
-      thumbnailUrl: '/images/chhath_sandhya_arghya.jpg',
+      thumbnailUrl: getImageUrl('/images/sandhya_arghya.jpg'),
       videoDuration: '0:45',
       privacy,
       audioId: selectedTrack.id,
