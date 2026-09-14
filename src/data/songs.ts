@@ -10,7 +10,7 @@ export const chhathSongs: Song[] = [
     category: "Bhojpuri",
     duration: "6:05",
     audioUrl: "https://www.youtube.com/watch?v=BsAFCc901MM",
-    thumbnail: "https://img.youtube.com/vi/BsAFCc901MM/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/BsAFCc901MM/hqdefault.jpg",
     lyricsSnippet: "पहिले पहिल हम कईनी छठी मईया व्रत तोहार... करिहा क्षमा छठी मईया, भूल-चूक गलती हमार...",
     youtubeId: "BsAFCc901MM"
   },
@@ -22,7 +22,7 @@ export const chhathSongs: Song[] = [
     category: "Surya Dev",
     duration: "8:35",
     audioUrl: "https://www.youtube.com/watch?v=knZ8b5YnQiY",
-    thumbnail: "https://img.youtube.com/vi/knZ8b5YnQiY/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/knZ8b5YnQiY/hqdefault.jpg",
     lyricsSnippet: "केलवा के पात पर उगेलन सुरुज देव, झाँके-झूके... हे सुरुज देव, करेलू छठ बरतिया से तोहरे लागी...",
     youtubeId: "knZ8b5YnQiY"
   },
@@ -34,7 +34,7 @@ export const chhathSongs: Song[] = [
     category: "Traditional",
     duration: "5:39",
     audioUrl: "https://www.youtube.com/watch?v=Eyq7vfxu4iA",
-    thumbnail: "https://img.youtube.com/vi/Eyq7vfxu4iA/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/Eyq7vfxu4iA/hqdefault.jpg",
     lyricsSnippet: "काँच ही बाँस के बहंगिया, बहंगी लचकत जाए... बहंगी लचकत जाए, होई ना बलम जी कहरिया, दौरा घाटे पहुँचाए...",
     youtubeId: "Eyq7vfxu4iA"
   },
@@ -46,7 +46,7 @@ export const chhathSongs: Song[] = [
     category: "Arghya Geet",
     duration: "5:27",
     audioUrl: "https://www.youtube.com/watch?v=BKoD7bTLc2k",
-    thumbnail: "https://img.youtube.com/vi/BKoD7bTLc2k/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/BKoD7bTLc2k/hqdefault.jpg",
     lyricsSnippet: "जोड़े जोड़े फलवा सुरुज देव, घाटे ले आईब... सूपवा सजा के माई के अरघ दिवाइब...",
     youtubeId: "BKoD7bTLc2k"
   },
@@ -58,7 +58,7 @@ export const chhathSongs: Song[] = [
     category: "Surya Dev",
     duration: "4:39",
     audioUrl: "https://www.youtube.com/watch?v=z3TKq9LVbzM",
-    thumbnail: "https://img.youtube.com/vi/z3TKq9LVbzM/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/z3TKq9LVbzM/hqdefault.jpg",
     lyricsSnippet: "उगी सुरुज देव भईल अरघ के बेर... जल बिचे ठाढ़ बाड़े सब बरतिया...",
     youtubeId: "z3TKq9LVbzM"
   },
@@ -70,7 +70,7 @@ export const chhathSongs: Song[] = [
     category: "Maithili",
     duration: "7:40",
     audioUrl: "https://www.youtube.com/watch?v=vSJO-AElAog",
-    thumbnail: "https://img.youtube.com/vi/vSJO-AElAog/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/vSJO-AElAog/hqdefault.jpg",
     lyricsSnippet: "उग हो सुरुज देव भईल अरघ के बेर... जल बिचे ठाढ़ सेविका, कब लेबूँ फेर...",
     youtubeId: "vSJO-AElAog"
   },
@@ -82,7 +82,7 @@ export const chhathSongs: Song[] = [
     category: "Maithili",
     duration: "5:45",
     audioUrl: "https://www.youtube.com/watch?v=fwX2g9jjo1o",
-    thumbnail: "https://img.youtube.com/vi/fwX2g9jjo1o/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/fwX2g9jjo1o/hqdefault.jpg",
     lyricsSnippet: "सोना सातकुनिया हो दीनानाथ, अरघ देबई हम साँझ-भोरहरिया...",
     youtubeId: "fwX2g9jjo1o"
   },
@@ -94,7 +94,7 @@ export const chhathSongs: Song[] = [
     category: "Traditional",
     duration: "6:15",
     audioUrl: "https://www.youtube.com/watch?v=UwqtDSb0pLI",
-    thumbnail: "https://img.youtube.com/vi/UwqtDSb0pLI/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/UwqtDSb0pLI/hqdefault.jpg",
     lyricsSnippet: "कार्तिक मास इजोरिया छठी मईया अईलीं... घर-घर गूंजे गीत, पावन व्रत आईल...",
     youtubeId: "UwqtDSb0pLI"
   },
@@ -106,7 +106,7 @@ export const chhathSongs: Song[] = [
     category: "Ghat Geet",
     duration: "4:29",
     audioUrl: "https://www.youtube.com/watch?v=fCuHD3YBQKY",
-    thumbnail: "https://img.youtube.com/vi/fCuHD3YBQKY/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/fCuHD3YBQKY/hqdefault.jpg",
     lyricsSnippet: "छठ घाटे चलीं सब सखियां मिली के... दीप जरइब गंगा के तीरे...",
     youtubeId: "fCuHD3YBQKY"
   },
@@ -118,7 +118,7 @@ export const chhathSongs: Song[] = [
     category: "Bhojpuri",
     duration: "3:54",
     audioUrl: "https://www.youtube.com/watch?v=IKAJdLAviYw",
-    thumbnail: "https://img.youtube.com/vi/IKAJdLAviYw/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/IKAJdLAviYw/hqdefault.jpg",
     lyricsSnippet: "घूँटी भर मोर धोती भीजे, जल बिचे ठाढ़ बानी... छठी माई पूरा करीं मन के अरमान...",
     youtubeId: "IKAJdLAviYw"
   },
@@ -130,7 +130,7 @@ export const chhathSongs: Song[] = [
     category: "Surya Dev",
     duration: "5:53",
     audioUrl: "https://www.youtube.com/watch?v=6e6Hp6R5SVU",
-    thumbnail: "https://img.youtube.com/vi/6e6Hp6R5SVU/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/6e6Hp6R5SVU/hqdefault.jpg",
     lyricsSnippet: "उगs हे सूरज देव, भईल अरघ के बेर... दर्शन दीहीं हे दीनानाथ...",
     youtubeId: "6e6Hp6R5SVU"
   },
@@ -142,7 +142,7 @@ export const chhathSongs: Song[] = [
     category: "Arghya Geet",
     duration: "6:10",
     audioUrl: "https://www.youtube.com/watch?v=fqlh99htTJA",
-    thumbnail: "https://img.youtube.com/vi/fqlh99htTJA/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/fqlh99htTJA/hqdefault.jpg",
     lyricsSnippet: "अरघ के बेर भईल छठी मईया, दर्शन दीहीं भास्कर देव...",
     youtubeId: "fqlh99htTJA"
   },
@@ -154,7 +154,7 @@ export const chhathSongs: Song[] = [
     category: "Chhathi Maiya Bhajan",
     duration: "10:20",
     audioUrl: "https://www.youtube.com/watch?v=9sc-qdxLFwU",
-    thumbnail: "https://img.youtube.com/vi/9sc-qdxLFwU/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/9sc-qdxLFwU/hqdefault.jpg",
     lyricsSnippet: "छठी मईया के सबसे पावन और अमर भजन, जो हर घर में श्रद्धा से गूंजते हैं।",
     youtubeId: "9sc-qdxLFwU"
   },
@@ -166,7 +166,7 @@ export const chhathSongs: Song[] = [
     category: "Traditional",
     duration: "5:28",
     audioUrl: "https://www.youtube.com/watch?v=OSQI61ilOsM",
-    thumbnail: "https://img.youtube.com/vi/OSQI61ilOsM/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/OSQI61ilOsM/hqdefault.jpg",
     lyricsSnippet: "काँच ही बाँस के बहंगिया, बहंगी लचकत जाए... सूरुज देव के पावन अर्घ्य...",
     youtubeId: "OSQI61ilOsM"
   },
@@ -178,7 +178,7 @@ export const chhathSongs: Song[] = [
     category: "Traditional",
     duration: "47 मिनट नॉनस्टॉप",
     audioUrl: "https://www.youtube.com/watch?v=poJwkanrYAU",
-    thumbnail: "https://img.youtube.com/vi/poJwkanrYAU/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/poJwkanrYAU/hqdefault.jpg",
     lyricsSnippet: "अनुराधा पौडवाल जी के अमर छठ भजनों का संपूर्ण नॉन-स्टॉप भक्ति संग्रह।",
     youtubeId: "poJwkanrYAU",
     isPlaylist: true,
@@ -192,7 +192,7 @@ export const chhathSongs: Song[] = [
     category: "Bhojpuri",
     duration: "1 घंटा 2 मिनट",
     audioUrl: "https://www.youtube.com/watch?v=B4qzjtlTakA",
-    thumbnail: "https://img.youtube.com/vi/B4qzjtlTakA/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/B4qzjtlTakA/hqdefault.jpg",
     lyricsSnippet: "छठ महापर्व के शीर्ष 20 सुपरहिट गीतों का 1 घंटे से अधिक लंबा नॉन-स्टॉप संग्रह।",
     youtubeId: "B4qzjtlTakA",
     isPlaylist: true,
@@ -206,7 +206,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "4:04",
     audioUrl: "https://www.youtube.com/watch?v=NbyHNASFi6U",
-    thumbnail: "https://img.youtube.com/vi/NbyHNASFi6U/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/NbyHNASFi6U/hqdefault.jpg",
     lyricsSnippet: "Blue eyes hypnotize teri kardi ae mennu... I swear! Chhoti dress mein bomb lagdi mennu...",
     youtubeId: "NbyHNASFi6U"
   },
@@ -218,7 +218,7 @@ export const chhathSongs: Song[] = [
     category: "Punjabi",
     duration: "3:11",
     audioUrl: "https://www.youtube.com/watch?v=NrXdauEv9HY",
-    thumbnail: "https://img.youtube.com/vi/NrXdauEv9HY/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/NrXdauEv9HY/hqdefault.jpg",
     lyricsSnippet: "Kudiye ni tere brown rang ne munde patt te ni saare mere town de... dope shope maareya karo...",
     youtubeId: "NrXdauEv9HY"
   },
@@ -230,7 +230,7 @@ export const chhathSongs: Song[] = [
     category: "Punjabi",
     duration: "2:59",
     audioUrl: "https://www.youtube.com/watch?v=MfY9YO3u7GM",
-    thumbnail: "https://img.youtube.com/vi/MfY9YO3u7GM/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/MfY9YO3u7GM/hqdefault.jpg",
     lyricsSnippet: "Kudiye ni tere brown rang ne, munde patt te ni saare mere town de...",
     youtubeId: "MfY9YO3u7GM"
   },
@@ -242,7 +242,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "3:17",
     audioUrl: "https://www.youtube.com/watch?v=TwFBtV13KQQ",
-    thumbnail: "https://img.youtube.com/vi/TwFBtV13KQQ/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/TwFBtV13KQQ/hqdefault.jpg",
     lyricsSnippet: "One bottle down kaam mera ho gaya silent... daaru peeke party karenge full on!",
     youtubeId: "TwFBtV13KQQ"
   },
@@ -254,7 +254,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "4:37",
     audioUrl: "https://www.youtube.com/watch?v=TvngY4unjn4",
-    thumbnail: "https://img.youtube.com/vi/TvngY4unjn4/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/TvngY4unjn4/hqdefault.jpg",
     lyricsSnippet: "Lagdi mainu jivein ambran di queen... man ja na tu meri gal sun le!",
     youtubeId: "TvngY4unjn4"
   },
@@ -266,7 +266,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "4:28",
     audioUrl: "https://www.youtube.com/watch?v=BddP6PYo2gs",
-    thumbnail: "https://img.youtube.com/vi/BddP6PYo2gs/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg",
     lyricsSnippet: "केसरिया तेरा इश्क़ है पिया, रंग जाऊं जो मैं हाथ लगाऊं...",
     youtubeId: "BddP6PYo2gs"
   },
@@ -278,7 +278,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "1 घंटा नॉनस्टॉप",
     audioUrl: "https://www.youtube.com/watch?v=O5gwxm3NxFU",
-    thumbnail: "https://img.youtube.com/vi/O5gwxm3NxFU/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/O5gwxm3NxFU/hqdefault.jpg",
     lyricsSnippet: "अरिजीत सिंह के सर्वाधिक लोकप्रिय रोमांटिक और भावुक गीतों का नॉन-स्टॉप जूकबॉक्स।",
     youtubeId: "O5gwxm3NxFU",
     isPlaylist: true,
@@ -292,7 +292,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "4:15",
     audioUrl: "https://www.youtube.com/watch?v=KhnVcAC5bIM",
-    thumbnail: "https://img.youtube.com/vi/KhnVcAC5bIM/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/KhnVcAC5bIM/hqdefault.jpg",
     lyricsSnippet: "Yaar tera superstar desi kalakaar... main putt haan jatt da manda ni haar!",
     youtubeId: "KhnVcAC5bIM"
   },
@@ -304,7 +304,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "5:02",
     audioUrl: "https://www.youtube.com/watch?v=nCD2hj6zJEc",
-    thumbnail: "https://img.youtube.com/vi/nCD2hj6zJEc/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/nCD2hj6zJEc/hqdefault.jpg",
     lyricsSnippet: "Dheere dheere se meri zindagi mein aana... dheere dheere se dil ko churana...",
     youtubeId: "nCD2hj6zJEc"
   },
@@ -316,7 +316,7 @@ export const chhathSongs: Song[] = [
     category: "Punjabi",
     duration: "3:30",
     audioUrl: "https://www.youtube.com/watch?v=mH_LFkWxpI0",
-    thumbnail: "https://img.youtube.com/vi/mH_LFkWxpI0/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/mH_LFkWxpI0/hqdefault.jpg",
     lyricsSnippet: "Tera ni main lover... koi shak na tu kar, ni main jind vaar doon...",
     youtubeId: "mH_LFkWxpI0"
   },
@@ -328,7 +328,7 @@ export const chhathSongs: Song[] = [
     category: "Punjabi",
     duration: "4:30",
     audioUrl: "https://www.youtube.com/watch?v=n_FCrCQ6-bA",
-    thumbnail: "https://img.youtube.com/vi/n_FCrCQ6-bA/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/n_FCrCQ6-bA/hqdefault.jpg",
     lyricsSnippet: "Dass kihda kihda naam laan... nitt controversy create milugi, 295 je karega tarakki...",
     youtubeId: "n_FCrCQ6-bA"
   },
@@ -340,7 +340,7 @@ export const chhathSongs: Song[] = [
     category: "Bollywood",
     duration: "3:51",
     audioUrl: "https://www.youtube.com/watch?v=IkyPRwvANrI",
-    thumbnail: "https://img.youtube.com/vi/IkyPRwvANrI/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/IkyPRwvANrI/hqdefault.jpg",
     lyricsSnippet: "Kano mein baaliyan, gaalon pe laaliyan... chamke jaise jugnu!",
     youtubeId: "IkyPRwvANrI"
   },
@@ -352,7 +352,7 @@ export const chhathSongs: Song[] = [
     category: "Pop",
     duration: "4:32",
     audioUrl: "https://www.youtube.com/watch?v=e-ORhEE9VVg",
-    thumbnail: "https://img.youtube.com/vi/e-ORhEE9VVg/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/e-ORhEE9VVg/hqdefault.jpg",
     lyricsSnippet: "Nice to meet you, where you been? I could show you incredible things...",
     youtubeId: "e-ORhEE9VVg"
   }

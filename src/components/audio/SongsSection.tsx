@@ -181,7 +181,7 @@ export const SongsSection: React.FC = () => {
     try {
       let title = pId ? 'यूट्यूब प्लेलिस्ट' : 'छठ भक्ति गीत';
       let singer = 'यूट्यूब कलाकार';
-      let thumb = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : getImageUrl('images/daura_arghya.jpg');
+      let thumb = yId ? `https://i.ytimg.com/vi/${yId}/hqdefault.jpg` : getImageUrl('images/daura_arghya.jpg');
 
       if (yId) {
         try {

@@ -69,7 +69,7 @@ export const parseYoutubeMeta = (rawTitle: string, authorName: string, _videoId:
     category = 'Bhojpuri';
   }
 
-  const thumbnail = `https://img.youtube.com/vi/${_videoId}/hqdefault.jpg`;
+  const thumbnail = `https://i.ytimg.com/vi/${_videoId}/hqdefault.jpg`;
 
   return { title, singer, language, category, thumbnail };
 };

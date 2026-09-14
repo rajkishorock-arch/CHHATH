@@ -48,7 +48,7 @@ export const getWorkerUrl = (): string => {
     const saved = localStorage.getItem('chhath_yt_worker_url');
     if (saved && saved.trim()) return saved.trim();
   }
-  return (import.meta.env.VITE_YOUTUBE_WORKER_URL as string) || '';
+  return (import.meta.env.VITE_YOUTUBE_WORKER_URL as string) || 'https://chhath-yt-search.rajkishorock.workers.dev';
 };
 
 export const searchYouTubeVideos = async (
