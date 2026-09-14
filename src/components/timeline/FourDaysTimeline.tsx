@@ -30,7 +30,18 @@ export const FourDaysTimeline: React.FC = () => {
              <strong>छठ महापर्व 2026:</strong> नहाय-खाय — 13 नवंबर, खरना — 14 नवंबर,
                 संध्या अर्घ्य — 15 नवंबर, उषा अर्घ्य एवं पारण — 16 नवंबर।
             </p>
-         </div>
+          </div>
+          <div className="sr-only">
+            <h3>छठ महापर्व 2026 के चार दिन</h3>
+              <ol>
+               {days.map((day) => (
+                 <li key={day.dayNumber}>
+                   {day.title} — {day.date2026} — {day.tithi}.
+                   {day.meaning} {day.importance}
+                  </li>
+                ))}
+              </ol>
+            </div>
         </div>
 
         {/* 4 Days Step Tabs */}
