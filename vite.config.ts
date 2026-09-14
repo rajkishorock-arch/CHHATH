@@ -91,7 +91,7 @@ function youtubeSearchPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/CHHATH/',
   plugins: [
     tailwindcss(),
     react(),
