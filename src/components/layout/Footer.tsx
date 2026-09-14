@@ -57,6 +57,7 @@ export const Footer: React.FC = () => {
               मुख्य अनुभाग
             </h4>
             <ul className="space-y-2 text-sm font-mukta text-stone-400 list-none p-0">
+              <li><a href="/CHHATH/chhath-calendar-2026/" className="hover:text-amber-400 transition-colors">छठ पूजा कैलेंडर 2026</a></li>
               <li><a href="/CHHATH/chhath-puja-vidhi/" className="hover:text-amber-400 transition-colors">छठ पूजा विधि 2026</a></li>
               <li><a href="/CHHATH/chhath-samagri/" className="hover:text-amber-400 transition-colors">छठ पूजा सामग्री सूची</a></li>
               <li><a href="/CHHATH/chhath-arghya-time-2026/" className="hover:text-amber-400 transition-colors">छठ अर्घ्य समय 2026</a></li>

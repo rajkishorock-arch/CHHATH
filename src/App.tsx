@@ -49,6 +49,7 @@ import { ChhathArghyaTimePage } from './components/pages/ChhathArghyaTimePage';
 import { ThekuaRecipePage } from './components/pages/ThekuaRecipePage';
 import { ChhathGeetPage } from './components/pages/ChhathGeetPage';
 import { ChhathKathaPage } from './components/pages/ChhathKathaPage';
+import { ChhathCalendarPage } from './components/pages/ChhathCalendarPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -88,6 +89,9 @@ const getInitialTabFromLocation = (): string => {
   }
   if (path.endsWith('chhath-puja-katha') || hash === '#chhath-puja-katha' || hash === '#katha') {
     return 'chhath-puja-katha';
+  }
+  if (path.endsWith('chhath-calendar-2026') || path.endsWith('chhath-calendar') || hash === '#chhath-calendar-2026' || hash === '#calendar') {
+    return 'chhath-calendar-2026';
   }
 
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
@@ -174,8 +178,9 @@ const MainContent: React.FC = () => {
     else if (tab === 'thekua-recipe') targetUrl = '/CHHATH/thekua-recipe/';
     else if (tab === 'chhath-puja-geet' || tab === 'geet') targetUrl = '/CHHATH/chhath-puja-geet/';
     else if (tab === 'chhath-puja-katha' || tab === 'katha') targetUrl = '/CHHATH/chhath-puja-katha/';
+    else if (tab === 'chhath-calendar-2026' || tab === 'calendar') targetUrl = '/CHHATH/chhath-calendar-2026/';
 
-    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'arghya' || tab === 'thekua-recipe' || tab === 'geet' || tab === 'katha' || tab === 'home')) {
+    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'arghya' || tab === 'thekua-recipe' || tab === 'geet' || tab === 'katha' || tab === 'calendar' || tab === 'home')) {
       try {
         window.history.pushState(null, '', targetUrl);
       } catch {
@@ -232,6 +237,11 @@ const MainContent: React.FC = () => {
         {activeTab === 'chhath-puja-katha' && (
           <ChhathKathaPage onNavigate={handleNavigate} />
         )}
+
+        {activeTab === 'chhath-calendar-2026' && (
+          <ChhathCalendarPage onNavigate={handleNavigate} />
+        )}
+
 
         {activeTab === 'guide' && (
           <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
