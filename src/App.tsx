@@ -14,6 +14,8 @@ import { MobileNav } from './components/layout/MobileNav';
 import { SearchModal } from './components/layout/SearchModal';
 import { ScrollProgressBar } from './components/layout/ScrollProgressBar';
 import { StickyPlayer } from './components/audio/StickyPlayer';
+import { ExpandedPlayerModal } from './components/audio/ExpandedPlayerModal';
+import { PlaybackQueueModal } from './components/audio/PlaybackQueueModal';
 
 // Modals
 import { CinematicIntro } from './components/hero/CinematicIntro';
@@ -298,8 +300,10 @@ const MainContent: React.FC = () => {
       {/* Footer */}
       <Footer />
 
-      {/* Sticky Mini Audio Player */}
+      {/* Sticky Mini Audio Player & Audio Modals */}
       <StickyPlayer />
+      <ExpandedPlayerModal />
+      <PlaybackQueueModal />
 
       {/* Mobile Bottom Navigation Bar */}
       <MobileNav

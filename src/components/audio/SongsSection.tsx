@@ -1,319 +1,116 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAudio } from '../../context/AudioContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { Song } from '../../types';
 import { 
   Music, 
+  Disc, 
+  ListMusic, 
+  Link as LinkIcon, 
   Play, 
   Pause, 
-  Search, 
-  Radio, 
-  Video, 
-  X, 
   ExternalLink, 
-  Sparkles, 
-  ListMusic, 
-  Disc, 
-  Link as LinkIcon,
-  Check,
+  Check, 
   RefreshCw,
-  Mic2
+  X 
 } from 'lucide-react';
-import { Song } from '../../types';
-import { extractYoutubeId, extractPlaylistId, parseYoutubeMeta } from '../admin/AdminDashboard';
+
+import { FeaturedSongCard } from './FeaturedSongCard';
+import { MusicCategoryFilter } from './MusicCategoryFilter';
+import { MusicSearch } from './MusicSearch';
+import { PopularArtistsFilter } from './PopularArtistsFilter';
+import { SongList } from './SongList';
 import { SongLyricsModal } from './SongLyricsModal';
-import { useAuth } from '../../context/AuthContext';
-import { ReelsStorage } from '../../services/reelsStorage';
+import { extractYoutubeId, extractPlaylistId, parseYoutubeMeta } from '../../utils/youtubeUtils';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 export const SongsSection: React.FC = () => {
   const { t } = useLanguage();
   const { songs, addSong } = useChhathData();
-  const { currentSong, isPlaying, playSong, togglePlay } = useAudio();
-  const { currentUser } = useAuth();
+  const { currentSong, isPlaying, playSong, togglePlay, favorites, lyricsSong, setLyricsSong } = useAudio();
 
-  // Active View Tab: 'all' (all songs) | 'playlists' (mega playlists) | 'customLink' (play any user link)
+  // Active View Tab: 'all' (all songs) | 'playlists' (mega playlists) | 'customLink' (user link)
   const [activeViewTab, setActiveViewTab] = useState<'all' | 'playlists' | 'customLink'>('all');
-  const [lyricsModalSong, setLyricsModalSong] = useState<Song | null>(null);
-
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('सभी');
+  const [selectedSinger, setSelectedSinger] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
-  // REAL LIVE YOUTUBE SEARCH RESULTS STATE
-  const [ytLiveResults, setYtLiveResults] = useState<Song[]>([]);
-  const [isYtSearching, setIsYtSearching] = useState<boolean>(false);
-
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-  
-  // User Custom Link Input (तरीका 1: Play any user link instantly)
+  // User Custom Link State
   const [userCustomLink, setUserCustomLink] = useState<string>('');
   const [userLinkLoading, setUserLinkLoading] = useState<boolean>(false);
   const [userLinkSuccess, setUserLinkSuccess] = useState<string | null>(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  // Featured Song: Pick first song or Sharda Sinha song
+  const featuredSong = useMemo(() => {
+    return songs.find(s => s.singer.includes('शारदा')) || songs[0] || null;
+  }, [songs]);
 
-  // REAL-TIME LIVE YOUTUBE & WORLD MUSIC SEARCH EFFECT (Debounced)
-  useEffect(() => {
-    const q = searchQuery.trim();
-    if (q.length < 2) {
-      setYtLiveResults([]);
-      setIsYtSearching(false);
-      return;
-    }
-
-    setIsYtSearching(true);
-    const timer = setTimeout(async () => {
-      let resultsFound = false;
-
-      // 1. In dev mode with Vite server, try local YouTube search proxy
-      try {
-        const res = await fetch(`/api/yt-search?q=${encodeURIComponent(q)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.results && Array.isArray(data.results) && data.results.length > 0) {
-            const mappedSongs: Song[] = data.results.map((r: any) => ({
-              id: `yt-${r.id}`,
-              title: r.title,
-              singer: r.singer || 'यूट्यूब कलाकार',
-              language: 'World',
-              category: 'Music',
-              duration: r.duration || '5:00',
-              audioUrl: `https://www.youtube.com/watch?v=${r.id}`,
-              youtubeId: r.id,
-              thumbnail: r.thumbnail || `https://img.youtube.com/vi/${r.id}/hqdefault.jpg`
-            }));
-            setYtLiveResults(mappedSongs);
-            resultsFound = true;
-          }
-        }
-      } catch {
-        // Dev proxy not available or on static host
-      }
-
-      // 2. Global fallback for GitHub Pages and World Music Catalog:
-      // iTunes Search API has 100% CORS enabled and searches EVERY song, artist, and album in the world!
-      if (!resultsFound) {
-        try {
-          const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=25`);
-          if (itunesRes.ok) {
-            const data = await itunesRes.json();
-            if (data.results && Array.isArray(data.results) && data.results.length > 0) {
-              const worldTracks: Song[] = data.results.map((r: any) => {
-                const mins = Math.floor((r.trackTimeMillis || 180000) / 60000);
-                const secs = Math.floor(((r.trackTimeMillis || 180000) % 60000) / 1000);
-                const durStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                const artwork = r.artworkUrl100 ? r.artworkUrl100.replace('100x100bb', '600x600bb') : getImageUrl('/images/hero_sunrise.jpg');
-                return {
-                  id: `world-${r.trackId}`,
-                  title: r.trackName || 'विश्व संगीत',
-                  singer: r.artistName || 'कलाकार',
-                  language: r.primaryGenreName || 'World',
-                  category: r.primaryGenreName || 'Pop',
-                  duration: durStr,
-                  audioUrl: r.previewUrl || `https://www.youtube.com/results?search_query=${encodeURIComponent((r.trackName || '') + ' ' + (r.artistName || ''))}`,
-                  previewAudioUrl: r.previewUrl,
-                  thumbnail: artwork,
-                  lyricsSnippet: `${r.collectionName || r.trackName} • ${r.artistName} (विश्व प्रसिद्ध संगीत)`
-                };
-              });
-              setYtLiveResults(worldTracks);
-              resultsFound = true;
-            }
-          }
-        } catch (e) {
-          console.error('World music search error:', e);
-        }
-      }
-
-      if (!resultsFound) {
-        setYtLiveResults([]);
-      }
-      setIsYtSearching(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  const userLangName = useMemo(() => {
-    if (!currentUser?.language) return null;
-    if (currentUser.language === 'mai') return 'Maithili';
-    if (currentUser.language === 'bho') return 'Bhojpuri';
-    if (currentUser.language === 'hi') return 'Traditional';
-    return null;
-  }, [currentUser]);
-
+  // Categories list
   const categories = useMemo(() => {
-    return [
-      'All',
-      'For You',
-      'Bhojpuri',
-      'Maithili',
-      'Traditional',
-      'Chhathi Maiya Bhajan',
-      'Surya Dev',
-      'Arghya Geet',
-      'Kharna',
-      'Ghat Geet'
-    ];
+    return ['सभी', 'पसंदीदा', 'पारंपरिक', 'भोजपुरी', 'मैथिली', 'अर्घ्य'];
   }, []);
 
-  // Quick Artist / Search Tags
-  const quickSearchTags = [
-    { label: '🌟 शारदा सिन्हा', query: 'शारदा सिन्हा' },
-    { label: '🎤 पवन सिंह', query: 'पवन सिंह' },
-    { label: '🎶 खेसारी लाल', query: 'खेसारी लाल' },
-    { label: '🌸 मैथिली ठाकुर', query: 'मैथिली ठाकुर' },
-    { label: '🙏 अनुराधा पौडवाल', query: 'अनुराधा पौडवाल' },
-    { label: '👑 यो यो हनी सिंह', query: 'Honey Singh' },
-    { label: '✨ अरिजीत सिंह', query: 'Arijit Singh' },
-    { label: '🌅 उग हो सुरुज देव', query: 'सुरुज देव' },
-    { label: '🌾 कांच ही बांस', query: 'कांच ही बांस' },
-    { label: '🥣 खरना स्पेशल', query: 'खरना' }
-  ];
+  // Popular Singers list
+  const popularSingers = useMemo(() => {
+    const set = new Set<string>();
+    songs.forEach(s => {
+      if (s.singer && !s.isPlaylist) set.add(s.singer.split('/')[0].trim());
+    });
+    return Array.from(set).slice(0, 10);
+  }, [songs]);
 
-  // Filter regular songs vs playlists
+  // Separate regular songs vs playlists
   const regularSongs = useMemo(() => songs.filter(s => !s.isPlaylist), [songs]);
   const megaPlaylists = useMemo(() => songs.filter(s => s.isPlaylist), [songs]);
 
-  // Smart Query Matcher for local items
-  const isLocalMatch = (item: Song, query: string) => {
-    const q = query.toLowerCase().trim();
-    if (!q) return true;
-
-    const tokens = q.split(/\s+/).filter(Boolean);
-    const generalWords = new Set(['chhath', 'chhat', 'chath', 'song', 'songs', 'geet', 'gana', 'bhajan', 'mp3', 'video', 'bhojpuri']);
-    
-    const isAllGeneral = tokens.every(t => generalWords.has(t));
-    if (isAllGeneral) {
-      return item.category !== 'Bollywood' && item.category !== 'Punjabi';
-    }
-
-    const searchableText = `${item.title} ${item.singer} ${item.category} ${item.language} ${item.lyricsSnippet || ''}`.toLowerCase();
-    const specificTokens = tokens.filter(t => !generalWords.has(t));
-    if (specificTokens.length === 0) return true;
-
-    // ALL specific tokens must match (e.g. 'Honey' AND 'Singh', so 'Honey Singh' never matches 'Pawan Singh'!)
-    return specificTokens.every(token => searchableText.includes(token));
-  };
-
-  // Dropdown Results: Combines matching local tracks (Chhath, Honey Singh, Arijit, etc.) AND World Live search results!
-  const dropdownResults = useMemo(() => {
-    const q = searchQuery.trim();
-    if (!q) {
-      return songs.slice(0, 6);
-    }
-    
-    // 1. First get local exact matches (e.g. Honey Singh hits in data, Chhath songs, etc.)
-    const localMatches = songs.filter(s => isLocalMatch(s, q));
-    
-    // 2. If live results exist (from World iTunes search or YouTube):
-    if (ytLiveResults.length > 0) {
-      // Filter out any songs already in localMatches
-      const uniqueLive = ytLiveResults.filter(
-        live => !localMatches.some(loc => 
-          (loc.youtubeId && live.youtubeId && loc.youtubeId === live.youtubeId) || 
-          loc.title.toLowerCase().includes(live.title.toLowerCase()) || 
-          live.title.toLowerCase().includes(loc.title.toLowerCase())
-        )
-      );
-      return [...localMatches, ...uniqueLive].slice(0, 15);
-    }
-    
-    return localMatches;
-  }, [songs, searchQuery, ytLiveResults]);
-
-  // Handle playing any song from search results
-  const handleSelectSong = (song: Song) => {
-    // If it's a new song not yet in data, add it so it persists in storage!
-    const existing = songs.find(s => (song.youtubeId && s.youtubeId === song.youtubeId) || s.id === song.id);
-    if (!existing) {
-      addSong(song);
-    }
-    if (currentUser) {
-      ReelsStorage.recordSongPlay(currentUser.id, song.id);
-    }
-    playSong(song);
-    setIsDropdownOpen(false);
-  };
-
-  // Main grid items: if live YouTube/World results exist for a user search, display them!
-  const displayedItems = useMemo(() => {
-    const q = searchQuery.trim();
-    if (q && activeViewTab === 'all') {
-      const localMatches = regularSongs.filter(s => isLocalMatch(s, q));
-      if (ytLiveResults.length > 0) {
-        const uniqueLive = ytLiveResults.filter(
-          live => !localMatches.some(loc => 
-            (loc.youtubeId && live.youtubeId && loc.youtubeId === live.youtubeId) || 
-            loc.title.toLowerCase().includes(live.title.toLowerCase()) || 
-            live.title.toLowerCase().includes(loc.title.toLowerCase())
-          )
-        );
-        return [...localMatches, ...uniqueLive];
+  // Filtered regular songs
+  const filteredSongs = useMemo(() => {
+    return regularSongs.filter(song => {
+      // Favorites Category
+      if (selectedCategory === 'पसंदीदा') {
+        if (!favorites.includes(song.id)) return false;
+      } else if (selectedCategory !== 'सभी') {
+        const catMatch = song.category === selectedCategory || song.language === selectedCategory;
+        if (!catMatch) return false;
       }
-      return localMatches;
-    }
 
-    const listToFilter = activeViewTab === 'playlists' ? megaPlaylists : regularSongs;
-
-    let filtered = listToFilter.filter(item => {
-      if (selectedCategory === 'For You') {
-        if (userLangName && (item.language === userLangName || item.category === userLangName)) return true;
-        if (currentUser?.listeningHistory?.includes(item.id)) return true;
-        return true;
+      // Singer Filter
+      if (selectedSinger && !song.singer.includes(selectedSinger)) {
+        return false;
       }
-      const matchCategory = selectedCategory === 'All' || item.category === selectedCategory || item.language === selectedCategory;
-      const matchQuery = isLocalMatch(item, searchQuery);
-      return matchCategory && matchQuery;
+
+      // Search Query Filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const text = `${song.title} ${song.singer} ${song.category} ${song.language}`.toLowerCase();
+        return text.includes(q);
+      }
+
+      return true;
     });
+  }, [regularSongs, selectedCategory, selectedSinger, searchQuery, favorites]);
 
-    // If "All" or "For You" is selected and no search query, sort by user language and listening affinity
-    if (!q && (selectedCategory === 'All' || selectedCategory === 'For You') && currentUser) {
-      filtered = [...filtered].sort((a, b) => {
-        let scoreA = 0;
-        let scoreB = 0;
-        if (userLangName && (a.language === userLangName || a.category === userLangName)) scoreA += 10;
-        if (userLangName && (b.language === userLangName || b.category === userLangName)) scoreB += 10;
-        if (currentUser.listeningHistory?.includes(a.id)) scoreA += 5;
-        if (currentUser.listeningHistory?.includes(b.id)) scoreB += 5;
-        return scoreB - scoreA;
-      });
-    }
-
-    return filtered;
-  }, [activeViewTab, regularSongs, megaPlaylists, selectedCategory, searchQuery, ytLiveResults, userLangName, currentUser]);
-
-  // Handle User's custom link instant playback
+  // User custom link submit
   const handlePlayUserLink = async (e: React.FormEvent) => {
     e.preventDefault();
     const url = userCustomLink.trim();
     if (!url) return;
 
     setUserLinkLoading(true);
-
     const pId = extractPlaylistId(url);
     const yId = extractYoutubeId(url);
 
     if (!yId && !pId) {
-      alert('कृपया सही यूट्यूब वीडियो या प्लेलिस्ट लिंक दर्ज करें (उदा: https://www.youtube.com/watch?v=... या https://youtu.be/...)');
+      alert('कृपया सही यूट्यूब वीडियो या प्लेलिस्ट लिंक दर्ज करें');
       setUserLinkLoading(false);
       return;
     }
 
     try {
-      let title = pId ? 'उपयोगकर्ता द्वारा चुनी गई यूट्यूब प्लेलिस्ट' : 'उपयोगकर्ता द्वारा चुना गया छठ गीत';
-      let singer = 'यूट्यूब ऑडियो';
-      let thumb = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : getImageUrl('/images/hero_sunrise.jpg');
+      let title = pId ? 'यूट्यूब प्लेलिस्ट' : 'छठ भक्ति गीत';
+      let singer = 'यूट्यूब कलाकार';
+      let thumb = yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : getImageUrl('images/daura_arghya.jpg');
 
       if (yId) {
         try {
@@ -341,8 +138,7 @@ export const SongsSection: React.FC = () => {
         youtubeId: yId || undefined,
         playlistId: pId || undefined,
         isPlaylist: Boolean(pId),
-        thumbnail: thumb,
-        lyricsSnippet: 'उपयोगकर्ता द्वारा लाइव जोड़ा गया छठ भक्ति संगीत।'
+        thumbnail: thumb
       };
 
       addSong(newSong);
@@ -356,116 +152,105 @@ export const SongsSection: React.FC = () => {
   };
 
   return (
-    <section id="songs" className="section-padding relative overflow-hidden bg-gradient-to-b from-transparent via-amber-500/5 to-orange-500/5">
-      <div className="container-custom">
+    <section id="songs" className="section-padding relative overflow-hidden bg-stone-950 text-stone-100 font-mukta">
+      <div className="container-custom max-w-6xl mx-auto space-y-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
-          <div className="badge-saffron">
-            <Music className="w-3.5 h-3.5" />
-            <span>{t.songsBadge}</span>
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider">
+            <Music className="w-4 h-4 text-amber-400" />
+            <span>पावन संगीत अनुभव</span>
           </div>
-          <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-900 dark:text-white">
-            {t.songsSectionTitle}
+          <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-amber-400">
+            छठ महापर्व के सुप्रसिद्ध भक्ति गीत
           </h2>
-          <p className="font-mukta text-base sm:text-lg text-stone-600 dark:text-stone-200">
-            {t.songsSubtitle}
+          <p className="text-stone-300 text-sm sm:text-base">
+            शारदा सिन्हा, अनुराधा पौडवाल, पवन सिंह व अन्य महान कलाकारों के मधुर स्वर में छठ माई के भजन सुनें
           </p>
         </div>
 
-        {/* View Selection Tabs */}
-        <div className="max-w-4xl mx-auto mb-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        {/* Featured Song Hero Banner */}
+        {featuredSong && activeViewTab === 'all' && !searchQuery && (
+          <FeaturedSongCard song={featuredSong} />
+        )}
+
+        {/* Navigation View Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <button
-            onClick={() => {
-              setActiveViewTab('all');
-              setSelectedCategory('All');
-            }}
-            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shadow-sm ${
+            onClick={() => setActiveViewTab('all')}
+            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all border ${
               activeViewTab === 'all'
-                ? 'bg-orange-600 text-white shadow-orange-600/30 scale-102'
-                : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-orange-500/10 border border-amber-500/20'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 border-amber-400 shadow-lg shadow-amber-500/20'
+                : 'bg-stone-900/80 text-stone-300 border-amber-500/20 hover:border-amber-500/40'
             }`}
           >
             <Disc className="w-4 h-4" />
-            <span>{t.tabAllSongs} ({regularSongs.length})</span>
+            <span>सभी गीत ({regularSongs.length})</span>
           </button>
 
           <button
-            onClick={() => {
-              setActiveViewTab('playlists');
-              setSelectedCategory('All');
-            }}
-            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shadow-sm ${
+            onClick={() => setActiveViewTab('playlists')}
+            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all border ${
               activeViewTab === 'playlists'
-                ? 'bg-orange-600 text-white shadow-orange-600/30 scale-102'
-                : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-orange-500/10 border border-amber-500/20'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 border-amber-400 shadow-lg shadow-amber-500/20'
+                : 'bg-stone-900/80 text-stone-300 border-amber-500/20 hover:border-amber-500/40'
             }`}
           >
             <ListMusic className="w-4 h-4" />
-            <span>{t.tabPlaylists} ({megaPlaylists.length})</span>
+            <span>प्लेलिस्ट्स ({megaPlaylists.length})</span>
           </button>
 
           <button
             onClick={() => setActiveViewTab('customLink')}
-            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shadow-sm ${
+            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all border ${
               activeViewTab === 'customLink'
-                ? 'bg-orange-600 text-white shadow-orange-600/30 scale-102'
-                : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-orange-500/10 border border-amber-500/20'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 border-amber-400 shadow-lg shadow-amber-500/20'
+                : 'bg-stone-900/80 text-stone-300 border-amber-500/20 hover:border-amber-500/40'
             }`}
           >
             <LinkIcon className="w-4 h-4" />
-            <span>{t.tabCustomLink}</span>
+            <span>कस्टम यूट्यूब लिंक</span>
           </button>
         </div>
 
-        {/* TAB 3: USER CUSTOM LINK INSTANT PLAY */}
+        {/* TAB 3: USER CUSTOM LINK */}
         {activeViewTab === 'customLink' && (
-          <div className="max-w-3xl mx-auto mb-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/15 to-yellow-500/10 border-2 border-orange-500/40 shadow-xl space-y-4 animate-in fade-in">
+          <div className="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-stone-900/90 border border-amber-500/30 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-bold text-lg shadow">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold text-lg">
                 🎵
               </div>
               <div>
-                <h3 className="font-mukta font-bold text-base sm:text-lg text-stone-900 dark:text-white">
-                  अपना पसंदीदा कोई भी गीत या यूट्यूब लिंक तुरंत बजाएं
+                <h3 className="font-bold text-stone-100 text-base">
+                  अपना पसंदीदा कोई भी यूट्यूब गाना या प्लेलिस्ट तुरंत बजाएं
                 </h3>
-                <p className="text-xs text-stone-600 dark:text-stone-300">
-                  यूट्यूब से किसी भी गीत या प्लेलिस्ट का लिंक यहां पेस्ट करें और तुरंत सुनना शुरू करें!
+                <p className="text-xs text-stone-400">
+                  यूट्यूब लिंक पेस्ट करें और तुरंत ऑडियो/वीडियो सुनना शुरू करें
                 </p>
               </div>
             </div>
 
-            <form onSubmit={handlePlayUserLink} className="flex flex-col sm:flex-row items-stretch gap-2.5 pt-2">
-              <div className="relative flex-1">
-                <LinkIcon className="w-4 h-4 text-orange-600 absolute left-4 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={userCustomLink}
-                  onChange={(e) => setUserCustomLink(e.target.value)}
-                  placeholder="यूट्यूब लिंक पेस्ट करें (उदा: https://www.youtube.com/watch?v=... या प्लेलिस्ट लिंक)"
-                  className="w-full pl-11 pr-4 py-3.5 rounded-2xl text-xs sm:text-sm bg-white dark:bg-stone-800 border border-orange-500/40 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-inner font-mono"
-                  disabled={userLinkLoading}
-                />
-              </div>
-
+            <form onSubmit={handlePlayUserLink} className="flex flex-col sm:flex-row gap-3 pt-2">
+              <input
+                type="text"
+                value={userCustomLink}
+                onChange={(e) => setUserCustomLink(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="flex-1 px-4 py-3 rounded-2xl bg-stone-950 border border-amber-500/30 text-stone-100 text-sm focus:outline-none focus:border-amber-400"
+                disabled={userLinkLoading}
+              />
               <button
                 type="submit"
                 disabled={userLinkLoading || !userCustomLink.trim()}
-                className="btn-primary py-3.5 px-7 text-xs sm:text-sm font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-lg shadow-orange-600/30 disabled:opacity-50"
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-stone-950 font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {userLinkLoading ? (
-                  <span>फेच हो रहा है...</span>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 fill-white" />
-                    <span>▶️ तुरंत बजाएं (Play Now)</span>
-                  </>
-                )}
+                {userLinkLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-stone-950" />}
+                <span>बजाएं (Play)</span>
               </button>
             </form>
 
             {userLinkSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
                 <Check className="w-4 h-4" />
                 <span>{userLinkSuccess}</span>
               </div>
@@ -473,328 +258,60 @@ export const SongsSection: React.FC = () => {
           </div>
         )}
 
-        {/* Live Search & REAL YOUTUBE DROPDOWN */}
-        {activeViewTab !== 'customLink' && (
-          <div className="max-w-3xl mx-auto mb-8 space-y-4">
+        {/* TAB 1: ALL SONGS VIEW */}
+        {activeViewTab === 'all' && (
+          <div className="space-y-6">
             
-            {/* Search Input Container with Dropdown */}
-            <div ref={searchContainerRef} className="relative">
-              <div className="relative">
-                {isYtSearching ? (
-                  <RefreshCw className="w-5 h-5 text-orange-600 absolute left-4 top-1/2 -translate-y-1/2 animate-spin" />
-                ) : (
-                  <Search className="w-5 h-5 text-orange-600 absolute left-4 top-1/2 -translate-y-1/2" />
-                )}
-
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onFocus={() => setIsDropdownOpen(true)}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSearchQuery(val);
-                    setIsDropdownOpen(true);
-
-                    // Auto-detect direct YouTube URL pasted into search bar!
-                    const match = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-                    if (match && match[1]) {
-                      const ytId = match[1];
-                      const newSong: Song = {
-                        id: `yt-link-${Date.now()}`,
-                        title: 'यूट्यूब छठ गीत / भजन',
-                        singer: 'यूट्यूब कलाकार',
-                        language: 'Bhojpuri',
-                        category: 'Traditional',
-                        duration: 'लाइव',
-                        audioUrl: `https://www.youtube.com/watch?v=${ytId}`,
-                        youtubeId: ytId,
-                        thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-                      };
-                      addSong(newSong);
-                      playSong(newSong);
-                      setSearchQuery('');
-                      setIsDropdownOpen(false);
-                    }
-                  }}
-                  placeholder={t.searchSongPlaceholder}
-                  className="w-full pl-12 pr-10 py-3.5 rounded-full bg-white dark:bg-stone-900 border-2 border-amber-500/40 text-stone-800 dark:text-stone-100 font-mukta placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-md text-sm"
-                />
-
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setYtLiveResults([]);
-                      setIsDropdownOpen(false);
-                    }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* REAL LIVE YOUTUBE AUTO-SUGGEST DROPDOWN */}
-              {isDropdownOpen && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-stone-900 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] border-2 border-orange-500/50 overflow-hidden z-40 max-h-[480px] overflow-y-auto animate-in fade-in slide-in-from-top-2 font-mukta">
-                  
-                  {/* Dropdown Header */}
-                  <div className="p-3.5 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-red-500/10 border-b border-amber-500/20 flex items-center justify-between text-xs">
-                    <span className="font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
-                      <span>
-                        {isYtSearching ? (
-                          <span>विश्व भर के संगीत में &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
-                        ) : searchQuery.trim() ? (
-                          dropdownResults.length > 0 ? (
-                            <span>&ldquo;{searchQuery}&rdquo; के लिए परिणाम ({dropdownResults.length})</span>
-                          ) : (
-                            <span>🔴 YouTube पर &ldquo;{searchQuery}&rdquo; खोजें</span>
-                          )
-                        ) : (
-                          <span>सुझाए गए लोकप्रिय गीत व प्लेलिस्ट</span>
-                        )}
-                      </span>
-                    </span>
-
-                    <button
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Dropdown Results List */}
-                  <div className="divide-y divide-amber-500/10">
-                    {isYtSearching && ytLiveResults.length === 0 ? (
-                      <div className="p-8 text-center space-y-2">
-                        <RefreshCw className="w-8 h-8 text-orange-600 mx-auto animate-spin" />
-                        <p className="text-xs text-stone-600 dark:text-stone-300">
-                          विश्व संगीत लाइब्रेरी से परिणाम लोड किए जा रहे हैं...
-                        </p>
-                      </div>
-                    ) : dropdownResults.length > 0 ? (
-                      dropdownResults.map((song) => {
-                        const isCurrent = currentSong?.id === song.id || (Boolean(song.youtubeId) && currentSong?.youtubeId === song.youtubeId);
-                        const isPlayingThis = isCurrent && isPlaying;
-
-                        return (
-                          <div
-                            key={song.id}
-                            onClick={() => handleSelectSong(song)}
-                            className="p-3 sm:px-4 hover:bg-orange-500/10 cursor-pointer flex items-center justify-between gap-3 transition-colors group"
-                          >
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div className="relative w-14 h-11 sm:w-16 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-amber-500/30 bg-stone-900 shadow">
-                                <img
-                                  src={song.thumbnail}
-                                  alt={song.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                  onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
-                                />
-                                <div className="absolute inset-0 bg-stone-950/30 flex items-center justify-center opacity-90 group-hover:opacity-100">
-                                  {isPlayingThis ? (
-                                    <Pause className="w-5 h-5 text-orange-400 fill-orange-400" />
-                                  ) : (
-                                    <Play className="w-5 h-5 text-white fill-white ml-0.5" />
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="min-w-0">
-                                <strong className="text-stone-900 dark:text-white text-xs sm:text-sm font-mukta truncate block group-hover:text-orange-600 transition-colors">
-                                  {song.title}
-                                </strong>
-                                <span className="text-stone-500 dark:text-stone-300 text-[11px] sm:text-xs font-mukta truncate block">
-                                  {song.singer} • <span className="text-red-600 dark:text-red-400 font-semibold">{song.duration}</span>
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                type="button"
-                                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow transition-colors ${
-                                  isPlayingThis
-                                    ? 'bg-emerald-600 text-white'
-                                    : 'bg-orange-600 text-white hover:bg-orange-700'
-                                }`}
-                              >
-                                {isPlayingThis ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-white" />}
-                                <span>{isPlayingThis ? 'चल रहा है' : 'बजाएं'}</span>
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="p-6 text-center space-y-3 bg-stone-900/60 rounded-2xl m-2 border border-red-500/30">
-                        <p className="text-xs text-stone-300">
-                          स्थानीय सूची में &ldquo;{searchQuery}&rdquo; नहीं मिला। यूट्यूब पर सीधे खोजें:
-                        </p>
-                        <a
-                          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white shadow-lg shadow-red-600/30 transition-transform active:scale-95"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          <span>YouTube पर &ldquo;{searchQuery}&rdquo; खोलें ↗</span>
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Dropdown Footer */}
-                  <div className="p-3 bg-stone-50 dark:bg-stone-800/80 border-t border-amber-500/20 flex items-center justify-between text-xs">
-                    <span className="text-stone-500 dark:text-stone-400">
-                      ⚡ किसी भी गाने पर क्लिक करें, वह तुरंत बजने लगेगा!
-                    </span>
-                    <button
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="text-orange-600 font-bold hover:underline"
-                    >
-                      सूची में देखें &darr;
-                    </button>
-                  </div>
-                </div>
-              )}
+            {/* Search Bar & Category Chips */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-stone-900/60 p-4 rounded-3xl border border-amber-500/20">
+              <MusicSearch
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                resultCount={filteredSongs.length}
+              />
+              <MusicCategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+                favoritesCount={favorites.length}
+              />
             </div>
 
-            {/* Quick Artist & Theme Tag Chips */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              <span className="text-[11px] font-bold text-stone-400 shrink-0">त्वरित खोज:</span>
-              {quickSearchTags.map((tag) => (
-                <button
-                  key={tag.label}
-                  onClick={() => {
-                    setSearchQuery(tag.query);
-                    setIsDropdownOpen(true);
-                  }}
-                  className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors border ${
-                    searchQuery === tag.query
-                      ? 'bg-orange-600 text-white border-orange-600 shadow'
-                      : 'bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border-amber-500/20 hover:bg-orange-500/15'
-                  }`}
-                >
-                  {tag.label}
-                </button>
-              ))}
-            </div>
+            {/* Popular Artists Filter */}
+            <PopularArtistsFilter
+              singers={popularSingers}
+              selectedSinger={selectedSinger}
+              onSelectSinger={setSelectedSinger}
+            />
 
-            {/* Category Tabs (only when in all songs mode without active text query) */}
-            {activeViewTab === 'all' && !searchQuery.trim() && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-                      selectedCategory === cat
-                        ? 'bg-orange-600 text-white shadow-md shadow-orange-600/30 scale-105'
-                        : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-orange-500/10 border border-amber-500/20'
-                    }`}
-                  >
-                    {cat === 'All' ? 'सभी गीत (All)' : cat}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Song List Component */}
+            <SongList songs={filteredSongs} />
 
           </div>
         )}
 
-        {/* Live Search Indicator on Main Grid */}
-        {searchQuery.trim() && ytLiveResults.length > 0 && activeViewTab === 'all' && (
-          <div className="max-w-4xl mx-auto mb-6 p-3 rounded-2xl bg-red-600/10 border border-red-500/30 flex items-center justify-between text-xs">
-            <span className="font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
-              <span>यूट्यूब लाइव खोज: &ldquo;{searchQuery}&rdquo; के लिए {ytLiveResults.length} वीडियो मिले</span>
-            </span>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setYtLiveResults([]);
-              }}
-              className="text-orange-600 font-bold hover:underline"
-            >
-              वापस डिफ़ॉल्ट गानों पर जाएं &times;
-            </button>
-          </div>
-        )}
-
-        {/* PLAYLISTS VIEW */}
+        {/* TAB 2: PLAYLISTS VIEW */}
         {activeViewTab === 'playlists' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-            {displayedItems.map((playlist: Song) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {megaPlaylists.map((playlist) => {
               const isCurrent = currentSong?.id === playlist.id;
-              const isPlayingThis = isCurrent && isPlaying;
 
               return (
                 <div
                   key={playlist.id}
-                  className={`chhath-card p-5 flex flex-col justify-between transition-all relative overflow-hidden group border-2 ${
-                    isCurrent 
-                      ? 'ring-2 ring-orange-500 border-orange-500 shadow-xl' 
-                      : 'border-amber-500/30 hover:border-orange-500/60'
-                  }`}
+                  className="p-5 rounded-3xl bg-stone-900/80 border border-amber-500/30 hover:border-amber-500/60 transition-all flex flex-col justify-between group"
                 >
-                  <div>
-                    {/* Thumbnail with Mega Playlist Badge */}
-                    <div className="relative h-48 rounded-2xl overflow-hidden mb-4 bg-stone-900 shadow">
-                      <img
-                        src={playlist.thumbnail}
-                        alt={playlist.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/30 to-transparent"></div>
+                  <div className="relative h-48 rounded-2xl overflow-hidden mb-4 border border-amber-500/20">
+                    <img
+                      src={getImageUrl(playlist.thumbnail)}
+                      alt={playlist.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLElement).setAttribute('src', getImageUrl('images/daura_arghya.jpg'));
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
 
-                      <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-orange-600 text-white text-xs font-bold flex items-center gap-1.5 shadow">
-                        <ListMusic className="w-3.5 h-3.5" />
-                        <span>सम्पूर्ण प्लेलिस्ट</span>
-                      </div>
-
-                      {playlist.duration && (
-                        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-stone-900/80 backdrop-blur-sm text-amber-300 text-[11px] font-bold border border-amber-500/30">
-                          {playlist.duration}
-                        </div>
-                      )}
-
-                      {/* Big Play Overlay Button */}
-                      <button
-                        onClick={() => {
-                          if (isCurrent) {
-                            togglePlay();
-                          } else {
-                            playSong(playlist);
-                          }
-                        }}
-                        className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
-                        title="सम्पूर्ण प्लेलिस्ट बजाएं"
-                      >
-                        {isPlayingThis ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1 fill-white" />}
-                      </button>
-                    </div>
-
-                    <h3 className="font-mukta font-bold text-lg text-stone-900 dark:text-white line-clamp-1 mb-1 group-hover:text-orange-600 transition-colors">
-                      {playlist.title}
-                    </h3>
-
-                    <p className="text-xs font-semibold text-amber-600 dark:text-amber-300 mb-2">
-                      {playlist.singer}
-                    </p>
-
-                    {playlist.lyricsSnippet && (
-                      <p className="text-xs text-stone-600 dark:text-stone-200 line-clamp-2 leading-relaxed bg-amber-500/5 p-2.5 rounded-xl border border-amber-500/10">
-                        {playlist.lyricsSnippet}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="pt-4 mt-4 border-t border-amber-500/15 flex items-center justify-between gap-3">
                     <button
                       onClick={() => {
                         if (isCurrent) {
@@ -803,10 +320,38 @@ export const SongsSection: React.FC = () => {
                           playSong(playlist);
                         }
                       }}
-                      className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white transition-colors flex items-center justify-center gap-2 shadow"
+                      className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 text-stone-950 flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
                     >
-                      {isPlayingThis ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
-                      <span>{isPlayingThis ? 'प्लेलिस्ट रोकें' : 'सम्पूर्ण प्लेलिस्ट बजाएं'}</span>
+                      {isCurrent && isPlaying ? (
+                        <Pause className="w-7 h-7 fill-stone-950" />
+                      ) : (
+                        <Play className="w-7 h-7 ml-0.5 fill-stone-950" />
+                      )}
+                    </button>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-lg text-amber-200 line-clamp-1 mb-1">
+                      {playlist.title}
+                    </h3>
+                    <p className="text-xs text-stone-400 mb-3">
+                      {playlist.singer} • {playlist.duration || 'सम्पूर्ण प्लेलिस्ट'}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-amber-500/15 flex items-center justify-between">
+                    <button
+                      onClick={() => {
+                        if (isCurrent) {
+                          togglePlay();
+                        } else {
+                          playSong(playlist);
+                        }
+                      }}
+                      className="px-5 py-2 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs flex items-center gap-2"
+                    >
+                      {isCurrent && isPlaying ? <Pause className="w-4 h-4 fill-stone-950" /> : <Play className="w-4 h-4 fill-stone-950 ml-0.5" />}
+                      <span>{isCurrent && isPlaying ? 'रोकें' : 'सम्पूर्ण प्लेलिस्ट बजाएं'}</span>
                     </button>
 
                     {playlist.playlistId && (
@@ -814,8 +359,8 @@ export const SongsSection: React.FC = () => {
                         href={`https://www.youtube.com/playlist?list=${playlist.playlistId}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-2.5 rounded-xl bg-red-600/15 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                        title="यूट्यूब पर प्लेलिस्ट खोलें"
+                        className="p-2 rounded-xl bg-red-600/20 text-red-400 hover:text-white"
+                        title="YouTube पर खोलें"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
@@ -827,164 +372,13 @@ export const SongsSection: React.FC = () => {
           </div>
         )}
 
-        {/* REGULAR SONGS & LIVE YOUTUBE GRID VIEW */}
-        {activeViewTab === 'all' && (
-          <div>
-            {displayedItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {displayedItems.map((song: Song) => {
-                  const isCurrent = currentSong?.id === song.id || (Boolean(song.youtubeId) && currentSong?.youtubeId === song.youtubeId);
-                  const isPlayingThis = isCurrent && isPlaying;
-
-                  return (
-                    <div
-                      key={song.id}
-                      className={`chhath-card p-4 flex flex-col justify-between transition-all relative overflow-hidden group ${
-                        isCurrent ? 'ring-2 ring-orange-500 border-orange-500 shadow-lg' : ''
-                      }`}
-                    >
-                      <div>
-                        {/* Thumbnail & Overlay */}
-                        <div className="relative h-44 rounded-xl overflow-hidden mb-3.5 bg-stone-900">
-                          <img
-                            src={song.thumbnail}
-                            alt={song.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent"></div>
-                          
-                          {/* Badge Category / Source */}
-                          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-stone-900/80 backdrop-blur-sm border border-amber-500/30 text-[10px] font-bold text-amber-300">
-                            {song.id.startsWith('yt-') ? '🔴 YouTube' : song.id.startsWith('world-') ? '🌐 World Music' : song.category}
-                          </div>
-
-                          {/* Duration */}
-                          <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-stone-900/90 text-white text-[10px] font-bold border border-white/20">
-                            {song.duration}
-                          </div>
-
-                          {/* Personalized Match Badge */}
-                          {currentUser && userLangName && (song.language === userLangName || currentUser.listeningHistory?.includes(song.id)) && (
-                            <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-[10px] font-bold shadow-md flex items-center gap-1 z-10">
-                              <Sparkles className="w-2.5 h-2.5" />
-                              <span>आपके लिए</span>
-                            </div>
-                          )}
-
-                          {/* Big Play Button Overlay */}
-                          <button
-                            onClick={() => handleSelectSong(song)}
-                            title="गीत बजाएं"
-                            className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xl hover:scale-110 transition-transform group-hover:opacity-100 opacity-90"
-                          >
-                            {isPlayingThis ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5 fill-white" />}
-                          </button>
-                        </div>
-
-                        {/* Song Details */}
-                        <h3 className="font-mukta font-bold text-base text-stone-900 dark:text-white line-clamp-2 mb-1 group-hover:text-orange-600 transition-colors">
-                          {song.title}
-                        </h3>
-
-                        <div className="text-xs text-stone-500 dark:text-stone-300 font-mukta flex items-center justify-between mb-2">
-                          <span className="font-semibold text-amber-700 dark:text-amber-400 truncate max-w-[200px]">{song.singer}</span>
-                          <span>{song.duration}</span>
-                        </div>
-                      </div>
-
-                      {/* Bottom Action Footer */}
-                      <div className="pt-3 mt-3 border-t border-amber-500/15 flex items-center justify-between gap-2">
-                        <button
-                          onClick={() => handleSelectSong(song)}
-                          className="flex-1 py-2 rounded-xl text-xs font-bold bg-orange-500/15 hover:bg-orange-500/25 text-orange-700 dark:text-amber-300 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                          <Radio className="w-3.5 h-3.5 text-orange-600" />
-                          <span>{isPlayingThis ? 'रोकें' : 'बजाएं'}</span>
-                        </button>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setLyricsModalSong(song);
-                          }}
-                          className="px-2.5 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 transition-colors flex items-center gap-1 border border-amber-500/30"
-                          title="गीत के बोल (Lyrics / Sing-Along)"
-                        >
-                          <Mic2 className="w-3.5 h-3.5 text-amber-400" />
-                          <span className="hidden sm:inline">बोल</span>
-                        </button>
-
-                        {song.youtubeId && (
-                          <a
-                            href={`https://www.youtube.com/watch?v=${song.youtubeId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="px-3 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition-colors flex items-center gap-1.5 shadow"
-                            title="यूट्यूब पर देखें"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            <span>YouTube</span>
-                          </a>
-                        )}
-                      </div>
-
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12 px-4 rounded-3xl bg-amber-500/10 border border-amber-500/20 max-w-xl mx-auto space-y-4 font-mukta">
-                <Music className="w-12 h-12 text-orange-600 mx-auto opacity-70" />
-                <div>
-                  <h4 className="font-bold text-lg text-stone-900 dark:text-stone-100">
-                    &ldquo;{searchQuery}&rdquo; के लिए कोई स्थानीय गीत नहीं मिला
-                  </h4>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                    आप सीधे यूट्यूब पर इस गीत को खोजकर लिंक पेस्ट कर सकते हैं या नीचे दिए गए लोकप्रिय गायकों के गीत सुन सकते हैं:
-                  </p>
-                </div>
-                <div className="flex flex-wrap justify-center gap-2 pt-2">
-                  <a
-                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + ' chhath geet')}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-4 py-1.5 rounded-full text-xs font-bold bg-red-600 text-white shadow hover:bg-red-700 flex items-center gap-1.5"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>YouTube पर खोजें</span>
-                  </a>
-                  <button
-                    onClick={() => setSearchQuery('शारदा सिन्हा')}
-                    className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-600 text-white shadow"
-                  >
-                    🌟 शारदा सिन्हा
-                  </button>
-                  <button
-                    onClick={() => setSearchQuery('पवन सिंह')}
-                    className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-600 text-white shadow"
-                  >
-                    🎤 पवन सिंह
-                  </button>
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="px-3 py-1.5 rounded-full text-xs font-bold bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200"
-                  >
-                    सभी 16+ गीत देखें
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
       </div>
 
-      {/* Karaoke & Sing-Along Lyrics Modal */}
+      {/* Song Lyrics Modal */}
       <SongLyricsModal
-        song={lyricsModalSong}
-        isOpen={!!lyricsModalSong}
-        onClose={() => setLyricsModalSong(null)}
+        song={lyricsSong}
+        isOpen={Boolean(lyricsSong)}
+        onClose={() => setLyricsSong(null)}
       />
     </section>
   );

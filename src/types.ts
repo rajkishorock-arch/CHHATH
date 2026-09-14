@@ -294,6 +294,8 @@ export interface Song {
   audioUrl: string;
   thumbnail: string;
   lyricsSnippet?: string;
+  lyrics?: string;
+  description?: string;
   youtubeId?: string;
   playlistId?: string;
   isPlaylist?: boolean;

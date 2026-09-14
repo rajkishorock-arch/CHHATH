@@ -1,222 +1,141 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAudio } from '../../context/AudioContext';
-import { 
-  Play, 
-  Pause, 
-  SkipForward, 
-  SkipBack, 
-  Video, 
-  VideoOff, 
-  ExternalLink,
-  X
+import {
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  ListMusic,
+  Video,
+  VideoOff,
+  ChevronUp
 } from 'lucide-react';
+import { getImageUrl } from '../../utils/imageUtils';
 
 export const StickyPlayer: React.FC = () => {
-  const { currentSong, isPlaying, togglePlay, playNext, playPrevious } = useAudio();
-  
-  // Video popup toggle: default true on song change so user actually sees and hears playback!
-  const [showVideo, setShowVideo] = useState(true);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
-
-  // Automatically show video window when a new YouTube song starts playing
-  useEffect(() => {
-    if (isPlaying && currentSong && (currentSong.youtubeId || currentSong.playlistId)) {
-      setShowVideo(true);
-    }
-  }, [currentSong?.id, isPlaying]);
-
-  // Sync HTML5 audio playback for non-YouTube tracks (direct audio streams / iTunes preview URLs)
-  useEffect(() => {
-    if (!currentSong?.youtubeId && !currentSong?.playlistId && audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch(e => console.log('Autoplay prevented:', e));
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [currentSong?.id, isPlaying]);
+  const {
+    currentSong,
+    isPlaying,
+    togglePlay,
+    playNext,
+    playPrevious,
+    showVideo,
+    setShowVideo,
+    setIsExpandedOpen,
+    setIsQueueOpen
+  } = useAudio();
 
   if (!currentSong) return null;
 
   return (
     <>
       {/* 
-        CRITICAL ARCHITECTURE: Single Persistent Iframe!
-        We NEVER unmount this iframe so audio continues playing without interruption.
-        When showVideo is true -> floating PiP video box is visible.
-        When showVideo is false -> stays active in background without being suspended by browser autoplay policy!
+        Sleek Floating Mini-Player Bar
+        - Mobile: bottom-16 (clears mobile bottom navigation bar)
+        - Desktop: bottom-4 (floats centered)
       */}
-      {isPlaying && (currentSong.youtubeId || currentSong.playlistId) && (
-        <div 
-          key={currentSong.id}
-          className={`fixed z-50 transition-all duration-300 font-mukta ${
-            showVideo
-              ? 'bottom-32 lg:bottom-24 right-3 sm:right-6 w-72 sm:w-84 rounded-2xl overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.85)] border border-amber-500/50 bg-stone-950 opacity-100 scale-100 pointer-events-auto'
-              : 'bottom-16 right-4 w-12 h-12 rounded-xl overflow-hidden opacity-30 hover:opacity-100 pointer-events-auto shadow-md border border-amber-500/40 bg-stone-950'
-          }`}
-        >
-          {/* Header bar with title and close / minimize button */}
-          <div className={`flex items-center justify-between px-3 py-1.5 bg-stone-900/95 border-b border-amber-500/20 text-xs ${!showVideo ? 'hidden' : ''}`}>
-            <span className="truncate max-w-[190px] text-amber-300 font-bold flex items-center gap-1.5">
-              <span>{currentSong.isPlaylist ? '🎶' : '🎬'}</span>
-              <span className="truncate">{currentSong.title}</span>
-            </span>
-            <button 
-              onClick={() => setShowVideo(false)}
-              className="w-6 h-6 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition-colors shrink-0"
-              title="वीडियो छोटा करें (गाना ऑडियो में बजता रहेगा)"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          
-          {/* Single Continuous Video/Playlist Iframe */}
-          <div className={showVideo ? "h-44 sm:h-48 bg-black" : "w-full h-full bg-black cursor-pointer"} onClick={() => !showVideo && setShowVideo(true)}>
-            <iframe
-              src={
-                currentSong.playlistId 
-                  ? `https://www.youtube.com/embed/videoseries?list=${currentSong.playlistId}&autoplay=1&enablejsapi=1`
-                  : `https://www.youtube.com/embed/${currentSong.youtubeId}?autoplay=1&enablejsapi=1`
-              }
-              title={currentSong.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="w-full h-full"
-            />
-          </div>
-
-          {showVideo && (
-            <div className="px-3 py-1 text-[10px] text-stone-400 bg-stone-900/95 text-center border-t border-amber-500/10 flex items-center justify-between">
-              <span className="truncate">💡 {currentSong.isPlaylist ? 'सम्पूर्ण प्लेलिस्ट' : 'लाइव वीडियो'}</span>
-              <button 
-                onClick={() => setShowVideo(false)} 
-                className="text-amber-400 font-bold hover:underline shrink-0 ml-2"
-              >
-                छोटा करें &times;
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Sleek, Compact Bottom Music Player Bar */}
-      <div 
-        id="sticky-player" 
-        className="fixed bottom-14 lg:bottom-4 left-0 lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-4xl z-30 bg-stone-900/98 text-stone-100 backdrop-blur-xl border-t lg:border border-amber-500/40 lg:rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] p-2 sm:px-5 transition-all duration-300"
+      <div
+        id="sticky-player"
+        className="fixed bottom-16 lg:bottom-4 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-4xl z-30 px-2 sm:px-4 pointer-events-auto font-mukta"
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="bg-stone-950/95 text-stone-100 backdrop-blur-2xl border border-amber-500/35 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.85)] p-2 sm:p-3 flex items-center justify-between gap-2 sm:gap-3 transition-all duration-300">
           
-          {/* Song Info & Thumbnail */}
-          <div className="flex items-center gap-3 min-w-0 max-w-[45%] sm:max-w-[40%]">
+          {/* Song Info & Artwork -> Tapping opens Expanded Player */}
+          <div
+            onClick={() => setIsExpandedOpen(true)}
+            className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 cursor-pointer group"
+          >
             <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-amber-500/40 shadow">
-              <img 
-                src={currentSong.thumbnail} 
+              <img
+                src={getImageUrl(currentSong.thumbnail)}
                 alt={currentSong.title}
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                onError={(e) => {
+                  (e.target as HTMLElement).setAttribute('src', getImageUrl('images/daura_arghya.jpg'));
+                }}
               />
               {isPlaying && (
-                <div className="absolute inset-0 bg-stone-950/40 flex items-center justify-center gap-0.5">
-                  <div className="eq-bar"></div>
-                  <div className="eq-bar"></div>
-                  <div className="eq-bar"></div>
+                <div className="absolute inset-0 bg-stone-950/50 flex items-center justify-center gap-0.5">
+                  <div className="w-1 bg-amber-400 h-3 animate-bounce [animation-delay:-0.2s]" />
+                  <div className="w-1 bg-orange-400 h-4 animate-bounce" />
+                  <div className="w-1 bg-yellow-300 h-2 animate-bounce [animation-delay:-0.4s]" />
                 </div>
               )}
             </div>
 
-            <div className="min-w-0">
-              <div className="font-mukta font-bold text-xs sm:text-sm text-amber-300 truncate">
-                {currentSong.title}
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-xs sm:text-sm text-amber-300 truncate group-hover:text-amber-200 flex items-center gap-1.5">
+                <span className="truncate">{currentSong.title}</span>
+                <ChevronUp className="w-3.5 h-3.5 text-amber-400 opacity-60 group-hover:opacity-100 shrink-0" />
               </div>
-              <div className="text-[11px] text-stone-400 font-mukta truncate flex items-center gap-1.5">
-                <span>{currentSong.singer}</span>
-                <span>•</span>
-                <span className="text-amber-500 font-semibold">{currentSong.language}</span>
+              <div className="text-[11px] text-stone-400 truncate flex items-center gap-1.5">
+                <span className="truncate">{currentSong.singer}</span>
+                {currentSong.language && (
+                  <>
+                    <span>•</span>
+                    <span className="text-amber-400 font-semibold">{currentSong.language}</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Playback Controls */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Primary Controls */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
               onClick={playPrevious}
-              title="पिछला गीत (Previous)"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
+              title="पिछला गीत"
             >
               <SkipBack className="w-4 h-4" />
             </button>
 
             <button
               onClick={togglePlay}
-              title={isPlaying ? "रोकें (Pause)" : "बजाएं (Play)"}
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 text-white flex items-center justify-center shadow-lg shadow-orange-500/40 hover:scale-105 transition-transform"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 text-stone-950 flex items-center justify-center shadow-lg shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all"
+              title={isPlaying ? "रोकें" : "बजाएं"}
             >
-              {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 ml-0.5 fill-white" />}
+              {isPlaying ? (
+                <Pause className="w-5 h-5 fill-stone-950" />
+              ) : (
+                <Play className="w-5 h-5 fill-stone-950 ml-0.5" />
+              )}
             </button>
 
             <button
               onClick={playNext}
-              title="अगला गीत (Next)"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
+              title="अगला गीत"
             >
               <SkipForward className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Video Toggle & YouTube Link */}
-          <div className="flex items-center gap-2 shrink-0">
-            {isPlaying && (currentSong.youtubeId || currentSong.playlistId) && (
-              <button
-                onClick={() => setShowVideo(!showVideo)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
-                  showVideo 
-                    ? 'bg-amber-500 text-stone-950 font-extrabold shadow-md scale-102' 
-                    : 'bg-stone-800 text-amber-300 hover:bg-stone-700 border border-amber-500/30'
-                }`}
-                title={showVideo ? "वीडियो बंद करें (ऑडियो चलता रहेगा)" : "वीडियो देखें (वर्तमान समय से जारी रहेगा)"}
-              >
-                {showVideo ? <VideoOff className="w-3.5 h-3.5" /> : <Video className="w-3.5 h-3.5" />}
-                <span className="hidden sm:inline">{showVideo ? 'वीडियो बंद करें' : 'वीडियो देखें'}</span>
-              </button>
-            )}
+          {/* Queue & Video Toggles */}
+          <div className="flex items-center gap-1 shrink-0 border-l border-amber-500/20 pl-2">
+            <button
+              onClick={() => setShowVideo(!showVideo)}
+              className={`p-2 rounded-xl transition-all ${
+                showVideo
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
+                  : 'text-stone-400 hover:text-amber-300 hover:bg-stone-900'
+              }`}
+              title={showVideo ? "वीडियो छुपाएं" : "वीडियो देखें"}
+            >
+              {showVideo ? <VideoOff className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+            </button>
 
-            {currentSong.youtubeId || currentSong.playlistId ? (
-              <a
-                href={
-                  currentSong.playlistId 
-                    ? `https://www.youtube.com/playlist?list=${currentSong.playlistId}`
-                    : `https://www.youtube.com/watch?v=${currentSong.youtubeId}`
-                }
-                target="_blank"
-                rel="noreferrer"
-                className="p-2 rounded-full bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 transition-colors"
-                title="YouTube पर खोलें"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            ) : (
-              <a
-                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(currentSong.title + ' ' + currentSong.singer)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="p-2 rounded-full bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 transition-colors"
-                title="YouTube पर पूरा वीडियो खोजें व देखें"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
+            <button
+              onClick={() => setIsQueueOpen(true)}
+              className="p-2 rounded-xl text-stone-400 hover:text-amber-300 hover:bg-stone-900 transition-colors"
+              title="कतार देखें (Queue)"
+            >
+              <ListMusic className="w-4 h-4" />
+            </button>
           </div>
 
         </div>
       </div>
-
-      {/* HTML5 Audio Player for previewUrl & direct audio files */}
-      {(!currentSong.youtubeId && !currentSong.playlistId && (currentSong.previewAudioUrl || currentSong.audioUrl)) && (
-        <audio
-          ref={audioRef}
-          src={currentSong.previewAudioUrl || currentSong.audioUrl}
-          onEnded={playNext}
-        />
-      )}
     </>
   );
 };
