@@ -10,7 +10,8 @@ const routes = [
   'chhath-samagri',
   'chhath-arghya-time-2026',
   'chhath-arghya-time',
-  'thekua-recipe'
+  'thekua-recipe',
+  'chhath-puja-geet'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');
