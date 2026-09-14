@@ -25,6 +25,12 @@ export const FourDaysTimeline: React.FC = () => {
           <p className="font-mukta text-base sm:text-lg text-stone-600 dark:text-stone-200">
             {t.timelineSubtitle}
           </p>
+          <div className="mt-4 mx-auto max-w-3xl text-center">
+            <p className="font-mukta text-base sm:text-lg text-stone-700 dark:text-stone-200">
+             <strong>छठ महापर्व 2026:</strong> नहाय-खाय — 13 नवंबर, खरना — 14 नवंबर,
+                संध्या अर्घ्य — 15 नवंबर, उषा अर्घ्य एवं पारण — 16 नवंबर।
+            </p>
+         </div>
         </div>
 
         {/* 4 Days Step Tabs */}
