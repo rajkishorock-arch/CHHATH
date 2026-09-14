@@ -1,7 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Song } from '../types';
 import { useChhathData } from './ChhathDataContext';
-import { getImageUrl } from '../utils/imageUtils';
+
+interface PlaybackError {
+  songId: string;
+  youtubeId?: string;
+  message: string;
+  code?: number;
+}
 
 interface AudioContextType {
   currentSong: Song | null;
@@ -20,8 +26,9 @@ interface AudioContextType {
   showVideo: boolean;
   lyricsSong: Song | null;
   ytPlayerReady: boolean;
+  playbackError: PlaybackError | null;
 
-  playSong: (song: Song) => void;
+  playSong: (song: Song, contextQueue?: Song[]) => void;
   togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
@@ -38,6 +45,7 @@ interface AudioContextType {
   setIsQueueOpen: (open: boolean) => void;
   setShowVideo: (show: boolean) => void;
   setLyricsSong: (song: Song | null) => void;
+  clearPlaybackError: () => void;
   ringBell: () => void;
 }
 
@@ -83,6 +91,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [duration, setDuration] = useState<number>(0);
   const [isShuffle, setIsShuffle] = useState<boolean>(false);
   const [isRepeat, setIsRepeat] = useState<boolean>(false);
+  const [playbackError, setPlaybackError] = useState<PlaybackError | null>(null);
 
   // Modals & Overlay States
   const [isExpandedOpen, setIsExpandedOpen] = useState<boolean>(false);
@@ -94,8 +103,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const ytPlayerRef = useRef<any>(null);
   const [ytPlayerReady, setYtPlayerReady] = useState<boolean>(false);
   const timeIntervalRef = useRef<any>(null);
+  const currentSongRef = useRef<Song | null>(currentSong);
+  currentSongRef.current = currentSong;
 
-  // Sync queue when master songs change
+  // Sync queue when master songs load initially
   useEffect(() => {
     if (songs.length > 0 && queue.length === 0) {
       setQueueState(songs);
@@ -128,7 +139,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return;
       }
 
-      // Check if script tag already exists
       const existingScript = document.getElementById('yt-iframe-api-script');
       if (!existingScript) {
         const tag = document.createElement('script');
@@ -138,7 +148,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
       }
 
-      // Bind global callback
       const previousCallback = (window as any).onYouTubeIframeAPIReady;
       (window as any).onYouTubeIframeAPIReady = () => {
         if (previousCallback) previousCallback();
@@ -153,7 +162,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ytPlayerRef.current = new (window as any).YT.Player('global-yt-player-container', {
           height: '100%',
           width: '100%',
-          videoId: currentSong?.youtubeId || 'BsAFCc901MM',
+          videoId: currentSongRef.current?.youtubeId || 'BsAFCc901MM',
           playerVars: {
             autoplay: 0,
             controls: 1,
@@ -164,14 +173,18 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           },
           events: {
             onReady: (event: any) => {
+              console.log('[YouTubePlayer] Global Player Ready');
               setYtPlayerReady(true);
               event.target.setVolume(Math.round(volume * 100));
             },
             onStateChange: (event: any) => {
               // YT.PlayerState: 1 = PLAYING, 2 = PAUSED, 0 = ENDED
               const state = event.data;
+              console.log('[YouTubePlayer] State Change:', state);
+
               if (state === 1) {
                 setIsPlaying(true);
+                setPlaybackError(null);
                 if (ytPlayerRef.current?.getDuration) {
                   setDuration(ytPlayerRef.current.getDuration() || 0);
                 }
@@ -179,13 +192,30 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 setIsPlaying(false);
               } else if (state === 0) {
                 setIsPlaying(false);
-                playNextAuto();
+                handleSongEnded();
               }
             },
             onError: (event: any) => {
-              console.warn('YouTube Player Error Code:', event.data);
-              // Error codes: 100/101/150 = unavailable or restricted. Auto skip to next!
-              playNextAuto();
+              const errorCode = event.data;
+              const activeSong = currentSongRef.current;
+              console.warn('[YouTubePlayer] Error Code:', errorCode, 'for song:', activeSong?.title);
+
+              let errorMsg = 'यह YouTube वीडियो इस वेबसाइट पर चलाया नहीं जा सकता। YouTube पर खोलें।';
+              if (errorCode === 2) {
+                errorMsg = 'गलत YouTube वीडियो ID।';
+              } else if (errorCode === 100) {
+                errorMsg = 'यह वीडियो YouTube पर हटा दिया गया है या प्राइवेट है।';
+              } else if (errorCode === 101 || errorCode === 150) {
+                errorMsg = 'वीडियो मालिक ने इस वेबसाइट पर एम्बेडिंग प्रतिबंधित की है।';
+              }
+
+              setIsPlaying(false);
+              setPlaybackError({
+                songId: activeSong?.id || '',
+                youtubeId: activeSong?.youtubeId,
+                message: errorMsg,
+                code: errorCode
+              });
             }
           }
         });
@@ -202,10 +232,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (isPlaying) {
       timeIntervalRef.current = setInterval(() => {
         if (ytPlayerRef.current && ytPlayerRef.current.getCurrentTime) {
-          const time = ytPlayerRef.current.getCurrentTime();
-          setCurrentTime(time || 0);
-          if (ytPlayerRef.current.getDuration) {
-            setDuration(ytPlayerRef.current.getDuration() || 0);
+          try {
+            const time = ytPlayerRef.current.getCurrentTime();
+            setCurrentTime(time || 0);
+            if (ytPlayerRef.current.getDuration) {
+              setDuration(ytPlayerRef.current.getDuration() || 0);
+            }
+          } catch {
+            // Catch cross-origin / player state polling errors
           }
         }
       }, 500);
@@ -217,23 +251,42 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [isPlaying]);
 
-  // Load and play song via YouTube API
-  const playSong = (song: Song) => {
+  // Handle Song Ended (Part C)
+  const handleSongEnded = () => {
+    if (isRepeat) {
+      if (currentSongRef.current) playSong(currentSongRef.current);
+      return;
+    }
+    playNext();
+  };
+
+  // Load and play song via YouTube API (Part A)
+  const playSong = (song: Song, contextQueue?: Song[]) => {
+    setPlaybackError(null);
     setCurrentSong(song);
     setIsPlaying(true);
 
     // Track recently played
     setRecentlyPlayed(prev => [song.id, ...prev.filter(id => id !== song.id)].slice(0, 20));
 
-    // Update queue current index
-    const idx = queue.findIndex(s => s.id === song.id);
+    // Synchronize Queue & Current Queue Index (Part B Fix!)
+    const activeQueue = contextQueue && contextQueue.length > 0 ? contextQueue : queue;
+    if (contextQueue && contextQueue.length > 0) {
+      setQueueState(contextQueue);
+    }
+
+    const idx = activeQueue.findIndex(s => s.id === song.id || (s.youtubeId && song.youtubeId && s.youtubeId === song.youtubeId));
     if (idx !== -1) {
       setCurrentIndex(idx);
     } else {
-      // Add to queue if not present
-      setQueueState(prev => [...prev, song]);
-      setCurrentIndex(queue.length);
+      // If not in active queue, append and index to end
+      const newQueue = [...activeQueue, song];
+      setQueueState(newQueue);
+      setCurrentIndex(newQueue.length - 1);
     }
+
+    // Diagnostic logging (Part F)
+    console.log('[MusicPlayer] Playing youtubeId:', song.youtubeId, '| Title:', song.title, '| Target Index:', idx !== -1 ? idx : activeQueue.length);
 
     if (ytPlayerRef.current && ytPlayerRef.current.loadVideoById && song.youtubeId) {
       try {
@@ -271,35 +324,41 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const playNextAuto = () => {
-    if (queue.length === 0) return;
-    if (isRepeat) {
-      if (currentSong) playSong(currentSong);
-      return;
-    }
-    if (isShuffle) {
-      const randomIndex = Math.floor(Math.random() * queue.length);
-      playSong(queue[randomIndex]);
-      return;
-    }
-    const nextIdx = (currentIndex + 1) % queue.length;
-    playSong(queue[nextIdx]);
-  };
-
+  // Next Queue Item (Part B & C)
   const playNext = () => {
     if (queue.length === 0) return;
+    setPlaybackError(null);
+
     if (isShuffle) {
       const randomIndex = Math.floor(Math.random() * queue.length);
       playSong(queue[randomIndex]);
       return;
     }
+
     const nextIdx = (currentIndex + 1) % queue.length;
+    console.log('[MusicPlayer] Next Clicked -> Moving from index', currentIndex, 'to', nextIdx, '| Queue len:', queue.length);
     playSong(queue[nextIdx]);
   };
 
+  // Previous Queue Item (Part B)
   const playPrevious = () => {
     if (queue.length === 0) return;
+    setPlaybackError(null);
+
+    // If played more than 3 seconds, restart current song
+    if (currentTime > 3) {
+      seekTo(0);
+      return;
+    }
+
+    if (isShuffle) {
+      const randomIndex = Math.floor(Math.random() * queue.length);
+      playSong(queue[randomIndex]);
+      return;
+    }
+
     const prevIdx = (currentIndex - 1 + queue.length) % queue.length;
+    console.log('[MusicPlayer] Previous Clicked -> Moving from index', currentIndex, 'to', prevIdx, '| Queue len:', queue.length);
     playSong(queue[prevIdx]);
   };
 
@@ -370,6 +429,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const clearPlaybackError = () => {
+    setPlaybackError(null);
+  };
+
   const ringBell = () => {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -410,6 +473,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         showVideo,
         lyricsSong,
         ytPlayerReady,
+        playbackError,
         playSong,
         togglePlay,
         playNext,
@@ -427,6 +491,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsQueueOpen,
         setShowVideo,
         setLyricsSong,
+        clearPlaybackError,
         ringBell
       }}
     >

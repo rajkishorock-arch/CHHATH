@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAudio } from '../../context/AudioContext';
 import {
-  X,
   Play,
   Pause,
   SkipForward,
@@ -15,7 +14,9 @@ import {
   ListMusic,
   Video,
   VideoOff,
-  ChevronDown
+  ChevronDown,
+  ExternalLink,
+  AlertTriangle
 } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 
@@ -42,12 +43,15 @@ export const ExpandedPlayerModal: React.FC = () => {
     toggleRepeat,
     setIsQueueOpen,
     setShowVideo,
-    setLyricsSong
+    setLyricsSong,
+    playbackError,
+    clearPlaybackError
   } = useAudio();
 
   if (!isExpandedOpen || !currentSong) return null;
 
   const isFav = favorites.includes(currentSong.id);
+  const isErrorForCurrent = playbackError && (playbackError.songId === currentSong.id || playbackError.youtubeId === currentSong.youtubeId);
 
   const formatTime = (sec: number) => {
     if (isNaN(sec) || sec < 0) return '0:00';
@@ -104,6 +108,41 @@ export const ExpandedPlayerModal: React.FC = () => {
       {/* Main Content: Large Album Art */}
       <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full my-4">
         
+        {/* Playback Embedding Error Banner */}
+        {isErrorForCurrent && (
+          <div className="w-full bg-rose-950/90 border border-rose-500/50 p-4 rounded-2xl mb-6 text-center space-y-3 shadow-xl">
+            <div className="flex items-center justify-center gap-2 text-rose-400 font-bold text-sm">
+              <AlertTriangle className="w-5 h-5 animate-bounce" />
+              <span>YouTube एम्बेडिंग चेतावनी</span>
+            </div>
+            <p className="text-xs text-rose-200 leading-relaxed">
+              {playbackError.message}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              {currentSong.youtubeId && (
+                <a
+                  href={`https://www.youtube.com/watch?v=${currentSong.youtubeId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>YouTube पर खोलें</span>
+                </a>
+              )}
+              <button
+                onClick={() => {
+                  clearPlaybackError();
+                  playNext();
+                }}
+                className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-300 font-bold text-xs"
+              >
+                अगला गीत बजाएं (Play Next) &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Album Artwork Frame */}
         <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-amber-500/40 mb-6 group">
           <img
@@ -117,7 +156,7 @@ export const ExpandedPlayerModal: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent" />
 
           {/* Active EQ Bar overlay */}
-          {isPlaying && (
+          {isPlaying && !isErrorForCurrent && (
             <div className="absolute bottom-4 left-4 flex items-end gap-1">
               <div className="w-1.5 h-6 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.4s]" />
               <div className="w-1.5 h-10 bg-orange-400 rounded-full animate-bounce [animation-delay:-0.2s]" />

@@ -8,7 +8,9 @@ import {
   ListMusic,
   Video,
   VideoOff,
-  ChevronUp
+  ChevronUp,
+  ExternalLink,
+  AlertTriangle
 } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 
@@ -22,10 +24,14 @@ export const StickyPlayer: React.FC = () => {
     showVideo,
     setShowVideo,
     setIsExpandedOpen,
-    setIsQueueOpen
+    setIsQueueOpen,
+    playbackError,
+    clearPlaybackError
   } = useAudio();
 
   if (!currentSong) return null;
+
+  const isErrorForCurrent = playbackError && (playbackError.songId === currentSong.id || playbackError.youtubeId === currentSong.youtubeId);
 
   return (
     <>
@@ -36,8 +42,40 @@ export const StickyPlayer: React.FC = () => {
       */}
       <div
         id="sticky-player"
-        className="fixed bottom-16 lg:bottom-4 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-4xl z-30 px-2 sm:px-4 pointer-events-auto font-mukta"
+        className="fixed bottom-16 lg:bottom-4 left-0 right-0 lg:left-1/2 lg:-translate-x-1/2 w-full lg:max-w-4xl z-30 px-2 sm:px-4 pointer-events-auto font-mukta space-y-1.5"
       >
+        {/* Playback Embedding Error Banner */}
+        {isErrorForCurrent && (
+          <div className="bg-rose-950/95 border border-rose-500/50 text-rose-200 backdrop-blur-xl rounded-xl p-2 sm:px-4 flex items-center justify-between gap-2 text-xs shadow-xl animate-in slide-in-from-bottom duration-200">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
+              <span className="truncate">{playbackError.message}</span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {currentSong.youtubeId && (
+                <a
+                  href={`https://www.youtube.com/watch?v=${currentSong.youtubeId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] flex items-center gap-1 shadow"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>YouTube पर खोलें</span>
+                </a>
+              )}
+              <button
+                onClick={() => {
+                  clearPlaybackError();
+                  playNext();
+                }}
+                className="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-300 font-bold text-[11px]"
+              >
+                अगला (Next) &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="bg-stone-950/95 text-stone-100 backdrop-blur-2xl border border-amber-500/35 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.85)] p-2 sm:p-3 flex items-center justify-between gap-2 sm:gap-3 transition-all duration-300">
           
           {/* Song Info & Artwork -> Tapping opens Expanded Player */}
@@ -54,7 +92,7 @@ export const StickyPlayer: React.FC = () => {
                   (e.target as HTMLElement).setAttribute('src', getImageUrl('images/daura_arghya.jpg'));
                 }}
               />
-              {isPlaying && (
+              {isPlaying && !isErrorForCurrent && (
                 <div className="absolute inset-0 bg-stone-950/50 flex items-center justify-center gap-0.5">
                   <div className="w-1 bg-amber-400 h-3 animate-bounce [animation-delay:-0.2s]" />
                   <div className="w-1 bg-orange-400 h-4 animate-bounce" />

@@ -52,7 +52,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
               if (isCurrent) {
                 togglePlay();
               } else {
-                playSong(song);
+                playSong(song, songs);
               }
             }}
             className={`group relative flex items-center justify-between p-3 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${
