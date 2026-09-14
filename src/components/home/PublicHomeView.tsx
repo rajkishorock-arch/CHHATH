@@ -1,5 +1,6 @@
 import React from 'react';
 import { HeroSection } from '../hero/HeroSection';
+import { ChhathCommandCenter } from './ChhathCommandCenter';
 import { getImageUrl } from '../../utils/imageUtils';
 import { ArghyaTimeCalc } from '../astronomy/ArghyaTimeCalc';
 import { FourDaysTimeline } from '../timeline/FourDaysTimeline';
@@ -18,9 +19,7 @@ import {
   Utensils,
   Music,
   BookOpen,
-  ShieldCheck,
   ArrowRight,
-  Sparkles,
   Info,
   Users
 } from 'lucide-react';
@@ -36,7 +35,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       title: 'आज का अर्घ्य समय',
       desc: 'सूर्यास्त एवं सूर्योदय का सटीक स्थानीय समय व खगोलीय गणना।',
       icon: Sun,
-      color: 'from-amber-500/20 to-orange-500/20',
       badge: 'समय'
     },
     {
@@ -44,7 +42,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       title: 'चार दिन की पूजा गाइड',
       desc: 'नहाय-खाय, खरना, संध्या व उषा अर्घ्य के पावन नियम।',
       icon: Calendar,
-      color: 'from-orange-500/20 to-amber-500/20',
       badge: 'नियम'
     },
     {
@@ -52,7 +49,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       title: 'सामग्री सूची',
       desc: 'दउरा, सूप, फल, ठेकुआ व पूजा सामग्री की चेकलिस्ट।',
       icon: CheckSquare,
-      color: 'from-yellow-500/20 to-amber-500/20',
       badge: 'चेकलिस्ट'
     },
     {
@@ -60,7 +56,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       title: 'पास के घाट',
       desc: 'नजदीकी पवित्र घाट, पार्किंग सुविधा व भीड़ सुरक्षा गाइड।',
       icon: MapPin,
-      color: 'from-amber-500/20 to-yellow-500/20',
       badge: 'घाट'
     },
     {
@@ -68,7 +63,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       title: 'प्रसाद व रेसिपी',
       desc: 'सात्विक ठेकुआ, कसार व छठ रेसिपी बनाने की सरल विधि।',
       icon: Utensils,
-      color: 'from-orange-500/20 to-red-500/20',
       badge: 'रेसिपी'
     },
     {
@@ -76,7 +70,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       title: 'मंत्र, आरती व गीत',
       desc: 'पारंपरिक छठ गीत, सूर्य मंत्र, स्तोत्र एवं पवित्र आरती।',
       icon: Music,
-      color: 'from-amber-500/20 to-orange-500/20',
       badge: 'संगीत'
     }
   ];
@@ -110,7 +103,12 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
       {/* 1. Hero Section */}
       <HeroSection onNavigate={onNavigate} />
 
-      {/* 2. Six Primary Utility Cards */}
+      {/* 2. Chhath Mahaparv 2026 Command Center */}
+      <section className="container-custom max-w-5xl mx-auto px-4">
+        <ChhathCommandCenter onNavigate={onNavigate} />
+      </section>
+
+      {/* 3. Six Primary Utility Cards */}
       <section className="container-custom max-w-5xl mx-auto px-4">
         <div className="text-center space-y-2 mb-8">
           <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-amber-100">
@@ -124,10 +122,10 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {utilityCards.map((card) => {
             const Icon = card.icon;
-            const cardHref = card.id === 'chhath-arghya-time-2026' || card.id === 'arghya' ? '/CHHATH/chhath-arghya-time-2026/'
-              : card.id === 'chhath-puja-vidhi' || card.id === 'guide' ? '/CHHATH/chhath-puja-vidhi/'
-              : card.id === 'chhath-samagri' || card.id === 'samagri' ? '/CHHATH/chhath-samagri/'
-              : card.id === 'thekua-recipe' || card.id === 'prasad' ? '/CHHATH/thekua-recipe/'
+            const cardHref = card.id === 'arghya' ? '/CHHATH/chhath-arghya-time-2026/'
+              : card.id === 'guide' ? '/CHHATH/chhath-puja-vidhi/'
+              : card.id === 'samagri' ? '/CHHATH/chhath-samagri/'
+              : card.id === 'prasad' ? '/CHHATH/thekua-recipe/'
               : `#${card.id}`;
             return (
               <a
@@ -170,7 +168,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         </div>
       </section>
 
-      {/* 2.5. Dedicated SEO Guides Section */}
+      {/* 4. Dedicated SEO Guides Section */}
       <section className="container-custom max-w-5xl mx-auto px-4">
         <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/30 space-y-6 shadow-sm">
           <div className="text-center space-y-2">
@@ -190,7 +188,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onNavigate('chhath-puja-vidhi');
                 window.history.pushState(null, '', '/CHHATH/chhath-puja-vidhi/');
               }}
-              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between text-decoration-none"
             >
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -216,7 +214,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onNavigate('chhath-samagri');
                 window.history.pushState(null, '', '/CHHATH/chhath-samagri/');
               }}
-              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between text-decoration-none"
             >
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -242,7 +240,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onNavigate('chhath-arghya-time-2026');
                 window.history.pushState(null, '', '/CHHATH/chhath-arghya-time-2026/');
               }}
-              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between text-decoration-none"
             >
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -268,7 +266,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onNavigate('thekua-recipe');
                 window.history.pushState(null, '', '/CHHATH/thekua-recipe/');
               }}
-              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between text-decoration-none"
             >
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -294,7 +292,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onNavigate('chhath-puja-geet');
                 window.history.pushState(null, '', '/CHHATH/chhath-puja-geet/');
               }}
-              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between text-decoration-none"
             >
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -320,7 +318,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onNavigate('chhath-puja-katha');
                 window.history.pushState(null, '', '/CHHATH/chhath-puja-katha/');
               }}
-              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+              className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between text-decoration-none"
             >
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -341,8 +339,6 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
           </div>
         </div>
       </section>
-
-      {/* 3. Section Containers according to user choice */}
 
       {/* Today's Arghya Details */}
       <section id="arghya" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
@@ -380,7 +376,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         <SongsSection />
       </section>
 
-      {/* 4. Trust & Safety Section */}
+      {/* Trust & Safety Section */}
       <section className="container-custom max-w-5xl mx-auto px-4">
         <GhatSafetySection />
 
@@ -398,7 +394,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         </div>
       </section>
 
-      {/* 5. Community Preview (Maximum 3 posts) */}
+      {/* Community Preview */}
       <section className="container-custom max-w-5xl mx-auto px-4">
         <div className="p-6 rounded-3xl bg-amber-500/5 border border-amber-500/20 space-y-6">
           <div className="flex items-center justify-between">
