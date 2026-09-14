@@ -78,7 +78,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // 1. Songs with localStorage persistence (verified real playable songs v2)
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
-      const saved = localStorage.getItem('chhath_custom_songs_v2');
+      const saved = localStorage.getItem('chhath_custom_songs_v3');
       if (saved) {
         const parsed: Song[] = JSON.parse(saved);
         if (parsed && parsed.length > 0) return parsed;
@@ -193,7 +193,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem('chhath_custom_songs_v2', JSON.stringify(songs));
+    localStorage.setItem('chhath_custom_songs_v3', JSON.stringify(songs));
   }, [songs]);
 
   useEffect(() => {

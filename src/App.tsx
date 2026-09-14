@@ -1,79 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ChhathDataProvider } from './context/ChhathDataContext';
-import { AudioProvider } from './context/AudioContext';
+import { AudioProvider, useAudio } from './context/AudioContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ReelsProvider, useReels } from './context/ReelsContext';
+import { ChatProvider } from './context/ChatContext';
 
-// Layout & Navigation Components
+// Layout & Core Navigation Components
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { MobileNav } from './components/layout/MobileNav';
 import { SearchModal } from './components/layout/SearchModal';
 import { ScrollProgressBar } from './components/layout/ScrollProgressBar';
-import { AdvancedSubNav } from './components/layout/AdvancedSubNav';
-import { FloatingQuickDock } from './components/layout/FloatingQuickDock';
-import { SectionDivider } from './components/layout/SectionDivider';
+import { StickyPlayer } from './components/audio/StickyPlayer';
 
-// Cinematic & Onboarding Modals
+// Modals
 import { CinematicIntro } from './components/hero/CinematicIntro';
 import { LocationOnboardingModal } from './components/onboarding/LocationOnboardingModal';
 import { ChhathiAssistantModal } from './components/ai/ChhathiAssistantModal';
 import { AtmosphereAudioMixer } from './components/audio/AtmosphereAudioMixer';
-import { ReelsPlatformModal } from './components/reels/ReelsPlatformModal';
 import { AuthModal } from './components/reels/AuthModal';
-import { PublicWelcomeLanding } from './components/auth/PublicWelcomeLanding';
 import { PersonalizationWizard } from './components/onboarding/PersonalizationWizard';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { ReelsProvider, useReels } from './context/ReelsContext';
-import { ChatProvider } from './context/ChatContext';
-import { useAudio } from './context/AudioContext';
 
-// Chhath Connect Social Communication Suite
-import { ChhathConnectModal } from './components/chat/ChhathConnectModal';
-import { CallScreenModal } from './components/chat/CallScreenModal';
-import { ShareToChatModal } from './components/chat/ShareToChatModal';
-
-// Home Page Sections (Ultra-Premium Cultural Architecture)
-import { HeroSection } from './components/hero/HeroSection';
-import { QuickHubBento } from './components/hero/QuickHubBento';
-import { MyChhathDashboard } from './components/dashboard/MyChhathDashboard';
-import { Interactive3DGhat } from './components/ghats/Interactive3DGhat';
+// Core Views & Sections
+import { PublicHomeView } from './components/home/PublicHomeView';
 import { FourDaysTimeline } from './components/timeline/FourDaysTimeline';
-import { MyFirstChhath } from './components/beginner/MyFirstChhath';
-import { ArghyaTimeCalc } from './components/astronomy/ArghyaTimeCalc';
-import { ArghyaWeatherIntel } from './components/astronomy/ArghyaWeatherIntel';
-import { VirtualArghyaSimulator } from './components/spiritual/VirtualArghyaSimulator';
-import { VirtualDiyaExperience } from './components/spiritual/VirtualDiyaExperience';
-import { SongsSection } from './components/audio/SongsSection';
-import { StickyPlayer } from './components/audio/StickyPlayer';
 import { PujaVidhi } from './components/vidhi/PujaVidhi';
 import { SamagriChecklist } from './components/vidhi/SamagriChecklist';
-import { ShoppingGuide } from './components/marketplace/ShoppingGuide';
+import { ArghyaTimeCalc } from './components/astronomy/ArghyaTimeCalc';
+import { ArghyaWeatherIntel } from './components/astronomy/ArghyaWeatherIntel';
+import { GhatFinder } from './components/ghats/GhatFinder';
+import { GhatSafetySection } from './components/ghats/GhatSafetySection';
 import { PrasadSection } from './components/prasad/PrasadSection';
 import { CookingStudio } from './components/prasad/CookingStudio';
-import { ChhathKatha } from './components/spiritual/ChhathKatha';
 import { MantraAarti } from './components/spiritual/MantraAarti';
-import { GhatFinder } from './components/ghats/GhatFinder';
-import { TravelPlanner } from './components/travel/TravelPlanner';
-import { LiveUpdatesSection } from './components/live/LiveUpdatesSection';
-import { SankalpWall } from './components/engagement/SankalpWall';
+import { SongsSection } from './components/audio/SongsSection';
+import { MyChhathDashboard } from './components/dashboard/MyChhathDashboard';
 import { FamilyChhathHub } from './components/family/FamilyChhathHub';
-import { WishesSection } from './components/engagement/WishesSection';
-import { AIGreetingStudio } from './components/engagement/AIGreetingStudio';
-import { BlessingCertificate } from './components/engagement/BlessingCertificate';
-import { MemoryAlbum } from './components/memory/MemoryAlbum';
-import { PhotoGallery } from './components/engagement/PhotoGallery';
-import { VideoSection } from './components/engagement/VideoSection';
-import { ChhathQuiz } from './components/engagement/ChhathQuiz';
-import { ChhathKids } from './components/engagement/ChhathKids';
-import { CulturalTimeline } from './components/culture/CulturalTimeline';
-import { NRICreativeGuide } from './components/nri/NRICreativeGuide';
-import { EventDirectory } from './components/events/EventDirectory';
-import { ChhathCalendar } from './components/calendar/ChhathCalendar';
-import { BlogSection } from './components/blog/BlogSection';
-import { ChhathArchiveReport } from './components/archive/ChhathArchiveReport';
-import { NewsletterSection } from './components/engagement/NewsletterSection';
-import { AdminDashboard } from './components/admin/AdminDashboard';
+import { Lock, LogIn, Sparkles } from 'lucide-react';
+
+// Lazy Loaded Heavy Secondary Modules
+const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformModal').then(m => ({ default: m.ReelsPlatformModal })));
+const ChhathConnectModal = lazy(() => import('./components/chat/ChhathConnectModal').then(m => ({ default: m.ChhathConnectModal })));
+const CallScreenModal = lazy(() => import('./components/chat/CallScreenModal').then(m => ({ default: m.CallScreenModal })));
+const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
+
+const ComponentLoader: React.FC = () => (
+  <div className="p-12 text-center font-mukta text-stone-500 flex flex-col items-center justify-center gap-3">
+    <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
+    <span className="text-sm font-semibold">सामग्री लोड हो रही है...</span>
+  </div>
+);
 
 const MainContent: React.FC = () => {
   const { openReelsPlatform, openCreateModal, openProfileModal } = useReels();
@@ -85,6 +65,8 @@ const MainContent: React.FC = () => {
     closeOnboarding, 
     openAuthModal 
   } = useAuth();
+
+  const [activeTab, setActiveTab] = useState<string>('home');
 
   const [showCinematicIntro, setShowCinematicIntro] = useState<boolean>(() => {
     return !sessionStorage.getItem('chhath_intro_seen');
@@ -117,6 +99,20 @@ const MainContent: React.FC = () => {
       } else if (hash.startsWith('#user/')) {
         const username = hash.replace('#user/', '');
         openProfileModal(username);
+      } else if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') {
+        setActiveTab('guide');
+      } else if (hash === '#arghya' || hash === '#arghya-times') {
+        setActiveTab('arghya');
+      } else if (hash === '#ghats') {
+        setActiveTab('ghats');
+      } else if (hash === '#prasad') {
+        setActiveTab('prasad');
+      } else if (hash === '#aarti' || hash === '#songs') {
+        setActiveTab('aarti');
+      } else if (hash === '#explore') {
+        setActiveTab('explore');
+      } else if (hash === '#my-chhath') {
+        setActiveTab('my-chhath');
       }
     };
 
@@ -130,213 +126,131 @@ const MainContent: React.FC = () => {
     setShowCinematicIntro(false);
   };
 
-  // 1. PUBLIC GATEKEEPER VIEW FOR UNREGISTERED VISITORS
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] relative">
-        {showCinematicIntro && (
-          <CinematicIntro onComplete={handleCompleteCinematicIntro} />
-        )}
-        <PublicWelcomeLanding />
-        <AuthModal />
-      </div>
-    );
-  }
+  const handleNavigate = (tab: string) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] relative">
       
-      {/* 1. Cinematic Landing Experience (Darkness to Golden Sunrise) */}
+      {/* 1. Cinematic Intro Modal */}
       {showCinematicIntro && (
         <CinematicIntro onComplete={handleCompleteCinematicIntro} />
       )}
 
-      {/* Real-time Top Window Scroll Progress Bar */}
+      {/* Real-time Scroll Progress Bar */}
       <ScrollProgressBar />
 
-      {/* Header / Navbar */}
+      {/* Header Navigation */}
       <Navbar
+        activeTab={activeTab}
+        onNavigate={handleNavigate}
         onOpenSearch={() => setSearchModalOpen(true)}
         onOpenAdmin={() => setAdminModalOpen(true)}
-        onOpenLocation={() => setLocationModalOpen(true)}
-        onOpenAssistant={() => setAssistantModalOpen(true)}
-        onOpenReels={() => openReelsPlatform('foryou')}
       />
 
-      {/* Main Home Page Sequence */}
-      <main className="flex-1 pb-16 lg:pb-8">
-        
-        {/* Hero / जय छठी मईया & Horologium Countdown */}
-        <HeroSection />
+      {/* Main Content Area based on destination tab */}
+      <main className="flex-1 pb-20 lg:pb-12">
+        {activeTab === 'home' && (
+          <PublicHomeView onNavigate={handleNavigate} />
+        )}
 
-        {/* Advanced Sticky Sub-Navigation Category Rail */}
-        <AdvancedSubNav />
+        {activeTab === 'guide' && (
+          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
+            <FourDaysTimeline />
+            <PujaVidhi />
+            <SamagriChecklist />
+          </div>
+        )}
 
-        {/* Bento Grid Command Center Hub */}
-        <QuickHubBento />
+        {activeTab === 'arghya' && (
+          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
+            <ArghyaTimeCalc />
+            <ArghyaWeatherIntel />
+          </div>
+        )}
 
-        {/* “मेरा छठ” (My Chhath Dashboard - Personalized Command Center) */}
-        <MyChhathDashboard />
+        {activeTab === 'ghats' && (
+          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
+            <GhatFinder />
+            <GhatSafetySection />
+          </div>
+        )}
 
-        <SectionDivider symbol="🌞" />
+        {activeTab === 'prasad' && (
+          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
+            <PrasadSection />
+            <CookingStudio />
+          </div>
+        )}
 
-        {/* 3D Interactive Chhath Ghat (Explore River, Diyas, Sun, Arghya in 3D) */}
-        <Interactive3DGhat />
+        {activeTab === 'aarti' && (
+          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
+            <MantraAarti />
+            <SongsSection />
+          </div>
+        )}
 
-        <SectionDivider symbol="🌊" />
+        {activeTab === 'explore' && (
+          <Suspense fallback={<ComponentLoader />}>
+            <ExploreView />
+          </Suspense>
+        )}
 
-        {/* Four Days of Chhath Timeline */}
-        <FourDaysTimeline />
-
-        {/* “My First Chhath” Mode (Beginner Step-by-Step Guide) */}
-        <MyFirstChhath />
-
-        <SectionDivider symbol="🌅" />
-
-        {/* Today's Arghya Time & Astronomical Sun/Weather Calculator */}
-        <ArghyaTimeCalc />
-
-        {/* Arghya Weather Intelligence */}
-        <div className="container-custom max-w-5xl mx-auto px-4">
-          <ArghyaWeatherIntel />
-        </div>
-
-        <SectionDivider symbol="🏺" />
-
-        {/* Virtual Arghya Simulator */}
-        <VirtualArghyaSimulator />
-
-        {/* Virtual Diya Experience & Global Diya Wall */}
-        <VirtualDiyaExperience />
-
-        <SectionDivider symbol="🎵" />
-
-        {/* Chhath Songs Suite */}
-        <SongsSection />
-
-        <SectionDivider symbol="🪔" />
-
-        {/* Puja Vidhi */}
-        <PujaVidhi />
-
-        {/* Puja Samagri Checklist */}
-        <SamagriChecklist />
-
-        {/* Cultural Shopping Guide */}
-        <ShoppingGuide />
-
-        <SectionDivider symbol="🌾" />
-
-        {/* Chhath Prasad & Thekua Calculator */}
-        <PrasadSection />
-
-        {/* Chhath Recipe Studio & Cooking Mode */}
-        <CookingStudio />
-
-        <SectionDivider symbol="📖" />
-
-        {/* Chhath Katha & Sacred Puranic Legends */}
-        <ChhathKatha />
-
-        {/* Mantra & Aarti */}
-        <MantraAarti />
-
-        <SectionDivider symbol="🌊" />
-
-        {/* Nearby Ghats & Ghat Directory with Live River Safety Gauge */}
-        <GhatFinder />
-
-        {/* Smart Travel Planner */}
-        <TravelPlanner />
-
-        {/* Chhath Puja Live Updates & Weather Alert */}
-        <LiveUpdatesSection />
-
-        <SectionDivider symbol="📜" />
-
-        {/* Sacred Sankalp & Prayer Wall */}
-        <SankalpWall />
-
-        {/* Family Chhath Mode (Shared Circle & Tasks) */}
-        <FamilyChhathHub />
-
-        <SectionDivider symbol="💌" />
-
-        {/* AI Chhath Greeting Generator */}
-        <AIGreetingStudio />
-
-        {/* Wishes & Digital Greeting Cards */}
-        <WishesSection />
-
-        {/* VIP Blessing Certificate Studio */}
-        <BlessingCertificate />
-
-        {/* Chhath Memory Album (Multi-Year Archive 2026, 2025, 2024) */}
-        <MemoryAlbum />
-
-        <SectionDivider symbol="📸" />
-
-        {/* Photo Gallery */}
-        <PhotoGallery />
-
-        {/* Videos Showcase */}
-        <VideoSection />
-
-        {/* Interactive Chhath Quiz */}
-        <ChhathQuiz />
-
-        {/* Chhath for Children (बाल वाटिका) */}
-        <ChhathKids />
-
-        <SectionDivider symbol="🏛️" />
-
-        {/* Cultural Timeline (Rigveda to Global 21st Century) */}
-        <CulturalTimeline />
-
-        {/* Chhath for NRIs (Global Diaspora Guide) */}
-        <NRICreativeGuide />
-
-        {/* Chhath Event Directory */}
-        <EventDirectory />
-
-        {/* Digital Chhath Calendar */}
-        <ChhathCalendar />
-
-        {/* Latest Cultural Articles / Blog */}
-        <BlogSection />
-
-        {/* Multi-Year Archive & Annual Chhath Report */}
-        <ChhathArchiveReport />
-
-        {/* Newsletter Section */}
-        <NewsletterSection />
+        {activeTab === 'my-chhath' && (
+          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
+            {isAuthenticated && currentUser ? (
+              <>
+                <MyChhathDashboard />
+                <FamilyChhathHub />
+              </>
+            ) : (
+              <div className="p-8 sm:p-12 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-center space-y-4 max-w-xl mx-auto my-12">
+                <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center mx-auto">
+                  <Lock className="w-8 h-8" />
+                </div>
+                <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
+                  मेरी छठ — व्यक्तिगत सेवा
+                </h2>
+                <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
+                  अपनी पूजा सामग्री सूची सहेजने, पसंदीदा गीत संजोने, परिवार के साथ दउरा/प्रसाद कार्य साझा करने और व्यक्तिगत सूचनाएं पाने के लिए निःशुल्क खाता बनाएं या लॉग इन करें।
+                </p>
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    onClick={() => openAuthModal('login', 'अपनी व्यक्तिगत पूजा सूची और परिवार के कार्य सहेजने के लिए लॉग इन करें।')}
+                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold font-mukta text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4 text-stone-950" />
+                    <span>लॉग इन करें</span>
+                  </button>
+                  <button
+                    onClick={() => openAuthModal('signup', 'अपना निःशुल्क छठ महापर्व खाता बनाएं।')}
+                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold font-mukta text-sm border border-amber-500/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span>निःशुल्क खाता बनाएं</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Footer */}
       <Footer />
 
-      {/* Floating Speed-Dial Quick Dock */}
-      <FloatingQuickDock
-        onOpenAssistant={() => setAssistantModalOpen(true)}
-        onOpenMixer={() => setMixerModalOpen(true)}
-        onOpenReels={() => openReelsPlatform('foryou')}
-      />
-
       {/* Sticky Mini Audio Player */}
       <StickyPlayer />
 
-      {/* Mobile Bottom Navigation Bar (#40) */}
+      {/* Mobile Bottom Navigation Bar */}
       <MobileNav
-        onOpenReels={() => openReelsPlatform('foryou')}
-        onOpenCreate={() => openCreateModal()}
-        onOpenSearch={() => setSearchModalOpen(true)}
-        onOpenProfile={() => {
-          if (currentUser) openProfileModal(currentUser);
-          else openAuthModal('login');
-        }}
+        activeTab={activeTab}
+        onNavigate={handleNavigate}
       />
 
-      {/* Personalization Wizard Modal (Auto opens if !onboardingCompleted or triggered via user menu) */}
+      {/* Personalization Wizard Modal */}
       <PersonalizationWizard
         isOpen={Boolean(currentUser && (!currentUser.onboardingCompleted || onboardingModalOpen))}
         onClose={closeOnboarding}
@@ -372,19 +286,17 @@ const MainContent: React.FC = () => {
         onClose={() => setMixerModalOpen(false)}
       />
 
-      {/* Dynamic Chhath Reels Platform Master Modal */}
-      <ReelsPlatformModal />
-
-      {/* Admin Dashboard CMS Modal */}
-      <AdminDashboard
-        isOpen={adminModalOpen}
-        onClose={() => setAdminModalOpen(false)}
-      />
-
-      {/* Chhath Connect Social Communication Suite */}
-      <ChhathConnectModal />
-      <CallScreenModal />
-      <ShareToChatModal />
+      {/* Lazy Loaded Heavy Modals */}
+      <Suspense fallback={null}>
+        <ReelsPlatformModal />
+        <ChhathConnectModal />
+        <CallScreenModal />
+        <ShareToChatModal />
+        <AdminDashboard
+          isOpen={adminModalOpen}
+          onClose={() => setAdminModalOpen(false)}
+        />
+      </Suspense>
 
     </div>
   );
@@ -409,4 +321,5 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
 

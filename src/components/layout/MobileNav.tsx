@@ -1,96 +1,58 @@
 import React from 'react';
-import { Home, Film, PlusCircle, Search, User, MessageCircle } from 'lucide-react';
-import { useChat } from '../../context/ChatContext';
+import { Home, BookOpen, Sun, MapPin, User } from 'lucide-react';
 
 interface MobileNavProps {
-  onOpenReels?: () => void;
-  onOpenCreate?: () => void;
-  onOpenSearch?: () => void;
-  onOpenProfile?: () => void;
+  activeTab?: string;
+  onNavigate?: (tab: string) => void;
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({
-  onOpenReels,
-  onOpenCreate,
-  onOpenSearch,
-  onOpenProfile
+  activeTab = 'home',
+  onNavigate
 }) => {
-  const { openConnect, unreadCount } = useChat();
+  const items = [
+    { id: 'home', label: 'होम', icon: Home, href: '#home' },
+    { id: 'guide', label: 'गाइड', icon: BookOpen, href: '#guide' },
+    { id: 'arghya', label: 'अर्घ्य', icon: Sun, href: '#arghya' },
+    { id: 'ghats', label: 'घाट', icon: MapPin, href: '#ghats' },
+    { id: 'my-chhath', label: 'मेरी छठ', icon: User, href: '#my-chhath' }
+  ];
+
+  const handleClick = (e: React.MouseEvent, id: string) => {
+    if (onNavigate) {
+      e.preventDefault();
+      onNavigate(id);
+    }
+  };
 
   return (
     <nav 
-      aria-label="मोबाइल नेविगेशन"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-xl border-t border-amber-500/30 py-2 px-3 shadow-2xl"
+      aria-label="मोबाइल मुख्य नेविगेशन"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-950/95 backdrop-blur-xl border-t border-amber-500/20 py-2 px-2 shadow-2xl"
     >
-      <div className="flex items-center justify-around">
-        {/* 1. Home */}
-        <a
-          href="#"
-          className="flex flex-col items-center gap-0.5 text-stone-400 hover:text-amber-400 text-decoration-none transition-colors"
-        >
-          <Home className="w-5 h-5" />
-          <span className="text-[10px] font-mukta font-bold">होम</span>
-        </a>
-
-        {/* 2. Reels */}
-        <button
-          onClick={onOpenReels}
-          className="flex flex-col items-center gap-0.5 text-amber-400 font-bold transition-transform active:scale-90"
-        >
-          <div className="relative">
-            <Film className="w-5 h-5 text-amber-400 animate-pulse" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
-          </div>
-          <span className="text-[10px] font-mukta font-bold">रील्स 🔥</span>
-        </button>
-
-        {/* 3. Create */}
-        <button
-          onClick={onOpenCreate}
-          className="flex flex-col items-center gap-0.5 -mt-4 text-stone-950 transition-transform active:scale-95 group"
-        >
-          <div className="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 shadow-lg shadow-amber-500/40 flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-stone-950 flex items-center justify-center group-hover:bg-stone-900 transition-colors">
-              <PlusCircle className="w-6 h-6 text-amber-400 fill-amber-400/20" />
-            </div>
-          </div>
-          <span className="text-[10px] font-mukta font-bold text-amber-300">बनाएं</span>
-        </button>
-
-        {/* 4. Search */}
-        <button
-          onClick={onOpenSearch}
-          className="flex flex-col items-center gap-0.5 text-stone-400 hover:text-amber-400 transition-colors"
-        >
-          <Search className="w-5 h-5" />
-          <span className="text-[10px] font-mukta font-bold">सर्च 🔎</span>
-        </button>
-
-        {/* 5. Chhath Connect */}
-        <button
-          onClick={() => openConnect()}
-          className="flex flex-col items-center gap-0.5 text-amber-400 hover:text-amber-300 transition-colors relative"
-        >
-          <div className="relative">
-            <MessageCircle className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-2 px-1 py-0.2 rounded-full bg-red-600 text-white font-black text-[9px] animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] font-mukta font-bold">संवाद 💬</span>
-        </button>
-
-        {/* 6. Profile */}
-        <button
-          onClick={onOpenProfile}
-          className="flex flex-col items-center gap-0.5 text-stone-400 hover:text-amber-400 transition-colors"
-        >
-          <User className="w-5 h-5" />
-          <span className="text-[10px] font-mukta font-bold">प्रोफाइल 👤</span>
-        </button>
+      <div className="flex items-center justify-around max-w-md mx-auto">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <a
+              key={item.id}
+              href={item.href}
+              onClick={(e) => handleClick(e, item.id)}
+              aria-label={item.label}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[56px] min-h-[44px] text-decoration-none transition-all ${
+                isActive 
+                  ? 'text-amber-600 dark:text-amber-400 font-bold bg-amber-500/15' 
+                  : 'text-stone-600 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300'
+              }`}
+            >
+              <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+              <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">{item.label}</span>
+            </a>
+          );
+        })}
       </div>
     </nav>
   );
 };
+

@@ -61,7 +61,7 @@ export const SongsSection: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // REAL-TIME LIVE YOUTUBE SEARCH EFFECT (Debounced)
+  // REAL-TIME LIVE YOUTUBE & WORLD MUSIC SEARCH EFFECT (Debounced)
   useEffect(() => {
     const q = searchQuery.trim();
     if (q.length < 2) {
@@ -72,30 +72,72 @@ export const SongsSection: React.FC = () => {
 
     setIsYtSearching(true);
     const timer = setTimeout(async () => {
+      let resultsFound = false;
+
+      // 1. In dev mode with Vite server, try local YouTube search proxy
       try {
         const res = await fetch(`/api/yt-search?q=${encodeURIComponent(q)}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.results && Array.isArray(data.results)) {
+          if (data.results && Array.isArray(data.results) && data.results.length > 0) {
             const mappedSongs: Song[] = data.results.map((r: any) => ({
               id: `yt-${r.id}`,
               title: r.title,
               singer: r.singer || 'यूट्यूब कलाकार',
-              language: 'Bhojpuri',
-              category: 'Traditional',
+              language: 'World',
+              category: 'Music',
               duration: r.duration || '5:00',
               audioUrl: `https://www.youtube.com/watch?v=${r.id}`,
               youtubeId: r.id,
-              thumbnail: r.thumbnail
+              thumbnail: r.thumbnail || `https://img.youtube.com/vi/${r.id}/hqdefault.jpg`
             }));
             setYtLiveResults(mappedSongs);
+            resultsFound = true;
           }
         }
-      } catch (err) {
-        console.error('Live YouTube Search Error:', err);
-      } finally {
-        setIsYtSearching(false);
+      } catch {
+        // Dev proxy not available or on static host
       }
+
+      // 2. Global fallback for GitHub Pages and World Music Catalog:
+      // iTunes Search API has 100% CORS enabled and searches EVERY song, artist, and album in the world!
+      if (!resultsFound) {
+        try {
+          const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=25`);
+          if (itunesRes.ok) {
+            const data = await itunesRes.json();
+            if (data.results && Array.isArray(data.results) && data.results.length > 0) {
+              const worldTracks: Song[] = data.results.map((r: any) => {
+                const mins = Math.floor((r.trackTimeMillis || 180000) / 60000);
+                const secs = Math.floor(((r.trackTimeMillis || 180000) % 60000) / 1000);
+                const durStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                const artwork = r.artworkUrl100 ? r.artworkUrl100.replace('100x100bb', '600x600bb') : '/images/hero_sunrise.jpg';
+                return {
+                  id: `world-${r.trackId}`,
+                  title: r.trackName || 'विश्व संगीत',
+                  singer: r.artistName || 'कलाकार',
+                  language: r.primaryGenreName || 'World',
+                  category: r.primaryGenreName || 'Pop',
+                  duration: durStr,
+                  audioUrl: r.previewUrl || `https://www.youtube.com/results?search_query=${encodeURIComponent((r.trackName || '') + ' ' + (r.artistName || ''))}`,
+                  previewAudioUrl: r.previewUrl,
+                  thumbnail: artwork,
+                  lyricsSnippet: `${r.collectionName || r.trackName} • ${r.artistName} (विश्व प्रसिद्ध संगीत)`
+                };
+              });
+              setYtLiveResults(worldTracks);
+              resultsFound = true;
+            }
+          }
+        } catch (e) {
+          console.error('World music search error:', e);
+        }
+      }
+
+      if (!resultsFound) {
+        setYtLiveResults([]);
+      }
+      setIsYtSearching(false);
     }, 300);
 
     return () => clearTimeout(timer);
@@ -131,6 +173,8 @@ export const SongsSection: React.FC = () => {
     { label: '🎶 खेसारी लाल', query: 'खेसारी लाल' },
     { label: '🌸 मैथिली ठाकुर', query: 'मैथिली ठाकुर' },
     { label: '🙏 अनुराधा पौडवाल', query: 'अनुराधा पौडवाल' },
+    { label: '👑 यो यो हनी सिंह', query: 'Honey Singh' },
+    { label: '✨ अरिजीत सिंह', query: 'Arijit Singh' },
     { label: '🌅 उग हो सुरुज देव', query: 'सुरुज देव' },
     { label: '🌾 कांच ही बांस', query: 'कांच ही बांस' },
     { label: '🥣 खरना स्पेशल', query: 'खरना' }
@@ -149,33 +193,48 @@ export const SongsSection: React.FC = () => {
     const generalWords = new Set(['chhath', 'chhat', 'chath', 'song', 'songs', 'geet', 'gana', 'bhajan', 'mp3', 'video', 'bhojpuri']);
     
     const isAllGeneral = tokens.every(t => generalWords.has(t));
-    if (isAllGeneral) return true;
+    if (isAllGeneral) {
+      return item.category !== 'Bollywood' && item.category !== 'Punjabi';
+    }
 
     const searchableText = `${item.title} ${item.singer} ${item.category} ${item.language} ${item.lyricsSnippet || ''}`.toLowerCase();
     const specificTokens = tokens.filter(t => !generalWords.has(t));
     if (specificTokens.length === 0) return true;
 
-    return specificTokens.some(token => searchableText.includes(token));
+    // ALL specific tokens must match (e.g. 'Honey' AND 'Singh', so 'Honey Singh' never matches 'Pawan Singh'!)
+    return specificTokens.every(token => searchableText.includes(token));
   };
 
-  // Dropdown Results: Prioritizes REAL LIVE YOUTUBE results when user searches!
+  // Dropdown Results: Combines matching local tracks (Chhath, Honey Singh, Arijit, etc.) AND World Live search results!
   const dropdownResults = useMemo(() => {
-    if (!searchQuery.trim()) {
+    const q = searchQuery.trim();
+    if (!q) {
       return songs.slice(0, 6);
     }
-    // If live YouTube search results exist, show them directly!
+    
+    // 1. First get local exact matches (e.g. Honey Singh hits in data, Chhath songs, etc.)
+    const localMatches = songs.filter(s => isLocalMatch(s, q));
+    
+    // 2. If live results exist (from World iTunes search or YouTube):
     if (ytLiveResults.length > 0) {
-      return ytLiveResults;
+      // Filter out any songs already in localMatches
+      const uniqueLive = ytLiveResults.filter(
+        live => !localMatches.some(loc => 
+          (loc.youtubeId && live.youtubeId && loc.youtubeId === live.youtubeId) || 
+          loc.title.toLowerCase().includes(live.title.toLowerCase()) || 
+          live.title.toLowerCase().includes(loc.title.toLowerCase())
+        )
+      );
+      return [...localMatches, ...uniqueLive].slice(0, 15);
     }
-    // Otherwise fallback to local matches
-    const matched = songs.filter(s => isLocalMatch(s, searchQuery));
-    return matched.length > 0 ? matched : songs.slice(0, 5);
+    
+    return localMatches;
   }, [songs, searchQuery, ytLiveResults]);
 
   // Handle playing any song from search results
   const handleSelectSong = (song: Song) => {
-    // If it's a new YouTube song not yet in data, add it so it persists!
-    const existing = songs.find(s => s.youtubeId === song.youtubeId);
+    // If it's a new song not yet in data, add it so it persists in storage!
+    const existing = songs.find(s => (song.youtubeId && s.youtubeId === song.youtubeId) || s.id === song.id);
     if (!existing) {
       addSong(song);
     }
@@ -186,11 +245,22 @@ export const SongsSection: React.FC = () => {
     setIsDropdownOpen(false);
   };
 
-  // Main grid items: if live YouTube results exist for a user search, display them!
+  // Main grid items: if live YouTube/World results exist for a user search, display them!
   const displayedItems = useMemo(() => {
     const q = searchQuery.trim();
-    if (q && ytLiveResults.length > 0 && activeViewTab === 'all') {
-      return ytLiveResults;
+    if (q && activeViewTab === 'all') {
+      const localMatches = regularSongs.filter(s => isLocalMatch(s, q));
+      if (ytLiveResults.length > 0) {
+        const uniqueLive = ytLiveResults.filter(
+          live => !localMatches.some(loc => 
+            (loc.youtubeId && live.youtubeId && loc.youtubeId === live.youtubeId) || 
+            loc.title.toLowerCase().includes(live.title.toLowerCase()) || 
+            live.title.toLowerCase().includes(loc.title.toLowerCase())
+          )
+        );
+        return [...localMatches, ...uniqueLive];
+      }
+      return localMatches;
     }
 
     const listToFilter = activeViewTab === 'playlists' ? megaPlaylists : regularSongs;
@@ -473,11 +543,13 @@ export const SongsSection: React.FC = () => {
                       <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
                       <span>
                         {isYtSearching ? (
-                          <span>यूट्यूब पर &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
-                        ) : ytLiveResults.length > 0 ? (
-                          <span>🔴 यूट्यूब लाइव खोज परिणाम &ldquo;{searchQuery}&rdquo; ({ytLiveResults.length})</span>
+                          <span>विश्व भर के संगीत में &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
                         ) : searchQuery.trim() ? (
-                          <span>&ldquo;{searchQuery}&rdquo; के लिए परिणाम ({dropdownResults.length})</span>
+                          dropdownResults.length > 0 ? (
+                            <span>&ldquo;{searchQuery}&rdquo; के लिए परिणाम ({dropdownResults.length})</span>
+                          ) : (
+                            <span>🔴 YouTube पर &ldquo;{searchQuery}&rdquo; खोजें</span>
+                          )
                         ) : (
                           <span>सुझाए गए लोकप्रिय गीत व प्लेलिस्ट</span>
                         )}
@@ -498,12 +570,12 @@ export const SongsSection: React.FC = () => {
                       <div className="p-8 text-center space-y-2">
                         <RefreshCw className="w-8 h-8 text-orange-600 mx-auto animate-spin" />
                         <p className="text-xs text-stone-600 dark:text-stone-300">
-                          यूट्यूब से सीधे परिणाम लोड किए जा रहे हैं...
+                          विश्व संगीत लाइब्रेरी से परिणाम लोड किए जा रहे हैं...
                         </p>
                       </div>
                     ) : dropdownResults.length > 0 ? (
                       dropdownResults.map((song) => {
-                        const isCurrent = currentSong?.youtubeId === song.youtubeId;
+                        const isCurrent = currentSong?.id === song.id || (Boolean(song.youtubeId) && currentSong?.youtubeId === song.youtubeId);
                         const isPlayingThis = isCurrent && isPlaying;
 
                         return (
@@ -551,18 +623,18 @@ export const SongsSection: React.FC = () => {
                         );
                       })
                     ) : (
-                      <div className="p-6 text-center space-y-3">
-                        <p className="text-xs text-stone-500 dark:text-stone-400">
-                          स्थानीय सूची में कोई सीधा परिणाम नहीं मिला।
+                      <div className="p-6 text-center space-y-3 bg-stone-900/60 rounded-2xl m-2 border border-red-500/30">
+                        <p className="text-xs text-stone-300">
+                          स्थानीय सूची में &ldquo;{searchQuery}&rdquo; नहीं मिला। यूट्यूब पर सीधे खोजें:
                         </p>
                         <a
-                          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + ' chhath geet')}`}
+                          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow transition-all"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 text-white shadow-lg shadow-red-600/30 transition-transform active:scale-95"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span>YouTube पर &ldquo;{searchQuery}&rdquo; खोजें</span>
+                          <ExternalLink className="w-4 h-4" />
+                          <span>YouTube पर &ldquo;{searchQuery}&rdquo; खोलें ↗</span>
                         </a>
                       </div>
                     )}
@@ -754,7 +826,7 @@ export const SongsSection: React.FC = () => {
             {displayedItems.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {displayedItems.map((song: Song) => {
-                  const isCurrent = currentSong?.youtubeId === song.youtubeId;
+                  const isCurrent = currentSong?.id === song.id || (Boolean(song.youtubeId) && currentSong?.youtubeId === song.youtubeId);
                   const isPlayingThis = isCurrent && isPlaying;
 
                   return (
@@ -776,7 +848,7 @@ export const SongsSection: React.FC = () => {
                           
                           {/* Badge Category / Source */}
                           <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-stone-900/80 backdrop-blur-sm border border-amber-500/30 text-[10px] font-bold text-amber-300">
-                            {song.id.startsWith('yt-') ? '🔴 YouTube' : song.category}
+                            {song.id.startsWith('yt-') ? '🔴 YouTube' : song.id.startsWith('world-') ? '🌐 World Music' : song.category}
                           </div>
 
                           {/* Duration */}

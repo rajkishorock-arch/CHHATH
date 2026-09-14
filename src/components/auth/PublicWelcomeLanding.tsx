@@ -122,42 +122,7 @@ export const PublicWelcomeLanding: React.FC = () => {
           </button>
         </div>
 
-        {/* 1-Click Quick Demo Test Logins */}
-        <div className="w-full max-w-lg p-4 rounded-2xl bg-stone-900/60 border border-stone-800 text-left space-y-2.5">
-          <div className="flex items-center justify-between text-xs text-stone-400 font-bold uppercase tracking-wider">
-            <span>त्वरित 1-क्लिक टेस्ट खाते (One-Click Demo Test Accounts):</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button
-              onClick={() => handleDemoLogin('@pramodchhath')}
-              className="p-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-amber-500/20 text-left transition-all hover:border-amber-400"
-            >
-              <div className="text-xs font-bold text-white truncate">प्रमोद कुमार</div>
-              <div className="text-[10px] text-amber-400 font-mono">@pramodchhath</div>
-            </button>
-            <button
-              onClick={() => handleDemoLogin('@sharda_trust')}
-              className="p-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-amber-500/20 text-left transition-all hover:border-amber-400"
-            >
-              <div className="text-xs font-bold text-white truncate">शारदा सिन्हा न्यास</div>
-              <div className="text-[10px] text-amber-400 font-mono">@sharda_trust</div>
-            </button>
-            <button
-              onClick={() => handleDemoLogin('@bihari_vibes')}
-              className="p-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-amber-500/20 text-left transition-all hover:border-amber-400"
-            >
-              <div className="text-xs font-bold text-white truncate">Bihari Vibes</div>
-              <div className="text-[10px] text-amber-400 font-mono">@bihari_vibes</div>
-            </button>
-            <button
-              onClick={() => handleDemoLogin('@admin_chhath')}
-              className="p-2 rounded-xl bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-left transition-all"
-            >
-              <div className="text-xs font-bold text-amber-300 truncate">🛡️ एडमिन पटल</div>
-              <div className="text-[10px] text-amber-400 font-mono">@admin_chhath</div>
-            </button>
-          </div>
-        </div>
+
 
         {/* "Why Create Account?" Feature Bento Grid */}
         <div className="w-full pt-8 space-y-4">

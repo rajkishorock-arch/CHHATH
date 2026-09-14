@@ -288,8 +288,8 @@ export interface Song {
   id: string;
   title: string;
   singer: string;
-  language: 'Bhojpuri' | 'Maithili' | 'Hindi' | 'Traditional' | 'Magahi';
-  category: 'Bhojpuri' | 'Maithili' | 'Traditional' | 'Chhathi Maiya Bhajan' | 'Surya Dev' | 'Arghya Geet' | 'Kharna' | 'Ghat Geet';
+  language: string;
+  category: string;
   duration: string;
   audioUrl: string;
   thumbnail: string;
@@ -298,6 +298,7 @@ export interface Song {
   playlistId?: string;
   isPlaylist?: boolean;
   trackCount?: number;
+  previewAudioUrl?: string;
 }
 
 export interface Ghat {

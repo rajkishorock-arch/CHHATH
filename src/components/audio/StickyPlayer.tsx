@@ -16,11 +16,23 @@ export const StickyPlayer: React.FC = () => {
   
   // Video popup toggle: default true on song change so user actually sees and hears playback!
   const [showVideo, setShowVideo] = useState(true);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  // Automatically show video window when a new song starts playing
+  // Automatically show video window when a new YouTube song starts playing
   useEffect(() => {
-    if (isPlaying && currentSong) {
+    if (isPlaying && currentSong && (currentSong.youtubeId || currentSong.playlistId)) {
       setShowVideo(true);
+    }
+  }, [currentSong?.id, isPlaying]);
+
+  // Sync HTML5 audio playback for non-YouTube tracks (direct audio streams / iTunes preview URLs)
+  useEffect(() => {
+    if (!currentSong?.youtubeId && !currentSong?.playlistId && audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(e => console.log('Autoplay prevented:', e));
+      } else {
+        audioRef.current.pause();
+      }
     }
   }, [currentSong?.id, isPlaying]);
 
@@ -167,7 +179,7 @@ export const StickyPlayer: React.FC = () => {
               </button>
             )}
 
-            {(currentSong.youtubeId || currentSong.playlistId) && (
+            {currentSong.youtubeId || currentSong.playlistId ? (
               <a
                 href={
                   currentSong.playlistId 
@@ -181,11 +193,30 @@ export const StickyPlayer: React.FC = () => {
               >
                 <ExternalLink className="w-4 h-4" />
               </a>
+            ) : (
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(currentSong.title + ' ' + currentSong.singer)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="p-2 rounded-full bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 transition-colors"
+                title="YouTube पर पूरा वीडियो खोजें व देखें"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
             )}
           </div>
 
         </div>
       </div>
+
+      {/* HTML5 Audio Player for previewUrl & direct audio files */}
+      {(!currentSong.youtubeId && !currentSong.playlistId && (currentSong.previewAudioUrl || currentSong.audioUrl)) && (
+        <audio
+          ref={audioRef}
+          src={currentSong.previewAudioUrl || currentSong.audioUrl}
+          onEnded={playNext}
+        />
+      )}
     </>
   );
 };

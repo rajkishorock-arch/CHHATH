@@ -696,3 +696,46 @@ body {
     display: block !important;
   }
 }
+
+/* Elder Accessibility / Easy Mode (सरल दृश्य) */
+html.easy-mode {
+  font-size: 19px;
+  line-height: 1.7;
+}
+
+html.easy-mode body {
+  font-size: 1.125rem; /* 18px+ minimum base text */
+  letter-spacing: 0.02em;
+}
+
+html.easy-mode p, 
+html.easy-mode span, 
+html.easy-mode button, 
+html.easy-mode a {
+  font-weight: 600 !important;
+}
+
+html.easy-mode button, 
+html.easy-mode a, 
+html.easy-mode [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html.easy-mode *, html.easy-mode ::before, html.easy-mode ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+
