@@ -99,12 +99,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [showVideo, setShowVideo] = useState<boolean>(false);
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
 
-  // YouTube Player Ref & Ready State
+  // YouTube Player Ref & Pending Song Ref
   const ytPlayerRef = useRef<any>(null);
+  const pendingSongRef = useRef<Song | null>(null);
   const [ytPlayerReady, setYtPlayerReady] = useState<boolean>(false);
   const timeIntervalRef = useRef<any>(null);
   const currentSongRef = useRef<Song | null>(currentSong);
   currentSongRef.current = currentSong;
+  const queueRef = useRef<Song[]>(queue);
+  queueRef.current = queue;
+  const currentIndexRef = useRef<number>(currentIndex);
+  currentIndexRef.current = currentIndex;
 
   // Sync queue when master songs load initially
   useEffect(() => {
@@ -156,7 +161,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const createGlobalYtPlayer = () => {
-      if (ytPlayerRef.current || !document.getElementById('global-yt-player-container')) return;
+      const container = document.getElementById('global-yt-player-container');
+      if (ytPlayerRef.current || !container) return;
+
+      console.log('[YouTubePlayer] Initializing global YT.Player on container');
 
       try {
         ytPlayerRef.current = new (window as any).YT.Player('global-yt-player-container', {
@@ -175,7 +183,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             onReady: (event: any) => {
               console.log('[YouTubePlayer] Global Player Ready');
               setYtPlayerReady(true);
-              event.target.setVolume(Math.round(volume * 100));
+              try {
+                event.target.setVolume(Math.round(volume * 100));
+              } catch (e) {
+                console.warn('setVolume onReady warning:', e);
+              }
+              if (pendingSongRef.current && pendingSongRef.current.youtubeId) {
+                console.log('[YouTubePlayer] Loading pending song onReady:', pendingSongRef.current.youtubeId);
+                try {
+                  event.target.loadVideoById(pendingSongRef.current.youtubeId);
+                  pendingSongRef.current = null;
+                } catch (e) {
+                  console.warn('Pending loadVideoById error:', e);
+                }
+              }
             },
             onStateChange: (event: any) => {
               // YT.PlayerState: 1 = PLAYING, 2 = PAUSED, 0 = ENDED
@@ -185,8 +206,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               if (state === 1) {
                 setIsPlaying(true);
                 setPlaybackError(null);
-                if (ytPlayerRef.current?.getDuration) {
-                  setDuration(ytPlayerRef.current.getDuration() || 0);
+                try {
+                  if (ytPlayerRef.current?.getDuration) {
+                    setDuration(ytPlayerRef.current.getDuration() || 0);
+                  }
+                } catch {
+                  // Catch cross-origin duration check
                 }
               } else if (state === 2) {
                 setIsPlaying(false);
@@ -198,11 +223,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             onError: (event: any) => {
               const errorCode = event.data;
               const activeSong = currentSongRef.current;
-              console.warn('[YouTubePlayer] Error Code:', errorCode, 'for song:', activeSong?.title);
+              console.warn('[YouTubePlayer] Error Code:', errorCode, 'for song:', activeSong?.title, '| youtubeId:', activeSong?.youtubeId);
 
               let errorMsg = 'यह YouTube वीडियो इस वेबसाइट पर चलाया नहीं जा सकता। YouTube पर खोलें।';
               if (errorCode === 2) {
-                errorMsg = 'गलत YouTube वीडियो ID।';
+                errorMsg = 'अमान्य YouTube वीडियो ID।';
               } else if (errorCode === 100) {
                 errorMsg = 'यह वीडियो YouTube पर हटा दिया गया है या प्राइवेट है।';
               } else if (errorCode === 101 || errorCode === 150) {
@@ -220,7 +245,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
         });
       } catch (err) {
-        console.warn('YouTube Player Initialization error:', err);
+        console.warn('YouTube Player Initialization exception:', err);
       }
     };
 
@@ -239,7 +264,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               setDuration(ytPlayerRef.current.getDuration() || 0);
             }
           } catch {
-            // Catch cross-origin / player state polling errors
+            // Ignore polling errors
           }
         }
       }, 500);
@@ -262,6 +287,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Load and play song via YouTube API (Part A)
   const playSong = (song: Song, contextQueue?: Song[]) => {
+    if (!song || !song.youtubeId) {
+      console.warn('[MusicPlayer] Cannot play song without valid youtubeId:', song);
+      return;
+    }
+
     setPlaybackError(null);
     setCurrentSong(song);
     setIsPlaying(true);
@@ -269,8 +299,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Track recently played
     setRecentlyPlayed(prev => [song.id, ...prev.filter(id => id !== song.id)].slice(0, 20));
 
-    // Synchronize Queue & Current Queue Index (Part B Fix!)
-    const activeQueue = contextQueue && contextQueue.length > 0 ? contextQueue : queue;
+    // Synchronize Queue & Current Queue Index (Part B)
+    const activeQueue = contextQueue && contextQueue.length > 0 ? contextQueue : queueRef.current;
     if (contextQueue && contextQueue.length > 0) {
       setQueueState(contextQueue);
     }
@@ -279,21 +309,24 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (idx !== -1) {
       setCurrentIndex(idx);
     } else {
-      // If not in active queue, append and index to end
       const newQueue = [...activeQueue, song];
       setQueueState(newQueue);
       setCurrentIndex(newQueue.length - 1);
     }
 
-    // Diagnostic logging (Part F)
-    console.log('[MusicPlayer] Playing youtubeId:', song.youtubeId, '| Title:', song.title, '| Target Index:', idx !== -1 ? idx : activeQueue.length);
+    // Diagnostic logging
+    console.log('[MusicPlayer] Playing youtubeId:', song.youtubeId, '| Title:', song.title, '| Index:', idx !== -1 ? idx : activeQueue.length);
 
-    if (ytPlayerRef.current && ytPlayerRef.current.loadVideoById && song.youtubeId) {
+    if (ytPlayerRef.current && ytPlayerRef.current.loadVideoById) {
       try {
+        console.log('[YouTubePlayer] Executing loadVideoById:', song.youtubeId);
         ytPlayerRef.current.loadVideoById(song.youtubeId);
       } catch (e) {
-        console.warn('YouTube loadVideoById error:', e);
+        console.warn('[YouTubePlayer] loadVideoById error:', e);
       }
+    } else {
+      console.log('[YouTubePlayer] Player not ready yet. Queuing pending song:', song.youtubeId);
+      pendingSongRef.current = song;
     }
   };
 
@@ -326,23 +359,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Next Queue Item (Part B & C)
   const playNext = () => {
-    if (queue.length === 0) return;
+    const currentQ = queueRef.current;
+    if (currentQ.length === 0) return;
     setPlaybackError(null);
 
     if (isShuffle) {
-      const randomIndex = Math.floor(Math.random() * queue.length);
-      playSong(queue[randomIndex]);
+      const randomIndex = Math.floor(Math.random() * currentQ.length);
+      playSong(currentQ[randomIndex], currentQ);
       return;
     }
 
-    const nextIdx = (currentIndex + 1) % queue.length;
-    console.log('[MusicPlayer] Next Clicked -> Moving from index', currentIndex, 'to', nextIdx, '| Queue len:', queue.length);
-    playSong(queue[nextIdx]);
+    const nextIdx = (currentIndexRef.current + 1) % currentQ.length;
+    console.log('[MusicPlayer] Next Clicked -> Moving to index:', nextIdx, '| Queue len:', currentQ.length, '| Target youtubeId:', currentQ[nextIdx]?.youtubeId);
+    playSong(currentQ[nextIdx], currentQ);
   };
 
   // Previous Queue Item (Part B)
   const playPrevious = () => {
-    if (queue.length === 0) return;
+    const currentQ = queueRef.current;
+    if (currentQ.length === 0) return;
     setPlaybackError(null);
 
     // If played more than 3 seconds, restart current song
@@ -352,14 +387,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     if (isShuffle) {
-      const randomIndex = Math.floor(Math.random() * queue.length);
-      playSong(queue[randomIndex]);
+      const randomIndex = Math.floor(Math.random() * currentQ.length);
+      playSong(currentQ[randomIndex], currentQ);
       return;
     }
 
-    const prevIdx = (currentIndex - 1 + queue.length) % queue.length;
-    console.log('[MusicPlayer] Previous Clicked -> Moving from index', currentIndex, 'to', prevIdx, '| Queue len:', queue.length);
-    playSong(queue[prevIdx]);
+    const prevIdx = (currentIndexRef.current - 1 + currentQ.length) % currentQ.length;
+    console.log('[MusicPlayer] Previous Clicked -> Moving to index:', prevIdx, '| Queue len:', currentQ.length, '| Target youtubeId:', currentQ[prevIdx]?.youtubeId);
+    playSong(currentQ[prevIdx], currentQ);
   };
 
   const seekTo = (seconds: number) => {
@@ -496,12 +531,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }}
     >
       {children}
-      {/* Persistent Single Global YouTube Player Container */}
+      {/* 
+        Persistent Single Global YouTube Player Container
+        - When showVideo is true: Floats at z-[90] (ABOVE ExpandedPlayerModal z-[80]) with a visible rounded frame.
+        - When showVideo is false: Positioned off-screen at -bottom-[9999px] -right-[9999px] with valid 320x180px dimensions.
+        This prevents browser media throttling without obscuring the page with a black overlay!
+      */}
       <div
         className={
           showVideo
-            ? "fixed z-[60] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
-            : "fixed z-[-100] opacity-0 pointer-events-none w-1 h-1 left-0 bottom-0 overflow-hidden"
+            ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
+            : "fixed z-[-100] w-[320px] h-[180px] -bottom-[9999px] -right-[9999px] pointer-events-none overflow-hidden"
         }
       >
         {showVideo && (
@@ -510,7 +550,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             <button
               onClick={() => setShowVideo(false)}
               className="text-stone-400 hover:text-white ml-2 text-sm font-bold"
-              title="Close Video"
+              title="वीडियो छुपाएं"
             >
               ✕
             </button>
