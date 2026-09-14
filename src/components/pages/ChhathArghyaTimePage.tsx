@@ -11,8 +11,8 @@ interface PageProps {
 
 export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
   const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-arghya-time-2026/';
-  const title = 'Chhath Arghya Time 2026 | संध्या और उषा अर्घ्य समय';
-  const description = 'Chhath Puja 2026 में 15 नवंबर संध्या अर्घ्य और 16 नवंबर उषा अर्घ्य का समय: सूर्यास्त व सूर्योदय की सटीक खगोलीय गणना व स्थान-आधारित कैलकुलेटर।';
+  const title = 'Chhath Arghya Time 2026 | शहरवार संध्या और उषा अर्घ्य समय';
+  const description = 'छठ पूजा 2026 में 15 नवंबर संध्या अर्घ्य और 16 नवंबर उषा अर्घ्य का शहरवार समय देखें। पटना, वाराणसी, रांची, दिल्ली, मुंबई सहित प्रमुख शहरों के सूर्यास्त और सूर्योदय समय।';
 
   const breadcrumbs = [
     { label: 'छठ अर्घ्य समय 2026', url: '/CHHATH/chhath-arghya-time-2026/' }
@@ -50,26 +50,34 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
       'mainEntity': [
         {
           '@type': 'Question',
-          'name': 'संध्या अर्घ्य कब है?',
+          'name': 'पटना में छठ अर्घ्य का समय क्या है?',
           'acceptedAnswer': {
             '@type': 'Answer',
-            'text': 'संध्या अर्घ्य कार्तिक शुक्ल षष्ठी, 15 नवंबर 2026 (रविवार) को सूर्यास्त के समय अस्ताचलगामी सूर्य को अर्पित किया जाएगा।'
+            'text': 'पटना में 15 नवंबर 2026 को संध्या अर्घ्य (सूर्यास्त) का समय शाम 05:02 बजे है और 16 नवंबर 2026 को उषा अर्घ्य (सूर्योदय) का समय प्रातः 06:08 बजे है।'
           }
         },
         {
           '@type': 'Question',
-          'name': 'उषा अर्घ्य कब है?',
+          'name': 'वाराणसी में संध्या अर्घ्य कब है?',
           'acceptedAnswer': {
             '@type': 'Answer',
-            'text': 'उषा अर्घ्य कार्तिक शुक्ल सप्तमी, 16 नवंबर 2026 (सोमवार) को प्रातः सूर्योदय के समय उदित होते बाल-सूर्य को समर्पित किया जाएगा।'
+            'text': 'वाराणसी में संध्या अर्घ्य 15 नवंबर 2026 को सूर्यास्त समय शाम 05:11 बजे अर्पित किया जाएगा और उषा अर्घ्य 16 नवंबर को सुबह 06:17 बजे रहेगा।'
           }
         },
         {
           '@type': 'Question',
-          'name': 'क्या अर्घ्य का समय शहर के अनुसार बदलता है?',
+          'name': 'क्या अलग-अलग शहरों में अर्घ्य का समय अलग होता है?',
           'acceptedAnswer': {
             '@type': 'Answer',
-            'text': 'हाँ, सूर्यास्त एवं सूर्योदय का सटीक समय आपके शहर के अक्षांश (Latitude) एवं देशांतर (Longitude) के अनुसार भिन्न होता है। इसलिए अपने शहर की सटीक खगोलीय गणना देखना आवश्यक है।'
+            'text': 'हाँ, सूर्यास्त एवं सूर्योदय का समय प्रत्येक शहर के अक्षांश (Latitude) एवं देशांतर (Longitude) के अनुसार भिन्न होता है। इसलिए अपने शहर का स्थानीय खगोलीय समय देखना आवश्यक है।'
+          }
+        },
+        {
+          '@type': 'Question',
+          'name': 'उषा अर्घ्य किस दिन दिया जाता है?',
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': 'उषा अर्घ्य छठ महापर्व के चौथे व अंतिम दिन कार्तिक शुक्ल सप्तमी (16 नवंबर 2026) को प्रातःकाल सूर्योदय के समय उदित होते सूर्यदेव को अर्पित किया जाता है, जिसके बाद व्रत का पारण होता है।'
           }
         }
       ]
@@ -113,10 +121,20 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
         {/* Informational Content Body */}
         <article className="space-y-10 font-mukta text-stone-800 dark:text-stone-200">
           
-          {/* Section 1: Overview */}
+          {/* Section 1: Explication H2: शहर के अनुसार अर्घ्य समय क्यों बदलता है? */}
           <section className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 space-y-4">
             <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100 border-l-4 border-amber-500 pl-3">
-              छठ महापर्व 2026 में अर्घ्य कब है?
+              शहर के अनुसार अर्घ्य समय क्यों बदलता है?
+            </h2>
+            <p className="text-sm sm:text-base text-stone-700 dark:text-stone-300 leading-relaxed">
+              सूर्य उपासना के महापर्व छठ में संध्या अर्घ्य सूर्यास्त (अस्ताचलगामी सूर्य) तथा उषा अर्घ्य सूर्योदय (उदीयमान सूर्य) के समय समर्पित किया जाता है। चूंकि भारत के विभिन्न शहरों की भौगोलिक स्थिति (Latitude एवं Longitude) अलग-अलग होती है, इसलिए सूर्योदय और सूर्यास्त का समय प्रत्येक शहर में भिन्न होता है। पूर्व के शहरों (जैसे कोलकाता, भागलपुर) में सूर्योदय व सूर्यास्त पश्चिम के शहरों (जैसे अहमदाबाद, मुंबई) की तुलना में पहले होता है।
+            </p>
+          </section>
+
+          {/* Section 2: H2: छठ 2026 में संध्या और उषा अर्घ्य */}
+          <section className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 space-y-4">
+            <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100 border-l-4 border-amber-500 pl-3">
+              छठ 2026 में संध्या और उषा अर्घ्य
             </h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -124,71 +142,57 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
               <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
                 <h3 className="font-rozha text-xl font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
                   <Sun className="w-5 h-5 text-orange-500" />
-                  <span>संध्या अर्घ्य — 15 नवंबर 2026</span>
+                  <span>15 नवंबर 2026 — संध्या अर्घ्य</span>
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
-                  कार्तिक शुक्ल षष्ठी (रविवार) को संध्या समय अस्ताचलगामी सूर्य देव को पहला अर्घ्य अर्पित किया जाएगा।
+                  कार्तिक शुक्ल षष्ठी (रविवार) को सायंकाल अस्ताचलगामी सूर्य देव को प्रथम अर्घ्य समर्पित किया जाता है। व्रती पवित्र जलाशयों में खड़े होकर दूध व जल से अर्घ्य देते हैं।
                 </p>
               </div>
 
               <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
                 <h3 className="font-rozha text-xl font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
                   <Sun className="w-5 h-5 text-amber-500" />
-                  <span>उषा अर्घ्य — 16 नवंबर 2026</span>
+                  <span>16 नवंबर 2026 — उषा अर्घ्य</span>
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
-                  कार्तिक शुक्ल सप्तमी (सोमवार) को प्रातः सूर्योदय के समय उदित होते सूर्य नारायण को अंतिम अर्घ्य दिया जाएगा।
+                  कार्तिक शुक्ल सप्तमी (सोमवार) को प्रातःकाल सूर्योदय के समय उदित होते सूर्य नारायण को अंतिम अर्घ्य अर्पित कर 36 घंटे के निर्जला महाव्रत का पारण किया जाता है।
                 </p>
               </div>
 
             </div>
-
-            <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
-              ध्यान दें कि सूर्यास्त और सूर्योदय का सटीक मिनट आपके शहर और भौगोलिक स्थान (Latitude/Longitude) पर निर्भर करता है। ऊपर दिए गए स्थान-आधारित कैलकुलेटर से अपने शहर का सटीक समय देखें।
-            </p>
           </section>
 
-          {/* Section 2: Sandhya Arghya Meaning */}
+          {/* Section 3: Sandhya Arghya Meaning */}
           <section className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 space-y-3">
             <h2 className="font-rozha text-2xl font-bold text-stone-900 dark:text-amber-100">
-              संध्या अर्घ्य क्या है?
+              संध्या अर्घ्य की सांस्कृतिक व धार्मिक मान्यता
             </h2>
             <p className="text-sm sm:text-base leading-relaxed">
-              संध्या अर्घ्य (पहला अर्घ्य) छठ महापर्व का तृतीय दिवस है। इस दिन व्रती दोपहर से ही पवित्रता पूर्वक ठेकुआ और कसार का महाप्रसाद बनाते हैं। सायंकाल संपूर्ण परिवार के साथ सूप और दउरा लेकर घाट पर एकत्र होते हैं और अस्ताचलगामी (ढलते हुए) सूर्य को नमन कर अर्घ्य अर्पित करते हैं।
+              संध्या अर्घ्य की मुख्य विशेषता यह है कि यह ढलते हुए सूर्य की आराधना का संदेश देता है। भारतीय संस्कृति में कृतज्ञता का यह सर्वोच्च प्रतीक है, जहाँ जो अस्त हो रहा है उसे भी सर्वप्रथम नमन किया जाता है। व्रती दोपहर से ठेकुआ व कसार महाप्रसाद बनाकर सूप व दउरा में सजाकर घाट पर पहुँचते हैं।
             </p>
           </section>
 
-          {/* Section 3: Usha Arghya Meaning */}
+          {/* Section 4: Usha Arghya Meaning */}
           <section className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 space-y-3">
             <h2 className="font-rozha text-2xl font-bold text-stone-900 dark:text-amber-100">
-              उषा अर्घ्य क्या है?
+              उषा अर्घ्य व पारण का महत्व
             </h2>
             <p className="text-sm sm:text-base leading-relaxed">
-              उषा अर्घ्य (दुसरा अर्घ्य) छठ महापर्व का चौथा और अंतिम दिवस है। ब्रह्ममुहूर्त में भोर के समय श्रद्धालु पुनः घाट पर पहुँचते हैं और नदी के शीतल जल में खड़े होकर प्रातःकालीन बाल-सूर्य के उदय की प्रतीक्षा करते हैं। पूर्व दिशा में लालिमा दिखते ही गाय के कच्चे दूध और गंगाजल से अर्घ्य समर्पित कर 36 घंटे के तप का पारण किया जाता है।
+              उषा अर्घ्य नए दिन के आगमन और जीवन में आशा व ऊर्जा के संचरण का प्रतीक है। प्रातःकाल शीतल नदी जल में खड़े होकर सूर्य किरण की प्रथम लालिमा दिखते ही अर्घ्य दिया जाता है। तत्पश्चात घाट पर व्रती अदरक व जल ग्रहण कर पारण करते हैं और महाप्रसाद का वितरण होता है।
             </p>
           </section>
 
-          {/* Section 4: Preparation */}
+          {/* Section 5: Preparation & Rules */}
           <section className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 space-y-3">
             <h2 className="font-rozha text-2xl font-bold text-stone-900 dark:text-amber-100">
-              अर्घ्य देने की सामान्य तैयारी
+              अर्घ्य देने हेतु आवश्यक नियम व तैयारी
             </h2>
             <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base">
-              <li>बांस के सूप में ठेकुआ, भुसवा, ईख, डाभा नींबू, केला व मौसमी फल सजाएं।</li>
-              <li>सूप के आगे मिट्टी का चौमुखी दिया जलाकर रखें।</li>
-              <li>तांबे या पीतल के लोटे में गंगाजल और गाय का कच्चा दूध तैयार रखें।</li>
-              <li>अर्घ्य देते समय सूर्य मंत्र का उच्चारण करें अथवा मन में सूर्य देव का ध्यान करें।</li>
+              <li>बांस के सूप में ठेकुआ, कसार, ईख, डाभा नींबू, केला व मौसमी फल सजाएं।</li>
+              <li>सूप के अग्रभाग में शुद्ध घी का दीपक जलाकर रखें।</li>
+              <li>तांबे या पीतल के पात्र में गंगाजल व गाय का कच्चा दूध तैयार रखें।</li>
+              <li>अर्घ्य देते समय "ॐ सूर्याय नमः" अथवा "ॐ घृणिः सूर्याय नमः" मंत्र का उच्चारण करें।</li>
             </ul>
-          </section>
-
-          {/* Section 5: Ghat Tips */}
-          <section className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 space-y-3">
-            <h2 className="font-rozha text-2xl font-bold text-stone-900 dark:text-amber-100">
-              घाट पर जाने से पहले जरूरी बातें
-            </h2>
-            <p className="text-sm sm:text-base leading-relaxed">
-              घाट पर भीड़भाड़ को देखते हुए समय से पहले प्रस्थान करें। बच्चों की सुरक्षा का विशेष ध्यान रखें और उनकी जेब में नाम-पता की पर्ची रखें। प्रशासन द्वारा बनाई गई जल सुरक्षा रेखा पार न करें।
-            </p>
           </section>
 
           {/* FAQ Section */}
@@ -199,32 +203,36 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
             </h2>
             <div className="space-y-4 text-sm sm:text-base">
               <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
-                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: संध्या अर्घ्य कब है?</h3>
-                <p className="mt-1 text-stone-700 dark:text-stone-300">उत्तर: संध्या अर्घ्य कार्तिक शुक्ल षष्ठी, 15 नवंबर 2026 (रविवार) को सूर्यास्त के समय दिया जाएगा।</p>
+                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: पटना में छठ अर्घ्य का समय क्या है?</h3>
+                <p className="mt-1 text-stone-700 dark:text-stone-300">उत्तर: पटना में 15 नवंबर 2026 को संध्या अर्घ्य (सूर्यास्त) शाम 05:02 बजे और 16 नवंबर 2026 को उषा अर्घ्य (सूर्योदय) सुबह 06:08 बजे है।</p>
               </div>
               <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
-                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: उषा अर्घ्य कब है?</h3>
-                <p className="mt-1 text-stone-700 dark:text-stone-300">उत्तर: उषा अर्घ्य कार्तिक शुक्ल सप्तमी, 16 नवंबर 2026 (सोमवार) को सूर्योदय के समय दिया जाएगा।</p>
+                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: वाराणसी में संध्या अर्घ्य कब है?</h3>
+                <p className="mt-1 text-stone-700 dark:text-stone-300">उत्तर: वाराणसी में 15 नवंबर 2026 को संध्या अर्घ्य का सूर्यास्त समय शाम 05:11 बजे है तथा 16 नवंबर को उषा अर्घ्य प्रातः 06:17 बजे है।</p>
               </div>
               <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
-                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: क्या अर्घ्य का समय शहर के अनुसार बदलता है?</h3>
+                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: क्या अलग-अलग शहरों में अर्घ्य का समय अलग होता है?</h3>
                 <p className="mt-1 text-stone-700 dark:text-stone-300">उत्तर: हाँ, सूर्यास्त व सूर्योदय का समय प्रत्येक शहर के अक्षांश एवं देशांतर के अनुसार भिन्न होता है। ऊपर दिए कैलकुलेटर से अपने शहर का सटीक समय देखें।</p>
+              </div>
+              <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
+                <h3 className="font-bold text-stone-900 dark:text-amber-300">प्रश्न: उषा अर्घ्य किस दिन दिया जाता है?</h3>
+                <p className="mt-1 text-stone-700 dark:text-stone-300">उत्तर: उषा अर्घ्य छठ महापर्व के चौथे व अंतिम दिन कार्तिक शुक्ल सप्तमी (16 नवंबर 2026) को प्रातःकाल सूर्योदय के समय दिया जाता है, जिसके बाद व्रत का पारण होता है।</p>
               </div>
             </div>
           </section>
 
-          {/* Crawlable Internal Links */}
+          {/* Complete Crawlable Internal Links (Requirement 9) */}
           <section className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-4">
             <h2 className="font-rozha text-2xl font-bold text-stone-900 dark:text-amber-100">
-              छठ पूजा की अन्य उपयोगी जानकारी
+              छठ महापर्व के अन्य मुख्य पृष्ठ देखें
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <a
                 href="/CHHATH/chhath-puja-vidhi/"
                 onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-vidhi/'); }}
                 className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
               >
-                <span>छठ पूजा विधि 2026 पढ़ें</span>
+                <span>छठ पूजा विधि 2026</span>
                 <ArrowRight className="w-4 h-4 text-amber-500" />
               </a>
               <a
@@ -232,7 +240,15 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
                 onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-samagri/'); }}
                 className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
               >
-                <span>छठ पूजा सामग्री सूची देखें</span>
+                <span>छठ पूजा सामग्री सूची</span>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </a>
+              <a
+                href="/CHHATH/chhath-arghya-time-2026/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-arghya-time-2026/'); }}
+                className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
+              >
+                <span>छठ अर्घ्य समय 2026</span>
                 <ArrowRight className="w-4 h-4 text-amber-500" />
               </a>
               <a
@@ -243,6 +259,22 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
                 <span>ठेकुआ महाप्रसाद रेसिपी</span>
                 <ArrowRight className="w-4 h-4 text-amber-500" />
               </a>
+              <a
+                href="/CHHATH/chhath-puja-geet/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-geet/'); }}
+                className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
+              >
+                <span>छठ पूजा लोकगीत 🎵</span>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </a>
+              <a
+                href="/CHHATH/chhath-puja-katha/"
+                onClick={(e) => { e.preventDefault(); onNavigate('/CHHATH/chhath-puja-katha/'); }}
+                className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-400 text-decoration-none font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between transition-all"
+              >
+                <span>छठ पूजा पौराणिक कथा 📜</span>
+                <ArrowRight className="w-4 h-4 text-amber-500" />
+              </a>
             </div>
           </section>
 
@@ -251,3 +283,4 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
     </div>
   );
 };
+
