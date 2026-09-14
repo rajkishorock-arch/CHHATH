@@ -223,11 +223,11 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
             </a>
 
             <a
-              href="/CHHATH/chhath-arghya-time/"
+              href="/CHHATH/chhath-arghya-time-2026/"
               onClick={(e) => {
                 e.preventDefault();
-                onNavigate('chhath-arghya-time');
-                window.history.pushState(null, '', '/CHHATH/chhath-arghya-time/');
+                onNavigate('chhath-arghya-time-2026');
+                window.history.pushState(null, '', '/CHHATH/chhath-arghya-time-2026/');
               }}
               className="group p-5 rounded-2xl bg-white dark:bg-stone-900 border border-amber-500/20 hover:border-amber-500 hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
             >

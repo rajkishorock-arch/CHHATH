@@ -10,12 +10,12 @@ interface PageProps {
 }
 
 export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-arghya-time/';
+  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-arghya-time-2026/';
   const title = 'Chhath Arghya Time 2026 | संध्या और उषा अर्घ्य समय';
   const description = 'Chhath Puja 2026 में 15 नवंबर संध्या अर्घ्य और 16 नवंबर उषा अर्घ्य का समय: सूर्यास्त व सूर्योदय की सटीक खगोलीय गणना व स्थान-आधारित कैलकुलेटर।';
 
   const breadcrumbs = [
-    { label: 'छठ अर्घ्य समय', url: '/CHHATH/chhath-arghya-time/' }
+    { label: 'छठ अर्घ्य समय 2026', url: '/CHHATH/chhath-arghya-time-2026/' }
   ];
 
   const jsonLd = [

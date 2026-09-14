@@ -73,15 +73,14 @@ const getInitialTabFromLocation = (): string => {
   if (path.endsWith('chhath-samagri') || hash === '#chhath-samagri') {
     return 'chhath-samagri';
   }
-  if (path.endsWith('chhath-arghya-time') || hash === '#chhath-arghya-time') {
-    return 'chhath-arghya-time';
+  if (path.endsWith('chhath-arghya-time-2026') || path.endsWith('chhath-arghya-time') || hash === '#chhath-arghya-time' || hash === '#arghya') {
+    return 'chhath-arghya-time-2026';
   }
   if (path.endsWith('thekua-recipe') || hash === '#thekua-recipe') {
     return 'thekua-recipe';
   }
 
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
-  if (hash === '#arghya' || hash === '#arghya-times') return 'arghya';
   if (hash === '#ghats') return 'ghats';
   if (hash === '#prasad') return 'prasad';
   if (hash === '#aarti' || hash === '#songs') return 'aarti';
@@ -161,10 +160,10 @@ const MainContent: React.FC = () => {
     let targetUrl = '/CHHATH/';
     if (tab === 'chhath-puja-vidhi') targetUrl = '/CHHATH/chhath-puja-vidhi/';
     else if (tab === 'chhath-samagri') targetUrl = '/CHHATH/chhath-samagri/';
-    else if (tab === 'chhath-arghya-time') targetUrl = '/CHHATH/chhath-arghya-time/';
+    else if (tab === 'chhath-arghya-time-2026' || tab === 'chhath-arghya-time' || tab === 'arghya') targetUrl = '/CHHATH/chhath-arghya-time-2026/';
     else if (tab === 'thekua-recipe') targetUrl = '/CHHATH/thekua-recipe/';
 
-    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'thekua-recipe' || tab === 'home')) {
+    if (window.location.pathname !== targetUrl && (tab.startsWith('chhath-') || tab === 'arghya' || tab === 'thekua-recipe' || tab === 'home')) {
       try {
         window.history.pushState(null, '', targetUrl);
       } catch {
@@ -206,7 +205,7 @@ const MainContent: React.FC = () => {
           <ChhathSamagriPage onNavigate={handleNavigate} />
         )}
 
-        {activeTab === 'chhath-arghya-time' && (
+        {(activeTab === 'chhath-arghya-time-2026' || activeTab === 'chhath-arghya-time' || activeTab === 'arghya') && (
           <ChhathArghyaTimePage onNavigate={handleNavigate} />
         )}
 

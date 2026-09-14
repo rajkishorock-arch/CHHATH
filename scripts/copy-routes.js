@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const routes = [
   'chhath-puja-vidhi',
   'chhath-samagri',
+  'chhath-arghya-time-2026',
   'chhath-arghya-time',
   'thekua-recipe'
 ];
