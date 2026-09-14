@@ -291,10 +291,10 @@ export const chhathSongs: Song[] = [
     language: "Hindi",
     category: "Bollywood",
     duration: "4:15",
-    audioUrl: "https://www.youtube.com/watch?v=KhnIjY7Mmms",
-    thumbnail: "https://img.youtube.com/vi/KhnIjY7Mmms/hqdefault.jpg",
+    audioUrl: "https://www.youtube.com/watch?v=KhnVcAC5bIM",
+    thumbnail: "https://img.youtube.com/vi/KhnVcAC5bIM/hqdefault.jpg",
     lyricsSnippet: "Yaar tera superstar desi kalakaar... main putt haan jatt da manda ni haar!",
-    youtubeId: "KhnIjY7Mmms"
+    youtubeId: "KhnVcAC5bIM"
   },
   {
     id: "song-honey-7",
@@ -315,10 +315,10 @@ export const chhathSongs: Song[] = [
     language: "Punjabi",
     category: "Punjabi",
     duration: "3:30",
-    audioUrl: "https://www.youtube.com/watch?v=mH_LFKWIEB4",
-    thumbnail: "https://img.youtube.com/vi/mH_LFKWIEB4/hqdefault.jpg",
+    audioUrl: "https://www.youtube.com/watch?v=mH_LFkWxpI0",
+    thumbnail: "https://img.youtube.com/vi/mH_LFkWxpI0/hqdefault.jpg",
     lyricsSnippet: "Tera ni main lover... koi shak na tu kar, ni main jind vaar doon...",
-    youtubeId: "mH_LFKWIEB4"
+    youtubeId: "mH_LFkWxpI0"
   },
   {
     id: "song-sidhu-1",
@@ -327,10 +327,10 @@ export const chhathSongs: Song[] = [
     language: "Punjabi",
     category: "Punjabi",
     duration: "4:30",
-    audioUrl: "https://www.youtube.com/watch?v=n_FCrCQ6-9U",
-    thumbnail: "https://img.youtube.com/vi/n_FCrCQ6-9U/hqdefault.jpg",
+    audioUrl: "https://www.youtube.com/watch?v=n_FCrCQ6-bA",
+    thumbnail: "https://img.youtube.com/vi/n_FCrCQ6-bA/hqdefault.jpg",
     lyricsSnippet: "Dass kihda kihda naam laan... nitt controversy create milugi, 295 je karega tarakki...",
-    youtubeId: "n_FCrCQ6-9U"
+    youtubeId: "n_FCrCQ6-bA"
   },
   {
     id: "song-badshah-1",
@@ -339,10 +339,10 @@ export const chhathSongs: Song[] = [
     language: "Hindi",
     category: "Bollywood",
     duration: "3:51",
-    audioUrl: "https://www.youtube.com/watch?v=V6-0Tw3V-3I",
-    thumbnail: "https://img.youtube.com/vi/V6-0Tw3V-3I/hqdefault.jpg",
+    audioUrl: "https://www.youtube.com/watch?v=IkyPRwvANrI",
+    thumbnail: "https://img.youtube.com/vi/IkyPRwvANrI/hqdefault.jpg",
     lyricsSnippet: "Kano mein baaliyan, gaalon pe laaliyan... chamke jaise jugnu!",
-    youtubeId: "V6-0Tw3V-3I"
+    youtubeId: "IkyPRwvANrI"
   },
   {
     id: "song-taylor-1",

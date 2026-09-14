@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { getImageUrl } from '../../utils/imageUtils';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAudio } from '../../context/AudioContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -587,7 +587,12 @@ export const SongsSection: React.FC = () => {
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div className="relative w-14 h-11 sm:w-16 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-amber-500/30 bg-stone-900 shadow">
-                                <img src={song.thumbnail} alt={song.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                <img
+                                  src={song.thumbnail}
+                                  alt={song.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
+                                />
                                 <div className="absolute inset-0 bg-stone-950/30 flex items-center justify-center opacity-90 group-hover:opacity-100">
                                   {isPlayingThis ? (
                                     <Pause className="w-5 h-5 text-orange-400 fill-orange-400" />
@@ -742,6 +747,7 @@ export const SongsSection: React.FC = () => {
                         src={playlist.thumbnail}
                         alt={playlist.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/30 to-transparent"></div>
 
@@ -844,6 +850,7 @@ export const SongsSection: React.FC = () => {
                             src={song.thumbnail}
                             alt={song.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent"></div>
                           
