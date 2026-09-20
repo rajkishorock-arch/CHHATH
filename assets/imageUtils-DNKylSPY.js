@@ -1,0 +1,1 @@
+var e=e=>{if(!e)return`/CHHATH/images/hero_sunrise.jpg`;if(e.startsWith(`http://`)||e.startsWith(`https://`)||e.startsWith(`data:`)||e.startsWith(`/CHHATH/`))return e;let t=e.startsWith(`/`)?e.slice(1):e,n=`/CHHATH/`;return`${n.endsWith(`/`)?n:`${n}/`}${t}`},t=(t,n=`/images/hero_sunrise.jpg`)=>{let r=t.currentTarget;r.onerror=null,r.src=e(n)};export{t as n,e as t};
