@@ -17,10 +17,12 @@ import {
   LogOut,
   Sliders,
   LogIn,
-  Eye
+  Eye,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AccountCenterModal } from '../settings/AccountCenterModal';
+import { AppSettingsModal } from '../settings/AppSettingsModal';
 import { TopSongSearchBar } from '../audio/TopSongSearchBar';
 
 interface NavbarProps {
@@ -55,6 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const langNames: Record<Language, string> = {
     hi: 'हिंदी',
@@ -180,74 +183,38 @@ export const Navbar: React.FC<NavbarProps> = ({
             {mobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4 text-amber-500" />}
           </button>
 
-          {/* Easy Mode / Elder Accessibility Toggle */}
+          {/* Dedicated Settings Button (Always clean & available) */}
           <button
-            onClick={toggleEasyMode}
-            title={easyMode ? 'सामान्य दृश्य पर लौटें' : 'सरल दृश्य (बड़ा अक्षर व उच्च कंट्रास्ट)'}
-            className={`px-2.5 py-1.5 rounded-full text-xs font-bold font-mukta transition-all flex items-center gap-1 border ${
-              easyMode 
-                ? 'bg-amber-500 text-stone-950 border-amber-600 font-black shadow-md' 
-                : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
-            }`}
+            onClick={() => setSettingsModalOpen(true)}
+            title="ऐप सेटिंग्स व प्राथमिकताएं"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">सरल दृश्य</span>
+            <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
           </button>
 
-          {/* Temple Bell Sound */}
+          {/* Desktop-Only Temple Bell Sound */}
           <button
             onClick={ringBell}
             title="मंदिर घंटी बजाएं"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+            className="hidden lg:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
           >
             <BellRing className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Global Search Button */}
+          {/* Desktop-Only Global Search Button */}
           <button
             onClick={onOpenSearch}
             title="समग्र खोज (Global Search)"
-            className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+            className="hidden lg:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
           >
             <Search className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Language Selector Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 transition-colors"
-            >
-              <Languages className="w-3.5 h-3.5" />
-              <span className="text-[11px] sm:text-xs">{langNames[language]}</span>
-            </button>
-
-            {langDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-stone-900 rounded-xl shadow-xl border border-amber-500/30 py-2 z-50">
-                {(Object.keys(langNames) as Language[]).map((code) => (
-                  <button
-                    key={code}
-                    onClick={() => {
-                      setLanguage(code);
-                      setLangDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 text-sm font-mukta font-medium flex items-center justify-between hover:bg-amber-500/10 transition-colors ${
-                      language === code ? 'text-orange-600 dark:text-amber-400 font-bold bg-amber-500/10' : 'text-stone-700 dark:text-stone-200'
-                    }`}
-                  >
-                    <span>{langNames[code]}</span>
-                    {language === code && <span className="text-xs text-orange-500">✓</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Theme Toggle Button */}
+          {/* Desktop-Only Theme Toggle Button */}
           <button
             onClick={toggleTheme}
             title={theme === 'light' ? 'डार्क मोड' : 'लाइट मोड'}
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/10 text-stone-700 dark:text-stone-200 hover:text-amber-500 transition-colors"
+            className="hidden lg:flex w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/10 text-stone-700 dark:text-stone-200 hover:text-amber-500 transition-colors"
           >
             {theme === 'light' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-700" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />}
           </button>
@@ -408,6 +375,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         isOpen={accountCenterModalOpen}
         onClose={closeAccountCenter}
         initialTab={accountCenterTab}
+      />
+
+      <AppSettingsModal
+        isOpen={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
       />
     </header>
   );

@@ -1,6 +1,7 @@
 import { DynamicReel, ReelUser, ReelCategory } from '../../types';
 import { ReelsStorage, EXTERNAL_CHHATH_SEED_CATALOG } from '../reelsStorage';
-import { CachedYouTubeVideo, VideoValidationStatus } from './types';
+import { CachedYouTubeVideo } from './types';
+import { searchYouTubeVideos, decodeHtmlEntities } from '../youtubeSearchService';
 
 export interface YouTubeFilterOptions {
   feedType: string;
@@ -8,6 +9,25 @@ export interface YouTubeFilterOptions {
   selectedCategory?: ReelCategory | null;
   selectedHashtag?: string | null;
 }
+
+// Rotating list of authentic Chhath Puja YouTube Shorts queries
+const LIVE_CHHATH_SHORTS_QUERIES = [
+  'chhath puja shorts',
+  'छठ पूजा रील्स',
+  'chhath geet shorts',
+  'sharda sinha chhath shorts',
+  'pawan singh chhath shorts',
+  'khesari lal chhath shorts',
+  'chhath ghat status shorts',
+  'sandhya arghya chhath shorts',
+  'usha arghya chhath shorts',
+  'thekua prasad chhath shorts',
+  'chhath mahaparv status viral'
+];
+
+let liveQueryIndex = 0;
+let liveNextPageToken: string | null = null;
+const seenLiveVideoIds = new Set<string>();
 
 export const YouTubeProvider = {
   /**
@@ -117,7 +137,7 @@ export const YouTubeProvider = {
   },
 
   /**
-   * Get a slice of validated external YouTube reels
+   * Get a slice of validated external YouTube reels with live infinite stream capability
    */
   async getValidatedItems(
     options: YouTubeFilterOptions, 
@@ -125,21 +145,19 @@ export const YouTubeProvider = {
     count: number
   ): Promise<{ items: DynamicReel[]; nextIndex: number; hasMore: boolean }> {
     const pool = this.getCandidatePool(options);
-    if (pool.length === 0) {
-      return { items: [], nextIndex: 0, hasMore: false };
-    }
-
     const items: DynamicReel[] = [];
     let idx = startIndex;
     let attempts = 0;
-    const maxAttempts = pool.length * 3;
+    const maxAttempts = pool.length * 2;
 
+    // 1. First consume available items from local pool
     while (items.length < count && idx < pool.length && attempts < maxAttempts) {
       const candidate = pool[idx];
 
-      if (candidate && candidate.youtubeVideoId) {
+      if (candidate && candidate.youtubeVideoId && !seenLiveVideoIds.has(candidate.youtubeVideoId)) {
         const validation = await this.validateVideo(candidate.youtubeVideoId);
         if (validation.isValid) {
+          seenLiveVideoIds.add(candidate.youtubeVideoId);
           items.push({
             ...candidate,
             id: candidate.id,
@@ -156,10 +174,69 @@ export const YouTubeProvider = {
       attempts++;
     }
 
+    // 2. If pool is exhausted or needs more items, fetch live YouTube Chhath Shorts dynamically!
+    if (items.length < count) {
+      try {
+        const query = LIVE_CHHATH_SHORTS_QUERIES[liveQueryIndex % LIVE_CHHATH_SHORTS_QUERIES.length];
+        const ytRes = await searchYouTubeVideos(query, liveNextPageToken || '');
+        
+        if (ytRes.results && ytRes.results.length > 0) {
+          liveNextPageToken = ytRes.nextPageToken || null;
+          if (!liveNextPageToken) {
+            liveQueryIndex++;
+          }
+
+          for (const res of ytRes.results) {
+            if (items.length >= count) break;
+            if (ReelsStorage.isBlockedVideo(res.youtubeId) || seenLiveVideoIds.has(res.youtubeId)) {
+              continue;
+            }
+
+            seenLiveVideoIds.add(res.youtubeId);
+            const channelName = decodeHtmlEntities(res.channelTitle) || 'छठ पावन भक्ति';
+            const cleanTitle = decodeHtmlEntities(res.title) || 'छठ महापर्व रील्स';
+
+            items.push({
+              id: `yt-live-reel-${res.youtubeId}`,
+              creatorId: `channel-${res.channelTitle.replace(/\s+/g, '-').toLowerCase()}`,
+              creatorName: channelName,
+              creatorUsername: `@${channelName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'chhath'}`,
+              creatorAvatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(channelName)}`,
+              creatorCity: 'पटना / बिहार',
+              title: cleanTitle,
+              description: res.description || `${cleanTitle} • पावन छठ महापर्व रील्स #ChhathPuja #Shorts`,
+              category: 'Chhath Geet',
+              tags: ['#ChhathPuja', '#ChhathiMaiya', '#Shorts', '#Bhakti'],
+              videoUrl: `https://www.youtube.com/watch?v=${res.youtubeId}`,
+              youtubeVideoId: res.youtubeId,
+              thumbnailUrl: res.thumbnailUrl,
+              channelTitle: channelName,
+              videoDuration: '0:45',
+              likesCount: Math.floor(Math.random() * 8000) + 1500,
+              commentsCount: Math.floor(Math.random() * 300) + 50,
+              sharesCount: Math.floor(Math.random() * 400) + 90,
+              savesCount: Math.floor(Math.random() * 200) + 30,
+              viewsCount: Math.floor(Math.random() * 60000) + 12000,
+              privacy: 'public',
+              status: 'approved',
+              createdAt: new Date().toISOString(),
+              sourceType: 'YOUTUBE',
+              isEmbeddable: true
+            });
+          }
+        } else {
+          liveQueryIndex++;
+        }
+      } catch (err) {
+        console.warn('Live YouTube reels fetch error:', err);
+      }
+    }
+
+    // Always maintain hasMore = true so reel scrolling NEVER ends!
     return {
       items,
       nextIndex: idx,
-      hasMore: idx < pool.length
+      hasMore: true
     };
   }
 };

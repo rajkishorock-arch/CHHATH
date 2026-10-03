@@ -131,12 +131,12 @@ export const FeedService = {
       timestamp: Date.now()
     });
 
-    const hasMore = fpResult.hasMore || (deficit > 0 && nextExtOffset < ReelsStorage.getExternalCatalog().length);
+    const hasMore = true; // Always allow endless infinite scrolling for live Chhath reels
 
     return {
       items: batchItems,
       nextCursor,
-      hasMore: batchItems.length > 0 && hasMore
+      hasMore
     };
   },
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAudio } from '../../context/AudioContext';
 import { Song } from '../../types';
@@ -490,6 +490,90 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       return true;
     });
   }, [regularSongs, selectedCategory, selectedSinger, searchQuery, favorites, searchStatus]);
+
+  // Endless Recommendation State & Infinite Scrolling
+  const [recommendedSongs, setRecommendedSongs] = useState<Song[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const recQueryIndexRef = useRef(0);
+  const recNextTokenRef = useRef<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const CHHATH_REC_TOPICS = [
+    'शारदा सिन्हा के लोकप्रिय छठ गीत',
+    'पवन सिंह छठ गीत 2026',
+    'खेसारी लाल यादव छठ पूजा',
+    'अनुराधा पौडवाल छठ भजन',
+    'मैथिली ठाकुर छठ महापर्व गीत',
+    'कांच ही बांस के बहंगिया छठ गीत',
+    'केलवा के पात पर छठ पूजा',
+    'उगी हे सुरुज देव दीनानाथ',
+    'छठ संध्या अर्घ्य भक्ति गीत',
+    'छठ उषा अर्घ्य गीत',
+    'दौरा घाटे पहुंचे छठ गीत',
+    'छठ महापर्व स्पेशल जूकबॉक्स'
+  ];
+
+  const loadMoreRecommendations = async () => {
+    if (isLoadingRecommendations) return;
+    setIsLoadingRecommendations(true);
+    try {
+      const qIndex = recQueryIndexRef.current % CHHATH_REC_TOPICS.length;
+      const query = CHHATH_REC_TOPICS[qIndex];
+      const token = recNextTokenRef.current || '';
+      const res = await searchYouTubeVideos(query, token);
+      if (res.results && res.results.length > 0) {
+        recNextTokenRef.current = res.nextPageToken || null;
+        if (!res.nextPageToken) {
+          recQueryIndexRef.current++;
+        }
+        const newSongs = res.results.map(convertToSongModel);
+        setRecommendedSongs(prev => {
+          const existingIds = new Set(prev.map(s => s.id));
+          const existingYt = new Set(prev.map(s => s.youtubeId).filter(Boolean));
+          const uniqueSongs = newSongs.filter(s => !existingIds.has(s.id) && (!s.youtubeId || !existingYt.has(s.youtubeId)));
+          return [...prev, ...uniqueSongs];
+        });
+      } else {
+        recQueryIndexRef.current++;
+      }
+    } catch (err) {
+      console.warn('Error loading recommendations:', err);
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
+  };
+
+  // IntersectionObserver for auto-infinite scrolling
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          if (searchStatus === 'success' && nextPageToken && !isLoadingMore) {
+            handleExecuteSearch(searchQuery, nextPageToken);
+          } else if (searchStatus === 'idle' && activeViewTab === 'all' && !isLoadingRecommendations) {
+            loadMoreRecommendations();
+          }
+        }
+      },
+      { rootMargin: '400px' }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [searchStatus, nextPageToken, isLoadingMore, searchQuery, activeViewTab, isLoadingRecommendations]);
+
+  // Combined Curated + Endless Recommended Songs (for searchStatus === 'idle')
+  const allEndlessSongs = useMemo(() => {
+    if (selectedSinger || (selectedCategory !== 'सभी' && selectedCategory !== 'पसंदीदा')) {
+      return filteredCatalogSongs;
+    }
+    const seenYt = new Set(filteredCatalogSongs.map(s => s.youtubeId).filter(Boolean));
+    const uniqueRecs = recommendedSongs.filter(s => !s.youtubeId || !seenYt.has(s.youtubeId));
+    return [...filteredCatalogSongs, ...uniqueRecs];
+  }, [filteredCatalogSongs, recommendedSongs, selectedSinger, selectedCategory]);
 
   // YouTube Category / Artist Pills Definition
   const chips = [
@@ -1120,7 +1204,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 {/* Grid Mode: 16:9 YouTube Video Cards */}
                 {viewMode === 'grid' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                    {filteredCatalogSongs.map((song) => {
+                    {allEndlessSongs.map((song) => {
                       const isCurrent = currentSong?.id === song.id;
                       const isPlayingThis = isCurrent && isPlaying;
                       const inQueue = queue.some(q => q.id === song.id);
@@ -1136,7 +1220,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                           isFav={isFav}
                           onPlay={() => {
                             if (isCurrent) togglePlay();
-                            else playSong(song, filteredCatalogSongs);
+                            else playSong(song, allEndlessSongs);
                           }}
                           onToggleQueue={() => {
                             if (!inQueue) addToQueue(song);
@@ -1151,8 +1235,18 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
                 {/* List Mode: Clean YouTube Music Tracklist */}
                 {viewMode === 'list' && (
-                  <SongList songs={filteredCatalogSongs} />
+                  <SongList songs={allEndlessSongs} />
                 )}
+
+                {/* Infinite Scroll Bottom Sentinel & Live Loader Indicator */}
+                <div ref={sentinelRef} className="py-6 text-center">
+                  {(isLoadingRecommendations || isLoadingMore) && (
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-900 border border-stone-800 text-amber-400 text-xs font-bold shadow-md animate-pulse">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-red-500" />
+                      <span>अधिक पावन छठ गीत लोड हो रहे हैं...</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

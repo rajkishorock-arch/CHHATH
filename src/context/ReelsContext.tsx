@@ -335,7 +335,11 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (effectiveReels[idx]) {
       setActiveReelId(effectiveReels[idx].id);
     }
-  }, [effectiveReels]);
+    // Auto-fetch more live reels whenever user is within 3 reels of the end
+    if (idx >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
+      loadMoreReels();
+    }
+  }, [effectiveReels, hasMoreReels, isLoadingBatch, loadMoreReels]);
 
   const handleSetActiveReelId = useCallback((id: string | null) => {
     setActiveReelId(id);
@@ -343,14 +347,22 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const idx = effectiveReels.findIndex(r => r.id === id);
       if (idx !== -1) {
         setActiveReelIndex(idx);
+        if (idx >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
+          loadMoreReels();
+        }
       }
     }
-  }, [effectiveReels]);
+  }, [effectiveReels, hasMoreReels, isLoadingBatch, loadMoreReels]);
 
   // Navigation methods
   const nextReel = () => {
     if (effectiveReels.length === 0) return;
-    const nextIdx = (activeReelIndex + 1) % effectiveReels.length;
+    if (activeReelIndex >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
+      loadMoreReels();
+    }
+    const nextIdx = activeReelIndex + 1 < effectiveReels.length
+      ? activeReelIndex + 1
+      : (hasMoreReels ? activeReelIndex : 0);
     handleSetActiveReelIndex(nextIdx);
   };
 
