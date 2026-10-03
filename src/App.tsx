@@ -152,6 +152,8 @@ const MainContent: React.FC = () => {
         openReelsPlatform('foryou', id);
       } else if (hash === '#reels/following') {
         openReelsPlatform('following');
+      } else if (hash === '#reels' || hash === '#reel') {
+        openReelsPlatform('foryou');
       }
     };
 
@@ -164,6 +166,10 @@ const MainContent: React.FC = () => {
   }, [openReelsPlatform]);
 
   const handleNavigate = (tab: string, query?: string) => {
+    if (tab === 'reels') {
+      openReelsPlatform('foryou');
+      return;
+    }
     if (query !== undefined) {
       setMusicInitialQuery(query);
     }
@@ -208,7 +214,7 @@ const MainContent: React.FC = () => {
       />
 
       {/* Main Content Area based on destination tab */}
-      <main className="flex-1 pb-20 lg:pb-12">
+      <main className="flex-1 pb-36 lg:pb-16">
         {activeTab === 'home' && (
           <PublicHomeView onNavigate={handleNavigate} />
         )}
@@ -278,7 +284,7 @@ const MainContent: React.FC = () => {
         )}
 
         {activeTab === 'music' && (
-          <div className="container-custom max-w-6xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+          <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
             <SongsSection initialQuery={musicInitialQuery} />
           </div>
         )}
