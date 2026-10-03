@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, Sun, MapPin, User } from 'lucide-react';
+import { Home, BookOpen, Sun, Music, User } from 'lucide-react';
 
 interface MobileNavProps {
   activeTab?: string;
@@ -13,8 +13,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const items = [
     { id: 'home', label: 'होम', icon: Home, href: '#home' },
     { id: 'guide', label: 'गाइड', icon: BookOpen, href: '#guide' },
+    { id: 'music', label: 'संगीत', icon: Music, href: '#music' },
     { id: 'arghya', label: 'अर्घ्य', icon: Sun, href: '#arghya' },
-    { id: 'ghats', label: 'घाट', icon: MapPin, href: '#ghats' },
     { id: 'my-chhath', label: 'मेरी छठ', icon: User, href: '#my-chhath' }
   ];
 

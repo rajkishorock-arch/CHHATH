@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AccountCenterModal } from '../settings/AccountCenterModal';
+import { TopSongSearchBar } from '../audio/TopSongSearchBar';
 
 interface NavbarProps {
   activeTab?: string;
@@ -51,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -68,7 +70,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'arghya', label: 'अर्घ्य समय', href: '#arghya' },
     { id: 'ghats', label: 'घाट', href: '#ghats' },
     { id: 'prasad', label: 'प्रसाद', href: '#prasad' },
-    { id: 'aarti', label: 'आरती व गीत', href: '#aarti' },
+    { id: 'aarti', label: 'आरती व मंत्र', href: '#aarti' },
+    { id: 'music', label: 'छठ संगीत', href: '#music', badge: 'यूट्यूब' },
     { id: 'explore', label: 'एक्सप्लोर', href: '#explore' },
     { id: 'my-chhath', label: 'मेरी छठ', href: '#my-chhath', highlight: true }
   ];
@@ -90,6 +93,17 @@ export const Navbar: React.FC<NavbarProps> = ({
       e.preventDefault();
       onNavigate(id);
       setMobileMenuOpen(false);
+    }
+  };
+
+  const handleSearchNavigate = (query?: string) => {
+    if (query) {
+      window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query } }));
+    }
+    if (onNavigate) {
+      onNavigate('music');
+    } else {
+      window.location.hash = query ? `#music?q=${encodeURIComponent(query)}` : '#music';
     }
   };
 
@@ -121,6 +135,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </a>
 
+        {/* Industry-Grade Top Song Search Bar (Desktop / Large Tablet) */}
+        <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-4">
+          <TopSongSearchBar onNavigateToMusic={handleSearchNavigate} />
+        </div>
+
         {/* Desktop Nav Items */}
         <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5" aria-label="मुख्य नेविगेशन">
           {navLinks.map((item) => {
@@ -139,6 +158,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <span>{item.label}</span>
+                {item.badge && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-600 text-white font-extrabold leading-tight">
+                    {item.badge}
+                  </span>
+                )}
               </a>
             );
           })}
@@ -147,6 +171,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right Header Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           
+          {/* Mobile Song Search Toggle Button */}
+          <button
+            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            title="छठ संगीत खोजें"
+            className="md:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+          >
+            {mobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4 text-amber-500" />}
+          </button>
+
           {/* Easy Mode / Elder Accessibility Toggle */}
           <button
             onClick={toggleEasyMode}
@@ -170,11 +203,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <BellRing className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Search Button */}
+          {/* Global Search Button */}
           <button
             onClick={onOpenSearch}
-            title="खोजें"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+            title="समग्र खोज (Global Search)"
+            className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
           >
             <Search className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
@@ -317,6 +350,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Mobile Expandable Top Search Bar */}
+      {mobileSearchOpen && (
+        <div className="md:hidden px-4 py-2.5 bg-stone-950/95 border-b border-amber-500/25 shadow-xl animate-in slide-in-from-top duration-200">
+          <TopSongSearchBar
+            onNavigateToMusic={(q) => {
+              setMobileSearchOpen(false);
+              handleSearchNavigate(q);
+            }}
+          />
+        </div>
+      )}
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (

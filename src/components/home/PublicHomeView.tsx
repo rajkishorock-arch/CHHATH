@@ -370,9 +370,13 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         <PrasadSection />
       </section>
 
-      {/* Mantra & Aarti & Songs */}
+      {/* Mantra & Aarti */}
       <section id="aarti" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24 space-y-8">
         <MantraAarti />
+      </section>
+
+      {/* Dedicated Chhath Music Studio */}
+      <section id="music" className="container-custom max-w-6xl mx-auto px-4 scroll-mt-24 space-y-8">
         <SongsSection />
       </section>
 

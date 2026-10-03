@@ -105,7 +105,8 @@ const getInitialTabFromLocation = (): string => {
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
   if (hash === '#ghats') return 'ghats';
   if (hash === '#prasad') return 'prasad';
-  if (hash === '#aarti' || hash === '#songs') return 'aarti';
+  if (hash === '#aarti') return 'aarti';
+  if (hash.startsWith('#music') || hash.startsWith('#songs')) return 'music';
   if (hash === '#explore') return 'explore';
   if (hash === '#my-chhath') return 'my-chhath';
 
@@ -116,6 +117,14 @@ const MainContent: React.FC = () => {
   const { openReelsPlatform } = useReels();
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
+
+  const [musicInitialQuery, setMusicInitialQuery] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.hash.match(/[?&]q=([^&]+)/);
+      if (match) return decodeURIComponent(match[1]);
+    }
+    return '';
+  });
 
   const [showCinematicIntro, setShowCinematicIntro] = useState<boolean>(() => {
     return !sessionStorage.getItem('chhath_intro_seen');
@@ -134,6 +143,10 @@ const MainContent: React.FC = () => {
       const tab = getInitialTabFromLocation();
       setActiveTab(tab);
       const hash = window.location.hash;
+      const qMatch = hash.match(/[?&]q=([^&]+)/);
+      if (qMatch) {
+        setMusicInitialQuery(decodeURIComponent(qMatch[1]));
+      }
       if (hash.startsWith('#reel/')) {
         const id = hash.replace('#reel/', '');
         openReelsPlatform('foryou', id);
@@ -150,7 +163,10 @@ const MainContent: React.FC = () => {
     };
   }, [openReelsPlatform]);
 
-  const handleNavigate = (tab: string) => {
+  const handleNavigate = (tab: string, query?: string) => {
+    if (query !== undefined) {
+      setMusicInitialQuery(query);
+    }
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -167,6 +183,7 @@ const MainContent: React.FC = () => {
     else if (tab === 'chhath-calendar-2026') urlPath = `${base}chhath-calendar-2026/`;
     else if (tab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
     else if (tab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
+    else if (tab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
     else if (tab !== 'home') urlPath = `${base}#${tab}`;
 
     window.history.pushState(null, '', urlPath);
@@ -257,7 +274,12 @@ const MainContent: React.FC = () => {
         {activeTab === 'aarti' && (
           <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
             <MantraAarti />
-            <SongsSection />
+          </div>
+        )}
+
+        {activeTab === 'music' && (
+          <div className="container-custom max-w-6xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+            <SongsSection initialQuery={musicInitialQuery} />
           </div>
         )}
 
