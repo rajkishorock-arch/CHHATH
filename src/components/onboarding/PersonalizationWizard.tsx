@@ -81,7 +81,8 @@ export const PersonalizationWizard: React.FC<PersonalizationWizardProps> = ({ is
   const handleFinish = async () => {
     setIsFinishing(true);
 
-    // Sync global location context
+    // Sync global language and location contexts
+    setLanguage(selectedLang);
     setUserLocation({ state, city, isCustom: true });
 
     await completeOnboarding({

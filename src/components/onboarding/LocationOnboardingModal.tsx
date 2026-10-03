@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Sparkles, Check, Globe, X } from 'lucide-react';
 import { useChhathData } from '../../context/ChhathDataContext';
+import { useAuth } from '../../context/AuthContext';
 import { cityArghyaData } from '../../data/astronomy';
 
 interface LocationOnboardingModalProps {
@@ -32,6 +33,7 @@ const CITIES_BY_STATE: Record<string, string[]> = {
 
 export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = ({ isOpen, onClose }) => {
   const { userLocation, setUserLocation } = useChhathData();
+  const { currentUser, updateProfile } = useAuth();
   const [selectedState, setSelectedState] = useState<string>(userLocation.state || 'Bihar');
   const [selectedCity, setSelectedCity] = useState<string>(userLocation.city || 'Patna');
   const [customCityInput, setCustomCityInput] = useState<string>('');
@@ -46,6 +48,9 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
       isCustom: Boolean(customCityInput.trim())
     });
     localStorage.setItem('chhath_onboarding_done', 'true');
+    if (currentUser) {
+      updateProfile({ city: finalCity, state: selectedState });
+    }
     onClose();
   };
 

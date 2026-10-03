@@ -52,17 +52,8 @@ interface AudioContextType {
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { songs } = useChhathData();
-
-  // Load persisted lightweight preferences from localStorage
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('chhath_music_favorites');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { songs, favoriteSongs, toggleFavoriteSong } = useChhathData();
+  const favorites = favoriteSongs;
 
   const [recentlyPlayed, setRecentlyPlayed] = useState<string[]>(() => {
     try {
@@ -143,14 +134,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.warn('localStorage save volume error:', e);
     }
   }, [volume]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('chhath_music_favorites', JSON.stringify(favorites));
-    } catch (e) {
-      console.warn('localStorage save favorites error:', e);
-    }
-  }, [favorites]);
 
   // Dynamic YouTube IFrame Player API Injection
   useEffect(() => {
@@ -482,9 +465,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const toggleFavorite = (songId: string) => {
-    setFavorites(prev => 
-      prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]
-    );
+    toggleFavoriteSong(songId);
   };
 
   const toggleShuffle = () => {

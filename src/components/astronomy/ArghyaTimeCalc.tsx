@@ -6,22 +6,26 @@ import { useChhathData } from '../../context/ChhathDataContext';
 
 export const ArghyaTimeCalc: React.FC = () => {
   const { t } = useLanguage();
+  const { userLocation } = useChhathData();
   
-  // Safely check default city from ChhathDataContext
-  let initialCityIdx = 0;
-  try {
-    const { userLocation } = useChhathData();
+  // Find initial matching city index from user location
+  const matchedLocationIdx = useMemo(() => {
     if (userLocation && userLocation.city) {
       const idx = cityArghyaData.findIndex(c => 
-        c.cityName.toLowerCase().includes(userLocation.city.toLowerCase())
+        c.cityName.toLowerCase().includes(userLocation.city.toLowerCase()) ||
+        userLocation.city.toLowerCase().includes(c.cityName.toLowerCase())
       );
-      if (idx !== -1) initialCityIdx = idx;
+      if (idx !== -1) return idx;
     }
-  } catch {
-    initialCityIdx = 0;
-  }
+    return 0;
+  }, [userLocation]);
 
-  const [selectedCityIdx, setSelectedCityIdx] = useState(initialCityIdx);
+  const [selectedCityIdx, setSelectedCityIdx] = useState(matchedLocationIdx);
+
+  // Sync if user location changes in onboarding or profile
+  useEffect(() => {
+    setSelectedCityIdx(matchedLocationIdx);
+  }, [matchedLocationIdx]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const city = cityArghyaData[selectedCityIdx] || cityArghyaData[0];
@@ -36,6 +40,28 @@ export const ArghyaTimeCalc: React.FC = () => {
       c.river.toLowerCase().includes(q)
     );
   }, [searchQuery]);
+
+  // Compass Sacred Alignment State
+  const [compassHeading, setCompassHeading] = useState<number>(115);
+  const [compassActive, setCompassActive] = useState<boolean>(false);
+  const [selectedTarget, setSelectedTarget] = useState<'usha' | 'sandhya'>('usha');
+
+  useEffect(() => {
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.alpha !== null && typeof e.alpha === 'number') {
+        setCompassHeading(Math.round(e.alpha));
+        setCompassActive(true);
+      }
+    };
+    if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+      window.addEventListener('deviceorientation', handleOrientation, true);
+    }
+    return () => {
+      if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+        window.removeEventListener('deviceorientation', handleOrientation, true);
+      }
+    };
+  }, []);
 
   // IST Live Countdown State
   const [timeLeft, setTimeLeft] = useState<{
@@ -345,6 +371,93 @@ export const ArghyaTimeCalc: React.FC = () => {
             </div>
           </div>
 
+        </div>
+
+        {/* Sun Position & Ghat Alignment Compass Tool */}
+        <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-stone-900/40 to-orange-500/10 border border-amber-500/30 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+            <div className="flex items-center gap-2">
+              <Compass className="w-5 h-5 text-amber-500 animate-spin-slow" />
+              <h4 className="font-rozha text-lg sm:text-xl font-bold text-stone-900 dark:text-amber-300">
+                घाट सूर्य दिशा सूचक (Arghya Sun Alignment Compass)
+              </h4>
+            </div>
+
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-stone-100 dark:bg-stone-800 text-xs font-bold">
+              <button
+                onClick={() => { setSelectedTarget('sandhya'); setCompassHeading(245); }}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  selectedTarget === 'sandhya'
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+                }`}
+              >
+                🌇 संध्या अर्घ्य (पश्चिम)
+              </button>
+              <button
+                onClick={() => { setSelectedTarget('usha'); setCompassHeading(115); }}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  selectedTarget === 'usha'
+                    ? 'bg-amber-500 text-stone-950 font-black shadow-sm'
+                    : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+                }`}
+              >
+                🌅 उषा अर्घ्य (पूर्व)
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+            {/* Visual Compass Wheel */}
+            <div className="flex flex-col items-center justify-center p-3">
+              <div className="relative w-36 h-36 rounded-full border-2 border-amber-500/40 bg-stone-950 flex items-center justify-center shadow-inner">
+                {/* Cardinal Points */}
+                <span className="absolute top-1 text-[10px] font-bold text-red-500">उ (N)</span>
+                <span className="absolute right-2 text-[10px] font-bold text-amber-400">पू (E)</span>
+                <span className="absolute bottom-1 text-[10px] font-bold text-stone-400">द (S)</span>
+                <span className="absolute left-2 text-[10px] font-bold text-orange-400">प (W)</span>
+
+                {/* Rotating Needle */}
+                <div 
+                  className="w-1 h-24 bg-gradient-to-t from-transparent via-amber-400 to-red-500 rounded-full transition-transform duration-500 shadow-lg origin-center"
+                  style={{ transform: `rotate(${selectedTarget === 'usha' ? 115 : 245}deg)` }}
+                />
+                
+                {/* Center Pivot */}
+                <div className="absolute w-4 h-4 rounded-full bg-amber-400 border-2 border-stone-950 flex items-center justify-center text-[8px] font-bold">
+                  ☀️
+                </div>
+              </div>
+              <span className="text-[11px] font-mukta text-stone-500 dark:text-stone-400 mt-2">
+                सटीक कोण: {selectedTarget === 'usha' ? '115° पूर्वाभिमुख (ESE)' : '245° पश्चिमाभिमुख (WSW)'}
+              </span>
+            </div>
+
+            {/* Direction Instruction */}
+            <div className="sm:col-span-2 space-y-2 text-stone-700 dark:text-stone-200 font-mukta text-xs sm:text-sm">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                <span className="font-bold text-amber-700 dark:text-amber-400 block mb-0.5">
+                  {selectedTarget === 'usha' ? '🌅 उषा अर्घ्य नियम (पूर्वाभिमुख मुख):' : '🌇 संध्या अर्घ्य नियम (पश्चिमाभिमुख मुख):'}
+                </span>
+                <p className="leading-relaxed">
+                  {selectedTarget === 'usha' 
+                    ? 'कार्तिक शुक्ल सप्तमी को प्रातःकाल पवित्र जल में खड़े होकर अपना मुख पूर्व (उदीयमान सूर्य की दिशा) की ओर रखें। सूप को दोनों हाथों से उठाकर सूर्य नारायण के दर्शन के साथ दूध व जल का अर्घ्य समर्पित करें।'
+                    : 'कार्तिक शुक्ल षष्ठी की शाम गंगा अथवा सरोवर के जल में कमर तक खड़े होकर अपना मुख पश्चिम (अस्ताचलगामी सूर्य की दिशा) की ओर रखें और भगवान भास्कर को सांध्य अर्घ्य अर्पित करें।'
+                  }
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>
+                  {compassActive 
+                    ? '✓ आपके फोन का कंपास सेंसर सक्रिय है। घाट पर खड़े होकर फोन को सीधा पकड़ें।'
+                    : 'घाट पर खड़े होकर नदी के प्रवाह व सूर्य की स्थिति के अनुसार दिशा का मिलान करें।'
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Weather & Arghya Advisory Banner */}

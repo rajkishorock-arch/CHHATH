@@ -79,8 +79,6 @@ export const ReelsSearchDiscover: React.FC<ReelsSearchDiscoverProps> = ({
     return () => document.removeEventListener('mousedown', handleDocClick);
   }, []);
 
-  if (!isOpen) return null;
-
   const cleanQ = searchQuery.toLowerCase().trim();
 
   // Commit query to history when performed
@@ -255,6 +253,8 @@ export const ReelsSearchDiscover: React.FC<ReelsSearchDiscoverProps> = ({
 
     return list.slice(0, 5);
   }, [cleanQ, allUsers, allReels, allTags]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[1050] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-xl animate-fadeIn">

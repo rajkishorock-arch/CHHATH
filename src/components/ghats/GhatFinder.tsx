@@ -34,6 +34,28 @@ export const GhatFinder: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<'all' | 'myCity' | 'saved'>('all');
   const [selectedGhat, setSelectedGhat] = useState<Ghat>(ghats[0] || {});
   const [savedGhatIds, setSavedGhatIds] = useState<string[]>(currentUser?.savedGhats || []);
+  const [communityReports, setCommunityReports] = useState<Record<string, { status: Ghat['crowdStatus']; count: number }>>(() => {
+    try {
+      const saved = localStorage.getItem('chhath_ghat_crowd_reports');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [hasReportedGhat, setHasReportedGhat] = useState<string | null>(null);
+
+  const reportCrowdLevel = (ghatId: string, status: Ghat['crowdStatus']) => {
+    const current = communityReports[ghatId] || { status, count: 0 };
+    const updated = {
+      ...communityReports,
+      [ghatId]: { status, count: current.count + 1 }
+    };
+    setCommunityReports(updated);
+    setHasReportedGhat(ghatId);
+    try {
+      localStorage.setItem('chhath_ghat_crowd_reports', JSON.stringify(updated));
+    } catch {}
+  };
 
   useEffect(() => {
     if (currentUser?.savedGhats) {
@@ -402,6 +424,50 @@ export const GhatFinder: React.FC = () => {
                   <strong className="font-rozha text-base text-orange-400 block mt-0.5">25 मीटर तक</strong>
                   <span className="text-[9px] text-orange-300">लाल फीते के पार न जाएं</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Live Community Crowd Level Status & Reporting */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3 font-mukta">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                    लाइव घाट भीड़ स्थिति (Community Crowd Status):
+                  </span>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                    {communityReports[selectedGhat.id]?.status || selectedGhat.crowdStatus}
+                    {communityReports[selectedGhat.id]?.count ? ` (${communityReports[selectedGhat.id].count} श्रद्धालुओं द्वारा रिपोर्ट)` : ''}
+                  </span>
+                </div>
+
+                {hasReportedGhat === selectedGhat.id ? (
+                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                    ✓ आपकी रिपोर्ट दर्ज हो गई!
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-[11px] text-stone-500">भीड़ रिपोर्ट करें:</span>
+                    <button
+                      onClick={() => reportCrowdLevel(selectedGhat.id, 'Normal')}
+                      className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-500/30 text-[11px]"
+                    >
+                      सामान्य
+                    </button>
+                    <button
+                      onClick={() => reportCrowdLevel(selectedGhat.id, 'Moderate')}
+                      className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-500/30 text-[11px]"
+                    >
+                      मध्यम
+                    </button>
+                    <button
+                      onClick={() => reportCrowdLevel(selectedGhat.id, 'Heavy')}
+                      className="px-2 py-0.5 rounded-lg bg-red-500/20 text-red-700 dark:text-red-300 font-bold hover:bg-red-500/30 text-[11px]"
+                    >
+                      अधिक
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

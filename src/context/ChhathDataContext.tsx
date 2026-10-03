@@ -129,11 +129,15 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   });
 
-  // 6. Favorites
+  // 6. Favorites (unified across audio player and dashboard)
   const [favoriteSongs, setFavoriteSongs] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('chhath_favorite_songs');
-      return saved ? JSON.parse(saved) : ['song-1', 'song-2'];
+      const saved = localStorage.getItem('chhath_favorite_songs') || localStorage.getItem('chhath_music_favorites');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+      return ['song-1', 'song-2'];
     } catch {
       return ['song-1', 'song-2'];
     }
@@ -214,6 +218,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     localStorage.setItem('chhath_favorite_songs', JSON.stringify(favoriteSongs));
+    localStorage.setItem('chhath_music_favorites', JSON.stringify(favoriteSongs));
   }, [favoriteSongs]);
 
   useEffect(() => {

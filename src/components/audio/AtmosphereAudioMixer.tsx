@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Sliders, Waves, Bell, Wind, Flame, Sparkles, X } from 'lucide-react';
 import { devotionalAudio } from '../../utils/audioEngine';
 
@@ -25,6 +25,20 @@ export const AtmosphereAudioMixer: React.FC<AtmosphereAudioMixerProps> = ({ isOp
   ]);
 
   const [masterPlaying, setMasterPlaying] = useState<boolean>(false);
+
+  // Auto-cleanup Web Audio oscillators when mixer modal is closed or unmounted
+  useEffect(() => {
+    return () => {
+      devotionalAudio.stopRiverWaves();
+    };
+  }, []);
+
+  const handleClose = () => {
+    devotionalAudio.stopRiverWaves();
+    setMasterPlaying(false);
+    setTracks(prev => prev.map(t => ({ ...t, active: false })));
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -98,7 +112,7 @@ export const AtmosphereAudioMixer: React.FC<AtmosphereAudioMixerProps> = ({ isOp
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-400 transition-colors"
           >
             <X className="w-5 h-5" />

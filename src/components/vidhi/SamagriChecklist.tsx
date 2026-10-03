@@ -159,6 +159,30 @@ export const SamagriChecklist: React.FC = () => {
     }
   };
 
+  // WhatsApp Share Functionality for Family Shopping Coordination
+  const handleWhatsAppShare = () => {
+    let text = `🙏 *छठ पूजा पावन सामग्री चेकलिस्ट* 🙏\n`;
+    text += `तैयारी प्रगति: ${completedCount}/${totalCount} सामग्री तैयार (${progressPercent}%)\n\n`;
+
+    const pendingItems = chhathSamagriList.filter(item => !checkedIds.includes(item.id));
+    if (pendingItems.length > 0) {
+      text += `🛒 *खरीदने / लाने हेतु शेष सामग्री (${pendingItems.length}):*\n`;
+      pendingItems.slice(0, 15).forEach(item => {
+        text += `▫️ ${item.name} (${item.category})\n`;
+      });
+      if (pendingItems.length > 15) {
+        text += `...एवं ${pendingItems.length - 15} अन्य वस्तुएं।\n`;
+      }
+      text += `\n`;
+    } else {
+      text += `🎉 सभी ${totalCount} आवश्यक पूजन सामग्रियां संकलित हो चुकी हैं!\n\n`;
+    }
+
+    text += `ऑनलाइन चेकलिस्ट अपडेट करने हेतु लिंक:\n${window.location.href}\nजय छठी मईया! 🪔`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -204,6 +228,15 @@ export const SamagriChecklist: React.FC = () => {
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>प्रिंट</span>
+              </button>
+
+              <button
+                onClick={handleWhatsAppShare}
+                className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md hover:scale-105 active:scale-95"
+                title="व्हाट्सएप पर परिवार को भेजें"
+              >
+                <span className="text-sm">💬</span>
+                <span>व्हाट्सएप</span>
               </button>
 
               <button

@@ -154,17 +154,20 @@ const MainContent: React.FC = () => {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    let urlPath = '/CHHATH/';
-    if (tab === 'chhath-puja-vidhi') urlPath = '/CHHATH/chhath-puja-vidhi/';
-    else if (tab === 'chhath-samagri') urlPath = '/CHHATH/chhath-samagri/';
-    else if (tab === 'chhath-arghya-time-2026') urlPath = '/CHHATH/chhath-arghya-time-2026/';
-    else if (tab === 'thekua-recipe') urlPath = '/CHHATH/thekua-recipe/';
-    else if (tab === 'chhath-puja-geet') urlPath = '/CHHATH/chhath-puja-geet/';
-    else if (tab === 'chhath-puja-katha') urlPath = '/CHHATH/chhath-puja-katha/';
-    else if (tab === 'chhath-calendar-2026') urlPath = '/CHHATH/chhath-calendar-2026/';
-    else if (tab === 'chhath-puja-date-2026') urlPath = '/CHHATH/chhath-puja-date-2026/';
-    else if (tab === 'patna-chhath-puja-2026') urlPath = '/CHHATH/patna-chhath-puja-2026/';
-    else if (tab !== 'home') urlPath = `/CHHATH/#${tab}`;
+    const rawBase = import.meta.env.BASE_URL || '/';
+    const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+
+    let urlPath = base;
+    if (tab === 'chhath-puja-vidhi') urlPath = `${base}chhath-puja-vidhi/`;
+    else if (tab === 'chhath-samagri') urlPath = `${base}chhath-samagri/`;
+    else if (tab === 'chhath-arghya-time-2026') urlPath = `${base}chhath-arghya-time-2026/`;
+    else if (tab === 'thekua-recipe') urlPath = `${base}thekua-recipe/`;
+    else if (tab === 'chhath-puja-geet') urlPath = `${base}chhath-puja-geet/`;
+    else if (tab === 'chhath-puja-katha') urlPath = `${base}chhath-puja-katha/`;
+    else if (tab === 'chhath-calendar-2026') urlPath = `${base}chhath-calendar-2026/`;
+    else if (tab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
+    else if (tab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
+    else if (tab !== 'home') urlPath = `${base}#${tab}`;
 
     window.history.pushState(null, '', urlPath);
   };

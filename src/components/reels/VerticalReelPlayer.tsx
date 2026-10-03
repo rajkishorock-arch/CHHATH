@@ -26,6 +26,7 @@ import { useChat } from '../../context/ChatContext';
 import { CommentsDrawer } from './CommentsDrawer';
 import { ReportModal } from './ReportModal';
 import { YouTubeReelPlayer } from './YouTubeReelPlayer';
+import { getImageUrl, getVideoUrl } from '../../utils/imageUtils';
 
 interface VerticalReelPlayerProps {
   reel: DynamicReel;
@@ -214,8 +215,8 @@ export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
           <div className="absolute inset-0 z-0 bg-black cursor-pointer" onClick={handleVideoClick}>
             <video
               ref={videoRef}
-              src={reel.videoUrl}
-              poster={reel.thumbnailUrl}
+              src={getVideoUrl(reel.videoUrl)}
+              poster={getImageUrl(reel.thumbnailUrl)}
               preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
               playsInline
               loop
@@ -229,7 +230,7 @@ export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
                 setIsLoading(false);
                 setIsPlaying(false);
                 if (videoRef.current && reel.videoUrl !== '/videos/sample1.mp4') {
-                  videoRef.current.src = '/videos/sample1.mp4';
+                  videoRef.current.src = getVideoUrl('/videos/sample1.mp4');
                   if (isActive) {
                     videoRef.current.play().catch(() => {});
                   }

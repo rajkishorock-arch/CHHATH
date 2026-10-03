@@ -8,11 +8,46 @@ export const MantraAarti: React.FC = () => {
   const { t } = useLanguage();
   const { ringBell } = useAudio();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [playingMantraId, setPlayingMantraId] = useState<string | null>(null);
 
   const handleCopy = (mantraText: string, id: string) => {
     navigator.clipboard.writeText(mantraText);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2500);
+  };
+
+  const playMantraRecitation = (text: string, id: string) => {
+    if (typeof window === 'undefined') return;
+
+    if (playingMantraId === id) {
+      window.speechSynthesis.cancel();
+      setPlayingMantraId(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    ringBell();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'hi-IN';
+    utterance.rate = 0.82; // Devotional calm chanting cadence
+    utterance.pitch = 0.95;
+
+    // Pick a natural Hindi voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const hindiVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
+    if (hindiVoice) {
+      utterance.voice = hindiVoice;
+    }
+
+    utterance.onstart = () => setPlayingMantraId(id);
+    utterance.onend = () => {
+      setPlayingMantraId(null);
+      ringBell();
+    };
+    utterance.onerror = () => setPlayingMantraId(null);
+
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -41,6 +76,7 @@ export const MantraAarti: React.FC = () => {
         <div className="w-full max-w-5xl mx-auto space-y-6">
           {chhathMantrasData.map((m) => {
             const isCopied = copiedId === m.id;
+            const isPlaying = playingMantraId === m.id;
 
             return (
               <div
@@ -66,6 +102,19 @@ export const MantraAarti: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => playMantraRecitation(m.sanskrit, m.id)}
+                      title={isPlaying ? "उच्चारण रोकें" : "मंत्र का पावन पाठ व उच्चारण सुनें"}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                        isPlaying 
+                          ? 'bg-amber-500 text-stone-950 font-black animate-pulse'
+                          : 'bg-amber-500/15 text-orange-700 dark:text-amber-300 hover:bg-amber-500/25'
+                      }`}
+                    >
+                      <Volume2 className={`w-3.5 h-3.5 ${isPlaying ? 'animate-bounce' : ''}`} />
+                      <span>{isPlaying ? 'उच्चारण जारी...' : 'मंत्र सुनें'}</span>
+                    </button>
+
                     <button
                       onClick={ringBell}
                       title="घंटी बजाएं (Ring Sacred Bell)"

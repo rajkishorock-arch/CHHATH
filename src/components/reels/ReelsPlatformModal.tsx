@@ -13,8 +13,9 @@ import {
   Film,
   Sparkles
 } from 'lucide-react';
-import { useReels, FeedType } from '../../context/ReelsContext';
+import { useReels } from '../../context/ReelsContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAudio } from '../../context/AudioContext';
 import { VerticalReelPlayer } from './VerticalReelPlayer';
 import { CreateReelModal } from './CreateReelModal';
 import { UserProfileModal } from './UserProfileModal';
@@ -23,7 +24,6 @@ import { CreatorStudioModal } from './CreatorStudioModal';
 import { ReelsModerationModal } from './ReelsModerationModal';
 import { AudioPageModal } from './AudioPageModal';
 import { AuthModal } from './AuthModal';
-import { ReelUser } from '../../types';
 
 export const ReelsPlatformModal: React.FC = () => {
   const {
@@ -58,9 +58,17 @@ export const ReelsPlatformModal: React.FC = () => {
   } = useReels();
 
   const { currentUser, isAdmin, isAuthenticated, openAuthModal } = useAuth();
+  const { isPlaying, togglePlay } = useAudio();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedAudioId, setSelectedAudioId] = useState<string | null>(null);
+
+  // Pause background Chhath devotional music when Reels opens to prevent audio collision
+  useEffect(() => {
+    if (reelsPlatformOpen && isPlaying) {
+      togglePlay();
+    }
+  }, [reelsPlatformOpen]);
 
   // Dedicated snap-scroll feed container & item refs
   const feedContainerRef = useRef<HTMLDivElement>(null);
