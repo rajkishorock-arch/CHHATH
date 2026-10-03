@@ -65,13 +65,18 @@ function youtubeSearchPlugin(): Plugin {
             if (item.videoRenderer) {
               const v = item.videoRenderer;
               if (v.videoId) {
+                const title = v.title?.runs?.[0]?.text || '';
+                const channel = v.ownerText?.runs?.[0]?.text || '';
+                const thumb = v.thumbnail?.thumbnails?.[0]?.url || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`;
                 videos.push({
                   id: v.videoId,
-                  title: v.title?.runs?.[0]?.text || '',
-                  singer: v.ownerText?.runs?.[0]?.text || '',
+                  youtubeId: v.videoId,
+                  title,
+                  singer: channel,
+                  channelTitle: channel,
                   duration: v.lengthText?.simpleText || '5:00',
-                  thumbnail: v.thumbnail?.thumbnails?.[0]?.url || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
-                  youtubeId: v.videoId
+                  thumbnail: thumb,
+                  thumbnailUrl: thumb
                 });
               }
             }

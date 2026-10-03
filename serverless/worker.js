@@ -8,8 +8,7 @@
 export default {
   async fetch(request, env, ctx) {
     const origin = request.headers.get('Origin') || '';
-    const allowedOrigins = ['https://rajkishorock-arch.github.io', 'http://localhost:5173', 'http://localhost:3000'];
-    const corsOrigin = allowedOrigins.includes(origin) ? origin : 'https://rajkishorock-arch.github.io';
+    const corsOrigin = origin || '*';
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': corsOrigin,

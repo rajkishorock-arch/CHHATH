@@ -91,7 +91,7 @@ export const SongsSection: React.FC = () => {
   const regularSongs = useMemo(() => songs.filter(s => !s.isPlaylist), [songs]);
   const megaPlaylists = useMemo(() => songs.filter(s => s.isPlaylist), [songs]);
 
-  // Filtered regular songs for local catalog
+  // Filtered regular songs for local catalog with smart keyword & phonetic matching
   const filteredCatalogSongs = useMemo(() => {
     return regularSongs.filter(song => {
       if (selectedCategory === 'पसंदीदा') {
@@ -107,8 +107,40 @@ export const SongsSection: React.FC = () => {
 
       if (searchQuery.trim() && searchStatus === 'idle') {
         const q = searchQuery.toLowerCase().trim();
-        const text = `${song.title} ${song.singer} ${song.category} ${song.language}`.toLowerCase();
-        return text.includes(q);
+        const tokens = q.split(/\s+/).filter(Boolean);
+        const genericTerms = new Set(['chhath', 'chhat', 'chat', 'chhathi', 'puja', 'pooja', 'song', 'songs', 'geet', 'gane', 'gana', 'bhajan', 'bhakti', 'parv', 'mahaparv']);
+        const specificTokens = tokens.filter(t => !genericTerms.has(t));
+
+        // If query only contains generic words like "chhath song", keep all songs
+        if (specificTokens.length === 0) {
+          return true;
+        }
+
+        const text = `${song.title} ${song.singer} ${song.category} ${song.language} ${song.lyricsSnippet || ''}`.toLowerCase();
+        
+        const aliasMap: Record<string, string[]> = {
+          pawan: ['पवन', 'pawan', 'singh'],
+          sharda: ['शारदा', 'sharda', 'sinha'],
+          khesari: ['खेसारी', 'khesari'],
+          anuradha: ['अनुराधा', 'anuradha', 'paudwal'],
+          maithili: ['मैथिली', 'maithili', 'thakur'],
+          kalpana: ['कल्पना', 'kalpana'],
+          nirahua: ['निरहुआ', 'dinesh'],
+          arghya: ['अर्घ्य', 'अरघ', 'arghya', 'aragh'],
+          aragh: ['अर्घ्य', 'अरघ'],
+          bahangi: ['बहंगी', 'बहंगिया'],
+          kelwa: ['केलवा', 'केला'],
+          thekua: ['ठेकुआ'],
+          suruj: ['सुरुज', 'सूरज', 'सूर्य', 'dinanath'],
+          dinanath: ['दीनानाथ', 'दिनकर']
+        };
+
+        return specificTokens.some(tok => {
+          if (text.includes(tok)) return true;
+          const aliases = aliasMap[tok];
+          if (aliases && aliases.some(a => text.includes(a.toLowerCase()))) return true;
+          return false;
+        });
       }
 
       return true;
@@ -139,10 +171,8 @@ export const SongsSection: React.FC = () => {
       } else {
         if (!token) {
           setYtSearchResults([]);
-          setSearchStatus(response.isLiveApi ? 'no_results' : 'idle');
-          if (!response.isLiveApi) {
-            setErrorMessage(response.error || 'यूट्यूब लाइव खोज सेवा कनेक्ट हो रही है।');
-          }
+          setSearchStatus('no_results');
+          setErrorMessage(response.error || 'कोई गाना नहीं मिला।');
         }
       }
     } catch (err: any) {
@@ -457,7 +487,7 @@ export const SongsSection: React.FC = () => {
                             <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
 
                             <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-red-600 text-white text-[10px] font-extrabold shadow flex items-center gap-1">
-                              <span>🔴 YouTube Live</span>
+                              <span>{isLiveApi ? '🔴 YouTube Live' : '✨ Chhath Geet'}</span>
                             </div>
 
                             {/* Play Overlay Button */}
