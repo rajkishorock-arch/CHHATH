@@ -30,8 +30,10 @@ export const FirstPartyProvider = {
 
     // Base filtering
     let eligible = allReels.filter(reel => {
-      // 1. Must be first-party
+      // 1. Must be genuine first-party with actual media and not a dummy/broken sample video
       if (reel.sourceType === 'YOUTUBE' || reel.youtubeVideoId) return false;
+      if (reel.videoUrl && (reel.videoUrl.includes('/videos/sample') || reel.videoUrl.includes('mixkit.co'))) return false;
+      if (reel.id && reel.id.startsWith('demo-reel-')) return false;
 
       // 2. Not blocked
       if (blockedUsers.includes(reel.creatorId)) return false;

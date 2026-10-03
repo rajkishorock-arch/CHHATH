@@ -242,7 +242,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           onFocus={() => setIsOpen(true)}
           onChange={handleInputChange}
           placeholder="यूट्यूब छठ गीत खोजें (उदा: Sharda Sinha, Pawan Singh)..."
-          className="w-full pl-10 pr-24 py-2 sm:py-2.5 rounded-full bg-stone-900/90 hover:bg-stone-900 border border-amber-500/30 hover:border-amber-500/50 focus:border-amber-400 focus:bg-stone-950 text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 transition-all shadow-inner"
+          className="w-full pl-10 pr-24 py-2 sm:py-2.5 rounded-full bg-stone-100/90 dark:bg-stone-900/90 hover:bg-white dark:hover:bg-stone-900 border border-stone-200 dark:border-amber-500/30 hover:border-amber-400 focus:border-amber-500 focus:bg-white dark:focus:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 transition-all shadow-inner"
           aria-label="यूट्यूब पर छठ गीत खोजें"
         />
 
@@ -255,7 +255,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                 setResults([]);
                 inputRef.current?.focus();
               }}
-              className="p-1 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
+              className="p-1 rounded-full text-stone-400 hover:text-stone-800 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-800 transition-colors"
               title="साफ़ करें"
             >
               <X className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
             className={`p-1.5 rounded-full transition-all ${
               isListening
                 ? 'bg-red-600 text-white animate-pulse'
-                : 'text-amber-400 hover:text-amber-300 hover:bg-stone-800'
+                : 'text-amber-600 dark:text-amber-400 hover:text-amber-500 hover:bg-stone-200 dark:hover:bg-stone-800'
             }`}
             title="बोलकर खोजें (Voice Search)"
           >
@@ -277,7 +277,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           </button>
 
           {/* Keyboard shortcut hint */}
-          <span className="hidden xl:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-800 text-stone-400 border border-stone-700 select-none">
+          <span className="hidden xl:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border border-stone-300 dark:border-stone-700 select-none">
             ⌘K
           </span>
         </div>
@@ -292,18 +292,18 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
 
       {/* FLOATING INDUSTRY-GRADE INSTANT SEARCH POPOVER */}
       {isOpen && (
-        <div className="absolute left-0 right-0 sm:min-w-[420px] max-w-lg top-full mt-2.5 p-3 sm:p-4 rounded-3xl bg-stone-950/95 backdrop-blur-2xl border border-amber-500/35 shadow-2xl shadow-black/80 z-50 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute left-0 right-0 sm:min-w-[420px] max-w-lg top-full mt-2.5 p-3 sm:p-4 rounded-3xl bg-white/95 dark:bg-stone-950/95 backdrop-blur-2xl border border-stone-200 dark:border-amber-500/35 shadow-2xl shadow-stone-900/15 dark:shadow-black/80 z-50 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
           
           {/* Header Title */}
-          <div className="flex items-center justify-between text-xs font-bold text-stone-400 border-b border-amber-500/15 pb-2">
-            <span className="flex items-center gap-1.5 text-amber-300">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex items-center justify-between text-xs font-bold text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-amber-500/15 pb-2">
+            <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
               <span>यूट्यूब लाइव संगीत खोज</span>
             </span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-stone-400 hover:text-white text-xs font-bold"
+              className="text-stone-400 hover:text-stone-700 dark:hover:text-white text-xs font-bold"
             >
               बंद करें &times;
             </button>
@@ -312,11 +312,11 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           {/* Real-time Results List */}
           {query.trim().length > 0 && (
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold text-stone-400 px-1">
+              <div className="flex items-center justify-between text-xs font-semibold text-stone-500 dark:text-stone-400 px-1">
                 <span>परिणाम ({results.length})</span>
                 {isSearching && (
-                  <span className="text-amber-400 flex items-center gap-1 text-[11px]">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                  <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 text-[11px]">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
                     खोजा जा रहा है...
                   </span>
                 )}
@@ -335,12 +335,12 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                         key={ytSong.youtubeId}
                         className={`group p-2 rounded-2xl flex items-center gap-3 transition-all ${
                           isCurrent
-                            ? 'bg-amber-500/20 border border-amber-500/40 shadow'
-                            : 'bg-stone-900/60 hover:bg-stone-900 border border-amber-500/10 hover:border-amber-500/30'
+                            ? 'bg-amber-100 dark:bg-amber-500/20 border border-amber-400 shadow'
+                            : 'bg-stone-50 hover:bg-stone-100 dark:bg-stone-900/60 dark:hover:bg-stone-900 border border-stone-200 dark:border-amber-500/10 hover:border-amber-400'
                         }`}
                       >
                         {/* Thumbnail with overlay play */}
-                        <div className="relative w-14 h-10 rounded-xl overflow-hidden shrink-0 bg-black">
+                        <div className="relative w-14 h-10 rounded-xl overflow-hidden shrink-0 bg-stone-900">
                           <img
                             src={ytSong.thumbnailUrl}
                             alt={ytSong.title}
@@ -376,10 +376,10 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                             playSong(songObj, results.map(convertToSongModel));
                           }}
                         >
-                          <h4 className="text-xs font-bold text-stone-100 truncate group-hover:text-amber-300 transition-colors">
+                          <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                             {ytSong.title}
                           </h4>
-                          <p className="text-[11px] text-amber-400/80 truncate">
+                          <p className="text-[11px] text-amber-700 dark:text-amber-400/80 truncate">
                             {ytSong.channelTitle}
                           </p>
                         </div>
@@ -393,8 +393,8 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                             }}
                             className={`p-1.5 rounded-lg border transition-all ${
                               inQueue
-                                ? 'bg-amber-500/20 border-amber-400/50 text-amber-300'
-                                : 'bg-stone-950 border-amber-500/20 text-stone-400 hover:text-white'
+                                ? 'bg-amber-500/20 border-amber-400/50 text-amber-700 dark:text-amber-300'
+                                : 'bg-white dark:bg-stone-950 border-stone-200 dark:border-amber-500/20 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
                             }`}
                             title={inQueue ? 'कतार में मौजूद' : 'कतार में जोड़ें'}
                           >
@@ -405,7 +405,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                             href={`https://www.youtube.com/watch?v=${ytSong.youtubeId}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1.5 rounded-lg bg-red-600/15 border border-red-500/30 text-red-400 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg bg-red-600/15 border border-red-500/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-white transition-colors"
                             title="YouTube पर खोलें"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -416,12 +416,12 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                   })}
                 </div>
               ) : isSearching ? (
-                <div className="py-6 text-center text-xs text-stone-400 space-y-2">
-                  <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
+                <div className="py-6 text-center text-xs text-stone-500 dark:text-stone-400 space-y-2">
+                  <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
                   <p>यूट्यूब परिणाम लोड हो रहे हैं...</p>
                 </div>
               ) : (
-                <div className="py-4 text-center text-xs text-stone-400">
+                <div className="py-4 text-center text-xs text-stone-500 dark:text-stone-400">
                   <p>&ldquo;{query}&rdquo; के लिए कोई गाना नहीं मिला।</p>
                 </div>
               )}
@@ -441,7 +441,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
 
           {/* Trending Searches Tags */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-stone-400 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
               <span>🔥 ट्रेंडिंग छठ खोजें:</span>
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -453,7 +453,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                     setQuery(tag);
                     performSearch(tag);
                   }}
-                  className="px-2.5 py-1 rounded-xl bg-stone-900 hover:bg-amber-500/15 border border-amber-500/20 hover:border-amber-400 text-stone-300 hover:text-amber-300 text-xs font-medium transition-all"
+                  className="px-2.5 py-1 rounded-xl bg-stone-100 hover:bg-amber-50 dark:bg-stone-900 dark:hover:bg-amber-500/15 border border-stone-200 dark:border-amber-500/20 hover:border-amber-400 text-stone-700 hover:text-amber-700 dark:text-stone-300 dark:hover:text-amber-300 text-xs font-medium transition-all"
                 >
                   {tag}
                 </button>
@@ -463,10 +463,10 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
 
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
-            <div className="pt-2 border-t border-amber-500/15 space-y-2">
-              <div className="flex items-center justify-between text-xs text-stone-400 font-semibold">
+            <div className="pt-2 border-t border-stone-200 dark:border-amber-500/15 space-y-2">
+              <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
                 <span className="flex items-center gap-1.5">
-                  <History className="w-3 h-3 text-amber-400" />
+                  <History className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                   <span>हाल की खोजें</span>
                 </span>
                 <button
@@ -477,7 +477,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                       localStorage.removeItem('chhath_recent_searches');
                     } catch {}
                   }}
-                  className="text-[11px] text-stone-500 hover:text-stone-300 transition-colors"
+                  className="text-[11px] text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 transition-colors"
                 >
                   इतिहास मिटाएं
                 </button>
@@ -487,7 +487,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                 {recentSearches.map((term) => (
                   <div
                     key={term}
-                    className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-xs font-medium hover:border-amber-400 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/25 text-amber-800 dark:text-amber-200 text-xs font-medium hover:border-amber-400 transition-all cursor-pointer"
                     onClick={() => {
                       setQuery(term);
                       performSearch(term);
@@ -497,7 +497,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                     <button
                       type="button"
                       onClick={(e) => removeRecentSearch(e, term)}
-                      className="p-0.5 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white"
+                      className="p-0.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-white"
                       title="हटाएं"
                     >
                       <X className="w-3 h-3" />

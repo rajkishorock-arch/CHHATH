@@ -103,21 +103,21 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
       <div className="royal-card-luxury w-full max-w-2xl max-h-[90vh] rounded-3xl border-amber-400/50 shadow-2xl overflow-hidden flex flex-col font-mukta">
         
         {/* Modal Header */}
-        <div className="p-5 sm:p-6 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-stone-900 border-b border-amber-500/25 flex items-start justify-between gap-3">
+        <div className="p-5 sm:p-6 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-100/60 dark:to-stone-900 border-b border-amber-500/25 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 p-0.5 shadow-lg flex items-center justify-center shrink-0">
-              <div className="w-full h-full rounded-2xl bg-stone-950 flex items-center justify-center">
-                <Mic2 className="w-6 h-6 text-amber-300 animate-pulse" />
+              <div className="w-full h-full rounded-2xl bg-amber-50 dark:bg-stone-950 flex items-center justify-center">
+                <Mic2 className="w-6 h-6 text-amber-600 dark:text-amber-300 animate-pulse" />
               </div>
             </div>
             <div>
               <span className="badge-royal text-[10px] py-0.5 px-2 mb-1">
                 छठ गीत कराओके व बोल (SING-ALONG)
               </span>
-              <h3 className="font-rozha text-xl sm:text-2xl text-stone-100 font-bold gold-foil-text line-clamp-1">
+              <h3 className="font-rozha text-xl sm:text-2xl text-stone-900 dark:text-stone-100 font-bold gold-foil-text line-clamp-1">
                 {song.title}
               </h3>
-              <span className="text-xs text-amber-300/90 font-bold block">
+              <span className="text-xs text-amber-700 dark:text-amber-300/90 font-bold block">
                 {song.singer}
               </span>
             </div>
@@ -125,7 +125,7 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-stone-900/80 text-stone-400 hover:text-white border border-stone-700 transition-colors"
+            className="p-2 rounded-full bg-stone-100 dark:bg-stone-900/80 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white border border-stone-300 dark:border-stone-700 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -140,8 +140,8 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
               onClick={() => setKaraokeMode(!karaokeMode)}
               className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                 karaokeMode
-                  ? 'bg-amber-500/30 text-amber-300 border border-amber-400'
-                  : 'bg-stone-900 text-stone-400 border border-stone-800'
+                  ? 'bg-amber-500/20 dark:bg-amber-500/30 text-amber-800 dark:text-amber-300 border border-amber-400'
+                  : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 border border-stone-300 dark:border-stone-800'
               }`}
             >
               कराओके फॉन्ट: {karaokeMode ? 'बड़ा (Sing-Along)' : 'सामान्य'}
@@ -149,21 +149,21 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
 
             <button
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 transition-colors"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'कॉपी हो गया!' : 'बोल कॉपी करें'}</span>
             </button>
           </div>
 
           {/* Lyrics Verse Container */}
-          <div className={`p-6 rounded-2xl bg-gradient-to-b from-stone-900/90 via-stone-950 to-stone-900 border border-amber-500/30 text-center space-y-3 ${
-            karaokeMode ? 'text-lg sm:text-xl font-bold text-amber-200' : 'text-base font-medium text-stone-200'
+          <div className={`p-6 rounded-2xl bg-gradient-to-b from-stone-50 via-amber-50/20 to-stone-50 dark:from-stone-900/90 dark:via-stone-950 dark:to-stone-900 border border-amber-500/30 text-center space-y-3 shadow-inner ${
+            karaokeMode ? 'text-lg sm:text-xl font-bold text-amber-900 dark:text-amber-200' : 'text-base font-medium text-stone-800 dark:text-stone-200'
           }`}>
             {lyricsData.bhojpuri.map((line, idx) => (
               <p
                 key={idx}
-                className={line === '' ? 'h-3' : 'leading-relaxed hover:text-yellow-300 transition-colors cursor-default'}
+                className={line === '' ? 'h-3' : 'leading-relaxed hover:text-amber-600 dark:hover:text-yellow-300 transition-colors cursor-default'}
               >
                 {line}
               </p>
@@ -171,8 +171,8 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
           </div>
 
           {/* Hindi Meaning / भावार्थ */}
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs sm:text-sm text-stone-300 leading-relaxed">
-            <strong className="text-amber-300 block font-bold mb-1">
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
+            <strong className="text-amber-800 dark:text-amber-300 block font-bold mb-1">
               पावन भावार्थ व सांस्कृतिक महत्व:
             </strong>
             {lyricsData.meaning}
@@ -181,8 +181,8 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
         </div>
 
         {/* Modal Footer with Music Toggle */}
-        <div className="p-4 bg-stone-900/90 border-t border-amber-500/20 flex items-center justify-between">
-          <span className="text-xs text-stone-400">
+        <div className="p-4 bg-stone-50 dark:bg-stone-900/90 border-t border-stone-200 dark:border-amber-500/20 flex items-center justify-between">
+          <span className="text-xs text-stone-500 dark:text-stone-400">
             परिवार व बच्चों के साथ मिलकर पारंपरिक धुन गाएं।
           </span>
           <button

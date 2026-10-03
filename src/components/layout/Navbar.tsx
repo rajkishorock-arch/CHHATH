@@ -17,7 +17,6 @@ import {
   LogOut,
   Sliders,
   LogIn,
-  Eye,
   Settings
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -39,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin
 }) => {
   const { language, setLanguage, t } = useLanguage();
-  const { theme, toggleTheme, easyMode, toggleEasyMode } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const { ringBell } = useAudio();
   const { 
     currentUser, 
@@ -111,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 chhath-glass border-b border-amber-500/20 transition-all duration-300 shadow-md backdrop-blur-xl bg-amber-50/80 dark:bg-stone-950/80">
+    <header className="sticky top-0 z-50 chhath-glass border-b border-stone-200/80 dark:border-amber-500/20 transition-all duration-300 shadow-sm backdrop-blur-xl bg-white/95 dark:bg-stone-950/90">
       <div className="container-custom flex items-center justify-between h-16 sm:h-20 max-w-full">
         
         {/* Brand Logo */}
@@ -348,13 +347,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
           </div>
 
-          <div className="pt-3 border-t border-amber-500/20 flex justify-between items-center text-xs">
+          <div className="pt-3 border-t border-stone-200 dark:border-amber-500/20 flex justify-between items-center text-xs">
             <button
-              onClick={toggleEasyMode}
-              className="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-400"
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 font-bold text-stone-700 dark:text-amber-400 py-1.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
             >
-              <Eye className="w-4 h-4" />
-              <span>{easyMode ? 'सामान्य दृश्य' : 'सरल दृश्य (Elder mode)'}</span>
+              {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-700" /> : <Sun className="w-4 h-4 text-amber-400" />}
+              <span>{theme === 'light' ? 'डार्क मोड' : 'लाइट मोड'}</span>
             </button>
             {!isAuthenticated && (
               <button
@@ -362,7 +361,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   openAuthModal('login');
                 }}
-                className="font-bold text-orange-600 dark:text-amber-300"
+                className="font-bold text-amber-600 dark:text-amber-300 py-1.5 px-3 rounded-xl bg-amber-500/10"
               >
                 लॉग इन करें
               </button>

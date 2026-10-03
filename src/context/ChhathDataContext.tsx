@@ -75,13 +75,33 @@ interface ChhathDataContextType {
 const ChhathDataContext = createContext<ChhathDataContextType | undefined>(undefined);
 
 export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Songs with localStorage persistence (verified real playable songs v2)
+  // Purge legacy obsolete song cache keys on mount
+  useEffect(() => {
+    try {
+      const obsoleteKeys = [
+        'chhath_custom_songs_v3',
+        'chhath_custom_songs_v2',
+        'chhath_custom_songs',
+        'chhath_songs',
+        'chhath_songs_data'
+      ];
+      obsoleteKeys.forEach(key => localStorage.removeItem(key));
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  // 1. Songs with localStorage persistence (verified real playable YouTube songs v6)
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
-      const saved = localStorage.getItem('chhath_custom_songs_v3');
+      const saved = localStorage.getItem('chhath_custom_songs_v6');
       if (saved) {
         const parsed: Song[] = JSON.parse(saved);
-        if (parsed && parsed.length > 0) return parsed;
+        // Ensure all cached songs have legitimate playable YouTube IDs
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const hasInvalid = parsed.some(s => !s.youtubeId || s.youtubeId.length < 5);
+          if (!hasInvalid) return parsed;
+        }
       }
       return defaultSongs;
     } catch {
@@ -197,7 +217,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem('chhath_custom_songs_v3', JSON.stringify(songs));
+    localStorage.setItem('chhath_custom_songs_v6', JSON.stringify(songs));
   }, [songs]);
 
   useEffect(() => {

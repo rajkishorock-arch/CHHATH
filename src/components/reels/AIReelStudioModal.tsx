@@ -51,6 +51,7 @@ export const AIReelStudioModal: React.FC<{ isOpen: boolean; onClose: () => void 
 
   // Preview video state
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string>('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioTracks = ReelsStorage.getAudioTracks();
 
@@ -61,6 +62,10 @@ export const AIReelStudioModal: React.FC<{ isOpen: boolean; onClose: () => void 
     if (files.length === 0) return;
 
     setUploadedFiles(files);
+    const mediaFile = files.find(f => f.type.startsWith('video/')) || files[0];
+    if (mediaFile) {
+      setPreviewVideoUrl(URL.createObjectURL(mediaFile));
+    }
     setStep('analyzing');
 
     // Simulate AI Storyboard & Metadata generation
@@ -100,12 +105,14 @@ export const AIReelStudioModal: React.FC<{ isOpen: boolean; onClose: () => void 
 
     const selectedTrack = audioTracks.find(t => t.id === selectedAudioId) || audioTracks[0];
 
+    const firstFile = uploadedFiles[0];
     const newReel = await createReel({
       title,
       description: caption,
       category,
       tags: selectedTags,
-      videoUrl: '/videos/sample3.mp4', // Local high-performance video stream
+      videoBlob: firstFile,
+      videoUrl: previewVideoUrl || undefined,
       thumbnailUrl: getImageUrl('/images/sandhya_arghya.jpg'),
       videoDuration: '0:45',
       privacy,
@@ -226,13 +233,21 @@ export const AIReelStudioModal: React.FC<{ isOpen: boolean; onClose: () => void 
             {/* Left: 9:16 Video Preview Card */}
             <div className="lg:col-span-5 flex flex-col items-center">
               <div className="relative w-full max-w-[260px] aspect-[9/16] rounded-3xl overflow-hidden bg-black border-2 border-amber-500/40 shadow-2xl flex items-center justify-center group">
-                <video
-                  ref={videoRef}
-                  src="/videos/sample3.mp4"
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
+                {previewVideoUrl ? (
+                  <video
+                    ref={videoRef}
+                    src={previewVideoUrl}
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={getImageUrl('/images/sandhya_arghya.jpg')}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                )}
 
                 <button
                   onClick={togglePreviewPlay}

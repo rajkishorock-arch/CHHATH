@@ -80,7 +80,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
           </div>
         )}
 
-        <div className="bg-stone-950/95 text-stone-100 backdrop-blur-2xl border border-amber-500/35 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.85)] p-2 sm:p-3 flex items-center justify-between gap-2 sm:gap-3 transition-all duration-300">
+        <div className="bg-white/95 dark:bg-stone-950/95 text-stone-900 dark:text-stone-100 backdrop-blur-2xl border border-stone-200/90 dark:border-amber-500/35 rounded-2xl shadow-xl dark:shadow-[0_12px_40px_rgba(0,0,0,0.85)] p-2 sm:p-3 flex items-center justify-between gap-2 sm:gap-3 transition-all duration-300">
           
           {/* Song Info & Artwork -> Tapping opens Expanded Player */}
           <div
@@ -106,16 +106,16 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="font-bold text-xs sm:text-sm text-amber-300 truncate group-hover:text-amber-200 flex items-center gap-1.5">
+              <div className="font-bold text-xs sm:text-sm text-stone-900 dark:text-amber-300 truncate group-hover:text-amber-600 dark:group-hover:text-amber-200 flex items-center gap-1.5">
                 <span className="truncate">{currentSong.title}</span>
-                <ChevronUp className="w-3.5 h-3.5 text-amber-400 opacity-60 group-hover:opacity-100 shrink-0" />
+                <ChevronUp className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 opacity-70 group-hover:opacity-100 shrink-0" />
               </div>
-              <div className="text-[11px] text-stone-400 truncate flex items-center gap-1.5">
+              <div className="text-[11px] text-stone-500 dark:text-stone-400 truncate flex items-center gap-1.5">
                 <span className="truncate">{currentSong.singer}</span>
                 {currentSong.language && (
                   <>
                     <span>•</span>
-                    <span className="text-amber-400 font-semibold">{currentSong.language}</span>
+                    <span className="text-amber-600 dark:text-amber-400 font-semibold">{currentSong.language}</span>
                   </>
                 )}
               </div>
@@ -126,7 +126,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
               onClick={playPrevious}
-              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-full text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
               title="पिछला गीत"
             >
               <SkipBack className="w-4 h-4" />
@@ -146,7 +146,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
 
             <button
               onClick={playNext}
-              className="p-1.5 rounded-full text-stone-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-full text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
               title="अगला गीत"
             >
               <SkipForward className="w-4 h-4" />
@@ -154,13 +154,13 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
           </div>
 
           {/* Queue & Video Toggles */}
-          <div className="flex items-center gap-1 shrink-0 border-l border-amber-500/20 pl-2">
+          <div className="flex items-center gap-1 shrink-0 border-l border-stone-200 dark:border-amber-500/20 pl-2">
             <button
               onClick={() => setShowVideo(!showVideo)}
               className={`p-2 rounded-xl transition-all ${
                 showVideo
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
-                  : 'text-stone-400 hover:text-amber-300 hover:bg-stone-900'
+                  ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-400/40'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-stone-100 dark:hover:bg-stone-900'
               }`}
               title={showVideo ? "वीडियो छुपाएं" : "वीडियो देखें"}
             >
@@ -169,7 +169,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
 
             <button
               onClick={() => setIsQueueOpen(true)}
-              className="p-2 rounded-xl text-stone-400 hover:text-amber-300 hover:bg-stone-900 transition-colors"
+              className="p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-stone-100 dark:hover:bg-stone-900 transition-colors"
               title="कतार देखें (Queue)"
             >
               <ListMusic className="w-4 h-4" />

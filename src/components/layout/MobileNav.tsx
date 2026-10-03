@@ -35,7 +35,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <nav 
       aria-label="मोबाइल मुख्य नेविगेशन"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-stone-950/95 dark:bg-stone-950/95 backdrop-blur-xl border-t border-amber-500/20 py-1.5 px-2 shadow-2xl transition-all"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-950/95 backdrop-blur-xl border-t border-stone-200/90 dark:border-amber-500/20 py-1.5 px-2 shadow-2xl transition-all"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         {items.map((item) => {
@@ -51,10 +51,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               aria-label={item.label}
               className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[56px] min-h-[46px] text-decoration-none transition-all active:scale-95 ${
                 isActive 
-                  ? 'text-amber-400 font-bold bg-amber-500/15 shadow-sm' 
+                  ? 'text-amber-600 dark:text-amber-400 font-bold bg-amber-500/15 shadow-xs' 
                   : isReels
-                    ? 'text-stone-300 hover:text-amber-400'
-                    : 'text-stone-400 hover:text-amber-400'
+                    ? 'text-stone-700 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-400'
               }`}
             >
               <div className="relative">
@@ -66,7 +66,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                   </span>
                 )}
               </div>
-              <span className={`text-[11px] font-mukta font-bold mt-0.5 leading-none ${isActive ? 'text-amber-300' : ''}`}>
+              <span className={`text-[11px] font-mukta font-bold mt-0.5 leading-none ${isActive ? 'text-amber-700 dark:text-amber-300' : ''}`}>
                 {item.label}
               </span>
             </a>

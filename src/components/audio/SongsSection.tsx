@@ -83,10 +83,10 @@ const YouTubeVideoCard: React.FC<{
 
   return (
     <div 
-      className={`group flex flex-col rounded-2xl bg-stone-900/70 hover:bg-stone-900 transition-all duration-200 border overflow-hidden ${
+      className={`group flex flex-col rounded-2xl bg-white dark:bg-stone-900/80 hover:bg-stone-50/80 dark:hover:bg-stone-900 transition-all duration-200 border overflow-hidden shadow-xs hover:shadow-md ${
         isCurrent 
-          ? 'border-red-500/80 ring-1 ring-red-500/60 shadow-xl shadow-red-500/10' 
-          : 'border-stone-800/80 hover:border-amber-500/40 hover:shadow-lg'
+          ? 'border-red-500 ring-2 ring-red-500/60 shadow-xl shadow-red-500/10' 
+          : 'border-stone-200 dark:border-stone-800/80 hover:border-amber-500/40'
       }`}
     >
       {/* 16:9 YouTube Video Thumbnail */}
@@ -159,7 +159,7 @@ const YouTubeVideoCard: React.FC<{
           <h4 
             onClick={onPlay}
             className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug cursor-pointer transition-colors ${
-              isCurrent ? 'text-amber-300 font-bold' : 'text-stone-100 group-hover:text-amber-200'
+              isCurrent ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
             }`}
             title={song.title}
           >
@@ -167,13 +167,13 @@ const YouTubeVideoCard: React.FC<{
           </h4>
 
           {/* Singer Name & Verified Badge */}
-          <div className="flex items-center gap-1 mt-1 text-xs text-stone-400 truncate">
+          <div className="flex items-center gap-1 mt-1 text-xs text-stone-600 dark:text-stone-400 truncate">
             <span className="truncate">{song.singer}</span>
-            <CheckCircle2 className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
           </div>
 
           {/* Category & Tags */}
-          <div className="flex items-center gap-1.5 text-[11px] text-stone-500 mt-0.5">
+          <div className="flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
             <span>{song.category || 'भक्ति'}</span>
             <span>•</span>
             <span>{song.language || 'भोजपुरी'}</span>
@@ -182,7 +182,7 @@ const YouTubeVideoCard: React.FC<{
       </div>
 
       {/* Action Bar (Play, Queue, Favorite, Lyrics, YouTube) */}
-      <div className="px-3 pb-3 pt-1 border-t border-stone-800/60 flex items-center justify-between gap-1 text-xs">
+      <div className="px-3 pb-3 pt-1 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-between gap-1 text-xs">
         <button
           onClick={onPlay}
           className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all text-xs ${
@@ -199,7 +199,7 @@ const YouTubeVideoCard: React.FC<{
           {onOpenLyrics && song.lyrics && (
             <button
               onClick={onOpenLyrics}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-300 hover:bg-stone-800 transition-colors"
+              className="p-1.5 rounded-lg text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               title="गीत के बोल (Lyrics)"
             >
               <FileText className="w-4 h-4" />
@@ -209,17 +209,17 @@ const YouTubeVideoCard: React.FC<{
           <button
             onClick={onToggleQueue}
             className={`p-1.5 rounded-lg transition-colors ${
-              inQueue ? 'text-amber-400 bg-amber-500/10' : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              inQueue ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800'
             }`}
             title={inQueue ? 'कतार में मौजूद' : 'कतार में जोड़ें'}
           >
-            {inQueue ? <Check className="w-4 h-4 text-amber-400" /> : <Plus className="w-4 h-4" />}
+            {inQueue ? <Check className="w-4 h-4 text-amber-500" /> : <Plus className="w-4 h-4" />}
           </button>
 
           <button
             onClick={onToggleFav}
             className={`p-1.5 rounded-lg transition-colors ${
-              isFav ? 'text-rose-500' : 'text-stone-400 hover:text-rose-400 hover:bg-stone-800'
+              isFav ? 'text-rose-500' : 'text-stone-500 dark:text-stone-400 hover:text-rose-500 hover:bg-stone-100 dark:hover:bg-stone-800'
             }`}
             title={isFav ? 'पसंदीदा से हटाएं' : 'पसंदीदा में जोड़ें'}
           >
@@ -231,7 +231,7 @@ const YouTubeVideoCard: React.FC<{
               href={ytUrl}
               target="_blank"
               rel="noreferrer"
-              className="p-1.5 rounded-lg text-stone-400 hover:text-red-400 hover:bg-stone-800 transition-colors"
+              className="p-1.5 rounded-lg text-stone-500 dark:text-stone-400 hover:text-red-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               title="YouTube पर खोलें"
             >
               <ExternalLink className="w-4 h-4" />
@@ -679,7 +679,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   };
 
   return (
-    <section id="songs" className="py-2 sm:py-6 px-1 sm:px-4 bg-stone-950 text-stone-100 font-mukta">
+    <section id="songs" className="py-2 sm:py-6 px-1 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta">
       <div className="max-w-6xl mx-auto space-y-3.5">
         
         {/* ========================================================
@@ -691,27 +691,27 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             <div className="flex items-center gap-2">
               <YouTubeLogo className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
               <div>
-                <h2 className="font-bold text-base sm:text-lg text-stone-100 flex items-center gap-1.5 leading-none">
+                <h2 className="font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 flex items-center gap-1.5 leading-none">
                   <span>छठ संगीत</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-600/30 border border-red-500/40 text-red-300 font-extrabold uppercase tracking-wider">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-600/30 border border-red-500/40 text-red-500 dark:text-red-300 font-extrabold uppercase tracking-wider">
                     LIVE
                   </span>
                 </h2>
-                <p className="text-[11px] text-stone-400 mt-0.5 hidden sm:block">
+                <p className="text-[11px] text-stone-600 dark:text-stone-400 mt-0.5 hidden sm:block">
                   यूट्यूब एवं क्यूरेटेड छठ महापर्व भक्ति गीत संग्रह
                 </p>
               </div>
             </div>
 
             {/* View Mode Switcher: Video Grid vs Track List */}
-            <div className="flex items-center gap-1 bg-stone-900/90 p-1 rounded-xl border border-stone-800">
+            <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-900/90 p-1 rounded-xl border border-stone-200 dark:border-stone-800">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
                 className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
                   viewMode === 'grid'
-                    ? 'bg-red-600 text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200'
+                    ? 'bg-red-600 text-white shadow-xs'
+                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }`}
                 title="यूट्यूब वीडियो ग्रिड"
               >
@@ -723,8 +723,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 onClick={() => setViewMode('list')}
                 className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
                   viewMode === 'list'
-                    ? 'bg-red-600 text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200'
+                    ? 'bg-red-600 text-white shadow-xs'
+                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }`}
                 title="म्यूजिक ट्रैक सूची"
               >
@@ -736,8 +736,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
           {/* Clean YouTube Search Input Bar */}
           <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-            <div className="relative flex-1 flex items-center bg-stone-900 border border-stone-800 focus-within:border-red-500/70 focus-within:ring-1 focus-within:ring-red-500/40 rounded-full transition-all shadow-inner">
-              <div className="pl-3.5 pr-2 text-stone-400 flex items-center pointer-events-none">
+            <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/40 rounded-full transition-all shadow-xs">
+              <div className="pl-3.5 pr-2 text-stone-500 dark:text-stone-400 flex items-center pointer-events-none">
                 <Search className="w-4 h-4" />
               </div>
 
@@ -746,14 +746,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="यूट्यूब छठ गीत या गायक खोजें... (उदा: शारदा सिन्हा, पवन सिंह)"
-                className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-100 placeholder-stone-500 outline-none pr-2"
+                className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 outline-none pr-2"
               />
 
               {searchQuery && (
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="p-1.5 text-stone-400 hover:text-white mr-1"
+                  className="p-1.5 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white mr-1"
                   title="साफ़ करें"
                 >
                   <X className="w-4 h-4" />
@@ -765,7 +765,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 type="button"
                 onClick={toggleVoiceSearch}
                 className={`p-1.5 sm:p-2 rounded-full mr-1 transition-colors ${
-                  isListening ? 'bg-red-600 text-white animate-pulse' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'
+                  isListening ? 'bg-red-600 text-white animate-pulse' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800'
                 }`}
                 title="आवाज से खोजें (Voice Search)"
               >
@@ -784,7 +784,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           </form>
 
           {voiceNotice && (
-            <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs text-center font-bold animate-in fade-in">
+            <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs text-center font-bold animate-in fade-in">
               {voiceNotice}
             </div>
           )}
@@ -801,8 +801,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                   onClick={() => handleChipClick(chip)}
                   className={`snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border ${
                     isSelected
-                      ? 'bg-stone-100 text-stone-950 font-bold border-stone-100 shadow-md scale-[1.02]'
-                      : 'bg-stone-900/90 text-stone-300 border-stone-800 hover:bg-stone-850 hover:text-white'
+                      ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-950 font-bold border-stone-900 dark:border-stone-100 shadow-md scale-[1.02]'
+                      : 'bg-white dark:bg-stone-900/90 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-850 hover:text-stone-900 dark:hover:text-white shadow-2xs'
                   }`}
                 >
                   {chip.label}
@@ -816,14 +816,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             TAB: CUSTOM YOUTUBE LINK FORM
            ======================================================== */}
         {activeViewTab === 'customLink' && (
-          <div className="max-w-xl mx-auto p-4 sm:p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-3">
+          <div className="max-w-xl mx-auto p-4 sm:p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3">
             <div className="flex items-center gap-2.5">
               <YouTubeLogo className="w-6 h-6" />
               <div>
-                <h3 className="font-bold text-sm text-stone-100">
+                <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">
                   अपना यूट्यूब लिंक तुरंत बजाएं
                 </h3>
-                <p className="text-[11px] text-stone-400">
+                <p className="text-[11px] text-stone-600 dark:text-stone-400">
                   यूट्यूब वीडियो या प्लेलिस्ट लिंक पेस्ट करें और सीधे सुनें
                 </p>
               </div>
@@ -835,7 +835,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 value={userCustomLink}
                 onChange={(e) => setUserCustomLink(e.target.value)}
                 placeholder="https://www.youtube.com/watch?v=..."
-                className="flex-1 px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs focus:outline-none focus:border-red-500"
+                className="flex-1 px-3 py-2 rounded-xl bg-stone-50 dark:bg-stone-950 border border-stone-300 dark:border-stone-800 text-stone-900 dark:text-stone-100 text-xs focus:outline-none focus:border-red-500"
                 disabled={userLinkLoading}
               />
               <button
@@ -849,7 +849,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             </form>
 
             {userLinkSuccess && (
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
                 <Check className="w-4 h-4" />
                 <span>{userLinkSuccess}</span>
               </div>
@@ -862,7 +862,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
            ======================================================== */}
         {activeViewTab === 'playlists' && (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 px-1 text-xs font-semibold text-stone-400">
+            <div className="flex items-center gap-2 px-1 text-xs font-semibold text-stone-700 dark:text-stone-400">
               <ListMusic className="w-4 h-4 text-red-500" />
               <span>नॉनस्टॉप महापर्व प्लेलिस्ट्स ({megaPlaylists.length})</span>
             </div>
@@ -879,10 +879,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       if (isCurrent) togglePlay();
                       else playSong(playlist);
                     }}
-                    className={`group rounded-2xl bg-stone-900/70 border overflow-hidden cursor-pointer transition-all ${
+                    className={`group rounded-2xl bg-white dark:bg-stone-900/70 border overflow-hidden cursor-pointer transition-all shadow-xs hover:shadow-md ${
                       isCurrent
-                        ? 'border-red-500 ring-1 ring-red-500/60 shadow-lg'
-                        : 'border-stone-800 hover:border-amber-500/40 hover:bg-stone-900'
+                        ? 'border-red-500 ring-2 ring-red-500/60 shadow-lg'
+                        : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-900'
                     }`}
                   >
                     {/* Thumbnail with YouTube Playlist Overlay */}
@@ -914,14 +914,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     </div>
 
                     <div className="p-3">
-                      <h4 className="font-bold text-xs sm:text-sm text-stone-100 line-clamp-1 group-hover:text-amber-300 transition-colors">
+                      <h4 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 line-clamp-1 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                         {playlist.title}
                       </h4>
-                      <p className="text-xs text-stone-400 truncate mt-0.5">
+                      <p className="text-xs text-stone-600 dark:text-stone-400 truncate mt-0.5">
                         {playlist.singer}
                       </p>
-                      <div className="mt-2.5 flex items-center justify-between text-xs pt-2 border-t border-stone-800/60">
-                        <span className="text-[11px] font-mono text-amber-400/90 font-bold">
+                      <div className="mt-2.5 flex items-center justify-between text-xs pt-2 border-t border-stone-100 dark:border-stone-800/60">
+                        <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400/90 font-bold">
                           {playlist.duration}
                         </span>
                         <button
@@ -953,19 +953,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             {/* SKELETON LOADERS WHILE SEARCHING */}
             {searchStatus === 'loading' && (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 px-1 text-xs text-stone-400">
+                <div className="flex items-center gap-2 px-1 text-xs text-stone-600 dark:text-stone-400">
                   <RefreshCw className="w-3.5 h-3.5 text-red-500 animate-spin" />
                   <span>यूट्यूब पर &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="rounded-2xl bg-stone-900/60 border border-stone-800/80 animate-pulse overflow-hidden">
-                      <div className="aspect-video bg-stone-800" />
+                    <div key={i} className="rounded-2xl bg-white dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 animate-pulse overflow-hidden">
+                      <div className="aspect-video bg-stone-200 dark:bg-stone-800" />
                       <div className="p-3 flex items-start gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-stone-800 shrink-0" />
+                        <div className="w-9 h-9 rounded-full bg-stone-200 dark:bg-stone-800 shrink-0" />
                         <div className="flex-1 space-y-2 py-1">
-                          <div className="h-3.5 bg-stone-800 rounded-full w-3/4" />
-                          <div className="h-2.5 bg-stone-800/70 rounded-full w-1/2" />
+                          <div className="h-3.5 bg-stone-200 dark:bg-stone-800 rounded-full w-3/4" />
+                          <div className="h-2.5 bg-stone-200/70 dark:bg-stone-800/70 rounded-full w-1/2" />
                         </div>
                       </div>
                     </div>
@@ -976,8 +976,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
             {/* ERROR NOTICE */}
             {searchStatus === 'error' && (
-              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs space-y-2">
-                <div className="flex items-center gap-2 font-bold text-sm text-rose-400">
+              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-sm text-rose-600 dark:text-rose-400">
                   <AlertCircle className="w-4 h-4" />
                   <span>खोज परिणाम प्राप्त करने में समस्या हुई</span>
                 </div>
@@ -993,13 +993,13 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
             {/* NO RESULTS NOTICE */}
             {searchStatus === 'no_results' && (
-              <div className="text-center py-10 px-4 rounded-2xl bg-stone-900/50 border border-stone-800 space-y-2">
-                <Search className="w-8 h-8 text-stone-500 mx-auto" />
-                <h3 className="font-bold text-stone-200 text-sm">&ldquo;{searchQuery}&rdquo; के लिए कोई वीडियो नहीं मिला</h3>
-                <p className="text-xs text-stone-400">कृपया अलग शब्द खोजें या नीचे दिए गए गानों में से चुनें</p>
+              <div className="text-center py-10 px-4 rounded-2xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-2">
+                <Search className="w-8 h-8 text-stone-400 dark:text-stone-500 mx-auto" />
+                <h3 className="font-bold text-stone-900 dark:text-stone-200 text-sm">&ldquo;{searchQuery}&rdquo; के लिए कोई वीडियो नहीं मिला</h3>
+                <p className="text-xs text-stone-600 dark:text-stone-400">कृपया अलग शब्द खोजें या नीचे दिए गए गानों में से चुनें</p>
                 <button
                   onClick={handleClearSearch}
-                  className="mt-2 px-4 py-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold"
+                  className="mt-2 px-4 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs font-bold"
                 >
                   सभी गीत देखें
                 </button>
@@ -1014,13 +1014,13 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <YouTubeLogo className="w-4 h-4" />
-                    <h3 className="font-bold text-xs sm:text-sm text-stone-200">
-                      यूट्यूब परिणाम: <span className="text-amber-400">&ldquo;{searchQuery}&rdquo;</span> ({ytSearchResults.length})
+                    <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-200">
+                      यूट्यूब परिणाम: <span className="text-amber-600 dark:text-amber-400">&ldquo;{searchQuery}&rdquo;</span> ({ytSearchResults.length})
                     </h3>
                   </div>
                   <button
                     onClick={handleClearSearch}
-                    className="text-xs text-stone-400 hover:text-white font-bold"
+                    className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white font-bold"
                   >
                     साफ़ करें &times;
                   </button>
@@ -1078,12 +1078,12 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                           }}
                           className={`p-2 sm:p-2.5 rounded-xl flex items-center justify-between gap-2.5 transition-all cursor-pointer ${
                             isCurrent
-                              ? 'bg-red-950/40 border border-red-500/50 shadow-sm'
-                              : 'bg-stone-900/60 hover:bg-stone-900 border border-stone-850 hover:border-stone-800'
+                              ? 'bg-red-50 dark:bg-red-950/40 border border-red-500/50 shadow-xs'
+                              : 'bg-white dark:bg-stone-900/60 hover:bg-stone-50 dark:hover:bg-stone-900 border border-stone-200 dark:border-stone-850 hover:border-stone-300 dark:hover:border-stone-800'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            <span className="text-xs font-mono font-bold text-stone-500 w-5 text-center shrink-0">
+                            <span className="text-xs font-mono font-bold text-stone-400 dark:text-stone-500 w-5 text-center shrink-0">
                               {idx + 1}
                             </span>
                             <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-black">
@@ -1101,10 +1101,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                               </div>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h4 className={`text-xs sm:text-sm font-semibold truncate ${isCurrent ? 'text-amber-300 font-bold' : 'text-stone-100'}`}>
+                              <h4 className={`text-xs sm:text-sm font-semibold truncate ${isCurrent ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100'}`}>
                                 {ytSong.title}
                               </h4>
-                              <p className="text-[11px] text-stone-400 truncate mt-0.5">
+                              <p className="text-[11px] text-stone-600 dark:text-stone-400 truncate mt-0.5">
                                 {ytSong.channelTitle}
                               </p>
                             </div>
@@ -1116,17 +1116,17 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                                 if (!inQueue) addToQueue(songObj);
                               }}
                               className={`p-1.5 rounded-lg transition-colors ${
-                                inQueue ? 'text-amber-400 bg-amber-500/10' : 'text-stone-400 hover:text-white'
+                                inQueue ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800'
                               }`}
                               title={inQueue ? 'कतार में' : 'कतार में जोड़ें'}
                             >
-                              {inQueue ? <Check className="w-3.5 h-3.5 text-amber-400" /> : <Plus className="w-3.5 h-3.5" />}
+                              {inQueue ? <Check className="w-3.5 h-3.5 text-amber-500" /> : <Plus className="w-3.5 h-3.5" />}
                             </button>
 
                             <button
                               onClick={() => toggleFavorite(songObj.id)}
                               className={`p-1.5 rounded-lg transition-colors ${
-                                isFav ? 'text-rose-500' : 'text-stone-400 hover:text-rose-400'
+                                isFav ? 'text-rose-500' : 'text-stone-500 dark:text-stone-400 hover:text-rose-500 hover:bg-stone-100 dark:hover:bg-stone-800'
                               }`}
                               title={isFav ? 'पसंदीदा' : 'पसंदीदा में जोड़ें'}
                             >
@@ -1137,7 +1137,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                               href={`https://www.youtube.com/watch?v=${ytSong.youtubeId}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg text-stone-400 hover:text-red-400"
+                              className="p-1.5 rounded-lg text-stone-500 dark:text-stone-400 hover:text-red-500 hover:bg-stone-100 dark:hover:bg-stone-800"
                               title="YouTube पर देखें"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -1155,7 +1155,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     <button
                       onClick={() => handleExecuteSearch(searchQuery, nextPageToken)}
                       disabled={isLoadingMore}
-                      className="px-5 py-2.5 rounded-full bg-stone-900 border border-stone-800 hover:border-red-500/50 text-stone-200 font-bold text-xs shadow inline-flex items-center gap-2 disabled:opacity-50 transition-all"
+                      className="px-5 py-2.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-red-500 text-stone-800 dark:text-stone-200 font-bold text-xs shadow-xs inline-flex items-center gap-2 disabled:opacity-50 transition-all"
                     >
                       {isLoadingMore ? (
                         <>
@@ -1176,9 +1176,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                ======================================================== */}
             {searchStatus === 'idle' && (
               <div className="space-y-3">
-                <div className="flex items-center justify-between px-1 text-xs text-stone-400 font-semibold">
+                <div className="flex items-center justify-between px-1 text-xs text-stone-600 dark:text-stone-400 font-semibold">
                   <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                     <span>
                       {selectedSinger ? `${selectedSinger} के गीत (${filteredCatalogSongs.length})` :
                        selectedCategory !== 'सभी' ? `${selectedCategory} गीत (${filteredCatalogSongs.length})` :
@@ -1193,7 +1193,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         setSearchQuery(`${selectedSinger} Chhath Geet`);
                         handleExecuteSearch(`${selectedSinger} Chhath Geet`);
                       }}
-                      className="text-xs text-red-400 hover:underline flex items-center gap-1 font-bold"
+                      className="text-xs text-red-600 dark:text-red-400 hover:underline flex items-center gap-1 font-bold"
                     >
                       <YouTubeLogo className="w-3.5 h-3.5" />
                       <span>यूट्यूब पर खोजें</span>
@@ -1241,7 +1241,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 {/* Infinite Scroll Bottom Sentinel & Live Loader Indicator */}
                 <div ref={sentinelRef} className="py-6 text-center">
                   {(isLoadingRecommendations || isLoadingMore) && (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-900 border border-stone-800 text-amber-400 text-xs font-bold shadow-md animate-pulse">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
                       <RefreshCw className="w-3.5 h-3.5 animate-spin text-red-500" />
                       <span>अधिक पावन छठ गीत लोड हो रहे हैं...</span>
                     </div>

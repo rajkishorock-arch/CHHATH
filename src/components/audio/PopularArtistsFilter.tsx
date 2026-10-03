@@ -16,15 +16,15 @@ export const PopularArtistsFilter: React.FC<PopularArtistsFilterProps> = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between text-xs font-semibold text-stone-400">
-        <span className="flex items-center gap-1.5 text-amber-300">
-          <Users className="w-3.5 h-3.5" />
+      <div className="flex items-center justify-between text-xs font-semibold text-stone-500 dark:text-stone-400">
+        <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+          <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
           <span>लोकप्रिय गायक (Popular Artists)</span>
         </span>
         {selectedSinger && (
           <button
             onClick={() => onSelectSinger('')}
-            className="text-amber-400 hover:underline text-[11px]"
+            className="text-amber-600 dark:text-amber-400 hover:underline text-[11px]"
           >
             सभी गायक देखें
           </button>
@@ -36,8 +36,8 @@ export const PopularArtistsFilter: React.FC<PopularArtistsFilterProps> = ({
           onClick={() => onSelectSinger('')}
           className={`snap-start shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
             !selectedSinger
-              ? 'bg-amber-500/20 border-amber-400 text-amber-300'
-              : 'bg-stone-900/60 border-stone-800 text-stone-400 hover:text-stone-200'
+              ? 'bg-amber-500/20 border-amber-400 text-amber-800 dark:text-amber-300'
+              : 'bg-white dark:bg-stone-900/60 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
           सभी (All)
@@ -52,7 +52,7 @@ export const PopularArtistsFilter: React.FC<PopularArtistsFilterProps> = ({
               className={`snap-start shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                 isSelected
                   ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold border-amber-300 shadow-md'
-                  : 'bg-stone-900/80 border-amber-500/20 text-stone-300 hover:border-amber-500/40 hover:text-white'
+                  : 'bg-white dark:bg-stone-900/80 border-stone-200 dark:border-amber-500/20 text-stone-700 dark:text-stone-300 hover:border-amber-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
               {isSelected && <UserCheck className="w-3.5 h-3.5" />}

@@ -19,19 +19,19 @@
   --sacred-turmeric: #d97706;
 
   /* Surfaces & Canvas */
-  --bg-primary: #fffdfa;
-  --bg-secondary: #fef7ee;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --card-border: rgba(234, 88, 12, 0.15);
+  --card-border: #e2e8f0;
   --card-border-gold: rgba(245, 158, 11, 0.28);
-  --card-shadow: 0 10px 30px -5px rgba(194, 65, 12, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
-  --card-shadow-hover: 0 20px 35px -8px rgba(194, 65, 12, 0.18), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --card-shadow-hover: 0 12px 28px -4px rgba(0, 0, 0, 0.08);
 
   /* Typography */
-  --text-primary: #291809;
-  --text-secondary: #634732;
-  --text-tertiary: #927560;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
   --text-inverse: #ffffff;
   
   --font-display: 'Rozha One', 'Yatra One', serif;
@@ -697,31 +697,6 @@ body {
   }
 }
 
-/* Elder Accessibility / Easy Mode (सरल दृश्य) */
-html.easy-mode {
-  font-size: 19px;
-  line-height: 1.7;
-}
-
-html.easy-mode body {
-  font-size: 1.125rem; /* 18px+ minimum base text */
-  letter-spacing: 0.02em;
-}
-
-html.easy-mode p, 
-html.easy-mode span, 
-html.easy-mode button, 
-html.easy-mode a {
-  font-weight: 600 !important;
-}
-
-html.easy-mode button, 
-html.easy-mode a, 
-html.easy-mode [role="button"] {
-  min-height: 44px;
-  min-width: 44px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -731,11 +706,5 @@ html.easy-mode [role="button"] {
   }
 }
 
-html.easy-mode *, html.easy-mode ::before, html.easy-mode ::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
-}
 
 

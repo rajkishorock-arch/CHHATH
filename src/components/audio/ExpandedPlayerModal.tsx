@@ -71,24 +71,24 @@ export const ExpandedPlayerModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-[80] bg-stone-950/95 backdrop-blur-2xl flex flex-col justify-between overflow-y-auto p-4 sm:p-8 animate-in fade-in duration-300 font-mukta">
+    <div className="fixed inset-0 z-[80] bg-white/98 dark:bg-stone-950/95 backdrop-blur-2xl flex flex-col justify-between overflow-y-auto p-4 sm:p-8 animate-in fade-in duration-300 font-mukta">
       
       {/* Top Bar: Down Chevron, Category, Video Toggle */}
       <div className="flex items-center justify-between w-full max-w-lg mx-auto mb-4">
         <button
           onClick={() => setIsExpandedOpen(false)}
-          className="p-2 rounded-full bg-stone-900 border border-amber-500/20 text-stone-300 hover:text-white transition-colors"
+          className="p-2 rounded-full bg-stone-100 border border-stone-200 text-stone-700 hover:text-stone-900 dark:bg-stone-900 dark:border-amber-500/20 dark:text-stone-300 dark:hover:text-white transition-colors"
           title="प्लेयर बंद करें"
         >
           <ChevronDown className="w-6 h-6" />
         </button>
 
         <div className="text-center">
-          <span className="text-xs uppercase font-extrabold tracking-widest text-amber-400">
+          <span className="text-xs uppercase font-extrabold tracking-widest text-amber-600 dark:text-amber-400">
             छठ संगीत प्लेयर
           </span>
           {currentSong.category && (
-            <p className="text-[11px] text-stone-400 truncate">{currentSong.category}</p>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">{currentSong.category}</p>
           )}
         </div>
 
@@ -97,7 +97,7 @@ export const ExpandedPlayerModal: React.FC = () => {
           className={`p-2 rounded-full border transition-all ${
             showVideo
               ? 'bg-amber-500 border-amber-400 text-stone-950'
-              : 'bg-stone-900 border-amber-500/20 text-stone-300 hover:text-white'
+              : 'bg-stone-100 border-stone-200 text-stone-700 hover:text-stone-900 dark:bg-stone-900 dark:border-amber-500/20 dark:text-stone-300 dark:hover:text-white'
           }`}
           title={showVideo ? "वीडियो छुपाएं" : "वीडियो देखें"}
         >
@@ -144,7 +144,7 @@ export const ExpandedPlayerModal: React.FC = () => {
         )}
 
         {/* Album Artwork Frame */}
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-amber-500/40 mb-6 group">
+        <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden shadow-2xl border border-stone-200 dark:border-amber-500/40 mb-6 group">
           <img
             src={getImageUrl(currentSong.thumbnail)}
             alt={currentSong.title}
@@ -167,10 +167,10 @@ export const ExpandedPlayerModal: React.FC = () => {
 
         {/* Track Info */}
         <div className="w-full text-center mb-6">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-amber-400 truncate mb-1">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-amber-200 dark:via-orange-300 dark:to-amber-400 truncate mb-1">
             {currentSong.title}
           </h2>
-          <p className="text-sm sm:text-base text-amber-200/80 font-medium truncate">
+          <p className="text-sm sm:text-base text-stone-600 dark:text-amber-200/80 font-medium truncate">
             {currentSong.singer}
           </p>
         </div>
@@ -183,9 +183,9 @@ export const ExpandedPlayerModal: React.FC = () => {
             max={duration || 100}
             value={currentTime}
             onChange={handleSeekChange}
-            className="w-full h-2 rounded-lg bg-stone-800 accent-amber-400 cursor-pointer"
+            className="w-full h-2 rounded-lg bg-stone-200 dark:bg-stone-800 accent-amber-500 dark:accent-amber-400 cursor-pointer"
           />
-          <div className="flex justify-between text-xs text-stone-400 font-mono">
+          <div className="flex justify-between text-xs text-stone-500 dark:text-stone-400 font-mono">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -196,7 +196,7 @@ export const ExpandedPlayerModal: React.FC = () => {
           <button
             onClick={toggleShuffle}
             className={`p-3 rounded-full transition-all ${
-              isShuffle ? 'text-amber-400 bg-amber-500/20' : 'text-stone-400 hover:text-white'
+              isShuffle ? 'text-amber-600 dark:text-amber-400 bg-amber-500/15 dark:bg-amber-500/20' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
             }`}
             title="शफ़ल (Shuffle)"
           >
@@ -205,7 +205,7 @@ export const ExpandedPlayerModal: React.FC = () => {
 
           <button
             onClick={playPrevious}
-            className="p-3 rounded-full text-stone-200 hover:text-white hover:bg-stone-800 transition-colors"
+            className="p-3 rounded-full text-stone-700 dark:text-stone-200 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             title="पिछला गीत"
           >
             <SkipBack className="w-6 h-6" />
@@ -225,7 +225,7 @@ export const ExpandedPlayerModal: React.FC = () => {
 
           <button
             onClick={playNext}
-            className="p-3 rounded-full text-stone-200 hover:text-white hover:bg-stone-800 transition-colors"
+            className="p-3 rounded-full text-stone-700 dark:text-stone-200 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
             title="अगला गीत"
           >
             <SkipForward className="w-6 h-6" />
@@ -234,7 +234,7 @@ export const ExpandedPlayerModal: React.FC = () => {
           <button
             onClick={toggleRepeat}
             className={`p-3 rounded-full transition-all ${
-              isRepeat ? 'text-amber-400 bg-amber-500/20' : 'text-stone-400 hover:text-white'
+              isRepeat ? 'text-amber-600 dark:text-amber-400 bg-amber-500/15 dark:bg-amber-500/20' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
             }`}
             title="दोहराएं (Repeat)"
           >
@@ -243,10 +243,10 @@ export const ExpandedPlayerModal: React.FC = () => {
         </div>
 
         {/* Volume Slider */}
-        <div className="flex items-center gap-3 w-full max-w-xs px-4 py-2 rounded-2xl bg-stone-900/80 border border-amber-500/10 mb-6">
+        <div className="flex items-center gap-3 w-full max-w-xs px-4 py-2 rounded-2xl bg-stone-100 dark:bg-stone-900/80 border border-stone-200 dark:border-amber-500/10 mb-6">
           <button
             onClick={() => setVolume(volume > 0 ? 0 : 0.8)}
-            className="text-stone-400 hover:text-amber-300"
+            className="text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300"
           >
             {volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -257,18 +257,18 @@ export const ExpandedPlayerModal: React.FC = () => {
             step={0.01}
             value={volume}
             onChange={handleVolumeChange}
-            className="w-full h-1.5 rounded-lg bg-stone-800 accent-amber-400 cursor-pointer"
+            className="w-full h-1.5 rounded-lg bg-stone-200 dark:bg-stone-800 accent-amber-500 dark:accent-amber-400 cursor-pointer"
           />
         </div>
 
       </div>
 
       {/* Bottom Secondary Actions Bar */}
-      <div className="flex items-center justify-around w-full max-w-md mx-auto pt-4 border-t border-amber-500/20">
+      <div className="flex items-center justify-around w-full max-w-md mx-auto pt-4 border-t border-stone-200 dark:border-amber-500/20">
         <button
           onClick={() => toggleFavorite(currentSong.id)}
           className={`flex flex-col items-center gap-1 text-xs font-semibold ${
-            isFav ? 'text-rose-400' : 'text-stone-400 hover:text-white'
+            isFav ? 'text-rose-500' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
           }`}
         >
           <Heart className={`w-5 h-5 ${isFav ? 'fill-rose-500' : ''}`} />
@@ -278,7 +278,7 @@ export const ExpandedPlayerModal: React.FC = () => {
         {currentSong.lyrics && (
           <button
             onClick={() => setLyricsSong(currentSong)}
-            className="flex flex-col items-center gap-1 text-xs font-semibold text-stone-400 hover:text-amber-300"
+            className="flex flex-col items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300"
           >
             <FileText className="w-5 h-5" />
             <span>गीत के बोल</span>
@@ -287,7 +287,7 @@ export const ExpandedPlayerModal: React.FC = () => {
 
         <button
           onClick={() => setIsQueueOpen(true)}
-          className="flex flex-col items-center gap-1 text-xs font-semibold text-stone-400 hover:text-amber-300"
+          className="flex flex-col items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300"
         >
           <ListMusic className="w-5 h-5" />
           <span>कतार (Queue)</span>

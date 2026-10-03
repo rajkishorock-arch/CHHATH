@@ -5,20 +5,20 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
-  easyMode: boolean;
-  toggleEasyMode: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('chhath_theme') as Theme;
-    return saved || 'light';
-  });
-
-  const [easyMode, setEasyMode] = useState<boolean>(() => {
-    return localStorage.getItem('chhath_easy_mode') === 'true';
+  const [theme, setThemeState] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem('chhath_theme') as Theme;
+      if (saved === 'light' || saved === 'dark') return saved;
+      return 'dark'; // Dark theme default as requested
+    } catch {
+      return 'dark';
+    }
   });
 
   useEffect(() => {
@@ -28,28 +28,33 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem('chhath_theme', theme);
+    try {
+      localStorage.setItem('chhath_theme', theme);
+    } catch {
+      // Ignore storage errors
+    }
   }, [theme]);
 
+  // Clean up any residual legacy easyMode attributes
   useEffect(() => {
-    if (easyMode) {
-      document.documentElement.classList.add('easy-mode');
-    } else {
+    try {
       document.documentElement.classList.remove('easy-mode');
+      localStorage.removeItem('chhath_easy_mode');
+    } catch {
+      // Ignore
     }
-    localStorage.setItem('chhath_easy_mode', String(easyMode));
-  }, [easyMode]);
+  }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    setThemeState(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  const toggleEasyMode = () => {
-    setEasyMode(prev => !prev);
+  const setTheme = (t: Theme) => {
+    setThemeState(t);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, easyMode, toggleEasyMode }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -62,4 +67,3 @@ export const useTheme = () => {
   }
   return context;
 };
-

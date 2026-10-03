@@ -229,12 +229,7 @@ export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
               onError={() => {
                 setIsLoading(false);
                 setIsPlaying(false);
-                if (videoRef.current && reel.videoUrl !== '/videos/sample1.mp4') {
-                  videoRef.current.src = getVideoUrl('/videos/sample1.mp4');
-                  if (isActive) {
-                    videoRef.current.play().catch(() => {});
-                  }
-                }
+                onPlaybackError?.(reel.id, reel.youtubeVideoId || '', 100);
               }}
               className="w-full h-full object-cover"
             />

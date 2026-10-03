@@ -31,9 +31,9 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
 
   if (songs.length === 0) {
     return (
-      <div className="text-center py-12 px-4 rounded-2xl bg-stone-900/40 border border-amber-500/10">
-        <p className="text-amber-300 font-bold text-base mb-1">कोई गाना नहीं मिला</p>
-        <p className="text-xs text-stone-400">कृपया अपनी खोज या श्रेणी बदलें</p>
+      <div className="text-center py-12 px-4 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-amber-500/10 shadow-sm">
+        <p className="text-amber-600 dark:text-amber-300 font-bold text-base mb-1">कोई गाना नहीं मिला</p>
+        <p className="text-xs text-stone-500 dark:text-stone-400">कृपया अपनी खोज या श्रेणी बदलें</p>
       </div>
     );
   }
@@ -55,22 +55,22 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
                 playSong(song, songs);
               }
             }}
-            className={`group relative flex items-center justify-between p-3 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${
+            className={`group relative flex items-center justify-between p-3 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer shadow-sm ${
               isCurrent
-                ? 'bg-gradient-to-r from-amber-950/90 via-stone-900 to-amber-900/40 border-amber-400/60 shadow-lg shadow-amber-500/10 scale-[1.01]'
-                : 'bg-stone-900/70 hover:bg-stone-850 border-amber-500/15 hover:border-amber-500/35'
+                ? 'bg-amber-50/90 dark:bg-gradient-to-r dark:from-amber-950/90 dark:via-stone-900 dark:to-amber-900/40 border-amber-400/70 shadow-lg shadow-amber-500/10 scale-[1.01]'
+                : 'bg-white dark:bg-stone-900/70 hover:bg-stone-50 dark:hover:bg-stone-850 border-stone-200 dark:border-amber-500/15 hover:border-amber-400/40'
             }`}
           >
             {/* Track Left Info: Index + Image + Title + Singer */}
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 mr-2">
               
               {/* Track Index or Playing Bar */}
-              <div className="w-6 text-center text-xs font-bold text-stone-400 group-hover:text-amber-300 shrink-0">
+              <div className="w-6 text-center text-xs font-bold text-stone-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 shrink-0">
                 {isCurrent && isPlaying ? (
                   <div className="flex items-end justify-center gap-0.5 h-4">
-                    <div className="w-1 bg-amber-400 h-3 animate-bounce [animation-delay:-0.2s]" />
-                    <div className="w-1 bg-orange-400 h-4 animate-bounce" />
-                    <div className="w-1 bg-yellow-300 h-2 animate-bounce [animation-delay:-0.4s]" />
+                    <div className="w-1 bg-amber-500 h-3 animate-bounce [animation-delay:-0.2s]" />
+                    <div className="w-1 bg-orange-500 h-4 animate-bounce" />
+                    <div className="w-1 bg-yellow-400 h-2 animate-bounce [animation-delay:-0.4s]" />
                   </div>
                 ) : (
                   <span>{index + 1}</span>
@@ -78,7 +78,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
               </div>
 
               {/* Artwork Thumbnail */}
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden shrink-0 border border-amber-500/30 shadow-md">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden shrink-0 border border-stone-200 dark:border-amber-500/30 shadow-md">
                 <img
                   src={getImageUrl(song.thumbnail)}
                   alt={song.title}
@@ -89,7 +89,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
                 />
                 
                 {/* Play/Pause Hover Overlay */}
-                <div className={`absolute inset-0 bg-stone-950/60 flex items-center justify-center transition-opacity ${
+                <div className={`absolute inset-0 bg-stone-950/50 flex items-center justify-center transition-opacity ${
                   isCurrent ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                 }`}>
                   {isCurrent && isPlaying ? (
@@ -103,16 +103,16 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
               {/* Song Title & Artist Details */}
               <div className="min-w-0 flex-1">
                 <div className={`font-mukta font-bold text-sm sm:text-base truncate transition-colors ${
-                  isCurrent ? 'text-amber-300' : 'text-stone-100 group-hover:text-amber-200'
+                  isCurrent ? 'text-amber-700 dark:text-amber-300' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
                 }`}>
                   {song.title}
                 </div>
-                <div className="text-xs text-stone-400 truncate flex items-center gap-2 mt-0.5 font-mukta">
+                <div className="text-xs text-stone-500 dark:text-stone-400 truncate flex items-center gap-2 mt-0.5 font-mukta">
                   <span className="truncate">{song.singer}</span>
                   {song.category && (
                     <>
                       <span>•</span>
-                      <span className="text-amber-400/90 font-semibold text-[11px] truncate">
+                      <span className="text-amber-600 dark:text-amber-400/90 font-semibold text-[11px] truncate">
                         {song.category}
                       </span>
                     </>
@@ -132,7 +132,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
                     e.stopPropagation();
                     setLyricsSong(song);
                   }}
-                  className="p-2 rounded-xl text-stone-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                  className="p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
                   title="गीत के बोल (Lyrics)"
                 >
                   <FileText className="w-4 h-4" />
@@ -147,8 +147,8 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
                 }}
                 className={`p-2 rounded-xl transition-colors ${
                   inQueue 
-                    ? 'text-amber-400 opacity-60' 
-                    : 'text-stone-400 hover:text-white hover:bg-stone-800'
+                    ? 'text-amber-600 dark:text-amber-400 opacity-70' 
+                    : 'text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800'
                 }`}
                 title={inQueue ? "कतार में मौजूद" : "कतार में जोड़ें"}
               >
@@ -164,7 +164,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
                 className={`p-2 rounded-xl transition-colors ${
                   isFav 
                     ? 'text-rose-500' 
-                    : 'text-stone-400 hover:text-rose-400 hover:bg-rose-500/10'
+                    : 'text-stone-400 hover:text-rose-500 hover:bg-rose-500/10'
                 }`}
                 title={isFav ? "पसंदीदा से हटाएं" : "पसंदीदा में जोड़ें"}
               >

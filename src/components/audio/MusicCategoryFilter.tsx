@@ -40,14 +40,14 @@ export const MusicCategoryFilter: React.FC<MusicCategoryFilterProps> = ({
             className={`snap-start shrink-0 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all duration-200 border ${
               isSelected
                 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 border-amber-400 shadow-lg shadow-amber-500/25 scale-[1.02]'
-                : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 border-amber-500/20 hover:border-amber-500/40'
+                : 'bg-white dark:bg-stone-900/80 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-amber-500/20 hover:border-amber-400'
             }`}
           >
             {getIcon(cat)}
             <span>{cat}</span>
             {cat === 'पसंदीदा' && favoritesCount > 0 && (
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                isSelected ? 'bg-stone-950 text-amber-300' : 'bg-rose-500/20 text-rose-300'
+                isSelected ? 'bg-stone-950 text-amber-300' : 'bg-rose-500/15 text-rose-600 dark:text-rose-300'
               }`}>
                 {favoritesCount}
               </span>

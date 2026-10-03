@@ -171,7 +171,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           width: '100%',
           videoId: currentSongRef.current?.youtubeId || 'BsAFCc901MM',
           playerVars: {
-            autoplay: 0,
+            autoplay: 1,
+            playsinline: 1,
             controls: 1,
             modestbranding: 1,
             rel: 0,
@@ -183,9 +184,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               console.log('[YouTubePlayer] Global Player Ready');
               setYtPlayerReady(true);
               try {
-                event.target.setVolume(Math.round(volume * 100));
+                if (event.target.unMute) event.target.unMute();
+                event.target.setVolume(Math.round(volume * 100) || 100);
               } catch (e) {
-                console.warn('setVolume onReady warning:', e);
+                console.warn('unMute/setVolume onReady warning:', e);
               }
               if (pendingSongRef.current && pendingSongRef.current.youtubeId) {
                 console.log('[YouTubePlayer] Loading pending song onReady:', pendingSongRef.current.youtubeId);
@@ -206,6 +208,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 setIsPlaying(true);
                 setPlaybackError(null);
                 try {
+                  // Guarantee mobile sound output
+                  if (ytPlayerRef.current?.unMute) {
+                    ytPlayerRef.current.unMute();
+                  }
+                  if (ytPlayerRef.current?.setVolume) {
+                    ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
+                  }
                   if (ytPlayerRef.current?.getDuration) {
                     setDuration(ytPlayerRef.current.getDuration() || 0);
                   }
@@ -343,11 +352,27 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (ytPlayerRef.current && ytPlayerRef.current.loadVideoById) {
       try {
         console.log('[YouTubePlayer] Executing loadVideoById:', song.youtubeId);
+        // Explicitly unMute and set volume before and with load
+        if (ytPlayerRef.current.unMute) {
+          ytPlayerRef.current.unMute();
+        }
+        if (ytPlayerRef.current.setVolume) {
+          ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
+        }
         ytPlayerRef.current.loadVideoById(song.youtubeId);
+        if (ytPlayerRef.current.playVideo) {
+          ytPlayerRef.current.playVideo();
+        }
 
         // Verification after player load
         setTimeout(() => {
           try {
+            if (ytPlayerRef.current?.unMute) {
+              ytPlayerRef.current.unMute();
+            }
+            if (ytPlayerRef.current?.setVolume) {
+              ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
+            }
             if (ytPlayerRef.current && ytPlayerRef.current.getVideoData) {
               const actualVideoId = ytPlayerRef.current.getVideoData()?.video_id;
               console.log('[YouTubePlayer] actualPlayerVideoId:', actualVideoId);
@@ -387,6 +412,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsPlaying(true);
       if (ytPlayerRef.current && ytPlayerRef.current.playVideo) {
         try {
+          if (ytPlayerRef.current.unMute) ytPlayerRef.current.unMute();
+          if (ytPlayerRef.current.setVolume) ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
           ytPlayerRef.current.playVideo();
         } catch (e) {
           console.warn('YouTube playVideo error:', e);
@@ -576,15 +603,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {/* 
         Persistent Single Global YouTube Player Container
         - When showVideo is true: Floats at z-[90] (ABOVE ExpandedPlayerModal z-[80]) with a visible rounded frame.
-        - When showVideo is false: Positioned off-screen at -bottom-[9999px] -right-[9999px] with valid 320x180px dimensions.
-        This prevents browser media throttling without obscuring the page with a black overlay!
+        - When showVideo is false: Kept on-screen at bottom-0 right-0 with micro dimensions (2x2px, opacity 0.01).
+        This guarantees iOS Safari and Android Chrome never classify the audio thread as background-throttled or off-screen!
       */}
       <div
         className={
           showVideo
             ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
-            : "fixed z-[-100] w-[320px] h-[180px] -bottom-[9999px] -right-[9999px] pointer-events-none overflow-hidden"
+            : "fixed bottom-0 right-0 w-2 h-2 opacity-[0.01] pointer-events-none z-0 overflow-hidden"
         }
+        aria-hidden={!showVideo}
       >
         {showVideo && (
           <div className="flex items-center justify-between px-3 py-1.5 bg-stone-900 border-b border-amber-500/20 text-xs text-amber-300 font-bold">
