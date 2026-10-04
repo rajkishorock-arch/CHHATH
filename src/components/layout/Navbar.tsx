@@ -18,9 +18,11 @@ import {
   Sliders,
   LogIn,
   Settings,
-  LayoutGrid
+  LayoutGrid,
+  Film
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useReels } from '../../context/ReelsContext';
 import { AccountCenterModal } from '../settings/AccountCenterModal';
 import { AppSettingsModal } from '../settings/AppSettingsModal';
 import { TopSongSearchBar } from '../audio/TopSongSearchBar';
@@ -46,6 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { ringBell } = useAudio();
+  const { openReelsPlatform, reelsPlatformOpen } = useReels();
   const { 
     currentUser, 
     isAuthenticated, 
@@ -75,6 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navText = {
     hi: {
       home: 'होम',
+      reels: 'छठ रील्स',
       guide: 'पूजा विधि',
       arghya: 'अर्घ्य समय',
       music: 'छठ संगीत',
@@ -95,6 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     en: {
       home: 'Home',
+      reels: 'Reels',
       guide: 'Puja Vidhi',
       arghya: 'Arghya Timings',
       music: 'Chhath Music',
@@ -115,6 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     bho: {
       home: 'होम',
+      reels: 'छठ रील्स',
       guide: 'पूजा बिधि',
       arghya: 'अरघ के समय',
       music: 'छठ गीत',
@@ -135,6 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     mai: {
       home: 'होम',
+      reels: 'छठि रील्स',
       guide: 'पूजा विधि',
       arghya: 'अर्घ्य समय',
       music: 'छठि गीत',
@@ -155,6 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     mag: {
       home: 'होम',
+      reels: 'छठ रील्स',
       guide: 'पूजा विधि',
       arghya: 'अर्घ्य समय',
       music: 'छठ गीत',
@@ -175,6 +183,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   }[language] || {
     home: 'होम',
+    reels: 'छठ रील्स',
     guide: 'पूजा विधि',
     arghya: 'अर्घ्य समय',
     music: 'छठ संगीत',
@@ -194,8 +203,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     logout: 'लॉग आउट करें'
   };
 
-  const primaryNavLinks: { id: string; label: string; href: string; badge?: string }[] = [
+  const primaryNavLinks: { id: string; label: string; href: string; badge?: string; isReels?: boolean }[] = [
     { id: 'home', label: navText.home, href: '#home' },
+    { id: 'reels', label: navText.reels, href: '#reels', isReels: true, badge: language === 'en' ? 'LIVE' : 'लाइव' },
     { id: 'guide', label: navText.guide, href: '#guide' },
     { id: 'arghya', label: navText.arghya, href: '#arghya' },
     { id: 'music', label: navText.music, href: '#music' }
@@ -221,8 +231,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const handleNavClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    if (id === 'reels') {
+      openReelsPlatform('foryou');
+      setSidebarDrawerOpen(false);
+      return;
+    }
     if (onNavigate) {
-      e.preventDefault();
       onNavigate(id);
       setSidebarDrawerOpen(false);
     }
@@ -285,10 +300,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           <TopSongSearchBar onNavigateToMusic={handleSearchNavigate} />
         </div>
 
-        {/* Desktop Primary Nav Items: 4 Essential Links + "सभी फीचर्स" Drawer Button */}
+        {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Drawer Button */}
         <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 shrink-0" aria-label="मुख्य नेविगेशन">
           {primaryNavLinks.map((item) => {
-            const isActive = activeTab === item.id;
+            const isActive = item.isReels ? reelsPlatformOpen : activeTab === item.id;
+            if (item.isReels) {
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={(e) => handleNavClick(e, item.id)}
+                  title={item.label}
+                  className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 border shadow-sm group active:scale-95 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 text-white border-orange-400 shadow-orange-500/30 ring-2 ring-orange-400/50'
+                      : 'bg-gradient-to-r from-red-600/15 via-orange-500/15 to-amber-500/15 hover:from-red-600/25 hover:via-orange-500/25 hover:to-amber-500/25 text-red-700 dark:text-amber-300 border-orange-500/30 hover:border-orange-500/60'
+                  }`}
+                >
+                  <Film className="w-3.5 h-3.5 text-red-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase tracking-wider bg-red-600 text-white animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            }
             return (
               <a
                 key={item.id}

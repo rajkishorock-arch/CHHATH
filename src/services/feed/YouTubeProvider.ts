@@ -220,6 +220,18 @@ export const YouTubeProvider = {
               continue;
             }
 
+            // Exclude video editing tutorials, tech guides, memes, and non-devotional clutter
+            const junkKeywords = [
+              'video editing', 'reels editing', 'editing video', 'status kaise banaye',
+              'video kaise banaye', 'kaise banaye', 'tutorial', 'kinemaster', 'capcut',
+              'vn app', 'alight motion', 'premiere pro', 'vfx boy', 'editing tutorial',
+              'snake', 'meme', 'comedy'
+            ];
+            const isJunk = junkKeywords.some(kw => textToInspect.includes(kw));
+            if (isJunk) {
+              continue;
+            }
+
             seenLiveVideoIds.add(res.youtubeId);
             const channelName = decodeHtmlEntities(res.channelTitle) || 'छठ पावन भक्ति';
 

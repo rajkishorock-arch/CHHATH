@@ -280,35 +280,6 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
               <span>{reel.category}</span>
             </div>
-
-            {/* Source Attribution Badge */}
-            {reel.sourceType === 'YOUTUBE' ? (
-              <a 
-                href={reel.externalSourceUrl || `https://www.youtube.com/watch?v=${reel.youtubeVideoId}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-200 text-[11px] font-bold backdrop-blur-md shadow-md transition-all group"
-                title="मूल YouTube वीडियो देखें"
-              >
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span>YouTube</span>
-                <ExternalLink className="w-3 h-3 text-red-300 group-hover:translate-x-0.5 transition-transform" />
-              </a>
-            ) : reel.sourceType === 'EXTERNAL' ? (
-              <a 
-                href={reel.externalSourceUrl || '#'} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-200 text-[11px] font-bold backdrop-blur-md shadow-md transition-all group"
-                title="मूल स्त्रोत देखें"
-              >
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span>External</span>
-                <ExternalLink className="w-3 h-3 text-amber-300 group-hover:translate-x-0.5 transition-transform" />
-              </a>
-            ) : null}
           </div>
 
           {/* Sound & More Buttons */}
@@ -486,83 +457,41 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         </div>
 
         {/* Bottom Details Section */}
-        <div className="relative z-10 p-4 sm:p-5 space-y-2 pointer-events-auto text-white">
-          {/* Creator handle */}
+        {/* Bottom Details Section (Clean Instagram / Shorts Style) */}
+        <div className="relative z-10 p-3.5 sm:p-4 pb-2 space-y-1.5 pointer-events-auto text-white max-w-[85%] select-none">
+          {/* Creator Line */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => onOpenProfile(reel.creatorUsername)}
-              className="flex items-center gap-1.5 hover:underline"
+              className="flex items-center gap-1.5 hover:underline text-left group"
             >
-              <span className="font-bold text-amber-300 text-sm">{reel.creatorName}</span>
-              <span className="text-xs text-stone-300 font-mono font-semibold">{reel.creatorUsername}</span>
-            </button>
-            {reel.creatorCity && (
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-stone-800/80 text-stone-300">
-                {reel.creatorCity}
+              <span className="font-bold text-amber-300 text-xs sm:text-sm drop-shadow">
+                {reel.creatorName}
               </span>
-            )}
+              <span className="text-[11px] text-stone-300 font-mono opacity-80">
+                {reel.creatorUsername}
+              </span>
+            </button>
           </div>
 
-          {/* Reel Title */}
-          <h2 className="font-rozha text-lg sm:text-xl font-bold leading-snug drop-shadow-md">
-            {reel.title}
-          </h2>
-
-          {/* Source Attribution if External or YouTube */}
-          {(reel.sourceType === 'YOUTUBE' || reel.sourceType === 'EXTERNAL') && (
-            <div className="flex items-center gap-2 text-[11px] text-stone-300 font-mukta">
-              <span className="px-1.5 py-0.5 rounded bg-stone-800/90 text-amber-300 font-mono text-[10px] border border-amber-500/20">
-                स्त्रोत: {reel.sourceType === 'YOUTUBE' ? 'YouTube' : 'सांस्कृतिक संग्रह'}
-              </span>
-              {reel.channelTitle && <span className="font-bold text-stone-200">({reel.channelTitle})</span>}
-              {reel.externalSourceUrl && (
-                <a 
-                  href={reel.externalSourceUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-mono text-[10px]"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <span>मूल वीडियो</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>
-              )}
-            </div>
-          )}
-
-          {/* Reel Caption */}
-          <p className="font-mukta text-xs sm:text-sm text-stone-200 line-clamp-2 leading-relaxed drop-shadow">
-            {reel.description}
+          {/* Clean Caption (1-2 lines max) */}
+          <p className="font-mukta text-xs sm:text-[13px] text-white line-clamp-2 leading-snug drop-shadow-md">
+            {reel.title || reel.description}
           </p>
 
-          {/* Hashtags */}
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {reel.tags.map(tag => (
-              <button
-                key={tag}
-                onClick={e => handleHashtagClick(tag, e)}
-                className="text-xs font-mono font-bold text-amber-400 hover:text-amber-200 hover:underline"
-              >
-                {tag}
-              </button>
-            ))}
+          {/* Audio Ticker (Instagram Style) */}
+          <div 
+            onClick={() => reel.audioId && onOpenAudio(reel.audioId)}
+            className="flex items-center gap-1.5 text-[11px] text-amber-300/90 font-mukta cursor-pointer hover:underline pt-0.5"
+          >
+            <Music className="w-3 h-3 text-amber-400 shrink-0 animate-pulse" />
+            <span className="truncate max-w-[200px] sm:max-w-[280px]">
+              {reel.audioTitle ? `${reel.audioTitle} • ${reel.audioArtist || 'पारंपरिक धुन'}` : 'छठ महापर्व पावन ध्वनि (Original Audio)'}
+            </span>
           </div>
 
-          {/* Audio Marquee */}
-          {reel.audioTitle && (
-            <div 
-              onClick={() => reel.audioId && onOpenAudio(reel.audioId)}
-              className="flex items-center gap-2 pt-1 text-xs text-amber-300/90 font-mukta cursor-pointer hover:underline"
-            >
-              <Music className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <div className="overflow-hidden whitespace-nowrap text-[11px]">
-                <span>{reel.audioTitle} • {reel.audioArtist || 'पारंपरिक धुन'}</span>
-              </div>
-            </div>
-          )}
-
           {/* Progress Indicator Bar */}
-          <div className="w-full h-1 bg-stone-700/60 rounded-full overflow-hidden mt-2">
+          <div className="w-full h-1 bg-stone-700/60 rounded-full overflow-hidden mt-1.5">
             <div 
               className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-150"
               style={{ width: `${progress}%` }}
