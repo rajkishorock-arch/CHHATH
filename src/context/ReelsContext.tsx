@@ -7,7 +7,8 @@ import {
   ReelReport, 
   ReelNotification,
   ReelPrivacy,
-  ReelUser
+  ReelUser,
+  ContentSourceType
 } from '../types';
 import { ReelsStorage, storeMediaBlob, getMediaBlobUrl } from '../services/reelsStorage';
 import { FeedService } from '../services/feed/FeedService';
@@ -28,6 +29,9 @@ interface CreateReelParams {
   audioTitle?: string;
   audioArtist?: string;
   videoDuration?: string;
+  sourceType?: ContentSourceType;
+  instagramShortcode?: string;
+  instagramUrl?: string;
 }
 
 interface ReelsContextType {
@@ -567,6 +571,10 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioId: params.audioId || 'audio_1',
       audioTitle: params.audioTitle || 'कांच ही बांस के बहंगिया',
       audioArtist: params.audioArtist || 'शारदा सिन्हा',
+      sourceType: params.sourceType || 'FIRST_PARTY',
+      instagramShortcode: params.instagramShortcode,
+      instagramUrl: params.instagramUrl,
+      externalSourceUrl: params.instagramUrl,
       createdAt: new Date().toISOString(),
       aspectRatio: '9:16'
     };

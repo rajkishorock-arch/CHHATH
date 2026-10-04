@@ -142,7 +142,8 @@ const KEYS = {
   EXTERNAL_CATALOG: 'chhath_reels_external_catalog',
   SEARCH_HISTORY: 'chhath_reels_search_history',
   YOUTUBE_CACHE: 'chhath_reels_youtube_cache',
-  BLOCKED_VIDEOS: 'chhath_reels_blocked_videos'
+  BLOCKED_VIDEOS: 'chhath_reels_blocked_videos',
+  INSTAGRAM_CACHE: 'chhath_reels_instagram_cache'
 };
 
 export const SEED_USERS: ReelUser[] = [
@@ -721,8 +722,165 @@ export const EXTERNAL_CHHATH_SEED_CATALOG: DynamicReel[] = [
     status: 'approved',
     createdAt: '2026-09-13T17:00:00Z',
     aspectRatio: '9:16'
+  },
+  {
+    id: 'ig-chhath-1',
+    creatorId: 'ig_chhathmahaparv',
+    creatorName: 'छठ महापर्व दर्शन (Official)',
+    creatorUsername: '@chhath_mahaparv',
+    creatorAvatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80',
+    creatorCity: 'Patna',
+    title: 'दीनानाथ तोहार महिमा अपार 🌅 — पावन संध्या अर्घ्य गंगा घाट पटना',
+    description: 'गंगा घाट पटना पर अस्ताचलगामी सूर्य देव को प्रथम अर्घ्य अर्पण। जय छठी मईया! #ChhathPuja #PatnaGhat #InstagramReels',
+    category: 'Sandhya Arghya',
+    tags: ['#ChhathPuja', '#PatnaGhat', '#SandhyaArghya', '#ChhathiMaiya', '#InstagramReels'],
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-mountains-and-river-42436-large.mp4',
+    instagramShortcode: 'DC5bYVjT1xM',
+    instagramUrl: 'https://www.instagram.com/reel/DC5bYVjT1xM/',
+    channelTitle: 'Instagram • @chhath_mahaparv',
+    externalSourceUrl: 'https://www.instagram.com/reel/DC5bYVjT1xM/',
+    sourceType: 'INSTAGRAM',
+    isEmbeddable: true,
+    contentLanguage: 'bho',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80',
+    videoDuration: '0:34',
+    likesCount: 245000,
+    commentsCount: 4200,
+    sharesCount: 38000,
+    savesCount: 22100,
+    viewsCount: 6200000,
+    privacy: 'public',
+    status: 'approved',
+    createdAt: '2026-09-10T12:00:00Z',
+    aspectRatio: '9:16'
+  },
+  {
+    id: 'ig-chhath-2',
+    creatorId: 'ig_bihartourism',
+    creatorName: 'बिहार धरोहर व संस्कृति',
+    creatorUsername: '@bihar_culture_patna',
+    creatorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+    creatorCity: 'Varanasi',
+    title: 'कांच ही बांस के बहंगिया — पारंपरिक सूप व दौरा की पावन तैयारी',
+    description: 'छठ पूजा की पवित्रता और दौरा सजावट। छठ व्रतियों की अटूट श्रद्धा। #ChhathGeet #Bahangiya #InstagramReels',
+    category: 'Chhath Geet',
+    tags: ['#ChhathGeet', '#Bahangiya', '#Chhath2026', '#BihariTradition'],
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-small-candle-in-the-dark-42468-large.mp4',
+    instagramShortcode: 'C-a5_H8vX8N',
+    instagramUrl: 'https://www.instagram.com/reel/C-a5_H8vX8N/',
+    channelTitle: 'Instagram • @bihar_culture_patna',
+    externalSourceUrl: 'https://www.instagram.com/reel/C-a5_H8vX8N/',
+    sourceType: 'INSTAGRAM',
+    isEmbeddable: true,
+    contentLanguage: 'hi',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1604881991720-f91add269bed?w=800&q=80',
+    videoDuration: '0:40',
+    likesCount: 310000,
+    commentsCount: 6100,
+    sharesCount: 52000,
+    savesCount: 31000,
+    viewsCount: 8400000,
+    privacy: 'public',
+    status: 'approved',
+    createdAt: '2026-09-12T09:30:00Z',
+    aspectRatio: '9:16'
+  },
+  {
+    id: 'ig-chhath-3',
+    creatorId: 'ig_thekuaprasad',
+    creatorName: 'छठ महाप्रसाद रसोई',
+    creatorUsername: '@chhath_thekua_patna',
+    creatorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80',
+    creatorCity: 'Gaya',
+    title: 'शुद्ध देशी घी और गुड़ का ठेकुआ — पावन महाप्रसाद निर्माण',
+    description: 'मिट्टी के चूल्हे और आम की लकड़ी पर बना पारंपरिक छठ ठेकुआ महाप्रसाद। #ThekuaPrasad #ChhathPrasad #ViralReel',
+    category: 'Thekua / Prasad',
+    tags: ['#ThekuaPrasad', '#ChhathPrasad', '#Mahaprasad', '#PureBhakti'],
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-kneading-dough-on-a-floured-surface-42998-large.mp4',
+    instagramShortcode: 'DB8kLy3pQ1Z',
+    instagramUrl: 'https://www.instagram.com/reel/DB8kLy3pQ1Z/',
+    channelTitle: 'Instagram • @chhath_thekua_patna',
+    externalSourceUrl: 'https://www.instagram.com/reel/DB8kLy3pQ1Z/',
+    sourceType: 'INSTAGRAM',
+    isEmbeddable: true,
+    contentLanguage: 'bho',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
+    videoDuration: '0:28',
+    likesCount: 189000,
+    commentsCount: 2900,
+    sharesCount: 27000,
+    savesCount: 19500,
+    viewsCount: 4900000,
+    privacy: 'public',
+    status: 'approved',
+    createdAt: '2026-09-15T15:20:00Z',
+    aspectRatio: '9:16'
+  },
+  {
+    id: 'ig-chhath-4',
+    creatorId: 'ig_usha_arghya',
+    creatorName: 'उषा अर्घ्य दर्शन',
+    creatorUsername: '@usha_arghya_live',
+    creatorAvatar: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=200&q=80',
+    creatorCity: 'Muzaffarpur',
+    title: 'उग हो सुरुज देव भइल अरघ के बेर 🌅 — पावन प्रातःकालीन उषा अर्घ्य',
+    description: 'सप्तमी के पावन भोर में उगते सूर्य देव को दुग्ध अर्घ्य अर्पण। चारों ओर शंख ध्वनि और छठी मईया के जयकारे। #UshaArghya #Sunrise #Chhath',
+    category: 'Usha Arghya',
+    tags: ['#UshaArghya', '#Sunrise', '#Chhath2026', '#ArghyaPradan'],
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-golden-sunrise-reflecting-on-the-water-42981-large.mp4',
+    instagramShortcode: 'C9mKl23OpxX',
+    instagramUrl: 'https://www.instagram.com/reel/C9mKl23OpxX/',
+    channelTitle: 'Instagram • @usha_arghya_live',
+    externalSourceUrl: 'https://www.instagram.com/reel/C9mKl23OpxX/',
+    sourceType: 'INSTAGRAM',
+    isEmbeddable: true,
+    contentLanguage: 'bho',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+    videoDuration: '0:45',
+    likesCount: 420000,
+    commentsCount: 8900,
+    sharesCount: 78000,
+    savesCount: 45000,
+    viewsCount: 11200000,
+    privacy: 'public',
+    status: 'approved',
+    createdAt: '2026-09-18T06:15:00Z',
+    aspectRatio: '9:16'
+  },
+  {
+    id: 'ig-chhath-5',
+    creatorId: 'ig_ghat_darshan',
+    creatorName: 'गंगा घाट दीपमाला',
+    creatorUsername: '@ganga_ghat_diaries',
+    creatorAvatar: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=200&q=80',
+    creatorCity: 'Bhagalpur',
+    title: 'लाखों दीपों से जगमगाते छठ घाट — अलौकिक दृश्य',
+    description: 'छठ की पावन रात में दीपोत्सव और भक्ति संगीत की गूंज। जय छठी मैया! #ChhathGhat #Deepotsav #SpiritualBihar',
+    category: 'Ghat',
+    tags: ['#ChhathGhat', '#Deepotsav', '#Diya', '#PatnaMarineDrive'],
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-candles-and-lights-flickering-at-night-42469-large.mp4',
+    instagramShortcode: 'DDo94aLpxK8',
+    instagramUrl: 'https://www.instagram.com/reel/DDo94aLpxK8/',
+    channelTitle: 'Instagram • @ganga_ghat_diaries',
+    externalSourceUrl: 'https://www.instagram.com/reel/DDo94aLpxK8/',
+    sourceType: 'INSTAGRAM',
+    isEmbeddable: true,
+    contentLanguage: 'hi',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800&q=80',
+    videoDuration: '0:36',
+    likesCount: 275000,
+    commentsCount: 4600,
+    sharesCount: 39000,
+    savesCount: 26000,
+    viewsCount: 7100000,
+    privacy: 'public',
+    status: 'approved',
+    createdAt: '2026-09-20T18:40:00Z',
+    aspectRatio: '9:16'
   }
 ];
+
+export const CURATED_CHHATH_INSTAGRAM_REELS: DynamicReel[] = EXTERNAL_CHHATH_SEED_CATALOG.filter(r => r.sourceType === 'INSTAGRAM');
 
 export const SEED_REELS: DynamicReel[] = EXTERNAL_CHHATH_SEED_CATALOG;
 
@@ -1318,7 +1476,8 @@ export const ReelsStorage = {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length >= EXTERNAL_CHHATH_SEED_CATALOG.length) {
         const hasBrokenIds = parsed.some(p => p.youtubeVideoId === 'yqK8qF8_Mco' || p.youtubeVideoId === '9H2q61hB0gA' || p.youtubeVideoId === 'fOVGz9WFymU' || p.id === 'ext-yt-1');
-        if (!hasBrokenIds) return parsed;
+        const hasInstagram = parsed.some(p => p.sourceType === 'INSTAGRAM');
+        if (!hasBrokenIds && hasInstagram) return parsed;
       }
       localStorage.setItem(KEYS.EXTERNAL_CATALOG, JSON.stringify(EXTERNAL_CHHATH_SEED_CATALOG));
       return EXTERNAL_CHHATH_SEED_CATALOG;
@@ -1466,5 +1625,24 @@ export const ReelsStorage = {
   isBlockedVideo(videoId: string): boolean {
     const list = this.getBlockedVideoIds();
     return list.includes(videoId);
+  },
+
+  getCachedInstagramReels(): Record<string, any> {
+    const raw = localStorage.getItem(KEYS.INSTAGRAM_CACHE);
+    if (!raw) return {};
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  },
+
+  setCachedInstagramReel(shortcode: string, reelData: any) {
+    const cache = this.getCachedInstagramReels();
+    cache[shortcode] = {
+      ...reelData,
+      lastCachedAt: Date.now()
+    };
+    localStorage.setItem(KEYS.INSTAGRAM_CACHE, JSON.stringify(cache));
   }
 };

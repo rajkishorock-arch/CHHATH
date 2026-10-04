@@ -131,7 +131,7 @@ export interface ActiveSession {
   createdAt: string;
 }
 
-export type ContentSourceType = 'FIRST_PARTY' | 'FOLLOWING' | 'TRENDING' | 'EXTERNAL' | 'YOUTUBE';
+export type ContentSourceType = 'FIRST_PARTY' | 'FOLLOWING' | 'TRENDING' | 'EXTERNAL' | 'YOUTUBE' | 'INSTAGRAM';
 
 export interface DynamicReel {
   id: string;
@@ -164,6 +164,8 @@ export interface DynamicReel {
   // Smart Content Fallback Engine Properties
   sourceType?: ContentSourceType;
   youtubeVideoId?: string;
+  instagramShortcode?: string;
+  instagramUrl?: string;
   channelTitle?: string;
   externalSourceUrl?: string;
   isEmbeddable?: boolean;

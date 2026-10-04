@@ -1,6 +1,6 @@
 import { DynamicReel, ReelCategory, ReelUser } from '../../types';
 
-export type ContentSourceType = 'FIRST_PARTY' | 'YOUTUBE' | 'EXTERNAL_PARTNER';
+export type ContentSourceType = 'FIRST_PARTY' | 'YOUTUBE' | 'INSTAGRAM' | 'EXTERNAL_PARTNER';
 
 export type VideoValidationStatus = 'VALID' | 'PENDING' | 'INVALID' | 'EXPIRED' | 'BLOCKED';
 

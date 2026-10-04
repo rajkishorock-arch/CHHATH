@@ -16,12 +16,14 @@ import {
   AlertCircle,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Link2
 } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
 import { useAuth } from '../../context/AuthContext';
 import { ReelCategory, ReelPrivacy } from '../../types';
 import { ReelsStorage } from '../../services/reelsStorage';
+import { InstagramProvider } from '../../services/feed/InstagramProvider';
 import { AIReelStudioModal } from './AIReelStudioModal';
 
 const CATEGORIES: ReelCategory[] = [
@@ -56,8 +58,8 @@ export const CreateReelModal: React.FC = () => {
   const { createModalOpen, closeCreateModal, createReel, saveDraft } = useReels();
   const { currentUser } = useAuth();
 
-  // Mode: upload | record
-  const [creationMode, setCreationMode] = useState<'upload' | 'record'>('upload');
+  // Mode: upload | instagram | record
+  const [creationMode, setCreationMode] = useState<'upload' | 'instagram' | 'record'>('upload');
   const [aiStudioOpen, setAiStudioOpen] = useState(false);
 
   // Video source & recording
@@ -66,6 +68,11 @@ export const CreateReelModal: React.FC = () => {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordDuration, setRecordDuration] = useState(0);
+
+  // Instagram Link State
+  const [instagramInput, setInstagramInput] = useState('');
+  const [isFetchingInstagram, setIsFetchingInstagram] = useState(false);
+  const [instagramShortcode, setInstagramShortcode] = useState<string | null>(null);
 
   // Form Fields
   const [title, setTitle] = useState('');
@@ -233,10 +240,36 @@ export const CreateReelModal: React.FC = () => {
     setCustomTagInput('');
   };
 
+  const handleFetchInstagram = async () => {
+    if (!instagramInput.trim()) {
+      setErrorMsg('कृपया इंस्टाग्राम रील का लिंक दर्ज करें।');
+      return;
+    }
+    setErrorMsg(null);
+    setIsFetchingInstagram(true);
+    try {
+      const resolved = await InstagramProvider.resolveReel(instagramInput);
+      if (!resolved || !resolved.videoUrl) {
+        setErrorMsg('इस रील का डेटा लोड नहीं किया जा सका। कृपया लिंक जांचें।');
+        setIsFetchingInstagram(false);
+        return;
+      }
+      setVideoPreviewUrl(resolved.videoUrl);
+      if (resolved.thumbnailUrl) setThumbnailUrl(resolved.thumbnailUrl);
+      if (resolved.title) setTitle(resolved.title);
+      if (resolved.category) setCategory(resolved.category);
+      if (resolved.instagramShortcode) setInstagramShortcode(resolved.instagramShortcode);
+      setIsFetchingInstagram(false);
+    } catch {
+      setErrorMsg('इंस्टाग्राम रील लोड करने में त्रुटि हुई।');
+      setIsFetchingInstagram(false);
+    }
+  };
+
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!videoBlob && !videoPreviewUrl) {
-      setErrorMsg('कृपया पहले वीडियो चुनें या रिकॉर्ड करें।');
+      setErrorMsg('कृपया पहले वीडियो चुनें, लिंक लोड करें या रिकॉर्ड करें।');
       return;
     }
     if (!title.trim()) {
@@ -260,6 +293,7 @@ export const CreateReelModal: React.FC = () => {
     }, 250);
 
     try {
+      const isInstagram = creationMode === 'instagram';
       const selectedAudio = audioTracks.find(a => a.id === selectedAudioId);
       await createReel({
         title,
@@ -273,7 +307,10 @@ export const CreateReelModal: React.FC = () => {
         audioId: selectedAudioId,
         audioTitle: selectedAudio?.title || 'कांच ही बांस के बहंगिया',
         audioArtist: selectedAudio?.artist || 'शारदा सिन्हा',
-        videoDuration: `0:${Math.round(videoDurationSec)}`
+        videoDuration: `0:${Math.round(videoDurationSec)}`,
+        sourceType: isInstagram ? 'INSTAGRAM' : 'FIRST_PARTY',
+        instagramShortcode: isInstagram ? (instagramShortcode || undefined) : undefined,
+        instagramUrl: isInstagram ? (instagramInput || undefined) : undefined
       });
 
       clearInterval(progressInterval);
@@ -370,31 +407,98 @@ export const CreateReelModal: React.FC = () => {
 
               {/* Media Selection: Upload OR Live Camera */}
               <div className="space-y-3">
-                <div className="flex p-1 rounded-xl bg-stone-900 border border-stone-800">
+                <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-stone-900 border border-stone-800">
                   <button
                     type="button"
                     onClick={() => { setCreationMode('upload'); }}
-                    className={`flex-1 py-2 text-xs font-bold font-mukta rounded-lg flex items-center justify-center gap-2 transition-all ${
+                    className={`py-2 text-xs font-bold font-mukta rounded-lg flex items-center justify-center gap-1.5 transition-all ${
                       creationMode === 'upload' ? 'bg-amber-500 text-stone-950 shadow-md' : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    <Upload className="w-4 h-4" />
-                    <span>गैलरी से वीडियो अपलोड (Upload)</span>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>गैलरी (Upload)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setCreationMode('instagram'); }}
+                    className={`py-2 text-xs font-bold font-mukta rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                      creationMode === 'instagram' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md' : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                    <span>इंस्टाग्राम रील (Link)</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => { setCreationMode('record'); }}
-                    className={`flex-1 py-2 text-xs font-bold font-mukta rounded-lg flex items-center justify-center gap-2 transition-all ${
+                    className={`py-2 text-xs font-bold font-mukta rounded-lg flex items-center justify-center gap-1.5 transition-all ${
                       creationMode === 'record' ? 'bg-amber-500 text-stone-950 shadow-md' : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    <Camera className="w-4 h-4" />
-                    <span>लाइव रिकॉर्ड करें (Camera Record)</span>
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>कैमरा (Record)</span>
                   </button>
                 </div>
 
-                {/* Video Preview / Upload Area */}
-                {creationMode === 'upload' ? (
+                {/* Video Preview / Upload / Instagram Link Area */}
+                {creationMode === 'instagram' ? (
+                  videoPreviewUrl ? (
+                    <div className="relative w-full max-w-[260px] mx-auto h-[380px] rounded-2xl overflow-hidden bg-black border border-pink-500/40 shadow-xl">
+                      <video
+                        ref={videoElementRef}
+                        src={videoPreviewUrl}
+                        controls
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setVideoPreviewUrl(null); setInstagramInput(''); setInstagramShortcode(null); }}
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white hover:bg-red-600"
+                        title="हटाएं"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-bold shadow">
+                        Instagram Reel
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-stone-900/90 via-purple-950/20 to-stone-900/90 border border-pink-500/30 space-y-3">
+                      <div className="flex items-center gap-2 text-pink-300">
+                        <Link2 className="w-4 h-4" />
+                        <span className="font-rozha text-sm">इंस्टाग्राम रील लिंक जोड़ें (Add Instagram Reel)</span>
+                      </div>
+                      <p className="text-[11px] font-mukta text-stone-400">
+                        किसी भी सार्वजनिक छठ इंस्टाग्राम रील का लिंक (URL) यहां पेस्ट करें:
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="url"
+                          value={instagramInput}
+                          onChange={e => setInstagramInput(e.target.value)}
+                          placeholder="https://www.instagram.com/reel/DC5bYVjT1xM/..."
+                          className="flex-1 px-3.5 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 placeholder-stone-500 text-xs focus:outline-none focus:border-pink-500 font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleFetchInstagram}
+                          disabled={isFetchingInstagram || !instagramInput.trim()}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 text-white text-xs font-bold hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                        >
+                          {isFetchingInstagram ? (
+                            <>
+                              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span>लोड हो रहा है...</span>
+                            </>
+                          ) : (
+                            <span>रील लोड करें →</span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                ) : creationMode === 'upload' ? (
                   videoPreviewUrl ? (
                     <div className="relative w-full max-w-[260px] mx-auto h-[380px] rounded-2xl overflow-hidden bg-black border border-amber-500/30">
                       <video

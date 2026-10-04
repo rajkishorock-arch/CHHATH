@@ -1,12 +1,14 @@
 import { DynamicReel, ReelUser } from '../../types';
 import { FirstPartyProvider } from './FirstPartyProvider';
 import { YouTubeProvider } from './YouTubeProvider';
+import { InstagramProvider } from './InstagramProvider';
 import { ReelsStorage } from '../reelsStorage';
 import { FeedFetchOptions, FeedPageResponse } from './types';
 
 interface CursorState {
   batch: number;
   fpOffset: number;
+  igOffset: number;
   extOffset: number;
   timestamp: number;
 }
@@ -15,13 +17,13 @@ function encodeCursor(state: CursorState): string {
   try {
     return btoa(JSON.stringify(state));
   } catch {
-    return `${state.batch}_${state.fpOffset}_${state.extOffset}`;
+    return `${state.batch}_${state.fpOffset}_${state.igOffset}_${state.extOffset}`;
   }
 }
 
 function decodeCursor(cursorStr: string | null | undefined): CursorState {
   if (!cursorStr) {
-    return { batch: 0, fpOffset: 0, extOffset: 0, timestamp: Date.now() };
+    return { batch: 0, fpOffset: 0, igOffset: 0, extOffset: 0, timestamp: Date.now() };
   }
   try {
     const json = atob(cursorStr);
@@ -29,11 +31,12 @@ function decodeCursor(cursorStr: string | null | undefined): CursorState {
     return {
       batch: typeof parsed.batch === 'number' ? parsed.batch : 0,
       fpOffset: typeof parsed.fpOffset === 'number' ? parsed.fpOffset : 0,
+      igOffset: typeof parsed.igOffset === 'number' ? parsed.igOffset : 0,
       extOffset: typeof parsed.extOffset === 'number' ? parsed.extOffset : 0,
       timestamp: parsed.timestamp || Date.now()
     };
   } catch {
-    return { batch: 0, fpOffset: 0, extOffset: 0, timestamp: Date.now() };
+    return { batch: 0, fpOffset: 0, igOffset: 0, extOffset: 0, timestamp: Date.now() };
   }
 }
 
@@ -64,15 +67,34 @@ export const FeedService = {
         selectedUsername
       },
       state.fpOffset,
-      limit
+      Math.min(limit, 4)
     );
 
     let batchItems: DynamicReel[] = [...fpResult.items];
     let nextFpOffset = fpResult.nextIndex;
+    let nextIgOffset = state.igOffset;
     let nextExtOffset = state.extOffset;
 
-    // 2. Check Deficit for Fallback (User feeds with specific username shouldn't mix external)
+    // 2. Fetch Instagram batch (Curated authentic Chhath Instagram Reels)
     const isDedicatedUserFeed = feedType === 'user' && selectedUsername;
+    if (!isDedicatedUserFeed) {
+      const igResult = InstagramProvider.getItems(
+        {
+          feedType,
+          currentUser,
+          selectedCategory,
+          selectedHashtag
+        },
+        state.igOffset,
+        3
+      );
+      nextIgOffset = igResult.nextIndex;
+      if (igResult.items.length > 0) {
+        batchItems.push(...igResult.items);
+      }
+    }
+
+    // 3. Check Deficit for YouTube Fallback
     const deficit = limit - batchItems.length;
 
     if (deficit > 0 && !isDedicatedUserFeed) {
@@ -90,17 +112,15 @@ export const FeedService = {
 
       nextExtOffset = ytResult.nextIndex;
 
-      // Interweave: place first-party items at the front, then external items
+      // Interweave: smoothly mix community, Instagram and YouTube reels
       if (batchItems.length > 0 && ytResult.items.length > 0) {
         const combined: DynamicReel[] = [];
-        const fpQueue = [...batchItems];
-        const extQueue = [...ytResult.items];
+        const baseQueue = [...batchItems];
+        const ytQueue = [...ytResult.items];
 
-        // Ensure first-party is always presented first
-        while (fpQueue.length > 0 || extQueue.length > 0) {
-          if (fpQueue.length > 0) combined.push(fpQueue.shift()!);
-          if (fpQueue.length > 0) combined.push(fpQueue.shift()!);
-          if (extQueue.length > 0) combined.push(extQueue.shift()!);
+        while (baseQueue.length > 0 || ytQueue.length > 0) {
+          if (baseQueue.length > 0) combined.push(baseQueue.shift()!);
+          if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
         }
         batchItems = combined;
       } else if (ytResult.items.length > 0) {
@@ -108,13 +128,13 @@ export const FeedService = {
       }
     }
 
-    // 3. Deduplication: Ensure each reel in this batch has a unique ID and unique video
+    // 4. Deduplication: Ensure each reel in this batch has a unique ID and unique video
     const seenIds = new Set<string>();
     const seenVideos = new Set<string>();
     const deduplicated: DynamicReel[] = [];
 
     for (const item of batchItems) {
-      const vidKey = item.youtubeVideoId || item.videoUrl;
+      const vidKey = item.youtubeVideoId || item.instagramShortcode || item.videoUrl;
       if (!seenIds.has(item.id) && (!vidKey || !seenVideos.has(vidKey))) {
         seenIds.add(item.id);
         if (vidKey) seenVideos.add(vidKey);
@@ -123,10 +143,11 @@ export const FeedService = {
     }
     batchItems = deduplicated;
 
-    // 4. Construct Next Cursor
+    // 5. Construct Next Cursor
     const nextCursor = encodeCursor({
       batch: state.batch + 1,
       fpOffset: nextFpOffset,
+      igOffset: nextIgOffset,
       extOffset: nextExtOffset,
       timestamp: Date.now()
     });
@@ -183,17 +204,24 @@ export const FeedService = {
     if (allFirstParty.length > 0) {
       replacement = allFirstParty[0];
     } else {
-      // Fetch a validated YouTube replacement
-      const ytCandidates = await YouTubeProvider.getValidatedItems(
-        { feedType: 'foryou', currentUser },
-        targetIdx + 5,
-        5
-      );
-      const eligibleYt = ytCandidates.items.find(
-        r => r.youtubeVideoId && !existingYtIds.has(r.youtubeVideoId)
-      );
-      if (eligibleYt) {
-        replacement = eligibleYt;
+      // Check eligible Instagram reels first
+      const igCandidates = InstagramProvider.getCandidatePool({ feedType: 'foryou', currentUser });
+      const eligibleIg = igCandidates.find(r => !existingIds.has(r.id));
+      if (eligibleIg) {
+        replacement = eligibleIg;
+      } else {
+        // Fetch a validated YouTube replacement
+        const ytCandidates = await YouTubeProvider.getValidatedItems(
+          { feedType: 'foryou', currentUser },
+          targetIdx + 5,
+          5
+        );
+        const eligibleYt = ytCandidates.items.find(
+          r => r.youtubeVideoId && !existingYtIds.has(r.youtubeVideoId)
+        );
+        if (eligibleYt) {
+          replacement = eligibleYt;
+        }
       }
     }
 
