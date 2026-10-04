@@ -93,7 +93,7 @@ export const FeedService = {
     );
     nextFpOffset = fpResult.nextIndex;
 
-    // 3. Fetch Curated Instagram Reels (only genuine without dummy fallback)
+    // 3. Fetch Curated Instagram Reels (Authentic Chhath Reels from Instagram)
     let igItems: DynamicReel[] = [];
     if (!isDedicatedUserFeed) {
       const igResult = InstagramProvider.getItems(
@@ -104,25 +104,25 @@ export const FeedService = {
           selectedHashtag
         },
         state.igOffset,
-        2
+        Math.min(limit, 5)
       );
       nextIgOffset = igResult.nextIndex;
       igItems = igResult.items.filter(r => !r.videoUrl?.includes('/videos/chhath_reel_') && !r.videoUrl?.includes('/videos/sample'));
     }
 
-    // Blend: Place verified trending Chhath Shorts at the forefront, interweaving community & Instagram
-    let batchItems: DynamicReel[] = [...ytItems];
-    if (fpResult.items.length > 0 || igItems.length > 0) {
-      const extraQueue = [...fpResult.items, ...igItems];
-      const combined: DynamicReel[] = [];
-      const ytQueue = [...ytItems];
+    // Blend: Place Trending Instagram Reels and Authentic Video Reels side-by-side
+    // Alternating between Instagram Reels and high-energy Chhath Shorts
+    const combined: DynamicReel[] = [];
+    const igQueue = [...igItems];
+    const ytQueue = [...ytItems];
+    const fpQueue = [...fpResult.items];
 
-      while (ytQueue.length > 0 || extraQueue.length > 0) {
-        if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
-        if (extraQueue.length > 0) combined.push(extraQueue.shift()!);
-      }
-      batchItems = combined;
+    while (igQueue.length > 0 || ytQueue.length > 0 || fpQueue.length > 0) {
+      if (igQueue.length > 0) combined.push(igQueue.shift()!);
+      if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
+      if (fpQueue.length > 0) combined.push(fpQueue.shift()!);
     }
+    let batchItems: DynamicReel[] = combined.length > 0 ? combined : [...ytItems];
 
     // Strict filter: Discard any dummy stock videos completely
     batchItems = batchItems.filter(r => 

@@ -24,7 +24,7 @@ export const InstagramReelPlayer: React.FC<InstagramReelPlayerProps> = ({
   const [hasError, setHasError] = useState(false);
 
   // Clean embed URL with minimal UI
-  const embedSrc = `https://www.instagram.com/reel/${shortcode}/embed/captioned/`;
+  const embedSrc = `https://www.instagram.com/reel/${shortcode}/embed/`;
 
   const handleIframeLoad = () => {
     setIsLoaded(true);
