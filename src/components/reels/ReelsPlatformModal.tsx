@@ -74,37 +74,14 @@ export const ReelsPlatformModal: React.FC = () => {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Set of indices that the user intentionally navigated back to (re-watching)
-  const backtrackedIndicesRef = useRef<Set<number>>(new Set());
-  const lastActiveIndexRef = useRef<number>(0);
-
   const scrollToIndex = useCallback((idx: number) => {
     if (idx < 0 || idx >= reels.length) return;
     reelRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    if (idx < lastActiveIndexRef.current) {
-      backtrackedIndicesRef.current.add(idx);
-    }
-    lastActiveIndexRef.current = idx;
     setActiveReelIndex(idx);
     if (reels[idx]) {
       setActiveReelId(reels[idx].id);
     }
   }, [reels, setActiveReelIndex, setActiveReelId]);
-
-  // Auto-advance to next reel on completion with manual backtrack protection
-  const handleReelEnded = useCallback((endedIndex: number) => {
-    // If devotee intentionally navigated back to re-watch this reel, DO NOT auto-scroll away.
-    if (backtrackedIndicesRef.current.has(endedIndex)) {
-      return;
-    }
-
-    // Auto-advance to next reel
-    if (endedIndex < reels.length - 1) {
-      scrollToIndex(endedIndex + 1);
-    } else {
-      loadMoreReels();
-    }
-  }, [reels.length, scrollToIndex, loadMoreReels]);
 
   // Keyboard navigation (ArrowUp, ArrowDown, PageUp, PageDown, Escape)
   useEffect(() => {
@@ -142,10 +119,6 @@ export const ReelsPlatformModal: React.FC = () => {
               setActiveReelId(reelId);
             }
             if (!isNaN(idx)) {
-              if (idx < lastActiveIndexRef.current) {
-                backtrackedIndicesRef.current.add(idx);
-              }
-              lastActiveIndexRef.current = idx;
               setActiveReelIndex(idx);
               if (idx >= reels.length - 3) {
                 loadMoreReels();
@@ -176,10 +149,6 @@ export const ReelsPlatformModal: React.FC = () => {
         if (calculatedIndex >= 0 && calculatedIndex < reels.length) {
           if (reels[calculatedIndex] && reels[calculatedIndex].id !== activeReelId) {
             setActiveReelId(reels[calculatedIndex].id);
-            if (calculatedIndex < lastActiveIndexRef.current) {
-              backtrackedIndicesRef.current.add(calculatedIndex);
-            }
-            lastActiveIndexRef.current = calculatedIndex;
             setActiveReelIndex(calculatedIndex);
             if (calculatedIndex >= reels.length - 3) {
               loadMoreReels();
@@ -201,8 +170,6 @@ export const ReelsPlatformModal: React.FC = () => {
   // When jumping to a specific reel or initially opening:
   useEffect(() => {
     if (reelsPlatformOpen) {
-      backtrackedIndicesRef.current.clear();
-      lastActiveIndexRef.current = activeReelIndex;
       if (reelRefs.current[activeReelIndex]) {
         reelRefs.current[activeReelIndex]?.scrollIntoView({ block: 'start' });
       }
@@ -213,8 +180,8 @@ export const ReelsPlatformModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black text-stone-100 overflow-hidden select-none animate-fadeIn">
-      {/* 1. TOP FLOATING MINIMAL HEADER (Full immersion, doesn't eat vertical screen space) */}
-      <header className="absolute top-0 inset-x-0 z-30 px-3 sm:px-6 py-3 bg-gradient-to-b from-black/85 via-black/40 to-transparent flex items-center justify-between pointer-events-none">
+      {/* 1. TOP FLOATING MINIMAL HEADER (Desktop only - completely hidden on mobile per user request) */}
+      <header className="hidden sm:flex absolute top-0 inset-x-0 z-30 px-3 sm:px-6 py-3 bg-gradient-to-b from-black/85 via-black/40 to-transparent items-center justify-between pointer-events-none">
         
         {/* Left: Brand Logo */}
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -370,7 +337,6 @@ export const ReelsPlatformModal: React.FC = () => {
                     onOpenAudio={(id) => setSelectedAudioId(id)}
                     onNext={() => scrollToIndex(index + 1)}
                     onPrev={() => scrollToIndex(index - 1)}
-                    onEnded={() => handleReelEnded(index)}
                     onPlaybackError={(reelId, videoId, errorCode) => {
                       handleVideoError(reelId, videoId, errorCode);
                     }}

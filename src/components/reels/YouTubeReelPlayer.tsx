@@ -9,7 +9,6 @@ interface YouTubeReelPlayerProps {
   isMuted: boolean;
   onPlaybackError?: (videoId: string, errorCode: number) => void;
   onReady?: () => void;
-  onEnded?: () => void;
 }
 
 declare global {
@@ -61,8 +60,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   isPlaying = true,
   isMuted,
   onPlaybackError,
-  onReady,
-  onEnded
+  onReady
 }) => {
   const containerId = useRef(`yt_player_${videoId}_${Math.random().toString(36).substring(2, 7)}`);
   const playerRef = useRef<any>(null);
@@ -102,7 +100,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
           playsinline: 1,
           controls: 0,
           modestbranding: 1,
-          loop: 0,
+          loop: 1,
           playlist: videoId,
           origin: hostOrigin,
           iv_load_policy: 3,
@@ -130,12 +128,6 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
               }
             }
             onReady?.();
-          },
-          onStateChange: (event: any) => {
-            // YT.PlayerState: 0 = ENDED
-            if (event.data === 0) {
-              onEnded?.();
-            }
           },
           onError: (event: any) => {
             const errorCode = event.data;
