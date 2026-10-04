@@ -73,6 +73,20 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li><a href="#ghats" className="hover:text-amber-400 transition-colors">घाट एवं सुरक्षा निर्देश</a></li>
               <li><a href="#aarti" className="hover:text-amber-400 transition-colors">सूर्य देव आरती व वैदिक मंत्र</a></li>
               <li><a href="#music" className="hover:text-amber-400 transition-colors">छठ संगीत स्टूडियो व यूट्यूब प्लेयर</a></li>
+              <li>
+                <a 
+                  href="#settings" 
+                  onClick={(e) => {
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate('settings');
+                    }
+                  }} 
+                  className="hover:text-amber-400 transition-colors text-amber-300 font-bold"
+                >
+                  ऐप सेटिंग्स व कस्टमाइजेशन
+                </a>
+              </li>
             </ul>
           </div>
 

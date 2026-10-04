@@ -52,6 +52,7 @@ import { ChhathKathaPage } from './components/pages/ChhathKathaPage';
 import { ChhathCalendarPage } from './components/pages/ChhathCalendarPage';
 import { ChhathDatePage } from './components/pages/ChhathDatePage';
 import { PatnaChhathPage } from './components/pages/PatnaChhathPage';
+import { SettingsPage } from './components/pages/SettingsPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -100,6 +101,10 @@ const getInitialTabFromLocation = (): string => {
   }
   if (path.endsWith('patna-chhath-puja-2026') || hash === '#patna-chhath-puja-2026' || hash === '#patna') {
     return 'patna-chhath-puja-2026';
+  }
+
+  if (path.endsWith('settings') || hash === '#settings' || hash === '#setting') {
+    return 'settings';
   }
 
   if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
@@ -189,6 +194,7 @@ const MainContent: React.FC = () => {
     else if (tab === 'chhath-calendar-2026') urlPath = `${base}chhath-calendar-2026/`;
     else if (tab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
     else if (tab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
+    else if (tab === 'settings') urlPath = `${base}#settings`;
     else if (tab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
     else if (tab !== 'home') urlPath = `${base}#${tab}`;
 
@@ -211,6 +217,8 @@ const MainContent: React.FC = () => {
         onNavigate={handleNavigate}
         onOpenSearch={() => setSearchModalOpen(true)}
         onOpenAdmin={() => setAdminModalOpen(true)}
+        onOpenMixer={() => setMixerModalOpen(true)}
+        onOpenAssistant={() => setAssistantModalOpen(true)}
       />
 
       {/* Main Content Area based on destination tab */}
@@ -297,6 +305,14 @@ const MainContent: React.FC = () => {
           <Suspense fallback={<ComponentLoader />}>
             <ExploreView />
           </Suspense>
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsPage 
+            onNavigate={handleNavigate}
+            onOpenMixer={() => setMixerModalOpen(true)}
+            onOpenAssistant={() => setAssistantModalOpen(true)}
+          />
         )}
       </main>
 

@@ -23,19 +23,24 @@ import { useAuth } from '../../context/AuthContext';
 import { AccountCenterModal } from '../settings/AccountCenterModal';
 import { AppSettingsModal } from '../settings/AppSettingsModal';
 import { TopSongSearchBar } from '../audio/TopSongSearchBar';
+import { SidebarDrawer } from './SidebarDrawer';
 
 interface NavbarProps {
   activeTab?: string;
   onNavigate?: (tab: string) => void;
   onOpenSearch: () => void;
   onOpenAdmin?: () => void;
+  onOpenMixer?: () => void;
+  onOpenAssistant?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   activeTab = 'home',
   onNavigate,
   onOpenSearch, 
-  onOpenAdmin
+  onOpenAdmin,
+  onOpenMixer,
+  onOpenAssistant
 }) => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -52,7 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     accountCenterTab 
   } = useAuth();
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarDrawerOpen, setSidebarDrawerOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -81,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setMobileMenuOpen(false);
+        setSidebarDrawerOpen(false);
         setLangDropdownOpen(false);
         setUserMenuOpen(false);
       }
@@ -94,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     if (onNavigate) {
       e.preventDefault();
       onNavigate(id);
-      setMobileMenuOpen(false);
+      setSidebarDrawerOpen(false);
     }
   };
 
@@ -184,8 +189,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Dedicated Settings Button (Always clean & available) */}
           <button
-            onClick={() => setSettingsModalOpen(true)}
-            title="ऐप सेटिंग्स व प्राथमिकताएं"
+            onClick={() => {
+              if (onNavigate) {
+                onNavigate('settings');
+              } else {
+                setSettingsModalOpen(true);
+              }
+            }}
+            title="ऐप सेटिंग्स व कस्टमाइजेशन"
             className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
           >
             <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
@@ -306,13 +317,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          {/* Mobile Hamburger Toggle */}
+          {/* Mobile Hamburger Drawer Trigger */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setSidebarDrawerOpen(true)}
             className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-stone-800 dark:text-stone-100 hover:bg-amber-500/20 transition-colors shrink-0"
-            title="मेनू खोलें"
+            title="मेनू व फीचर्स खोलें"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
       </div>
@@ -329,46 +340,19 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
 
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl border-b border-amber-500/20 px-6 py-5 shadow-xl animate-in slide-in-from-top duration-200">
-          <div className="grid grid-cols-2 gap-2.5 mb-4">
-            {navLinks.map((item) => (
-              <a
-                key={item.id}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.id)}
-                className={`p-2.5 rounded-xl text-stone-800 dark:text-stone-100 font-mukta font-bold text-sm flex items-center gap-2 text-decoration-none ${
-                  activeTab === item.id ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : 'bg-amber-500/5'
-                }`}
-              >
-                <span>{item.label}</span>
-              </a>
-            ))}
-          </div>
-
-          <div className="pt-3 border-t border-stone-200 dark:border-amber-500/20 flex justify-between items-center text-xs">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-1.5 font-bold text-stone-700 dark:text-amber-400 py-1.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
-            >
-              {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-700" /> : <Sun className="w-4 h-4 text-amber-400" />}
-              <span>{theme === 'light' ? 'डार्क मोड' : 'लाइट मोड'}</span>
-            </button>
-            {!isAuthenticated && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openAuthModal('login');
-                }}
-                className="font-bold text-amber-600 dark:text-amber-300 py-1.5 px-3 rounded-xl bg-amber-500/10"
-              >
-                लॉग इन करें
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Professional Slide-in Sidebar Navigation Drawer (Mobile & Desktop) */}
+      <SidebarDrawer
+        isOpen={sidebarDrawerOpen}
+        onClose={() => setSidebarDrawerOpen(false)}
+        activeTab={activeTab}
+        onNavigate={(tab) => {
+          if (onNavigate) onNavigate(tab);
+          setSidebarDrawerOpen(false);
+        }}
+        onOpenMixer={onOpenMixer}
+        onOpenAssistant={onOpenAssistant}
+        onOpenAdmin={onOpenAdmin}
+      />
 
       <AccountCenterModal
         isOpen={accountCenterModalOpen}
