@@ -16,7 +16,9 @@ const routes = [
   'chhath-calendar-2026',
   'chhath-puja-date-2026',
   'patna-chhath-puja-2026',
-  'settings'
+  'settings',
+  'login',
+  'signup'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');

@@ -120,6 +120,7 @@ const getInitialTabFromLocation = (): string => {
 
 const MainContent: React.FC = () => {
   const { openReelsPlatform } = useReels();
+  const { openAuthModal } = useAuth();
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
 
@@ -131,12 +132,13 @@ const MainContent: React.FC = () => {
     return '';
   });
 
+  // Only show intro once per device (stored in localStorage)
   const [showCinematicIntro, setShowCinematicIntro] = useState<boolean>(() => {
-    return !sessionStorage.getItem('chhath_intro_seen');
+    return !localStorage.getItem('chhath_intro_seen');
   });
-  const [locationModalOpen, setLocationModalOpen] = useState<boolean>(() => {
-    return !localStorage.getItem('chhath_onboarding_done');
-  });
+
+  // Do NOT interrupt user with an immediate location popup on first arrival
+  const [locationModalOpen, setLocationModalOpen] = useState<boolean>(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [assistantModalOpen, setAssistantModalOpen] = useState(false);
@@ -159,6 +161,10 @@ const MainContent: React.FC = () => {
         openReelsPlatform('following');
       } else if (hash === '#reels' || hash === '#reel') {
         openReelsPlatform('foryou');
+      } else if (hash === '#login') {
+        openAuthModal('login');
+      } else if (hash === '#signup') {
+        openAuthModal('signup');
       }
     };
 
@@ -168,11 +174,28 @@ const MainContent: React.FC = () => {
       window.removeEventListener('popstate', handleUrlChange);
       window.removeEventListener('hashchange', handleUrlChange);
     };
-  }, [openReelsPlatform]);
+  }, [openReelsPlatform, openAuthModal]);
+
+  // Global custom event listener for opening auth modal from any button
+  React.useEffect(() => {
+    const handleAuthEvent = (e: any) => {
+      openAuthModal(e?.detail?.tab || 'login', e?.detail?.message);
+    };
+    window.addEventListener('open_auth_modal', handleAuthEvent);
+    return () => window.removeEventListener('open_auth_modal', handleAuthEvent);
+  }, [openAuthModal]);
 
   const handleNavigate = (tab: string, query?: string) => {
     if (tab === 'reels') {
       openReelsPlatform('foryou');
+      return;
+    }
+    if (tab === 'login') {
+      openAuthModal('login');
+      return;
+    }
+    if (tab === 'signup') {
+      openAuthModal('signup');
       return;
     }
     if (query !== undefined) {

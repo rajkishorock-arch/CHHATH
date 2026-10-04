@@ -42,8 +42,8 @@ interface AuthContextType {
   rejectFollowRequest: (requesterId: string) => Promise<boolean>;
   downloadMyDataPackage: () => Promise<any>;
   authModalOpen: boolean;
-  authModalTab: 'login' | 'signup';
-  openAuthModal: (tab?: 'login' | 'signup', promptMessage?: string) => void;
+  authModalTab: 'login' | 'signup' | 'quick_devotee';
+  openAuthModal: (tab?: 'login' | 'signup' | 'quick_devotee', promptMessage?: string) => void;
   closeAuthModal: () => void;
   authPromptMessage: string | null;
   onboardingModalOpen: boolean;
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [pendingFollowRequests, setPendingFollowRequests] = useState<ReelUser[]>([]);
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'login' | 'signup'>('login');
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'signup' | 'quick_devotee'>('login');
   const [authPromptMessage, setAuthPromptMessage] = useState<string | null>(null);
   const [onboardingModalOpen, setOnboardingModalOpen] = useState(false);
 
@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const openOnboarding = () => setOnboardingModalOpen(true);
   const closeOnboarding = () => setOnboardingModalOpen(false);
 
-  const openAuthModal = (tab: 'login' | 'signup' = 'login', promptMessage?: string) => {
+  const openAuthModal = (tab: 'login' | 'signup' | 'quick_devotee' = 'login', promptMessage?: string) => {
     setAuthModalTab(tab);
     setAuthPromptMessage(promptMessage || null);
     setAuthModalOpen(true);

@@ -18,13 +18,13 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
       setPrefersReducedMotion(true);
     }
 
-    const t1 = setTimeout(() => setStage(1), 1200);
-    const t2 = setTimeout(() => setStage(2), 2600);
-    const t3 = setTimeout(() => setStage(3), 4400);
-    const t4 = setTimeout(() => setStage(4), 6500);
+    const t1 = setTimeout(() => setStage(1), 400);
+    const t2 = setTimeout(() => setStage(2), 1000);
+    const t3 = setTimeout(() => setStage(3), 1800);
+    const t4 = setTimeout(() => setStage(4), 2600);
     const t5 = setTimeout(() => {
       handleFinish();
-    }, 9500);
+    }, 3800);
 
     return () => {
       clearTimeout(t1);
@@ -36,7 +36,8 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
     };
   }, []);
 
-  const toggleRiverSound = () => {
+  const toggleRiverSound = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!soundEnabled) {
       devotionalAudio.startRiverWaves(0.35);
       setSoundEnabled(true);
@@ -47,11 +48,12 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
   };
 
   const handleFinish = () => {
+    localStorage.setItem('chhath_intro_seen', 'true');
     devotionalAudio.stopRiverWaves();
     setStage(5);
     setTimeout(() => {
       onComplete();
-    }, 600);
+    }, 400);
   };
 
   return (
@@ -181,17 +183,23 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
 
         {/* Skip Intro Button */}
         <button
-          onClick={handleFinish}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-amber-600/90 hover:bg-amber-500 text-white border border-amber-400/50 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleFinish();
+          }}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 border border-amber-300/60 backdrop-blur-md transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
         >
-          <span>Skip Intro</span>
+          <span>सीधे दर्शन करें (Skip)</span>
           <FastForward className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Bottom Hint */}
-      <div className="absolute bottom-3 text-[10px] text-stone-500 font-mono tracking-wider">
-        {prefersReducedMotion ? 'Reduced motion active' : 'Click Skip Intro anytime to enter'}
+      <div 
+        onClick={handleFinish}
+        className="absolute bottom-4 text-xs font-mukta text-amber-300/90 hover:text-white cursor-pointer underline underline-offset-4 tracking-wide"
+      >
+        सीधे ऐप में जाने के लिए कहीं भी टैप करें →
       </div>
     </div>
   );

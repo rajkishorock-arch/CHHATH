@@ -189,12 +189,18 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         { id: 'settings', label: 'ऐप सेटिंग्स व कस्टमाइजेशन', sub: 'थीम, अलार्म, ऑडियो, कैशे', icon: Settings, badge: 'पेज', highlight: true },
         { 
           id: 'account_action', 
-          label: 'खाता व प्रोफ़ाइल केंद्र', 
-          sub: 'लॉग इन व व्यक्तिगत विवरण', 
+          label: isAuthenticated ? 'खाता व प्रोफ़ाइल केंद्र' : 'श्रद्धालु लॉगिन व नया खाता', 
+          sub: isAuthenticated ? 'लॉग इन व व्यक्तिगत विवरण' : '१-टैप व्रती प्रवेश / साइन अप', 
           icon: User,
+          highlight: !isAuthenticated,
+          badge: !isAuthenticated ? 'प्रवेश' : undefined,
           action: () => {
             onClose();
-            openAccountCenter('profile');
+            if (isAuthenticated) {
+              openAccountCenter('profile');
+            } else {
+              openAuthModal('quick_devotee');
+            }
           }
         }
       ]
@@ -225,25 +231,37 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         
         {/* Drawer Top Header: Profile Snapshot & Close */}
         <div className="p-4 sm:p-5 border-b border-stone-200/80 dark:border-stone-800 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent flex items-start justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-200 p-0.5 shadow-md shrink-0">
+          <button
+            onClick={() => {
+              onClose();
+              if (isAuthenticated) {
+                openAccountCenter('profile');
+              } else {
+                openAuthModal('quick_devotee');
+              }
+            }}
+            className="flex items-center gap-3 min-w-0 text-left group cursor-pointer"
+          >
+            <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-200 p-0.5 shadow-md shrink-0 group-hover:scale-105 transition-transform">
               <div className="w-full h-full rounded-2xl bg-stone-950 flex items-center justify-center font-bold text-lg text-amber-300 border border-amber-300/40">
                 {isAuthenticated && currentUser?.name ? currentUser.name.charAt(0) : '🌅'}
               </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-stone-950 flex items-center justify-center" />
+              <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-stone-950 flex items-center justify-center ${
+                isAuthenticated ? 'bg-emerald-500' : 'bg-amber-400'
+              }`} />
             </div>
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-rozha text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate">
+                <span className="font-rozha text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                   {isAuthenticated ? currentUser?.name : 'छठ व्रती / श्रद्धालु'}
                 </span>
               </div>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
-                {isAuthenticated ? (currentUser?.email || `@${currentUser?.username}`) : 'छठ महापर्व २०२६ में आपका स्वागत है'}
+                {isAuthenticated ? (currentUser?.email || `@${currentUser?.username}`) : 'प्रवेश करें व आशीर्वाद पाएं →'}
               </p>
             </div>
-          </div>
+          </button>
 
           <button
             onClick={onClose}
