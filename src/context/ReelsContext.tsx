@@ -690,23 +690,50 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (specificReelId) {
       jumpToReelId(specificReelId);
-    } else {
-      // Find the first fresh unseen reel so user NEVER starts with a reel they've already seen
+    } else if (!customList || customList.length === 0) {
+      // Refresh feed dynamically so devotee gets fresh, unseen, trending Chhath reels every time!
+      FeedService.getFeedPage({
+        cursor: null,
+        limit: 12,
+        feedType: initialFeed,
+        currentUser,
+        selectedCategory,
+        selectedHashtag,
+        selectedUsername
+      }).then(res => {
+        if (res.items && res.items.length > 0) {
+          setFeedItems(res.items);
+          setFeedCursor(res.nextCursor);
+          setHasMoreReels(res.hasMore);
+          setActiveReelIndex(0);
+          if (res.items[0]) {
+            setActiveReelId(res.items[0].id);
+            ReelsStorage.recordImpression(userId, res.items[0].id, res.items[0].youtubeVideoId, 1, res.items[0].instagramShortcode);
+          }
+        }
+      }).catch(() => {});
+
+      // Instant fallback to unseen item in memory while network responds
       let targetIdx = targetList.findIndex(r => 
         !watched.has(r.id) && 
         (!r.youtubeVideoId || !watched.has(r.youtubeVideoId)) &&
         (!r.instagramShortcode || !watched.has(r.instagramShortcode))
       );
-      if (targetIdx === -1) {
-        // If all in active local list have been watched, fetch more dynamic reels immediately
-        loadMoreReels();
-        targetIdx = 0;
-      }
-
+      if (targetIdx === -1) targetIdx = 0;
       setActiveReelIndex(targetIdx);
       if (targetList[targetIdx]) {
         setActiveReelId(targetList[targetIdx].id);
-        ReelsStorage.recordImpression(userId, targetList[targetIdx].id, targetList[targetIdx].youtubeVideoId, 1, targetList[targetIdx].instagramShortcode);
+      }
+    } else {
+      let targetIdx = targetList.findIndex(r => 
+        !watched.has(r.id) && 
+        (!r.youtubeVideoId || !watched.has(r.youtubeVideoId)) &&
+        (!r.instagramShortcode || !watched.has(r.instagramShortcode))
+      );
+      if (targetIdx === -1) targetIdx = 0;
+      setActiveReelIndex(targetIdx);
+      if (targetList[targetIdx]) {
+        setActiveReelId(targetList[targetIdx].id);
       }
     }
     setIsMuted(false);

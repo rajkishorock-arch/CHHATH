@@ -61,25 +61,25 @@ export const FeedService = {
     let nextIgOffset = state.igOffset;
     let nextExtOffset = state.extOffset;
 
-    // 1. Fetch Instagram batch first (Curated authentic Chhath Instagram Reels)
-    let igItems: DynamicReel[] = [];
+    // 1. Fetch Verified Trending Chhath Shorts from YouTube Provider (Primary authentic source, 60fps, zero lag)
     const isDedicatedUserFeed = feedType === 'user' && selectedUsername;
+    let ytItems: DynamicReel[] = [];
     if (!isDedicatedUserFeed) {
-      const igResult = InstagramProvider.getItems(
+      const ytResult = await YouTubeProvider.getValidatedItems(
         {
           feedType,
           currentUser,
           selectedCategory,
           selectedHashtag
         },
-        state.igOffset,
-        5
+        state.extOffset,
+        limit
       );
-      nextIgOffset = igResult.nextIndex;
-      igItems = igResult.items;
+      nextExtOffset = ytResult.nextIndex;
+      ytItems = ytResult.items;
     }
 
-    // 2. Fetch First-Party batch
+    // 2. Fetch First-Party Community Reels
     const fpResult = FirstPartyProvider.getItems(
       {
         feedType,
@@ -93,42 +93,44 @@ export const FeedService = {
     );
     nextFpOffset = fpResult.nextIndex;
 
-    // Instagram Reels at the forefront, followed by First-Party reels
-    let batchItems: DynamicReel[] = [...igItems, ...fpResult.items];
-
-    // 3. Check Deficit for YouTube Fallback
-    const deficit = limit - batchItems.length;
-
-    if (deficit > 0 && !isDedicatedUserFeed) {
-      // Need external validated YouTube items to complete the batch
-      const ytResult = await YouTubeProvider.getValidatedItems(
+    // 3. Fetch Curated Instagram Reels (only genuine without dummy fallback)
+    let igItems: DynamicReel[] = [];
+    if (!isDedicatedUserFeed) {
+      const igResult = InstagramProvider.getItems(
         {
           feedType,
           currentUser,
           selectedCategory,
           selectedHashtag
         },
-        state.extOffset,
-        deficit
+        state.igOffset,
+        2
       );
-
-      nextExtOffset = ytResult.nextIndex;
-
-      // Interweave: smoothly mix Instagram, community, and YouTube reels (Index 0 is guaranteed Instagram)
-      if (batchItems.length > 0 && ytResult.items.length > 0) {
-        const combined: DynamicReel[] = [];
-        const baseQueue = [...batchItems];
-        const ytQueue = [...ytResult.items];
-
-        while (baseQueue.length > 0 || ytQueue.length > 0) {
-          if (baseQueue.length > 0) combined.push(baseQueue.shift()!);
-          if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
-        }
-        batchItems = combined;
-      } else if (ytResult.items.length > 0) {
-        batchItems = ytResult.items;
-      }
+      nextIgOffset = igResult.nextIndex;
+      igItems = igResult.items.filter(r => !r.videoUrl?.includes('/videos/chhath_reel_') && !r.videoUrl?.includes('/videos/sample'));
     }
+
+    // Blend: Place verified trending Chhath Shorts at the forefront, interweaving community & Instagram
+    let batchItems: DynamicReel[] = [...ytItems];
+    if (fpResult.items.length > 0 || igItems.length > 0) {
+      const extraQueue = [...fpResult.items, ...igItems];
+      const combined: DynamicReel[] = [];
+      const ytQueue = [...ytItems];
+
+      while (ytQueue.length > 0 || extraQueue.length > 0) {
+        if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
+        if (extraQueue.length > 0) combined.push(extraQueue.shift()!);
+      }
+      batchItems = combined;
+    }
+
+    // Strict filter: Discard any dummy stock videos completely
+    batchItems = batchItems.filter(r => 
+      !r.videoUrl?.includes('/videos/sample') &&
+      !r.videoUrl?.includes('/videos/chhath_reel_') &&
+      !r.videoUrl?.includes('mixkit.co') &&
+      !r.id.startsWith('demo-reel-')
+    );
 
     // 4. Deduplication: Ensure each reel in this batch has a unique ID and unique video
     const seenIds = new Set<string>();

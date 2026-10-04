@@ -77,7 +77,7 @@ export const InstagramProvider = {
       return {
         instagramShortcode: shortcode,
         instagramUrl: `https://www.instagram.com/reel/${shortcode}/`,
-        videoUrl: cached.directVideoUrl || `https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-mountains-and-river-42436-large.mp4`,
+        videoUrl: cached.directVideoUrl || undefined,
         thumbnailUrl: cached.thumbnailUrl,
         title: cached.title,
         creatorName: cached.authorName,
@@ -88,15 +88,14 @@ export const InstagramProvider = {
 
     const instagramUrl = `https://www.instagram.com/reel/${shortcode}/`;
 
-    // High quality devotional fallbacks
+    // High quality devotional fallback thumbnail
     const fallbackThumb = 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&q=80';
-    const fallbackStream = '/videos/chhath_reel_1.mp4';
 
     const resolved: Partial<DynamicReel> = {
       id: `ig-reel-${shortcode}`,
       instagramShortcode: shortcode,
       instagramUrl,
-      videoUrl: fallbackStream, // Direct MP4 video stream for Method 1 native playback
+      videoUrl: undefined,
       thumbnailUrl: fallbackThumb,
       title: 'छठ महापर्व पावन रील (Instagram Reel)',
       description: `पावन छठ महापर्व रील दर्शन। #ChhathPuja #InstagramReels #ChhathiMaiya`,
