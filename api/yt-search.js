@@ -1,9 +1,10 @@
 /**
  * Vercel Serverless Function: /api/yt-search
- * Provides robust YouTube search for Chhath songs with:
+ * Provides robust real-time YouTube search for Chhath songs and reels:
  * 1. YouTube Data API v3 (if YOUTUBE_API_KEY environment variable is present)
- * 2. YouTube HTML scraper (zero API key required, live results)
- * 3. Verified Chhath catalog fallback (if offline or restricted)
+ * 2. YouTube InnerTube Web API (Official, zero API key required, fast, real-time live data)
+ * 3. YouTube HTML Search Scraper
+ * 4. Verified fallback catalog
  */
 
 const FALLBACK_CHHATH_SONGS = [
@@ -64,13 +65,6 @@ const FALLBACK_CHHATH_SONGS = [
     description: "खेसारी लाल यादव और अंतरा सिंह प्रियंका का प्रसिद्ध छठ गीत।"
   },
   {
-    youtubeId: "4HDtMYW2OEA",
-    title: "उगी हे दीनानाथ - Kalpana Patowary | Superhit Chhath Geet",
-    channelTitle: "URGENT MUSIC",
-    thumbnailUrl: "https://i.ytimg.com/vi/4HDtMYW2OEA/hqdefault.jpg",
-    description: "कल्पना पटवारी का प्रसिद्ध छठ गीत - उगी हे दीनानाथ।"
-  },
-  {
     youtubeId: "UwqtDSb0pLI",
     title: "कार्तिक मास इजोरिया छठी माई - Sharda Sinha | Chhath Mahaparv",
     channelTitle: "T-Series Bhakti Sagar",
@@ -94,138 +88,164 @@ export default async function handler(req, res) {
   try {
     let q = '';
     let pageToken = '';
+    let type = 'video'; // 'video' for full landscape songs, 'shorts' for reels
 
     if (req.query && typeof req.query.q === 'string') {
       q = req.query.q.trim();
       pageToken = req.query.pageToken || '';
+      type = (req.query.type || 'video').toLowerCase();
     } else {
       const urlObj = new URL(req.url || '', 'http://localhost');
       q = (urlObj.searchParams.get('q') || '').trim();
       pageToken = urlObj.searchParams.get('pageToken') || '';
+      type = (urlObj.searchParams.get('type') || 'video').toLowerCase();
     }
 
     if (!q) {
-      res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 200;
-      res.end(JSON.stringify({ results: [], nextPageToken: null, isLiveApi: true }));
-      return;
+      q = type === 'shorts' ? 'chhath puja viral reel #shorts' : 'chhath geet trending 2026';
     }
 
-    // Tier 1: If YouTube API Key is available in environment variables
+    // Tier 1: YouTube InnerTube API (Real-time live Google search directly, zero API key)
+    try {
+      const bodyPayload = {
+        context: {
+          client: {
+            clientName: 'WEB',
+            clientVersion: '2.20240101.00.00',
+            hl: 'hi',
+            gl: 'IN'
+          }
+        }
+      };
+
+      if (pageToken) {
+        bodyPayload.continuation = pageToken;
+      } else {
+        bodyPayload.query = q;
+      }
+
+      const innerRes = await fetch('https://www.youtube.com/youtubei/v1/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        },
+        body: JSON.stringify(bodyPayload)
+      });
+
+      if (innerRes.ok) {
+        const innerData = await innerRes.json();
+        let extractedItems = [];
+        let nextContinuationToken = null;
+
+        if (pageToken) {
+          // Page 2+ format (actions / appendContinuationItemsAction)
+          const actions = innerData.onResponseReceivedCommands || [];
+          for (const a of actions) {
+            const items = a.appendContinuationItemsAction?.continuationItems || [];
+            for (const item of items) {
+              if (item.continuationItemRenderer) {
+                nextContinuationToken = item.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null;
+              }
+              if (item.itemSectionRenderer?.contents) {
+                for (const sub of item.itemSectionRenderer.contents) {
+                  processInnerTubeItem(sub, extractedItems, type);
+                }
+              }
+            }
+          }
+        } else {
+          // Initial search results format
+          const sectionList = innerData.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
+          for (const section of sectionList) {
+            if (section.continuationItemRenderer) {
+              nextContinuationToken = section.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null;
+            }
+            if (section.itemSectionRenderer?.contents) {
+              for (const item of section.itemSectionRenderer.contents) {
+                processInnerTubeItem(item, extractedItems, type);
+              }
+            }
+          }
+        }
+
+        // Deduplicate
+        const seenIds = new Set();
+        const uniqueVideos = [];
+        for (const item of extractedItems) {
+          if (item.youtubeId && !seenIds.has(item.youtubeId)) {
+            seenIds.add(item.youtubeId);
+            uniqueVideos.push(item);
+          }
+        }
+
+        if (uniqueVideos.length > 0) {
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'public, max-age=1800, s-maxage=1800');
+          res.statusCode = 200;
+          res.end(JSON.stringify({
+            results: uniqueVideos,
+            items: uniqueVideos,
+            nextPageToken: nextContinuationToken,
+            totalResults: uniqueVideos.length,
+            isLiveApi: true
+          }));
+          return;
+        }
+      }
+    } catch (innerErr) {
+      console.warn('InnerTube search failed, attempting fallback:', innerErr);
+    }
+
+    // Tier 2: Official YouTube Data API v3 (if key present)
     const apiKey = process.env.YOUTUBE_API_KEY;
     if (apiKey) {
       try {
-        const ytUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&type=video&q=${encodeURIComponent(
+        const ytUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&type=video&q=${encodeURIComponent(
           q
         )}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&key=${encodeURIComponent(apiKey)}`;
 
         const ytRes = await fetch(ytUrl);
         if (ytRes.ok) {
           const data = await ytRes.json();
-          const items = (data.items || []).map((item) => ({
-            youtubeId: item.id?.videoId || '',
-            id: item.id?.videoId || '',
-            title: item.snippet?.title || '',
-            channelTitle: item.snippet?.channelTitle || '',
-            singer: item.snippet?.channelTitle || '',
-            thumbnailUrl:
-              item.snippet?.thumbnails?.high?.url ||
-              item.snippet?.thumbnails?.medium?.url ||
-              `https://img.youtube.com/vi/${item.id?.videoId}/hqdefault.jpg`,
-            thumbnail:
-              item.snippet?.thumbnails?.high?.url ||
-              item.snippet?.thumbnails?.medium?.url ||
-              `https://img.youtube.com/vi/${item.id?.videoId}/hqdefault.jpg`,
-            description: item.snippet?.description || ''
-          })).filter((v) => Boolean(v.youtubeId));
+          const items = (data.items || []).map((item) => {
+            const vidId = item.id?.videoId || '';
+            const title = item.snippet?.title || '';
+            const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel');
+            if (type === 'video' && isShort) return null;
+            if (type === 'shorts' && !isShort) return null;
 
-          res.setHeader('Content-Type', 'application/json');
-          res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
-          res.statusCode = 200;
-          res.end(
-            JSON.stringify({
+            return {
+              youtubeId: vidId,
+              id: vidId,
+              title,
+              channelTitle: item.snippet?.channelTitle || 'छठ भक्ति',
+              singer: item.snippet?.channelTitle || 'छठ भक्ति',
+              thumbnailUrl: `https://i.ytimg.com/vi/${vidId}/hqdefault.jpg`,
+              thumbnail: `https://i.ytimg.com/vi/${vidId}/hqdefault.jpg`,
+              description: item.snippet?.description || ''
+            };
+          }).filter(Boolean);
+
+          if (items.length > 0) {
+            res.setHeader('Content-Type', 'application/json');
+            res.statusCode = 200;
+            res.end(JSON.stringify({
               results: items,
               items,
               nextPageToken: data.nextPageToken || null,
-              totalResults: data.pageInfo?.totalResults || items.length,
+              totalResults: items.length,
               isLiveApi: true
-            })
-          );
-          return;
-        }
-      } catch (apiErr) {
-        console.warn('YouTube API call failed, falling back to scraper:', apiErr);
-      }
-    }
-
-    // Tier 2: YouTube HTML Search Scraper (Fast, free, zero API key)
-    try {
-      const response = await fetch(
-        `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
-        {
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language': 'hi,en-US;q=0.9,en;q=0.8'
-          }
-        }
-      );
-
-      if (response.ok) {
-        const html = await response.text();
-        const match = html.match(/ytInitialData\s*=\s*({.+?});<\/script>/);
-        if (match) {
-          const data = JSON.parse(match[1]);
-          const contents =
-            data.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents;
-          const itemSection = contents?.find((c) => c.itemSectionRenderer)?.itemSectionRenderer?.contents;
-          const videos = [];
-
-          for (const item of itemSection || []) {
-            if (item.videoRenderer) {
-              const v = item.videoRenderer;
-              if (v.videoId) {
-                const vidTitle = v.title?.runs?.[0]?.text || '';
-                const channel = v.ownerText?.runs?.[0]?.text || 'YouTube Channel';
-                const thumb =
-                  v.thumbnail?.thumbnails?.[0]?.url ||
-                  `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`;
-                videos.push({
-                  youtubeId: v.videoId,
-                  id: v.videoId,
-                  title: vidTitle,
-                  channelTitle: channel,
-                  singer: channel,
-                  thumbnailUrl: thumb,
-                  thumbnail: thumb,
-                  description: v.detailedMetadataSnippets?.[0]?.snippetText?.runs?.[0]?.text || ''
-                });
-              }
-            }
-          }
-
-          if (videos.length > 0) {
-            res.setHeader('Content-Type', 'application/json');
-            res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
-            res.statusCode = 200;
-            res.end(
-              JSON.stringify({
-                results: videos.slice(0, 18),
-                items: videos.slice(0, 18),
-                nextPageToken: null,
-                totalResults: videos.length,
-                isLiveApi: true
-              })
-            );
+            }));
             return;
           }
         }
+      } catch (apiErr) {
+        console.warn('YouTube API call failed:', apiErr);
       }
-    } catch (scraperErr) {
-      console.warn('Scraper failed, using verified fallback:', scraperErr);
     }
 
-    // Tier 3: Verified Chhath Songs Fallback
+    // Tier 3: Verified Fallback (Safe fallback if network completely offline)
     const lowerQ = q.toLowerCase();
     const matched = FALLBACK_CHHATH_SONGS.filter((s) => {
       return (
@@ -252,12 +272,76 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.end(
       JSON.stringify({
-        results: FALLBACK_CHHATH_SONGS.slice(0, 8),
-        items: FALLBACK_CHHATH_SONGS.slice(0, 8),
+        results: FALLBACK_CHHATH_SONGS,
+        items: FALLBACK_CHHATH_SONGS,
         nextPageToken: null,
         isLiveApi: false,
         error: err.message
       })
     );
+  }
+}
+
+// Helper to extract videos from InnerTube item renderers
+function processInnerTubeItem(item, extractedItems, type) {
+  // 1. Regular video renderer
+  if (item.videoRenderer) {
+    const v = item.videoRenderer;
+    if (v.videoId) {
+      const title = v.title?.runs?.map(r => r.text).join('') || v.title?.simpleText || '';
+      const channel = v.ownerText?.runs?.[0]?.text || 'छठ भक्ति';
+      const duration = v.lengthText?.simpleText || '';
+      const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel') || (!duration && !v.lengthText);
+
+      // If looking for songs (type === 'video'), STRICTLY EXCLUDE shorts/reels!
+      if (type === 'video') {
+        if (isShort) return;
+        // Require valid duration and non-empty title
+        if (!title.trim()) return;
+      }
+
+      // If looking for shorts (type === 'shorts'), only include shorts
+      if (type === 'shorts' && !isShort) {
+        return;
+      }
+
+      const thumb = `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`;
+      extractedItems.push({
+        youtubeId: v.videoId,
+        id: v.videoId,
+        title,
+        channelTitle: channel,
+        singer: channel,
+        duration: duration || '5:00',
+        thumbnailUrl: thumb,
+        thumbnail: thumb,
+        description: v.detailedMetadataSnippets?.[0]?.snippetText?.runs?.map(r => r.text).join('') || `${title} - ${channel}`
+      });
+    }
+  }
+
+  // 2. Shorts shelf (gridShelfViewModel) for type === 'shorts'
+  if (type === 'shorts' && item.gridShelfViewModel?.contents) {
+    for (const sub of item.gridShelfViewModel.contents) {
+      const sl = sub.shortsLockupViewModel;
+      if (sl) {
+        const vId = sl.entityId?.replace('shorts-shelf-item-', '') || sl.onTap?.innertubeCommand?.reelWatchEndpoint?.videoId;
+        const title = sl.overlayMetadata?.primaryText?.content || sl.accessibilityText?.split(',')?.[0] || 'छठ महापर्व रील';
+        if (vId) {
+          const thumb = `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`;
+          extractedItems.push({
+            youtubeId: vId,
+            id: vId,
+            title,
+            channelTitle: 'छठ रील',
+            singer: 'छठ रील',
+            duration: '0:45',
+            thumbnailUrl: thumb,
+            thumbnail: thumb,
+            description: title
+          });
+        }
+      }
+    }
   }
 }

@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useChhathData } from '../../context/ChhathDataContext';
 import { useAudio } from '../../context/AudioContext';
 import { Song } from '../../types';
 import { 
@@ -36,7 +35,7 @@ const formatDuration = (val?: string | number) => {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 };
 
-// YouTube-Style Video Card Component
+// YouTube-Style Video Card Component (Landscape 16:9 for songs)
 const YouTubeVideoCardComponent: React.FC<{
   song: Song;
   isCurrent: boolean;
@@ -59,7 +58,10 @@ const YouTubeVideoCardComponent: React.FC<{
   onToggleFav,
   onOpenLyrics,
 }) => {
-  const thumbUrl = song.thumbnail;
+  const [thumbSrc, setThumbSrc] = useState<string>(() => {
+    return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
+  });
+
   const ytUrl = song.youtubeId ? `https://www.youtube.com/watch?v=${song.youtubeId}` : song.audioUrl;
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -77,14 +79,13 @@ const YouTubeVideoCardComponent: React.FC<{
         className="relative aspect-video w-full bg-stone-950 overflow-hidden cursor-pointer select-none"
       >
         <img
-          src={thumbUrl}
+          src={thumbSrc}
           alt={song.title}
           loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            const el = e.currentTarget;
+          onError={() => {
             if (song.youtubeId) {
-              el.src = `https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`;
+              setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`);
             }
           }}
         />
@@ -121,9 +122,11 @@ const YouTubeVideoCardComponent: React.FC<{
         )}
 
         {/* Video Duration Badge */}
-        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
-          {formatDuration(song.duration)}
-        </div>
+        {song.duration && (
+          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
+            {formatDuration(song.duration)}
+          </div>
+        )}
       </div>
 
       {/* Video Details Row (YouTube App Layout) */}
@@ -232,7 +235,6 @@ export interface SongsSectionProps {
 }
 
 export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
-  const { songs } = useChhathData();
   const { 
     currentSong, 
     isPlaying, 
@@ -260,103 +262,132 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
 
-  // Extract all valid playable songs from data context
-  const baseSongs = useMemo(() => {
-    return songs.filter(s => 
-      !s.isPlaylist &&
-      Boolean(s.thumbnail) && 
-      !s.thumbnail.includes('undefined') && 
-      !s.thumbnail.includes('null') && 
-      Boolean(s.youtubeId && s.youtubeId.length >= 5)
-    );
-  }, [songs]);
-
-  // Infinite stream state
-  const [streamSongs, setStreamSongs] = useState<Song[]>([]);
-  const [visibleCount, setVisibleCount] = useState<number>(12);
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
-  const streamCycleRef = useRef(1);
-  const recQueryIndexRef = useRef(0);
-  const recNextTokenRef = useRef<string | null>(null);
+  // Real-time Live YouTube Songs Stream State
+  const [liveSongs, setLiveSongs] = useState<Song[]>([]);
+  const [isLiveInitialLoading, setIsLiveInitialLoading] = useState<boolean>(true);
+  const [liveNextPageToken, setLiveNextPageToken] = useState<string | null>(null);
+  const [isLoadingMoreLive, setIsLoadingMoreLive] = useState<boolean>(false);
+  const liveTopicIndexRef = useRef<number>(0);
+  const seenYoutubeIdsRef = useRef<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize streamSongs with baseSongs
-  useEffect(() => {
-    if (baseSongs.length > 0 && streamSongs.length === 0) {
-      setStreamSongs(baseSongs);
-    }
-  }, [baseSongs, streamSongs.length]);
-
-  const CHHATH_REC_TOPICS = [
-    'शारदा सिन्हा के लोकप्रिय छठ गीत',
-    'पवन सिंह छठ गीत 2026',
+  const CHHATH_LIVE_TOPICS = useMemo(() => [
+    'छठ गीत 2026',
+    'शारदा सिन्हा लोकप्रिय छठ गीत',
+    'पवन सिंह नए छठ गीत 2026',
     'खेसारी लाल यादव छठ पूजा',
-    'अनुराधा पौडवाल छठ भजन',
-    'मैथिली ठाकुर छठ महापर्व गीत',
-    'कांच ही बांस के बहंगिया छठ गीत',
-    'केलवा के पात पर छठ पूजा',
-    'उगी हे सुरुज देव दीनानाथ',
-    'छठ संध्या अर्घ्य भक्ति गीत',
-    'छठ उषा अर्घ्य गीत',
-    'दौरा घाटे पहुंचे छठ गीत',
-    'छठ महापर्व स्पेशल जूकबॉक्स'
-  ];
+    'अनुराधा पौडवाल संपूर्ण छठ भजन',
+    'मैथिली ठाकुर छठ महापर्व लाइव',
+    'कांच ही बांस के बहंगिया छठ स्पेशल',
+    'केलवा के पात पर उगेलन सुरुज देव',
+    'छठ संध्या अर्घ्य लाइव गीत',
+    'उषा अर्घ्य दर्शन भक्ति गीत',
+    'सोनू निगम छठ मईया भजन',
+    'अक्षरा सिंह छठ पूजा स्पेशल',
+    'मनोज तिवारी छठ महापर्व गीत',
+    'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026'
+  ], []);
 
-  // Function to load the next batch of infinite songs
-  const loadMoreStreamSongs = useCallback(async () => {
-    if (isLoadingRecommendations) return;
+  // Filter helper: STRICTLY exclude shorts / reels from the songs section
+  const filterValidLandscapeSongs = (rawSongs: YouTubeSearchSong[]): Song[] => {
+    return rawSongs
+      .filter(r => {
+        if (!r.youtubeId || r.youtubeId.length < 5) return false;
+        if (!r.thumbnailUrl || r.thumbnailUrl.includes('undefined')) return false;
+        const t = r.title.toLowerCase();
+        // Strict exclusion of shorts and reels
+        if (t.includes('#short') || t.includes('#reel')) return false;
+        if (r.duration && (r.duration === '0:30' || r.duration === '0:45' || r.duration.startsWith('0:'))) return false;
+        return true;
+      })
+      .map(convertToSongModel);
+  };
 
-    // If streamSongs has more buffered items than currently visible, reveal the next batch
-    if (visibleCount + 12 <= streamSongs.length) {
-      setVisibleCount(prev => prev + 12);
-      return;
-    }
-
-    setIsLoadingRecommendations(true);
+  // Load real-time live songs on mount directly from YouTube
+  const fetchInitialLiveSongs = useCallback(async () => {
+    setIsLiveInitialLoading(true);
     try {
-      // 1. First try live YouTube recommendations
-      const qIndex = recQueryIndexRef.current % CHHATH_REC_TOPICS.length;
-      const query = CHHATH_REC_TOPICS[qIndex];
-      const token = recNextTokenRef.current || '';
-      
-      let fetchedLiveSongs: Song[] = [];
-      try {
-        const res = await searchYouTubeVideos(query, token);
-        if (res.results && res.results.length > 0) {
-          recNextTokenRef.current = res.nextPageToken || null;
-          if (!res.nextPageToken) recQueryIndexRef.current++;
+      const topic = CHHATH_LIVE_TOPICS[0];
+      const res = await searchYouTubeVideos(topic, '', 'video');
+      if (res.results && res.results.length > 0) {
+        setLiveNextPageToken(res.nextPageToken || null);
+        const filtered = filterValidLandscapeSongs(res.results);
 
-          const existingYt = new Set(streamSongs.map(s => s.youtubeId).filter(Boolean));
-          fetchedLiveSongs = res.results
-            .filter(r => r.thumbnailUrl && !r.thumbnailUrl.includes('undefined') && Boolean(r.youtubeId) && r.youtubeId.length >= 5 && !existingYt.has(r.youtubeId))
-            .map(convertToSongModel);
-        } else {
-          recQueryIndexRef.current++;
+        const unique: Song[] = [];
+        for (const s of filtered) {
+          if (s.youtubeId && !seenYoutubeIdsRef.current.has(s.youtubeId)) {
+            seenYoutubeIdsRef.current.add(s.youtubeId);
+            unique.push(s);
+          }
         }
-      } catch {
-        recQueryIndexRef.current++;
-      }
 
-      // 2. If live YouTube yielded new unique songs, append them!
-      if (fetchedLiveSongs.length > 0) {
-        setStreamSongs(prev => [...prev, ...fetchedLiveSongs]);
-        setVisibleCount(prev => prev + 12);
-      } else {
-        // 3. Fallback: Seamless continuous devotional cycling from rich catalog
-        const cycle = streamCycleRef.current++;
-        const pool = baseSongs.length > 0 ? baseSongs : songs;
-        const nextBatch: Song[] = pool.map((s, idx) => ({
-          ...s,
-          id: `endless-${cycle}-${idx}-${s.youtubeId || s.id}`
-        }));
-
-        setStreamSongs(prev => [...prev, ...nextBatch]);
-        setVisibleCount(prev => prev + 12);
+        if (unique.length > 0) {
+          setLiveSongs(unique);
+          liveTopicIndexRef.current = 1;
+        }
       }
+    } catch (err) {
+      console.warn('Initial live songs fetch failed:', err);
     } finally {
-      setIsLoadingRecommendations(false);
+      setIsLiveInitialLoading(false);
     }
-  }, [isLoadingRecommendations, visibleCount, streamSongs, baseSongs, songs]);
+  }, [CHHATH_LIVE_TOPICS]);
+
+  useEffect(() => {
+    fetchInitialLiveSongs();
+  }, [fetchInitialLiveSongs]);
+
+  // Load more real-time live songs when user scrolls down
+  const loadMoreLiveSongs = useCallback(async () => {
+    if (isLoadingMoreLive || isLiveInitialLoading) return;
+    setIsLoadingMoreLive(true);
+
+    try {
+      let results: Song[] = [];
+      let newNextToken: string | null = null;
+
+      // 1. Try continuation token on current topic
+      if (liveNextPageToken) {
+        const topic = CHHATH_LIVE_TOPICS[liveTopicIndexRef.current % CHHATH_LIVE_TOPICS.length];
+        const res = await searchYouTubeVideos(topic, liveNextPageToken, 'video');
+        if (res.results && res.results.length > 0) {
+          newNextToken = res.nextPageToken || null;
+          results = filterValidLandscapeSongs(res.results);
+        }
+      }
+
+      // 2. If token yielded no new items or token exhausted, rotate to the next diverse live topic
+      if (results.length === 0) {
+        const nextTopicIndex = (liveTopicIndexRef.current + 1) % CHHATH_LIVE_TOPICS.length;
+        liveTopicIndexRef.current = nextTopicIndex;
+        const topic = CHHATH_LIVE_TOPICS[nextTopicIndex];
+        const res = await searchYouTubeVideos(topic, '', 'video');
+        if (res.results && res.results.length > 0) {
+          newNextToken = res.nextPageToken || null;
+          results = filterValidLandscapeSongs(res.results);
+        }
+      }
+
+      setLiveNextPageToken(newNextToken);
+
+      // Append strictly unique songs so NO song is ever repeated!
+      const uniqueNew: Song[] = [];
+      for (const s of results) {
+        if (s.youtubeId && !seenYoutubeIdsRef.current.has(s.youtubeId)) {
+          seenYoutubeIdsRef.current.add(s.youtubeId);
+          uniqueNew.push(s);
+        }
+      }
+
+      if (uniqueNew.length > 0) {
+        setLiveSongs(prev => [...prev, ...uniqueNew]);
+      }
+    } catch (err) {
+      console.warn('Load more live songs failed:', err);
+    } finally {
+      setIsLoadingMoreLive(false);
+    }
+  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS]);
 
   // Execute YouTube API Search
   const handleExecuteSearch = async (query: string, token: string = '') => {
@@ -372,11 +403,17 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     }
 
     try {
-      const response = await searchYouTubeVideos(query, token);
+      const response = await searchYouTubeVideos(query, token, 'video');
       setIsLiveApi(response.isLiveApi);
 
       if (response.results && response.results.length > 0) {
-        setYtSearchResults(prev => token ? [...prev, ...response.results] : response.results);
+        // Filter out shorts/reels
+        const cleanResults = response.results.filter(r => {
+          const t = r.title.toLowerCase();
+          return !t.includes('#short') && !t.includes('#reel');
+        });
+
+        setYtSearchResults(prev => token ? [...prev, ...cleanResults] : cleanResults);
         setNextPageToken(response.nextPageToken);
         setSearchStatus('success');
       } else {
@@ -507,8 +544,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         if (entries[0]?.isIntersecting) {
           if (searchStatus === 'success' && nextPageToken && !isLoadingMore) {
             handleExecuteSearch(searchQuery, nextPageToken);
-          } else if (searchStatus === 'idle' && !isLoadingRecommendations) {
-            loadMoreStreamSongs();
+          } else if (searchStatus === 'idle' && !isLoadingMoreLive && !isLiveInitialLoading) {
+            loadMoreLiveSongs();
           }
         }
       },
@@ -517,20 +554,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [searchStatus, nextPageToken, isLoadingMore, searchQuery, isLoadingRecommendations, loadMoreStreamSongs]);
-
-  // The displayed songs for idle browsing state
-  const displaySongs = useMemo(() => {
-    const list = streamSongs.length > 0 ? streamSongs : baseSongs;
-    return list.slice(0, visibleCount);
-  }, [streamSongs, baseSongs, visibleCount]);
+  }, [searchStatus, nextPageToken, isLoadingMore, searchQuery, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
 
   return (
     <section id="songs" className="py-2 sm:py-6 px-1 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta">
       <div className="max-w-6xl mx-auto space-y-3.5">
         
         {/* ========================================================
-            YOUTUBE-STYLE CLEAN TOP SEARCH BAR (RIGHT AT TOP!)
+            YOUTUBE-STYLE CLEAN TOP SEARCH BAR (RIGHT AT VERY TOP!)
            ======================================================== */}
         <form onSubmit={handleSearchSubmit} className="relative flex items-center">
           <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/40 rounded-full transition-all shadow-xs">
@@ -712,45 +743,87 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* ========================================================
-            INFINITE CONTINUOUS CHHATH SONGS FEED (IDLE STATE)
+            REAL-TIME LIVE YOUTUBE CHHATH SONGS FEED (IDLE STATE)
            ======================================================== */}
         {searchStatus === 'idle' && (
           <div className="space-y-3 pt-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {displaySongs.map((song) => {
-                const isCurrent = currentSong?.youtubeId === song.youtubeId || currentSong?.id === song.id;
-                const isPlayingThis = isCurrent && isPlaying;
-                const inQueue = queue.some(q => (q.youtubeId && q.youtubeId === song.youtubeId) || q.id === song.id);
-                const isFav = favorites.includes(song.id);
+            {/* Initial Loading Skeletons */}
+            {isLiveInitialLoading && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 px-1 text-xs text-amber-600 dark:text-amber-400 font-bold animate-pulse">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
+                  <span>यूट्यूब से लाइव ट्रेंडिंग छठ गीत लोड हो रहे हैं...</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="rounded-2xl bg-white dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 animate-pulse overflow-hidden">
+                      <div className="aspect-video bg-stone-200 dark:bg-stone-800" />
+                      <div className="p-3 flex items-start gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-stone-200 dark:bg-stone-800 shrink-0" />
+                        <div className="flex-1 space-y-2 py-1">
+                          <div className="h-3.5 bg-stone-200 dark:bg-stone-800 rounded-full w-3/4" />
+                          <div className="h-2.5 bg-stone-200/70 dark:bg-stone-800/70 rounded-full w-1/2" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                return (
-                  <YouTubeVideoCard
-                    key={song.id}
-                    song={song}
-                    isCurrent={isCurrent}
-                    isPlayingThis={isPlayingThis}
-                    inQueue={inQueue}
-                    isFav={isFav}
-                    onPlay={() => {
-                      if (isCurrent) togglePlay();
-                      else playSong(song, displaySongs);
-                    }}
-                    onToggleQueue={() => {
-                      if (!inQueue) addToQueue(song);
-                    }}
-                    onToggleFav={() => toggleFavorite(song.id)}
-                    onOpenLyrics={() => setLyricsSong(song)}
-                  />
-                );
-              })}
-            </div>
+            {/* Live Real-Time YouTube Songs Grid */}
+            {!isLiveInitialLoading && liveSongs.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {liveSongs.map((song) => {
+                  const isCurrent = currentSong?.youtubeId === song.youtubeId || currentSong?.id === song.id;
+                  const isPlayingThis = isCurrent && isPlaying;
+                  const inQueue = queue.some(q => (q.youtubeId && q.youtubeId === song.youtubeId) || q.id === song.id);
+                  const isFav = favorites.includes(song.id);
+
+                  return (
+                    <YouTubeVideoCard
+                      key={song.youtubeId || song.id}
+                      song={song}
+                      isCurrent={isCurrent}
+                      isPlayingThis={isPlayingThis}
+                      inQueue={inQueue}
+                      isFav={isFav}
+                      onPlay={() => {
+                        if (isCurrent) togglePlay();
+                        else playSong(song, liveSongs);
+                      }}
+                      onToggleQueue={() => {
+                        if (!inQueue) addToQueue(song);
+                      }}
+                      onToggleFav={() => toggleFavorite(song.id)}
+                      onOpenLyrics={() => setLyricsSong(song)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Offline fallback if initial load failed */}
+            {!isLiveInitialLoading && liveSongs.length === 0 && (
+              <div className="text-center py-12 px-4 rounded-3xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-3">
+                <Music className="w-10 h-10 text-amber-500 mx-auto" />
+                <h3 className="font-bold text-stone-900 dark:text-stone-100 text-base">लाइव छठ गीत लोड करने का प्रयास करें</h3>
+                <p className="text-xs text-stone-600 dark:text-stone-400">कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</p>
+                <button
+                  onClick={fetchInitialLiveSongs}
+                  className="px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                >
+                  पुनः लोड करें (Reload Live Songs)
+                </button>
+              </div>
+            )}
 
             {/* Infinite Scroll Bottom Sentinel & Live Loader Indicator */}
             <div ref={sentinelRef} className="py-6 text-center">
-              {isLoadingRecommendations && (
+              {isLoadingMoreLive && (
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-                  <span>अधिक पावन छठ गीत लोड हो रहे हैं...</span>
+                  <span>और नए लाइव छठ गीत लोड हो रहे हैं...</span>
                 </div>
               )}
             </div>

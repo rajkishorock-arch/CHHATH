@@ -219,7 +219,7 @@ export const YouTubeProvider = {
     if (items.length < count) {
       try {
         const query = LIVE_CHHATH_SHORTS_QUERIES[liveQueryIndex % LIVE_CHHATH_SHORTS_QUERIES.length];
-        const ytRes = await searchYouTubeVideos(query, liveNextPageToken || '');
+        const ytRes = await searchYouTubeVideos(query, liveNextPageToken || '', 'shorts');
         
         if (ytRes.results && ytRes.results.length > 0) {
           liveNextPageToken = ytRes.nextPageToken || null;

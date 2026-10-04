@@ -7,6 +7,7 @@ export interface YouTubeSearchSong {
   channelTitle: string;
   thumbnailUrl: string;
   description?: string;
+  duration?: string;
 }
 
 export interface YouTubeSearchResponse {
@@ -20,6 +21,7 @@ export interface YouTubeSearchResponse {
 // Decode HTML entities from raw YouTube API titles (e.g., &amp; -> &, &quot; -> ")
 export const decodeHtmlEntities = (text: string): string => {
   if (!text) return '';
+  if (typeof document === 'undefined') return text;
   const textarea = document.createElement('textarea');
   textarea.innerHTML = text;
   return textarea.value;
@@ -36,7 +38,7 @@ export const convertToSongModel = (ytSong: YouTubeSearchSong): Song => {
     singer: cleanChannel,
     language: 'Bhojpuri',
     category: 'छठ भक्ति संगीत',
-    duration: '4:30',
+    duration: ytSong.duration || '5:00',
     audioUrl: `https://www.youtube.com/watch?v=${ytSong.youtubeId}`,
     youtubeId: ytSong.youtubeId,
     thumbnail: ytSong.thumbnailUrl,
@@ -94,13 +96,13 @@ const normalizeItem = (item: any): YouTubeSearchSong | null => {
     title: decodeHtmlEntities(item.title || ''),
     channelTitle: decodeHtmlEntities(item.channelTitle || item.singer || item.author || 'छठ भक्ति'),
     thumbnailUrl: thumb,
+    duration: item.duration || '5:00',
     description: item.description || ''
   };
 };
 
 /**
- * Intelligent Fallback Catalog Search:
- * Evaluates user query against verified Chhath catalog and seed songs
+ * Intelligent Fallback Catalog Search (Safety net if completely offline)
  */
 const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
   const cleanQ = query.toLowerCase().trim();
@@ -109,18 +111,17 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
 
   const allSongs: Song[] = chhathSongs.filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnail) && !s.thumbnail.includes('undefined'));
 
-  // If query is generic like "chhath song" or "chhath geet", return verified catalog songs
   if (specificTokens.length === 0) {
     return allSongs.map(s => ({
       youtubeId: s.youtubeId || '',
       title: s.title,
       channelTitle: s.singer,
       thumbnailUrl: s.thumbnail,
+      duration: s.duration,
       description: s.lyricsSnippet || `${s.title} - ${s.singer}`
     })).filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnailUrl));
   }
 
-  // Otherwise, match against specific tokens and phonetic mappings
   const matched = allSongs.filter(song => {
     const textToSearch = `${song.title} ${song.singer} ${song.category} ${song.language} ${song.lyricsSnippet || ''}`.toLowerCase();
     return specificTokens.some(tok => {
@@ -136,27 +137,29 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
     title: s.title,
     channelTitle: s.singer,
     thumbnailUrl: s.thumbnail,
+    duration: s.duration,
     description: s.lyricsSnippet || `${s.title} - ${s.singer}`
   })).filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnailUrl));
 };
 
 export const searchYouTubeVideos = async (
   query: string,
-  pageToken: string = ''
+  pageToken: string = '',
+  type: 'video' | 'shorts' = 'video'
 ): Promise<YouTubeSearchResponse> => {
   const trimmed = query.trim();
   if (!trimmed) {
     return { results: [], nextPageToken: null, isLiveApi: false };
   }
 
-  const cacheKey = `chhath_search_cache_${trimmed.toLowerCase()}_${pageToken}`;
+  const cacheKey = `chhath_live_search_${type}_${trimmed.toLowerCase()}_${pageToken}`;
 
-  // 1. Check client 1-hour localStorage cache
+  // 1. Check client 30-min cache
   try {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < 3600000 && parsed.data?.results?.length > 0) {
+      if (Date.now() - parsed.timestamp < 1800000 && parsed.data?.results?.length > 0) {
         return parsed.data;
       }
     }
@@ -164,11 +167,11 @@ export const searchYouTubeVideos = async (
     // Ignore cache errors
   }
 
-  // 2. TIER 1: Native Serverless / API Endpoint (/api/yt-search)
+  // 2. TIER 1: Native Serverless Function (/api/yt-search)
   try {
-    const internalUrl = `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+    const internalUrl = `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1200);
+    const timeoutId = setTimeout(() => controller.abort(), 7000); // Generous timeout for serverless
 
     const res = await fetch(internalUrl, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -196,52 +199,91 @@ export const searchYouTubeVideos = async (
       }
     }
   } catch {
-    // Fast fallback
+    // Move to next tier
   }
 
-  // 3. TIER 2: Cloudflare Worker Gateway
-  const workerUrl = getWorkerUrl();
-  if (workerUrl) {
-    try {
-      const endpoint = `${workerUrl.replace(/\/$/, '')}?q=${encodeURIComponent(trimmed)}&pageToken=${encodeURIComponent(pageToken)}`;
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1800);
-
-      const res = await fetch(endpoint, { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (res.ok) {
-        const data = await res.json();
-        const rawList = data.results || data.items || [];
-        const normalized = rawList.map(normalizeItem).filter((x: YouTubeSearchSong | null): x is YouTubeSearchSong => x !== null);
-
-        if (normalized.length > 0) {
-          const responseData: YouTubeSearchResponse = {
-            results: normalized,
-            nextPageToken: data.nextPageToken || null,
-            totalResults: data.totalResults || normalized.length,
-            isLiveApi: true
-          };
-
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: responseData }));
-          } catch {
-            // Ignore quota error
-          }
-
-          return responseData;
+  // 3. TIER 2: Direct Client-Side YouTube InnerTube Request (if running static / GitHub Pages)
+  try {
+    const bodyPayload: any = {
+      context: {
+        client: {
+          clientName: 'WEB',
+          clientVersion: '2.20240101.00.00',
+          hl: 'hi',
+          gl: 'IN'
         }
       }
-    } catch {
-      // Fast fallback
+    };
+    if (pageToken) {
+      bodyPayload.continuation = pageToken;
+    } else {
+      bodyPayload.query = type === 'shorts' ? `${trimmed} #shorts` : `${trimmed} chhath geet`;
     }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const itRes = await fetch('https://www.youtube.com/youtubei/v1/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyPayload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (itRes.ok) {
+      const itData = await itRes.json();
+      const rawList: any[] = [];
+      let nextToken: string | null = null;
+
+      const sectionList = itData.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
+      for (const section of sectionList) {
+        if (section.continuationItemRenderer) {
+          nextToken = section.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null;
+        }
+        if (section.itemSectionRenderer?.contents) {
+          for (const item of section.itemSectionRenderer.contents) {
+            if (item.videoRenderer?.videoId) {
+              const v = item.videoRenderer;
+              const title = v.title?.runs?.map((r: any) => r.text).join('') || v.title?.simpleText || '';
+              const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel');
+              if (type === 'video' && isShort) continue;
+              if (type === 'shorts' && !isShort) continue;
+
+              rawList.push({
+                youtubeId: v.videoId,
+                title,
+                channelTitle: v.ownerText?.runs?.[0]?.text || 'छठ भक्ति',
+                thumbnailUrl: `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
+                duration: v.lengthText?.simpleText || '5:00',
+                description: `${title} - छठ महापर्व`
+              });
+            }
+          }
+        }
+      }
+
+      const normalized = rawList.map(normalizeItem).filter((x: YouTubeSearchSong | null): x is YouTubeSearchSong => x !== null);
+      if (normalized.length > 0) {
+        const responseData: YouTubeSearchResponse = {
+          results: normalized,
+          nextPageToken: nextToken,
+          totalResults: normalized.length,
+          isLiveApi: true
+        };
+        return responseData;
+      }
+    }
+  } catch {
+    // Move to next tier
   }
 
   // 4. TIER 3: Public Invidious Mirror Search
   try {
     const invidiousEndpoint = `https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(trimmed + ' chhath geet')}&type=video`;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1800);
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     const invRes = await fetch(invidiousEndpoint, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -253,7 +295,8 @@ export const searchYouTubeVideos = async (
           youtubeId: item.videoId || '',
           title: decodeHtmlEntities(item.title || ''),
           channelTitle: decodeHtmlEntities(item.author || 'छठ भक्ति'),
-          thumbnailUrl: item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
+          thumbnailUrl: `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
+          duration: item.lengthSeconds ? `${Math.floor(item.lengthSeconds / 60)}:${(item.lengthSeconds % 60).toString().padStart(2, '0')}` : '5:00',
           description: item.description || ''
         })).filter((s: YouTubeSearchSong) => Boolean(s.youtubeId) && Boolean(s.thumbnailUrl));
 
@@ -264,22 +307,15 @@ export const searchYouTubeVideos = async (
             totalResults: normalized.length,
             isLiveApi: true
           };
-
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: responseData }));
-          } catch {
-            // Ignore quota error
-          }
-
           return responseData;
         }
       }
     }
   } catch {
-    // Invidious mirror failed, move to Tier 4
+    // Invidious failed
   }
 
-  // 5. TIER 4: Guaranteed Intelligent Catalog Match (Never empty for Chhath music!)
+  // 5. TIER 4: Guaranteed Intelligent Catalog Match
   const fallbackResults = getFallbackCatalogResults(trimmed);
 
   return {
@@ -289,4 +325,11 @@ export const searchYouTubeVideos = async (
     isLiveApi: false,
     error: fallbackResults.length > 0 ? undefined : 'कोई गाना नहीं मिला। कृपया अन्य शब्द खोजें।'
   };
+};
+
+export const searchYouTubeShorts = async (
+  query: string = 'छठ पूजा रील्स',
+  pageToken: string = ''
+): Promise<YouTubeSearchResponse> => {
+  return searchYouTubeVideos(query, pageToken, 'shorts');
 };
