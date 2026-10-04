@@ -17,7 +17,8 @@ import {
   LogOut,
   Sliders,
   LogIn,
-  Settings
+  Settings,
+  LayoutGrid
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AccountCenterModal } from '../settings/AccountCenterModal';
@@ -71,17 +72,19 @@ export const Navbar: React.FC<NavbarProps> = ({
     en: 'English'
   };
 
-  const navLinks = [
-    { id: 'home', label: 'आज', href: '#home' },
-    { id: 'guide', label: 'पूजा गाइड', href: '#guide' },
+  const primaryNavLinks = [
+    { id: 'home', label: 'होम', href: '#home' },
+    { id: 'guide', label: 'पूजा विधि', href: '#guide' },
     { id: 'arghya', label: 'अर्घ्य समय', href: '#arghya' },
-    { id: 'ghats', label: 'घाट', href: '#ghats' },
-    { id: 'prasad', label: 'प्रसाद', href: '#prasad' },
-    { id: 'aarti', label: 'आरती व मंत्र', href: '#aarti' },
-    { id: 'music', label: 'छठ संगीत', href: '#music', badge: 'यूट्यूब' },
-    { id: 'explore', label: 'एक्सप्लोर', href: '#explore' },
-    { id: 'my-chhath', label: 'मेरी छठ', href: '#my-chhath', highlight: true }
+    { id: 'music', label: 'छठ संगीत', href: '#music', badge: 'यूट्यूब' }
   ];
+
+  // Global listener to open sidebar drawer from any feature or button
+  React.useEffect(() => {
+    const handleOpenDrawer = () => setSidebarDrawerOpen(true);
+    window.addEventListener('open_sidebar_drawer', handleOpenDrawer);
+    return () => window.removeEventListener('open_sidebar_drawer', handleOpenDrawer);
+  }, []);
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -116,40 +119,53 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 chhath-glass border-b border-stone-200/80 dark:border-amber-500/20 transition-all duration-300 shadow-sm backdrop-blur-xl bg-white/95 dark:bg-stone-950/90">
-      <div className="container-custom flex items-center justify-between h-16 sm:h-20 max-w-full">
+      <div className="container-custom flex items-center justify-between h-16 sm:h-20 max-w-full px-2 sm:px-4 md:px-6">
         
-        {/* Brand Logo */}
-        <a 
-          href="#home" 
-          onClick={(e) => handleNavClick(e, 'home')}
-          className="flex items-center gap-2.5 text-decoration-none group shrink-0 min-w-0"
-        >
-          <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-200 shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform shrink-0">
-            <div className="w-full h-full rounded-full bg-stone-950 flex items-center justify-center overflow-hidden border border-amber-300/40">
-              <span className="text-lg sm:text-2xl filter drop-shadow">🌅</span>
-            </div>
-            <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-stone-950 rounded-full p-0.5 shadow">
-              <Flame className="w-3 h-3 text-amber-950 fill-amber-200" />
-            </div>
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="font-rozha text-xl sm:text-2xl font-black text-amber-900 dark:text-amber-100 leading-tight drop-shadow-sm truncate">
-              {t.siteTitle}
-            </span>
-            <span className="hidden sm:block text-[10px] font-mukta font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
-              पावन आस्था एवं भक्ति डिजिटल सेवा
-            </span>
-          </div>
-        </a>
+        {/* Left: Sidebar Drawer Trigger + Brand Logo */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+          {/* Hamburger / All Features Drawer Button (Available on all devices) */}
+          <button
+            onClick={() => setSidebarDrawerOpen(true)}
+            aria-label="सभी फीचर्स मेनू खोलें"
+            title="सभी फीचर्स मेनू"
+            className="w-10 h-10 rounded-2xl flex items-center justify-center text-stone-700 dark:text-stone-200 hover:bg-amber-500/15 hover:text-amber-600 active:scale-95 transition-all shrink-0 border border-stone-200/60 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50"
+          >
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
 
-        {/* Industry-Grade Top Song Search Bar (Desktop / Large Tablet) */}
-        <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-4">
+          {/* Brand Logo */}
+          <a 
+            href="#home" 
+            onClick={(e) => handleNavClick(e, 'home')}
+            className="flex items-center gap-2 sm:gap-2.5 text-decoration-none group min-w-0"
+          >
+            <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-200 shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform shrink-0">
+              <div className="w-full h-full rounded-full bg-stone-950 flex items-center justify-center overflow-hidden border border-amber-300/40">
+                <span className="text-lg sm:text-2xl filter drop-shadow">🌅</span>
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-stone-950 rounded-full p-0.5 shadow">
+                <Flame className="w-3 h-3 text-amber-950 fill-amber-200" />
+              </div>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-rozha text-lg sm:text-2xl font-black text-amber-900 dark:text-amber-100 leading-tight drop-shadow-sm truncate">
+                {t.siteTitle}
+              </span>
+              <span className="hidden xl:block text-[10px] font-mukta font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
+                पावन आस्था एवं भक्ति डिजिटल सेवा
+              </span>
+            </div>
+          </a>
+        </div>
+
+        {/* Center: YouTube Top Song Search Bar (Desktop / Large Tablet) */}
+        <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-3">
           <TopSongSearchBar onNavigateToMusic={handleSearchNavigate} />
         </div>
 
-        {/* Desktop Nav Items */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5" aria-label="मुख्य नेविगेशन">
-          {navLinks.map((item) => {
+        {/* Desktop Primary Nav Items: 4 Essential Links + "सभी फीचर्स" Drawer Button */}
+        <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 shrink-0" aria-label="मुख्य नेविगेशन">
+          {primaryNavLinks.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <a
@@ -157,22 +173,35 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item.id)}
                 className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-bold transition-all duration-200 text-decoration-none flex items-center gap-1 ${
-                  item.highlight
-                    ? 'bg-amber-500 text-stone-950 shadow-sm hover:bg-amber-400 font-extrabold'
-                    : isActive
-                    ? 'bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/40'
+                  isActive
+                    ? 'bg-amber-500 text-stone-950 font-extrabold shadow-sm'
                     : 'text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/10'
                 }`}
               >
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-600 text-white font-extrabold leading-tight">
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-extrabold leading-tight ${
+                    isActive ? 'bg-stone-950 text-amber-300' : 'bg-red-600 text-white'
+                  }`}>
                     {item.badge}
                   </span>
                 )}
               </a>
             );
           })}
+
+          {/* "सभी फीचर्स" Drawer Quick Trigger */}
+          <button
+            onClick={() => setSidebarDrawerOpen(true)}
+            className="px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-900 dark:text-amber-200 border border-amber-500/40 shadow-xs group"
+            title="सभी 20+ फीचर्स व मेनू खोलें"
+          >
+            <LayoutGrid className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform" />
+            <span>सभी फीचर्स</span>
+            <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500 text-stone-950 font-black">
+              20+
+            </span>
+          </button>
         </nav>
 
         {/* Right Header Actions */}
@@ -187,56 +216,55 @@ export const Navbar: React.FC<NavbarProps> = ({
             {mobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4 text-amber-500" />}
           </button>
 
-          {/* Dedicated Settings Button (Always clean & available) */}
+          {/* Dedicated Settings Button (Opens Full Page #settings) */}
           <button
             onClick={() => {
               if (onNavigate) {
                 onNavigate('settings');
               } else {
-                setSettingsModalOpen(true);
+                window.location.hash = '#settings';
               }
             }}
             title="ऐप सेटिंग्स व कस्टमाइजेशन"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all border shadow-sm ${
+              activeTab === 'settings'
+                ? 'bg-amber-500 text-stone-950 border-amber-500 shadow-md font-bold'
+                : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 border-amber-500/30'
+            }`}
           >
             <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
+          </button>
+
+          {/* Theme Toggle Button (Available on all devices) */}
+          <button
+            onClick={toggleTheme}
+            title={theme === 'light' ? 'डार्क मोड में बदलें' : 'लाइट मोड में बदलें'}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-200 hover:text-amber-500 transition-colors shadow-sm"
+          >
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+            ) : (
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+            )}
           </button>
 
           {/* Desktop-Only Temple Bell Sound */}
           <button
             onClick={ringBell}
             title="मंदिर घंटी बजाएं"
-            className="hidden lg:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+            className="hidden xl:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
           >
             <BellRing className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Desktop-Only Global Search Button */}
-          <button
-            onClick={onOpenSearch}
-            title="समग्र खोज (Global Search)"
-            className="hidden lg:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
-          >
-            <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-
-          {/* Desktop-Only Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            title={theme === 'light' ? 'डार्क मोड' : 'लाइट मोड'}
-            className="hidden lg:flex w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-amber-500/10 text-stone-700 dark:text-stone-200 hover:text-amber-500 transition-colors"
-          >
-            {theme === 'light' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-700" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />}
-          </button>
-
-          {/* User Account / Auth Trigger - Desktop */}
+          {/* User Account / Auth Trigger */}
           {isAuthenticated && currentUser ? (
-            <div className="hidden sm:block relative">
+            <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 p-1 pl-2 rounded-full bg-amber-500/10 border border-amber-500/30 hover:border-amber-400 transition-all group"
               >
-                <div className="flex flex-col text-right hidden sm:flex">
+                <div className="flex flex-col text-right hidden xl:flex">
                   <span className="text-xs font-bold text-stone-900 dark:text-stone-100 font-mukta leading-none truncate max-w-[100px]">
                     {currentUser.name}
                   </span>
@@ -265,7 +293,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-4 py-2 text-xs font-mukta text-stone-800 dark:text-stone-200 hover:bg-amber-500/15 flex items-center gap-2 transition-colors font-semibold"
                   >
                     <User className="w-3.5 h-3.5 text-amber-500" />
-                    <span>मेरी छठ (व्यक्तिगत डैशबोर्ड)</span>
+                    <span>मेरी छठ (डैशबोर्ड)</span>
                   </button>
 
                   <button
@@ -317,14 +345,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          {/* Mobile Hamburger Drawer Trigger */}
-          <button
-            onClick={() => setSidebarDrawerOpen(true)}
-            className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-stone-800 dark:text-stone-100 hover:bg-amber-500/20 transition-colors shrink-0"
-            title="मेनू व फीचर्स खोलें"
-          >
-            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Home, 
@@ -118,6 +119,13 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   // Structured Categorized Feature Navigation
   const featureCategories = [
     {
+      title: 'मुख्य दर्शन व आज',
+      subtitle: 'Home & Daily Darshan',
+      items: [
+        { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आज का पंचांग, अर्घ्य व अपडेट्स', icon: Home, highlight: true }
+      ]
+    },
+    {
       title: 'पवित्र अनुष्ठान व नियम',
       subtitle: 'Core Rituals & Vidhi',
       items: [
@@ -195,18 +203,25 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex animate-in fade-in duration-300 font-mukta">
-      
+  const drawerElement = (
+    <div 
+      className="fixed inset-0 z-[9999] flex pointer-events-auto font-mukta"
+      role="dialog"
+      aria-modal="true"
+      aria-label="छठ महापर्व संपूर्ण फीचर्स मेनू"
+    >
       {/* Backdrop Blur Overlay */}
       <div 
-        className="fixed inset-0 bg-stone-950/70 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
+        className="fixed inset-0 bg-stone-950/75 backdrop-blur-sm transition-opacity pointer-events-auto cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
         aria-hidden="true"
       />
 
       {/* Sliding Drawer Container */}
-      <div className="relative w-full max-w-[340px] sm:max-w-sm bg-white dark:bg-stone-950 border-r border-stone-200 dark:border-amber-500/25 h-full flex flex-col shadow-2xl z-10 overflow-hidden animate-in slide-in-from-left duration-300">
+      <div className="relative w-[85vw] max-w-[340px] sm:max-w-sm bg-white dark:bg-stone-950 border-r border-stone-200 dark:border-amber-500/25 h-full max-h-[100dvh] flex flex-col shadow-2xl z-10 overflow-hidden animate-in slide-in-from-left duration-300 pointer-events-auto">
         
         {/* Drawer Top Header: Profile Snapshot & Close */}
         <div className="p-4 sm:p-5 border-b border-stone-200/80 dark:border-stone-800 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent flex items-start justify-between gap-3 shrink-0">
@@ -458,4 +473,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined') {
+    return createPortal(drawerElement, document.body);
+  }
+
+  return drawerElement;
 };
