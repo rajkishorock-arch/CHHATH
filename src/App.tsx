@@ -17,6 +17,7 @@ import { StickyPlayer } from './components/audio/StickyPlayer';
 import { ExpandedPlayerModal } from './components/audio/ExpandedPlayerModal';
 import { PlaybackQueueModal } from './components/audio/PlaybackQueueModal';
 import { Breadcrumbs } from './components/common/Breadcrumbs';
+import { PullToRefresh } from './components/common/PullToRefresh';
 
 // Modals
 import { CinematicIntro } from './components/hero/CinematicIntro';
@@ -371,7 +372,8 @@ const MainContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col relative transition-colors duration-300">
+    <PullToRefresh>
+      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col relative transition-colors duration-300">
       {/* Cinematic Intro Splash (shown once per session) */}
       {showCinematicIntro && (
         <CinematicIntro onComplete={() => setShowCinematicIntro(false)} />
@@ -534,6 +536,7 @@ const MainContent: React.FC = () => {
         <ShareToChatModal />
       </Suspense>
     </div>
+    </PullToRefresh>
   );
 };
 

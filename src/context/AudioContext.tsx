@@ -584,18 +584,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // ==========================================
   const bgAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize hidden background audio element only on mobile to maintain wake lock without desktop audio overhead
+  // Initialize hidden background audio element to maintain wake lock and system media notification
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const isMobile = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
-    if (!isMobile) return;
     if (!bgAudioRef.current) {
-      const audio = new Audio();
-      // Generate a tiny inaudible continuous audio loop so mobile OS does not suspend the tab on screen lock
-      audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-      audio.loop = true;
-      audio.volume = 0.01;
-      bgAudioRef.current = audio;
+      try {
+        const audio = new Audio();
+        // Generate a tiny inaudible continuous audio loop so Android/iOS OS keeps media session active
+        audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+        audio.loop = true;
+        audio.volume = 0.01;
+        bgAudioRef.current = audio;
+      } catch (err) {
+        console.warn('Background audio keepalive setup error:', err);
+      }
     }
   }, []);
 
@@ -607,7 +609,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentSong.title,
-          artist: currentSong.singer,
+          artist: currentSong.singer || 'छठ महापर्व',
           album: 'छठ महापर्व 2026 • लोक आस्था',
           artwork: [
             { src: currentSong.thumbnail, sizes: '96x96', type: 'image/jpeg' },
@@ -643,13 +645,22 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const actionHandlers: [MediaSessionAction, MediaSessionActionHandler][] = [
       ['play', () => { togglePlay(); }],
-      ['pause', () => { togglePlay(); }],
+      ['pause', () => { pauseSong(); }],
+      ['stop', () => { pauseSong(); }],
       ['previoustrack', () => { playPrevious(); }],
       ['nexttrack', () => { playNext(); }],
       ['seekto', (details) => {
         if (details.seekTime !== undefined && details.seekTime !== null) {
           seekTo(details.seekTime);
         }
+      }],
+      ['seekbackward', (details) => {
+        const skip = details.seekOffset || 10;
+        seekTo(Math.max(currentTime - skip, 0));
+      }],
+      ['seekforward', (details) => {
+        const skip = details.seekOffset || 10;
+        seekTo(Math.min(currentTime + skip, duration || 100));
       }]
     ];
 
@@ -669,6 +680,31 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     };
   }, [isPlaying, currentSong]);
+
+  // Resilience: Keep audio playing if Android or browser backgrounds the app
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isPlaying) {
+        if (bgAudioRef.current && bgAudioRef.current.paused) {
+          bgAudioRef.current.play().catch(() => {});
+        }
+        setTimeout(() => {
+          if (ytPlayerRef.current && isPlaying) {
+            try {
+              if (typeof ytPlayerRef.current.getPlayerState === 'function') {
+                if (ytPlayerRef.current.getPlayerState() === 2) { // 2 = paused
+                  ytPlayerRef.current.playVideo();
+                }
+              }
+            } catch (err) {}
+          }
+        }, 200);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isPlaying]);
 
   // Sync Position State in MediaSession (for progress bar in Notification Panel & Lock Screen)
   useEffect(() => {
@@ -739,7 +775,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         className={
           showVideo
             ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
-            : "fixed bottom-0 right-0 w-[240px] h-[200px] pointer-events-none -z-50 opacity-[0.01] overflow-hidden"
+            : "fixed bottom-0 right-0 w-[4px] h-[4px] pointer-events-none z-10 overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
