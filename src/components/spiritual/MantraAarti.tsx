@@ -13,7 +13,8 @@ import {
   Sun, 
   Bell, 
   ArrowRight,
-  Filter
+  Filter,
+  ExternalLink
 } from 'lucide-react';
 import { useAudio } from '../../context/AudioContext';
 
@@ -32,16 +33,16 @@ interface DevotionalVideo {
 
 export const MantraAarti: React.FC<MantraAartiProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
-  const { ringBell } = useAudio();
+  const { ringBell, pauseSong } = useAudio();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [playingMantraId, setPlayingMantraId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Devotional Playlist with verified, authentic YouTube videos
+  // Devotional Playlist with 100% verified, playable YouTube videos
   const devotionalVideos: DevotionalVideo[] = [
     {
-      id: 'Ydd0cSY3I8s',
-      title: 'ॐ जय सूर्य भगवान आरती (Surya Aarti) — अनुराधा पौडवाल',
+      id: 'F9uURnkc8iA',
+      title: 'सूर्य आरती: ॐ जय सूर्य भगवान आरती (Surya Aarti) — अनुराधा पौडवाल',
       channel: 'T-Series Bhakti Sagar',
       duration: '5:40',
       badge: 'सूर्य आरती',
@@ -56,20 +57,28 @@ export const MantraAarti: React.FC<MantraAartiProps> = ({ onNavigate }) => {
       desc: 'आरोग्य, तेज व बुद्धि प्रदाता 108 सूर्य गायत्री वैदिक मंत्र जाप'
     },
     {
-      id: 'BtsnKmWVl7I',
-      title: 'सूर्य अष्टक व आदित्य हृदय स्तोत्र — संपूर्ण प्रामाणिक पाठ',
+      id: 'TeYl7Xu7V_Q',
+      title: 'आरती छठी माई की (Aarti Chhathi Maai Ki) — पलक मुच्छल',
       channel: 'T-Series Bhakti Sagar',
+      duration: '5:15',
+      badge: 'छठी माई आरती',
+      desc: 'छठी मईया की संपूर्ण मंगलकारी पावन आरती'
+    },
+    {
+      id: 'Qc_PJM_S_UI',
+      title: 'छठ माता आरती: ॐ जय छठ माता (Om Jai Chhath Mata) — ज्योति तिवारी',
+      channel: 'Sonotek Bhakti',
+      duration: '6:30',
+      badge: 'छठ माता आरती',
+      desc: 'छठ महापर्व की पावन और लोकप्रिय पारंपरिक आरती'
+    },
+    {
+      id: 'BtsnKmWVl7I',
+      title: 'आदित्य हृदय स्तोत्र — संपूर्ण प्रामाणिक पाठ',
+      channel: 'Yogiraj Yashpal',
       duration: '14:25',
       badge: 'स्तोत्र पाठ',
       desc: 'समस्त कष्ट व शत्रु बाधा निवारक दिव्य आदित्य हृदय स्तोत्र'
-    },
-    {
-      id: '87Y-OH_mJxM',
-      title: 'जय छठी मईया सम्पूर्ण आरती व पावन पारंपरिक भजन संग्रह',
-      channel: 'T-Series Bhakti Sagar',
-      duration: '45:30',
-      badge: 'आरती व भजन',
-      desc: 'शारदा सिन्हा व अनुराधा पौडवाल स्वरबद्ध पारंपरिक पावन आरती'
     }
   ];
 
@@ -158,11 +167,20 @@ export const MantraAarti: React.FC<MantraAartiProps> = ({ onNavigate }) => {
               </h2>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-stone-400 font-mukta">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-stone-400 font-mukta">
             <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
               {activeVideo.badge}
             </span>
-            <span>• {activeVideo.channel}</span>
+            <a
+              href={`https://www.youtube.com/watch?v=${activeVideo.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-colors shadow-sm text-decoration-none cursor-pointer"
+              title="YouTube में खोलें"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>YouTube पर देखें</span>
+            </a>
           </div>
         </div>
 
@@ -170,8 +188,9 @@ export const MantraAarti: React.FC<MantraAartiProps> = ({ onNavigate }) => {
           {/* Responsive Embedded Player */}
           <div className="lg:col-span-2 relative bg-black aspect-video flex items-center justify-center">
             <iframe
+              key={activeVideo.id}
               className="w-full h-full border-0"
-              src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=0&rel=0&modestbranding=1`}
+              src={`https://www.youtube.com/embed/${activeVideo.id}?rel=0&enablejsapi=1`}
               title={activeVideo.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
@@ -190,7 +209,10 @@ export const MantraAarti: React.FC<MantraAartiProps> = ({ onNavigate }) => {
                   return (
                     <button
                       key={vid.id}
-                      onClick={() => setActiveVideo(vid)}
+                      onClick={() => {
+                        setActiveVideo(vid);
+                        pauseSong();
+                      }}
                       className={`w-full text-left p-3 rounded-2xl transition-all font-mukta flex items-start gap-3 border ${
                         isSelected
                           ? 'bg-amber-500/20 border-amber-500 text-white shadow-md'

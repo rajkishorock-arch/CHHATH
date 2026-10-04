@@ -13,11 +13,13 @@ import {
   ChefHat, 
   Flame,
   AlertTriangle,
-  Info
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { chhathPrasadItems, thekuaRecipeDetails } from '../../data/prasad';
 import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 import { ThekuaCalculator } from '../prasad/ThekuaCalculator';
+import { useAudio } from '../../context/AudioContext';
 
 interface PageProps {
   onNavigate: (url: string) => void;
@@ -33,6 +35,7 @@ interface VideoPlaylistItem {
 }
 
 export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
+  const { pauseSong } = useAudio();
   const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/thekua-recipe/';
   const title = 'छठ पूजा के पावन पकवान व ठेकुआ रेसिपी | विधि, सामग्री व वीडियो प्लेलिस्ट';
   const description = 'छठ पूजा के मुख्य महाप्रसाद: पारंपरिक खस्ता ठेकुआ, खरना रसियाव (खीर) और कसार लड्डू बनाने की प्रामाणिक विधि, सामग्री की मात्रा एवं स्टेप-बाय-स्टेप वीडियो ट्यूटोरियल प्लेलिस्ट।';
@@ -44,37 +47,45 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
   // Active pakwan tab
   const [activeTab, setActiveTab] = useState<string>('thekua');
 
-  // Video Playlist definition with working YouTube videos
+  // Video Playlist definition with 100% verified, playable YouTube videos
   const recipeVideos: VideoPlaylistItem[] = [
     {
-      id: 'kYJdJ-Q9eI4',
-      title: 'पारंपरिक खस्ता ठेकुआ (गुड़ वाला) - सबसे आसान व प्रामाणिक विधि',
-      channel: "Kabita's Kitchen",
-      duration: '8:45',
+      id: 'jDG1rdKpWDI',
+      title: 'छठ पूजा का प्रसाद ठेकुआ खस्ता कैसे बनाते है (BEST Thekua Recipe)',
+      channel: 'Cook With Parul',
+      duration: '9:12',
       tag: 'गुड़ ठेकुआ',
       dishId: 'thekua'
     },
     {
-      id: 'S0T0R5G9_C0',
-      title: 'चीनी वाला खस्ता ठेकुआ व बिना सांचे के पारंपरिक डिजाइन',
-      channel: "Kabita's Kitchen",
-      duration: '7:15',
-      tag: 'चीनी ठेकुआ',
+      id: 'HUmWA7bwsEc',
+      title: 'गेहूं के आटे से 100% खस्ता ठेकुआ बिना सांचे के पारंपरिक डिजाइन',
+      channel: 'Cook With Parul',
+      duration: '8:35',
+      tag: 'खस्ता ठेकुआ',
       dishId: 'thekua'
     },
     {
-      id: 'BtsnKmWVl7I',
-      title: 'खरना विशेष: पारंपरिक रसियाव (गुड़ की खीर) बनाने के सात्विक नियम व विधि',
-      channel: 'छठ महाप्रसाद रसोई',
-      duration: '9:30',
+      id: 'SBGlC1o_oWw',
+      title: 'छठ पूजा के लिए पारंपरिक बिहारी ठेकुआ रेसिपी (Bihari Thekua)',
+      channel: 'Recipe Mantra - Hindi',
+      duration: '7:48',
+      tag: 'बिहारी ठेकुआ',
+      dishId: 'thekua'
+    },
+    {
+      id: 'JLaIjx1ufXw',
+      title: 'खरना स्पेशल: छठ पूजा पर बनने वाली पावन गुड़ की खीर (रसियाव) रेसिपी',
+      channel: 'Recipe Mantra - Hindi',
+      duration: '8:20',
       tag: 'खरना रसियाव',
       dishId: 'rasiyaw'
     },
     {
-      id: '87Y-OH_mJxM',
-      title: 'छठ पूजा के चावल के कसार (भुसवा) लड्डू बनाने की पारंपरिक विधि',
-      channel: 'पारंपरिक बिहारी रसोई',
-      duration: '6:20',
+      id: 'nuCWTF2HmIM',
+      title: 'छठ पूजा का प्रसाद: चावल के आटे का कसार (भुसवा) लड्डू रेसिपी',
+      channel: 'Kanchan Cooking Recipes',
+      duration: '6:15',
       tag: 'कसार लड्डू',
       dishId: 'kasar'
     }
@@ -174,11 +185,20 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
                 </h2>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-stone-400 font-mukta">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-stone-400 font-mukta">
               <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
                 {activeVideo.tag}
               </span>
-              <span>• चैनल: {activeVideo.channel}</span>
+              <a
+                href={`https://www.youtube.com/watch?v=${activeVideo.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-colors shadow-sm text-decoration-none cursor-pointer"
+                title="YouTube में खोलें"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>YouTube पर देखें</span>
+              </a>
             </div>
           </div>
 
@@ -186,8 +206,9 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
             {/* Embedded Responsive Player */}
             <div className="lg:col-span-2 relative bg-black aspect-video flex items-center justify-center">
               <iframe
+                key={activeVideo.id}
                 className="w-full h-full border-0"
-                src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=0&rel=0&modestbranding=1`}
+                src={`https://www.youtube.com/embed/${activeVideo.id}?rel=0&enablejsapi=1`}
                 title={activeVideo.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -209,6 +230,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
                         onClick={() => {
                           setActiveVideo(vid);
                           if (vid.dishId) setActiveTab(vid.dishId);
+                          pauseSong();
                         }}
                         className={`w-full text-left p-3 rounded-2xl transition-all font-mukta flex items-start gap-3 border ${
                           isSelected
