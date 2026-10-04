@@ -206,18 +206,16 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         {/* Video / Media Viewport (YouTube Iframe, Instagram Iframe Fallback, or Native Video) */}
         {reel.youtubeVideoId ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {(isActive || isNearby) && (
-              <div className={`w-full h-full transition-opacity duration-150 ${isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <YouTubeReelPlayer
-                  key={reel.youtubeVideoId}
-                  videoId={reel.youtubeVideoId}
-                  title={reel.title}
-                  isActive={isActive}
-                  isPlaying={isPlaying}
-                  isMuted={isMuted}
-                  onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
-                />
-              </div>
+            {isActive && (
+              <YouTubeReelPlayer
+                key={reel.youtubeVideoId}
+                videoId={reel.youtubeVideoId}
+                title={reel.title}
+                isActive={isActive}
+                isPlaying={isPlaying}
+                isMuted={isMuted}
+                onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
+              />
             )}
 
             {!isActive && (
@@ -225,7 +223,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 src={reel.thumbnailUrl} 
                 alt={reel.title} 
                 loading={isNearby ? 'eager' : 'lazy'}
-                className="w-full h-full object-cover absolute inset-0 z-0" 
+                className="w-full h-full object-cover absolute inset-0 z-0 pointer-events-none" 
               />
             )}
 

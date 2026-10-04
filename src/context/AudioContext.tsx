@@ -29,6 +29,7 @@ interface AudioContextType {
   playbackError: PlaybackError | null;
 
   playSong: (song: Song, contextQueue?: Song[]) => void;
+  pauseSong: () => void;
   togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
@@ -171,7 +172,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           width: '100%',
           videoId: currentSongRef.current?.youtubeId || 'BsAFCc901MM',
           playerVars: {
-            autoplay: 1,
+            autoplay: 0,
             playsinline: 1,
             controls: 1,
             modestbranding: 1,
@@ -419,6 +420,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch (e) {
           console.warn('YouTube playVideo error:', e);
         }
+      }
+    }
+  };
+
+  const pauseSong = () => {
+    setIsPlaying(false);
+    if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
+      try {
+        ytPlayerRef.current.pauseVideo();
+      } catch (e) {
+        console.warn('YouTube pauseVideo error:', e);
       }
     }
   };
@@ -686,6 +698,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ytPlayerReady,
         playbackError,
         playSong,
+        pauseSong,
         togglePlay,
         playNext,
         playPrevious,

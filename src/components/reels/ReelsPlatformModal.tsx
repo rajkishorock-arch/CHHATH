@@ -58,17 +58,17 @@ export const ReelsPlatformModal: React.FC = () => {
   } = useReels();
 
   const { currentUser, isAdmin, isAuthenticated, openAuthModal } = useAuth();
-  const { isPlaying, togglePlay } = useAudio();
+  const { pauseSong } = useAudio();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedAudioId, setSelectedAudioId] = useState<string | null>(null);
 
-  // Pause background Chhath devotional music when Reels opens to prevent audio collision
+  // Pause background Chhath devotional music when Reels opens to prevent audio collision and network contention
   useEffect(() => {
-    if (reelsPlatformOpen && isPlaying) {
-      togglePlay();
+    if (reelsPlatformOpen) {
+      pauseSong();
     }
-  }, [reelsPlatformOpen]);
+  }, [reelsPlatformOpen, pauseSong]);
 
   // Dedicated snap-scroll feed container & item refs
   const feedContainerRef = useRef<HTMLDivElement>(null);
