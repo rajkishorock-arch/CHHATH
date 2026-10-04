@@ -273,19 +273,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const CHHATH_LIVE_TOPICS = useMemo(() => [
-    'छठ गीत 2026',
     'शारदा सिन्हा लोकप्रिय छठ गीत',
     'पवन सिंह नए छठ गीत 2026',
-    'खेसारी लाल यादव छठ पूजा',
     'अनुराधा पौडवाल संपूर्ण छठ भजन',
+    'खेसारी लाल यादव छठ पूजा',
     'मैथिली ठाकुर छठ महापर्व लाइव',
+    'मनोज तिवारी छठ महापर्व गीत',
     'कांच ही बांस के बहंगिया छठ स्पेशल',
     'केलवा के पात पर उगेलन सुरुज देव',
+    'कल्पना पटवारी छठ गीत',
     'छठ संध्या अर्घ्य लाइव गीत',
     'उषा अर्घ्य दर्शन भक्ति गीत',
-    'सोनू निगम छठ मईया भजन',
     'अक्षरा सिंह छठ पूजा स्पेशल',
-    'मनोज तिवारी छठ महापर्व गीत',
+    'सोनू निगम छठ मईया भजन',
     'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026'
   ], []);
 
@@ -312,6 +312,87 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
     return clean.slice(0, 15);
   };
+
+  // Identify singer bucket to prevent single-artist domination
+  const detectSingerBucket = (song: Song): string => {
+    const text = `${song.title} ${song.singer || ''}`.toLowerCase();
+    if (text.includes('sharda') || text.includes('शारदा')) return 'sharda';
+    if (text.includes('pawan') || text.includes('पवन')) return 'pawan';
+    if (text.includes('khesari') || text.includes('खेसारी')) return 'khesari';
+    if (text.includes('anuradha') || text.includes('अनुराधा') || text.includes('paudwal')) return 'anuradha';
+    if (text.includes('maithili') || text.includes('मैथिली')) return 'maithili';
+    if (text.includes('manoj') || text.includes('मनोज') || text.includes('tiwari')) return 'manoj';
+    if (text.includes('kalpana') || text.includes('कल्पना')) return 'kalpana';
+    if (text.includes('akshara') || text.includes('अक्षरा')) return 'akshara';
+    if (text.includes('sonu') || text.includes('सोनू')) return 'sonu';
+    return 'devotional_folk';
+  };
+
+  // Scoring engine: prioritize evergreen all-time hits that devotees love most, followed by top artists & 2026 trends
+  const getPopularityScore = (song: Song): number => {
+    let score = 0;
+    const t = song.title.toLowerCase();
+
+    // All-time immortal devotional anthems
+    const EVERGREEN_TITLES = [
+      'पहिले पहिल', 'कांच ही बांस', 'केलवा के पात', 'उग हे सुरुज देव',
+      'मारबो रे सुगवा', 'जोड़िले जोड़िया', 'दउरा', 'अरघ के बेरा', 'उगेलन',
+      'pahile pahil', 'kaanch hi baans', 'kelwa ke paat', 'uga he suruj dev'
+    ];
+    if (EVERGREEN_TITLES.some(h => t.includes(h.toLowerCase()))) {
+      score += 60;
+    }
+
+    // Legendary devotional voices
+    if (t.includes('शारदा') || t.includes('sharda')) score += 40;
+    if (t.includes('अनुराधा') || t.includes('anuradha')) score += 35;
+    if (t.includes('पवन') || t.includes('pawan')) score += 30;
+    if (t.includes('खेसारी') || t.includes('khesari')) score += 30;
+    if (t.includes('मैथिली') || t.includes('maithili')) score += 25;
+    if (t.includes('मनोज') || t.includes('manoj')) score += 20;
+
+    // Trending 2026 boost
+    if (t.includes('2026') || t.includes('नए') || t.includes('हिट') || t.includes('hit')) {
+      score += 20;
+    }
+
+    return score;
+  };
+
+  // Diversity Interleaving Engine: guarantees adjacent cards are NEVER all by the same singer!
+  const interleaveSingers = useCallback((songs: Song[]): Song[] => {
+    const buckets: Record<string, Song[]> = {};
+    const sorted = [...songs].sort((a, b) => getPopularityScore(b) - getPopularityScore(a));
+
+    for (const s of sorted) {
+      const bucketKey = detectSingerBucket(s);
+      if (!buckets[bucketKey]) buckets[bucketKey] = [];
+      buckets[bucketKey].push(s);
+    }
+
+    // Diverse rotation order across all beloved artists
+    const singerOrder = ['sharda', 'pawan', 'anuradha', 'khesari', 'maithili', 'manoj', 'kalpana', 'akshara', 'devotional_folk'];
+    const result: Song[] = [];
+    let addedAny = true;
+
+    while (addedAny) {
+      addedAny = false;
+      for (const key of singerOrder) {
+        if (buckets[key] && buckets[key].length > 0) {
+          result.push(buckets[key].shift()!);
+          addedAny = true;
+        }
+      }
+    }
+
+    for (const key in buckets) {
+      while (buckets[key] && buckets[key].length > 0) {
+        result.push(buckets[key].shift()!);
+      }
+    }
+
+    return result;
+  }, []);
 
   // Filter helper: STRICTLY exclude shorts / reels from the songs section
   const filterValidLandscapeSongs = (rawSongs: YouTubeSearchSong[]): Song[] => {
@@ -345,32 +426,56 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     return unique;
   }, []);
 
-  // Load real-time live songs on mount directly from YouTube (Randomized starting topic for freshness!)
+  // Load real-time live songs on mount with multiple singers, trending, and all-time hits
   const fetchInitialLiveSongs = useCallback(async () => {
     setIsLiveInitialLoading(true);
     seenYoutubeIdsRef.current.clear();
     seenSignaturesRef.current.clear();
     try {
-      // Pick a random starting topic index so every reload gives fresh, non-static songs!
-      const randomStart = Math.floor(Math.random() * CHHATH_LIVE_TOPICS.length);
-      liveTopicIndexRef.current = randomStart;
-      const topic = CHHATH_LIVE_TOPICS[randomStart];
-      const res = await searchYouTubeVideos(topic, '', 'video');
-      if (res.results && res.results.length > 0) {
-        setLiveNextPageToken(res.nextPageToken || null);
-        const filtered = filterValidLandscapeSongs(res.results);
-        const unique = deduplicateSongs(filtered);
+      // Execute 3 concurrent high-diversity queries:
+      // 1. All-time immortal beloved Chhath anthems (Sharda Sinha & Anuradha Paudwal)
+      // 2. 2026 Trending hits (Pawan Singh & Khesari Lal & Maithili Thakur)
+      // 3. Traditional Arghya devotional classics
+      const [resAllTime, resTrending, resTradition] = await Promise.allSettled([
+        searchYouTubeVideos('छठ पूजा के अमर सुपरहिट गीत शारदा सिन्हा अनुराधा पौडवाल', '', 'video'),
+        searchYouTubeVideos('नए छठ गीत 2026 पवन सिंह खेसारी लाल मैथिली ठाकुर', '', 'video'),
+        searchYouTubeVideos('कांच ही बांस के बहंगिया केलवा के पात छठ पूजा सुपरहिट', '', 'video')
+      ]);
 
-        if (unique.length > 0) {
-          setLiveSongs(unique);
-        }
+      const rawPool: YouTubeSearchSong[] = [];
+      let tokenToKeep: string | null = null;
+
+      if (resAllTime.status === 'fulfilled' && resAllTime.value.results) {
+        rawPool.push(...resAllTime.value.results);
+      }
+      if (resTrending.status === 'fulfilled' && resTrending.value.results) {
+        rawPool.push(...resTrending.value.results);
+        tokenToKeep = resTrending.value.nextPageToken || null;
+      }
+      if (resTradition.status === 'fulfilled' && resTradition.value.results) {
+        rawPool.push(...resTradition.value.results);
+        if (!tokenToKeep) tokenToKeep = resTradition.value.nextPageToken || null;
+      }
+
+      setLiveNextPageToken(tokenToKeep);
+
+      // Filter valid landscape songs and deduplicate re-uploaded copies
+      const filtered = filterValidLandscapeSongs(rawPool);
+      const unique = deduplicateSongs(filtered);
+
+      // Multi-singer round-robin interleaving so no single singer monopolizes the feed!
+      const diversified = interleaveSingers(unique);
+
+      if (diversified.length > 0) {
+        setLiveSongs(diversified);
+        liveTopicIndexRef.current = 1;
       }
     } catch (err) {
-      console.warn('Initial live songs fetch failed:', err);
+      console.warn('Initial multi-singer live songs fetch failed:', err);
     } finally {
       setIsLiveInitialLoading(false);
     }
-  }, [CHHATH_LIVE_TOPICS, deduplicateSongs]);
+  }, [deduplicateSongs, interleaveSingers]);
 
   useEffect(() => {
     fetchInitialLiveSongs();
@@ -409,17 +514,18 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
       setLiveNextPageToken(newNextToken);
 
-      // Append strictly unique songs so NO song is ever repeated!
+      // Append strictly unique songs interleaved by singer so newly loaded songs also stay diverse
       const uniqueNew = deduplicateSongs(results);
       if (uniqueNew.length > 0) {
-        setLiveSongs(prev => [...prev, ...uniqueNew]);
+        const diversifiedNew = interleaveSingers(uniqueNew);
+        setLiveSongs(prev => [...prev, ...diversifiedNew]);
       }
     } catch (err) {
       console.warn('Load more live songs failed:', err);
     } finally {
       setIsLoadingMoreLive(false);
     }
-  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS, deduplicateSongs]);
+  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS, deduplicateSongs, interleaveSingers]);
 
   // Execute YouTube API Search
   const handleExecuteSearch = async (query: string, token: string = '') => {
