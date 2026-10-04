@@ -46,7 +46,7 @@ const formatDuration = (val?: string | number) => {
 };
 
 // YouTube-Style Video Card Component
-const YouTubeVideoCard: React.FC<{
+const YouTubeVideoCardComponent: React.FC<{
   song: Song;
   isCurrent: boolean;
   isPlayingThis: boolean;
@@ -235,6 +235,8 @@ const YouTubeVideoCard: React.FC<{
     </div>
   );
 };
+
+const YouTubeVideoCard = React.memo(YouTubeVideoCardComponent);
 
 export interface SongsSectionProps {
   initialQuery?: string;

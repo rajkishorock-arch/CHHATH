@@ -154,7 +154,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [allReels, setAllReels] = useState<DynamicReel[]>(() => ReelsStorage.getReels());
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const [activeReelId, setActiveReelId] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Modals
   const [reelsPlatformOpen, setReelsPlatformOpen] = useState(false);
@@ -664,6 +664,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       setActiveReelIndex(0);
     }
+    setIsMuted(false);
     setReelsPlatformOpen(true);
   };
 

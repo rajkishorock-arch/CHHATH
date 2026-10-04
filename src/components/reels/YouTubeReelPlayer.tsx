@@ -96,18 +96,28 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
           enablejsapi: 1,
           rel: 0,
           playsinline: 1,
-          controls: 1,
+          controls: 0,
           modestbranding: 1,
           loop: 1,
           playlist: videoId,
-          origin: hostOrigin
+          origin: hostOrigin,
+          iv_load_policy: 3,
+          fs: 0,
+          disablekb: 1
         },
         events: {
           onReady: (event: any) => {
             if (isCancelled) return;
             playerRef.current = event.target;
             setIsPlayerReady(true);
-            if (isMuted) event.target.mute();
+            if (isMuted) {
+              event.target.mute();
+            } else {
+              try {
+                event.target.unMute();
+                event.target.setVolume(100);
+              } catch {}
+            }
             if (isActive) {
               try {
                 event.target.playVideo();
@@ -206,7 +216,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden">
       {/* Target div for YouTube Iframe API */}
-      <div id={containerId.current} className="w-full h-full pointer-events-auto" />
+      <div id={containerId.current} className="w-full h-full pointer-events-none select-none" />
 
       {/* Autoplay Blocked Overlay */}
       {isAutoplayBlocked && (

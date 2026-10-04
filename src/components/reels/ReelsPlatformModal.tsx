@@ -129,7 +129,7 @@ export const ReelsPlatformModal: React.FC = () => {
       },
       {
         root: container,
-        threshold: 0.5
+        threshold: 0.6
       }
     );
 
@@ -137,26 +137,31 @@ export const ReelsPlatformModal: React.FC = () => {
       if (el) observer.observe(el);
     });
 
-    // Instant sync on wheel and fast trackpad / finger swipes
+    // Smooth settle sync without mid-swipe thrashing
+    let scrollTimeout: any = null;
     const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const itemHeight = container.clientHeight;
-      if (itemHeight <= 0) return;
-      const calculatedIndex = Math.round(scrollTop / itemHeight);
-      if (calculatedIndex >= 0 && calculatedIndex < reels.length) {
-        if (reels[calculatedIndex] && reels[calculatedIndex].id !== activeReelId) {
-          setActiveReelId(reels[calculatedIndex].id);
-          setActiveReelIndex(calculatedIndex);
-          if (calculatedIndex >= reels.length - 3) {
-            loadMoreReels();
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollTop = container.scrollTop;
+        const itemHeight = container.clientHeight;
+        if (itemHeight <= 0) return;
+        const calculatedIndex = Math.round(scrollTop / itemHeight);
+        if (calculatedIndex >= 0 && calculatedIndex < reels.length) {
+          if (reels[calculatedIndex] && reels[calculatedIndex].id !== activeReelId) {
+            setActiveReelId(reels[calculatedIndex].id);
+            setActiveReelIndex(calculatedIndex);
+            if (calculatedIndex >= reels.length - 3) {
+              loadMoreReels();
+            }
           }
         }
-      }
+      }, 100);
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
       observer.disconnect();
       container.removeEventListener('scroll', handleScroll);
     };

@@ -39,7 +39,7 @@ interface VerticalReelPlayerProps {
   onPlaybackError?: (reelId: string, videoId: string, errorCode: number) => void;
 }
 
-export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
+const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   reel,
   isActive,
   isNearby = true,
@@ -174,26 +174,27 @@ export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden select-none">
       
-      {/* Ambient Blurred Background (Desktop Aesthetic) */}
+      {/* Ambient Backdrop (Desktop Minimal GPU Load) */}
       <div 
-        className="hidden sm:block absolute inset-0 bg-cover bg-center filter blur-3xl opacity-30 scale-125 transition-all duration-700 pointer-events-none"
+        className="hidden sm:block absolute inset-0 bg-cover bg-center opacity-25 scale-105 pointer-events-none"
         style={{ backgroundImage: `url(${reel.thumbnailUrl})` }}
       />
+      <div className="hidden sm:block absolute inset-0 bg-stone-950/75 pointer-events-none" />
 
       {/* Main Centered Phone Player (Desktop & Mobile Full-bleed) */}
       <div 
         className="relative w-full sm:max-w-[440px] h-full sm:h-[calc(100%-24px)] sm:max-h-[820px] bg-black sm:rounded-3xl overflow-hidden sm:border border-amber-500/30 sm:shadow-2xl shadow-black/80 flex flex-col justify-between"
         onDoubleClick={handleDoubleTap}
       >
+        {/* Transparent Native Touch & Gesture Pass-Through Overlay for 60fps Swiping */}
+        <div 
+          className="absolute inset-0 z-10 touch-pan-y cursor-pointer"
+          onClick={handleVideoClick}
+        />
+
         {/* Video / Media Viewport (YouTube Iframe or Native Video) */}
         {reel.youtubeVideoId ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {/* Ambient Blurred Background Poster */}
-            <img 
-              src={reel.thumbnailUrl} 
-              alt={reel.title} 
-              className="absolute inset-0 w-full h-full object-cover filter blur-2xl scale-110 opacity-30 pointer-events-none" 
-            />
             {isActive ? (
               <YouTubeReelPlayer
                 key={reel.youtubeVideoId}
@@ -204,7 +205,12 @@ export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
                 onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
               />
             ) : (
-              <img src={reel.thumbnailUrl} alt={reel.title} className="w-full h-full object-cover" />
+              <img 
+                src={reel.thumbnailUrl} 
+                alt={reel.title} 
+                loading={isNearby ? 'eager' : 'lazy'}
+                className="w-full h-full object-cover" 
+              />
             )}
 
             {/* Top & Bottom Readability Gradients */}
@@ -584,3 +590,11 @@ export const VerticalReelPlayer: React.FC<VerticalReelPlayerProps> = ({
     </div>
   );
 };
+
+export const VerticalReelPlayer = React.memo(VerticalReelPlayerComponent, (prev, next) => {
+  return (
+    prev.reel.id === next.reel.id &&
+    prev.isActive === next.isActive &&
+    prev.isNearby === next.isNearby
+  );
+});

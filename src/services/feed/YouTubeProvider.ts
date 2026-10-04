@@ -44,7 +44,21 @@ export const YouTubeProvider = {
       return { isValid: false };
     }
 
-    // 2. Check local validation cache
+    // 2. Pre-verified curated Chhath Shorts seed catalog
+    const knownSeed = EXTERNAL_CHHATH_SEED_CATALOG.find(r => r.youtubeVideoId === youtubeVideoId);
+    if (knownSeed) {
+      return {
+        isValid: true,
+        metadata: {
+          youtubeVideoId,
+          title: knownSeed.title,
+          thumbnail: knownSeed.thumbnailUrl,
+          channelTitle: knownSeed.channelTitle,
+          embeddable: true,
+          status: 'VALID'
+        }
+      };
+    }
     const cache = ReelsStorage.getCachedYouTubeVideos();
     const cached = cache[youtubeVideoId];
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -192,9 +206,22 @@ export const YouTubeProvider = {
               continue;
             }
 
+            const cleanTitle = decodeHtmlEntities(res.title) || 'छठ महापर्व रील्स';
+            const desc = res.description || '';
+            const textToInspect = `${cleanTitle} ${desc} ${res.channelTitle || ''}`.toLowerCase();
+            const chhathKeywords = [
+              'chhath', 'chhat', 'छठ', 'छठी', 'arghya', 'aragh', 'अर्घ्य', 'अरघ',
+              'thekua', 'ठेकुआ', 'daura', 'दउरा', 'ghat', 'घाट', 'soop', 'सूप',
+              'suruj', 'surya', 'सुरुज', 'सूरज', 'सूर्य', 'dinanath', 'दीनानाथ',
+              'nahay', 'नहाय', 'kharna', 'खरना', 'sharda', 'शारदा', 'koshi', 'कोशी'
+            ];
+            const isChhath = chhathKeywords.some(kw => textToInspect.includes(kw));
+            if (!isChhath) {
+              continue;
+            }
+
             seenLiveVideoIds.add(res.youtubeId);
             const channelName = decodeHtmlEntities(res.channelTitle) || 'छठ पावन भक्ति';
-            const cleanTitle = decodeHtmlEntities(res.title) || 'छठ महापर्व रील्स';
 
             items.push({
               id: `yt-live-reel-${res.youtubeId}`,

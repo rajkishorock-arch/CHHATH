@@ -267,22 +267,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     initYtApi();
   }, []);
 
-  // Poll current time when playing
+  // Poll current time when playing with whole-second updates
   useEffect(() => {
     if (isPlaying) {
       timeIntervalRef.current = setInterval(() => {
         if (ytPlayerRef.current && ytPlayerRef.current.getCurrentTime) {
           try {
-            const time = ytPlayerRef.current.getCurrentTime();
-            setCurrentTime(time || 0);
+            const time = Math.floor(ytPlayerRef.current.getCurrentTime() || 0);
+            setCurrentTime(prev => (prev !== time ? time : prev));
             if (ytPlayerRef.current.getDuration) {
-              setDuration(ytPlayerRef.current.getDuration() || 0);
+              const dur = Math.floor(ytPlayerRef.current.getDuration() || 0);
+              setDuration(prev => (prev !== dur ? dur : prev));
             }
           } catch {
             // Ignore polling errors
           }
         }
-      }, 500);
+      }, 1000);
     } else {
       if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
     }
@@ -610,7 +611,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         className={
           showVideo
             ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
-            : "fixed bottom-0 right-0 w-2 h-2 opacity-[0.01] pointer-events-none z-0 overflow-hidden"
+            : "fixed -bottom-24 -right-24 w-44 h-44 opacity-[0.02] pointer-events-none z-0 overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
