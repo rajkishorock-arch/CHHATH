@@ -57,25 +57,12 @@ export const FeedService = {
 
     const state = decodeCursor(cursor);
 
-    // 1. Fetch First-Party batch
-    const fpResult = FirstPartyProvider.getItems(
-      {
-        feedType,
-        currentUser,
-        selectedCategory,
-        selectedHashtag,
-        selectedUsername
-      },
-      state.fpOffset,
-      Math.min(limit, 4)
-    );
-
-    let batchItems: DynamicReel[] = [...fpResult.items];
-    let nextFpOffset = fpResult.nextIndex;
+    let nextFpOffset = state.fpOffset;
     let nextIgOffset = state.igOffset;
     let nextExtOffset = state.extOffset;
 
-    // 2. Fetch Instagram batch (Curated authentic Chhath Instagram Reels)
+    // 1. Fetch Instagram batch first (Curated authentic Chhath Instagram Reels)
+    let igItems: DynamicReel[] = [];
     const isDedicatedUserFeed = feedType === 'user' && selectedUsername;
     if (!isDedicatedUserFeed) {
       const igResult = InstagramProvider.getItems(
@@ -86,13 +73,28 @@ export const FeedService = {
           selectedHashtag
         },
         state.igOffset,
-        3
+        5
       );
       nextIgOffset = igResult.nextIndex;
-      if (igResult.items.length > 0) {
-        batchItems.push(...igResult.items);
-      }
+      igItems = igResult.items;
     }
+
+    // 2. Fetch First-Party batch
+    const fpResult = FirstPartyProvider.getItems(
+      {
+        feedType,
+        currentUser,
+        selectedCategory,
+        selectedHashtag,
+        selectedUsername
+      },
+      state.fpOffset,
+      Math.min(limit, 3)
+    );
+    nextFpOffset = fpResult.nextIndex;
+
+    // Instagram Reels at the forefront, followed by First-Party reels
+    let batchItems: DynamicReel[] = [...igItems, ...fpResult.items];
 
     // 3. Check Deficit for YouTube Fallback
     const deficit = limit - batchItems.length;
@@ -112,7 +114,7 @@ export const FeedService = {
 
       nextExtOffset = ytResult.nextIndex;
 
-      // Interweave: smoothly mix community, Instagram and YouTube reels
+      // Interweave: smoothly mix Instagram, community, and YouTube reels (Index 0 is guaranteed Instagram)
       if (batchItems.length > 0 && ytResult.items.length > 0) {
         const combined: DynamicReel[] = [];
         const baseQueue = [...batchItems];

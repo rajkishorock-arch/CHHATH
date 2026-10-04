@@ -164,7 +164,12 @@ export const YouTubeProvider = {
     const unseen = filtered.filter(r => !watchedIds.has(r.id) && !watchedIds.has(r.youtubeVideoId || ''));
     const seen = filtered.filter(r => watchedIds.has(r.id) || watchedIds.has(r.youtubeVideoId || ''));
 
-    return [...shuffle(unseen), ...shuffle(seen)];
+    // STRICT ANTI-REPETITION:
+    // If unseen items exist, return ONLY unseen items!
+    if (unseen.length > 0) {
+      return shuffle(unseen);
+    }
+    return shuffle(seen);
   },
 
   /**
@@ -180,12 +185,17 @@ export const YouTubeProvider = {
     let idx = startIndex;
     let attempts = 0;
     const maxAttempts = pool.length * 2;
+    const userId = options.currentUser?.id || 'guest';
+    const watchedIds = ReelsStorage.getWatchedReelIds(userId);
 
-    // 1. First consume available items from local pool
+    // 1. First consume available UNSEEN items from local pool
     while (items.length < count && idx < pool.length && attempts < maxAttempts) {
       const candidate = pool[idx];
 
-      if (candidate && candidate.youtubeVideoId && !seenLiveVideoIds.has(candidate.youtubeVideoId)) {
+      const isAlreadyWatched = watchedIds.has(candidate.id) || 
+        (candidate.youtubeVideoId && watchedIds.has(candidate.youtubeVideoId));
+
+      if (candidate && candidate.youtubeVideoId && !seenLiveVideoIds.has(candidate.youtubeVideoId) && !isAlreadyWatched) {
         const validation = await this.validateVideo(candidate.youtubeVideoId);
         if (validation.isValid) {
           seenLiveVideoIds.add(candidate.youtubeVideoId);
@@ -219,7 +229,7 @@ export const YouTubeProvider = {
 
           for (const res of ytRes.results) {
             if (items.length >= count) break;
-            if (ReelsStorage.isBlockedVideo(res.youtubeId) || seenLiveVideoIds.has(res.youtubeId)) {
+            if (ReelsStorage.isBlockedVideo(res.youtubeId) || seenLiveVideoIds.has(res.youtubeId) || watchedIds.has(res.youtubeId)) {
               continue;
             }
 

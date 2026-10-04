@@ -90,7 +90,7 @@ export const InstagramProvider = {
 
     // High quality devotional fallbacks
     const fallbackThumb = 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&q=80';
-    const fallbackStream = 'https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-mountains-and-river-42436-large.mp4';
+    const fallbackStream = '/videos/chhath_reel_1.mp4';
 
     const resolved: Partial<DynamicReel> = {
       id: `ig-reel-${shortcode}`,
@@ -150,10 +150,21 @@ export const InstagramProvider = {
   }): DynamicReel[] {
     const { currentUser, selectedCategory, selectedHashtag } = options;
     const userId = currentUser?.id || 'guest';
+    
+    // Always include curated Instagram reels directly as authoritative source
+    const curated = CURATED_CHHATH_INSTAGRAM_REELS;
     const catalog = ReelsStorage.getExternalCatalog().filter(r => r.sourceType === 'INSTAGRAM');
     const userIgReels = ReelsStorage.getReels().filter(r => r.sourceType === 'INSTAGRAM' && r.status === 'approved');
 
-    const combined = [...catalog, ...userIgReels];
+    // Deduplicate by ID or Shortcode
+    const seenMap = new Map<string, DynamicReel>();
+    for (const r of [...curated, ...catalog, ...userIgReels]) {
+      const key = r.id || r.instagramShortcode || r.videoUrl;
+      if (key && !seenMap.has(key)) {
+        seenMap.set(key, r);
+      }
+    }
+    const combined = Array.from(seenMap.values());
 
     const filtered = combined.filter(reel => {
       // Check suppression ("Not Interested")
@@ -184,10 +195,15 @@ export const InstagramProvider = {
 
     // Partition by watched vs unseen: New/unseen reels ALWAYS come first!
     const watchedIds = ReelsStorage.getWatchedReelIds(userId);
-    const unseen = filtered.filter(r => !watchedIds.has(r.id));
-    const seen = filtered.filter(r => watchedIds.has(r.id));
+    const unseen = filtered.filter(r => !watchedIds.has(r.id) && (!r.instagramShortcode || !watchedIds.has(r.instagramShortcode)));
+    const seen = filtered.filter(r => watchedIds.has(r.id) || (r.instagramShortcode && watchedIds.has(r.instagramShortcode)));
 
-    return [...shuffle(unseen), ...shuffle(seen)];
+    // STRICT ANTI-REPETITION:
+    // If unseen items exist, return ONLY unseen items so devotee never sees repeated reels!
+    if (unseen.length > 0) {
+      return shuffle(unseen);
+    }
+    return shuffle(seen);
   },
 
   /**

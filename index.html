@@ -57,8 +57,9 @@
     </script>
     <script>
       try {
+        const userChoice = localStorage.getItem('chhath_user_theme_chosen_v2');
         const t = localStorage.getItem('chhath_theme');
-        if (t === 'dark') {
+        if (userChoice && t === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark');
           document.documentElement.classList.add('dark');
         } else {

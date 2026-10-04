@@ -13,11 +13,14 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
-      const saved = localStorage.getItem('chhath_theme') as Theme;
-      if (saved === 'light' || saved === 'dark') return saved;
-      return 'dark'; // Dark theme default as requested
+      const explicitChoice = localStorage.getItem('chhath_user_theme_chosen_v2');
+      if (explicitChoice) {
+        const saved = localStorage.getItem('chhath_theme') as Theme;
+        if (saved === 'light' || saved === 'dark') return saved;
+      }
+      return 'light'; // Clean professional light theme by default as requested
     } catch {
-      return 'dark';
+      return 'light';
     }
   });
 
@@ -46,10 +49,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleTheme = () => {
-    setThemeState(prev => (prev === 'light' ? 'dark' : 'light'));
+    setThemeState(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem('chhath_user_theme_chosen_v2', 'true');
+      } catch {}
+      return next;
+    });
   };
 
   const setTheme = (t: Theme) => {
+    try {
+      localStorage.setItem('chhath_user_theme_chosen_v2', 'true');
+    } catch {}
     setThemeState(t);
   };
 

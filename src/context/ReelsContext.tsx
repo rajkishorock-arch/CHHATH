@@ -233,11 +233,14 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (isMounted) {
         const userId = currentUser?.id || 'guest';
         const watched = ReelsStorage.getWatchedReelIds(userId);
-        let startIdx = res.items.findIndex(r => !watched.has(r.id) && !watched.has(r.youtubeVideoId || ''));
-        if (startIdx === -1 && res.items.length > 1) {
-          startIdx = Math.floor(Math.random() * res.items.length);
+        let startIdx = res.items.findIndex(r => 
+          !watched.has(r.id) && 
+          (!r.youtubeVideoId || !watched.has(r.youtubeVideoId)) &&
+          (!r.instagramShortcode || !watched.has(r.instagramShortcode))
+        );
+        if (startIdx === -1 && res.items.length > 0) {
+          startIdx = 0;
         }
-        if (startIdx === -1) startIdx = 0;
 
         setFeedItems(res.items);
         setFeedCursor(res.nextCursor);
@@ -245,7 +248,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setActiveReelIndex(startIdx);
         if (res.items[startIdx]) {
           setActiveReelId(res.items[startIdx].id);
-          ReelsStorage.recordImpression(userId, res.items[startIdx].id, res.items[startIdx].youtubeVideoId);
+          ReelsStorage.recordImpression(userId, res.items[startIdx].id, res.items[startIdx].youtubeVideoId, 1, res.items[startIdx].instagramShortcode);
         }
         setIsLoadingBatch(false);
       }
@@ -349,7 +352,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (effectiveReels[idx]) {
       const activeItem = effectiveReels[idx];
       setActiveReelId(activeItem.id);
-      ReelsStorage.recordImpression(currentUser?.id || 'guest', activeItem.id, activeItem.youtubeVideoId);
+      ReelsStorage.recordImpression(currentUser?.id || 'guest', activeItem.id, activeItem.youtubeVideoId, 1, activeItem.instagramShortcode);
     }
     // Auto-fetch more live reels whenever user is within 3 reels of the end
     if (idx >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
@@ -363,7 +366,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const idx = effectiveReels.findIndex(r => r.id === id);
       if (idx !== -1) {
         setActiveReelIndex(idx);
-        ReelsStorage.recordImpression(currentUser?.id || 'guest', id, effectiveReels[idx]?.youtubeVideoId);
+        ReelsStorage.recordImpression(currentUser?.id || 'guest', id, effectiveReels[idx]?.youtubeVideoId, 1, effectiveReels[idx]?.instagramShortcode);
         if (idx >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
           loadMoreReels();
         }
@@ -689,17 +692,21 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       jumpToReelId(specificReelId);
     } else {
       // Find the first fresh unseen reel so user NEVER starts with a reel they've already seen
-      let targetIdx = targetList.findIndex(r => !watched.has(r.id) && !watched.has(r.youtubeVideoId || ''));
-      if (targetIdx === -1 && targetList.length > 1) {
-        // If all available have been seen, pick a dynamic randomized starting reel
-        targetIdx = Math.floor(Math.random() * targetList.length);
+      let targetIdx = targetList.findIndex(r => 
+        !watched.has(r.id) && 
+        (!r.youtubeVideoId || !watched.has(r.youtubeVideoId)) &&
+        (!r.instagramShortcode || !watched.has(r.instagramShortcode))
+      );
+      if (targetIdx === -1) {
+        // If all in active local list have been watched, fetch more dynamic reels immediately
+        loadMoreReels();
+        targetIdx = 0;
       }
-      if (targetIdx === -1) targetIdx = 0;
 
       setActiveReelIndex(targetIdx);
       if (targetList[targetIdx]) {
         setActiveReelId(targetList[targetIdx].id);
-        ReelsStorage.recordImpression(userId, targetList[targetIdx].id, targetList[targetIdx].youtubeVideoId);
+        ReelsStorage.recordImpression(userId, targetList[targetIdx].id, targetList[targetIdx].youtubeVideoId, 1, targetList[targetIdx].instagramShortcode);
       }
     }
     setIsMuted(false);
