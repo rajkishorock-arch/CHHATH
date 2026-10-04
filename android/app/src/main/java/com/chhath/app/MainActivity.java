@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.os.PowerManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Rational;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
@@ -40,6 +42,10 @@ public class MainActivity extends BridgeActivity {
 
     private static MainActivity sInstance;
     private static boolean sIsPlayingState = false;
+
+    public static MainActivity getInstance() {
+        return sInstance;
+    }
 
     public static boolean isCurrentlyPlaying() {
         return sIsPlayingState;
@@ -71,6 +77,8 @@ public class MainActivity extends BridgeActivity {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
                 WebSettings settings = webView.getSettings();
+                // Desktop Chrome User Agent completely bypasses YouTube's mobile background pause restriction
+                settings.setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36");
                 settings.setMediaPlaybackRequiresUserGesture(false);
                 settings.setJavaScriptEnabled(true);
                 settings.setDomStorageEnabled(true);
@@ -106,7 +114,6 @@ public class MainActivity extends BridgeActivity {
                             @Override
                             public void onReceiveValue(String value) {
                                 if (value != null && (value.contains("handled") || "\"handled\"".equals(value))) {
-                                    // Successfully handled by in-app navigation or modal closing
                                     return;
                                 }
 
@@ -142,6 +149,25 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleMediaIntent(intent);
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        // Enter Picture-in-Picture on minimizing or pressing Home when a song/video is playing
+        if (sIsPlayingState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                PictureInPictureParams.Builder pipBuilder = new PictureInPictureParams.Builder();
+                pipBuilder.setAspectRatio(new Rational(16, 9));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    pipBuilder.setAutoEnterEnabled(true);
+                    pipBuilder.setSeamlessResizeEnabled(true);
+                }
+                enterPictureInPictureMode(pipBuilder.build());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void initMediaSession() {
@@ -286,6 +312,17 @@ public class MainActivity extends BridgeActivity {
                 mediaSession.setMetadata(metaBuilder.build());
             }
 
+            // Prepare Picture-in-Picture auto-enter if running on Android 12+
+            if (isPlaying && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                try {
+                    PictureInPictureParams.Builder pipBuilder = new PictureInPictureParams.Builder();
+                    pipBuilder.setAspectRatio(new Rational(16, 9));
+                    pipBuilder.setAutoEnterEnabled(true);
+                    pipBuilder.setSeamlessResizeEnabled(true);
+                    setPictureInPictureParams(pipBuilder.build());
+                } catch (Exception ignored) {}
+            }
+
             // Intent to open app when tapping notification body
             Intent openIntent = new Intent(this, MainActivity.class);
             openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -416,6 +453,23 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    // Called by MediaPlaybackService watchdog on native Looper thread to prevent WebView suspension
+    public void triggerKeepAlive() {
+        runOnUiThread(() -> {
+            try {
+                WebView webView = getBridge().getWebView();
+                if (webView != null && sIsPlayingState) {
+                    webView.resumeTimers();
+                    webView.onResume();
+                    webView.evaluateJavascript(
+                        "if (typeof window.keepMusicPlaying === 'function') { window.keepMusicPlaying(); }",
+                        null
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
+    }
+
     // ==========================================
     // BROADCAST RECEIVER FOR MEDIA CONTROLS
     // ==========================================
@@ -428,6 +482,14 @@ public class MainActivity extends BridgeActivity {
                 if (sInstance != null) {
                     sInstance.hideMediaNotification();
                     sInstance.handleMediaAction("dismiss");
+                } else {
+                    try {
+                        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                        if (nm != null) nm.cancel(NOTIFICATION_ID);
+                        Intent stopIntent = new Intent(context, MediaPlaybackService.class);
+                        stopIntent.setAction(MediaPlaybackService.ACTION_STOP);
+                        context.startService(stopIntent);
+                    } catch (Exception ignored) {}
                 }
                 return;
             }
@@ -458,23 +520,33 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            WebView webView = getBridge().getWebView();
-            if (webView != null) {
-                webView.resumeTimers();
-                webView.onResume();
-            }
-        } catch (Exception ignored) {}
+        if (sIsPlayingState) {
+            keepWebViewActive();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        if (sIsPlayingState) {
+            keepWebViewActive();
+        }
+    }
+
+    private void keepWebViewActive() {
         try {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
                 webView.resumeTimers();
                 webView.onResume();
+                webView.postDelayed(() -> {
+                    try {
+                        if (sIsPlayingState && webView != null) {
+                            webView.resumeTimers();
+                            webView.onResume();
+                        }
+                    } catch (Exception ignored) {}
+                }, 250);
             }
         } catch (Exception ignored) {}
     }
@@ -484,8 +556,9 @@ public class MainActivity extends BridgeActivity {
         super.onWindowFocusChanged(hasFocus);
         try {
             WebView webView = getBridge().getWebView();
-            if (webView != null) {
+            if (webView != null && sIsPlayingState) {
                 webView.resumeTimers();
+                webView.onResume();
             }
         } catch (Exception ignored) {}
     }
