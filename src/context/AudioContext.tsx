@@ -559,6 +559,112 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  // ==========================================
+  // BACKGROUND AUDIO & SYSTEM MEDIA SESSION API
+  // (Lock Screen & Notification Panel Controls)
+  // ==========================================
+  const bgAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize hidden background audio element to maintain mobile wake lock / OS audio session
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!bgAudioRef.current) {
+      const audio = new Audio();
+      // Generate a tiny inaudible continuous audio loop so mobile OS does not suspend the tab on screen lock
+      audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+      audio.loop = true;
+      audio.volume = 0.01;
+      bgAudioRef.current = audio;
+    }
+  }, []);
+
+  // Sync MediaSession Metadata & Notification Shade
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
+
+    if (currentSong) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentSong.title,
+          artist: currentSong.singer,
+          album: 'छठ महापर्व 2026 • लोक आस्था',
+          artwork: [
+            { src: currentSong.thumbnail, sizes: '96x96', type: 'image/jpeg' },
+            { src: currentSong.thumbnail, sizes: '128x128', type: 'image/jpeg' },
+            { src: currentSong.thumbnail, sizes: '192x192', type: 'image/jpeg' },
+            { src: currentSong.thumbnail, sizes: '256x256', type: 'image/jpeg' },
+            { src: currentSong.thumbnail, sizes: '384x384', type: 'image/jpeg' },
+            { src: currentSong.thumbnail, sizes: '512x512', type: 'image/jpeg' }
+          ]
+        });
+      } catch (err) {
+        console.warn('[MediaSession] metadata setup warning:', err);
+      }
+    }
+  }, [currentSong]);
+
+  // Sync MediaSession Playback State & Action Handlers
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
+
+    try {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+
+      // Keep mobile OS audio session active when playing
+      if (bgAudioRef.current) {
+        if (isPlaying) {
+          bgAudioRef.current.play().catch(() => {});
+        } else {
+          bgAudioRef.current.pause();
+        }
+      }
+    } catch {}
+
+    const actionHandlers: [MediaSessionAction, MediaSessionActionHandler][] = [
+      ['play', () => { togglePlay(); }],
+      ['pause', () => { togglePlay(); }],
+      ['previoustrack', () => { playPrevious(); }],
+      ['nexttrack', () => { playNext(); }],
+      ['seekto', (details) => {
+        if (details.seekTime !== undefined && details.seekTime !== null) {
+          seekTo(details.seekTime);
+        }
+      }]
+    ];
+
+    for (const [action, handler] of actionHandlers) {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch {
+        // Some actions may not be supported on all browsers
+      }
+    }
+
+    return () => {
+      for (const [action] of actionHandlers) {
+        try {
+          navigator.mediaSession.setActionHandler(action, null);
+        } catch {}
+      }
+    };
+  }, [isPlaying, currentSong]);
+
+  // Sync Position State in MediaSession (for progress bar in Notification Panel & Lock Screen)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
+    if (duration > 0 && typeof navigator.mediaSession.setPositionState === 'function') {
+      try {
+        navigator.mediaSession.setPositionState({
+          duration: Math.max(0, duration),
+          playbackRate: 1,
+          position: Math.min(Math.max(0, currentTime), duration)
+        });
+      } catch {
+        // Ignore position state errors
+      }
+    }
+  }, [currentTime, duration]);
+
   return (
     <AudioContext.Provider
       value={{

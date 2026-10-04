@@ -17,7 +17,8 @@ import {
   EyeOff, 
   UserX,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { DynamicReel, ReelUser } from '../../types';
 import { useReels } from '../../context/ReelsContext';
@@ -38,6 +39,8 @@ interface VerticalReelPlayerProps {
   onNext: () => void;
   onPrev: () => void;
   onPlaybackError?: (reelId: string, videoId: string, errorCode: number) => void;
+  onEnded?: () => void;
+  onClose?: () => void;
 }
 
 const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
@@ -48,7 +51,9 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   onOpenAudio,
   onNext,
   onPrev,
-  onPlaybackError
+  onPlaybackError,
+  onEnded,
+  onClose
 }) => {
   const { 
     isLiked, 
@@ -134,10 +139,14 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   };
 
   const handleVideoClick = () => {
+    if (reel.youtubeVideoId) {
+      setIsPlaying(prev => !prev);
+      return;
+    }
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
-      video.play();
+      video.play().catch(() => {});
       setIsPlaying(true);
     } else {
       video.pause();
@@ -184,13 +193,16 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
 
       {/* Main Centered Phone Player (Desktop & Mobile Full-bleed) */}
       <div 
-        className="relative w-full sm:max-w-[440px] h-full sm:h-[calc(100%-24px)] sm:max-h-[820px] bg-black sm:rounded-3xl overflow-hidden sm:border border-amber-500/30 sm:shadow-2xl shadow-black/80 flex flex-col justify-between"
+        className="relative w-full h-full sm:max-w-[430px] sm:h-[calc(100%-16px)] sm:max-h-[840px] bg-black sm:rounded-3xl overflow-hidden sm:border border-amber-500/30 sm:shadow-2xl shadow-black/80 flex flex-col justify-between select-none"
         onDoubleClick={handleDoubleTap}
       >
-        {/* Transparent Native Touch & Gesture Pass-Through Overlay for 60fps Swiping */}
+        {/* Transparent Native Touch & Gesture Pass-Through Overlay for 60fps Swiping & Play/Pause */}
         <div 
           className="absolute inset-0 z-10 touch-pan-y cursor-pointer"
-          onClick={handleVideoClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleVideoClick();
+          }}
         />
 
         {/* Video / Media Viewport (YouTube Iframe, Instagram Iframe Fallback, or Native Video) */}
@@ -202,8 +214,10 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 videoId={reel.youtubeVideoId}
                 title={reel.title}
                 isActive={isActive}
+                isPlaying={isPlaying}
                 isMuted={isMuted}
                 onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
+                onEnded={onEnded}
               />
             ) : (
               <img 
@@ -249,8 +263,9 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               poster={getImageUrl(reel.thumbnailUrl)}
               preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
               playsInline
-              loop
+              loop={false}
               muted={isMuted}
+              onEnded={onEnded}
               onTimeUpdate={handleTimeUpdate}
               onWaiting={() => setIsLoading(true)}
               onPlaying={() => { setIsLoading(false); setIsPlaying(true); }}
@@ -275,15 +290,12 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               </div>
             )}
 
-            {/* Tap to play Overlay if paused / blocked */}
+            {/* Minimal Tap to Play Overlay if paused */}
             {!isPlaying && !isLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black/25">
-                <div className="p-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 scale-110 shadow-2xl shadow-amber-500/40 mb-3 animate-pulse">
-                  <Play className="w-8 h-8 fill-stone-950" />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                <div className="p-3.5 sm:p-4 rounded-full bg-black/60 backdrop-blur-md text-white scale-110 shadow-2xl border border-white/20">
+                  <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-white ml-0.5" />
                 </div>
-                <span className="text-xs font-mukta font-bold text-amber-200 bg-black/80 px-3.5 py-1.5 rounded-full border border-amber-500/40 backdrop-blur-md">
-                  ▶ दर्शन प्रारंभ करने के लिए टैप करें (Tap to play)
-                </span>
               </div>
             )}
 
@@ -297,14 +309,8 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         )}
 
         {/* Top Floating Controls */}
-        <div className="relative z-20 p-3 sm:p-4 flex items-center justify-between pointer-events-auto">
+        <div className="relative z-20 pt-14 sm:pt-4 px-3 sm:px-4 flex items-center justify-between pointer-events-auto">
           <div className="flex items-center gap-2">
-            {/* Category Chip */}
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-amber-400/40 text-amber-300 text-xs font-bold shadow-md">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              <span>{reel.category}</span>
-            </div>
-
             {/* Instagram Origin Badge */}
             {reel.sourceType === 'INSTAGRAM' && (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-600/80 via-pink-600/80 to-amber-600/80 border border-pink-400/40 text-white text-[10px] font-bold shadow-md">
@@ -398,14 +404,14 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           </div>
         )}
 
-        {/* Right Vertical Action Rail */}
-        <div className="relative z-10 self-end mr-3 sm:mr-4 mb-16 flex flex-col items-center gap-4 pointer-events-auto">
+        {/* Right Vertical Action Rail (Compact & sleek on mobile) */}
+        <div className="relative z-10 self-end mr-2 sm:mr-3.5 mb-20 sm:mb-8 flex flex-col items-center gap-2.5 sm:gap-3.5 pointer-events-auto">
           
           {/* Creator Avatar with Follow Plus Badge */}
-          <div className="relative mb-1">
+          <div className="relative mb-0.5">
             <button
               onClick={() => onOpenProfile(reel.creatorUsername)}
-              className="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-orange-500 shadow-lg group-hover:scale-105 transition-transform overflow-hidden"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-orange-500 shadow-lg hover:scale-105 transition-transform overflow-hidden"
               title={reel.creatorName}
             >
               <img
@@ -418,14 +424,14 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
             {!isOwnReel && (
               <button
                 onClick={e => { e.stopPropagation(); toggleFollow(reel.creatorId); }}
-                className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md transition-all ${
+                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-md transition-all ${
                   following
                     ? 'bg-stone-800 text-amber-400 border border-amber-500/40'
                     : 'bg-red-600 text-white hover:scale-110'
                 }`}
                 title={following ? 'फॉलोइंग' : 'फॉलो करें'}
               >
-                {following ? <Check className="w-3 h-3" /> : '+'}
+                {following ? <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : '+'}
               </button>
             )}
           </div>
@@ -433,16 +439,16 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           {/* Like Button */}
           <button
             onClick={e => { e.stopPropagation(); toggleLike(reel.id); }}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 sm:gap-1 group"
           >
-            <div className={`p-3 rounded-full backdrop-blur-md transition-all ${
+            <div className={`p-2 sm:p-2.5 rounded-full backdrop-blur-md transition-all ${
               liked 
                 ? 'bg-red-600 text-white scale-110 shadow-lg shadow-red-600/50' 
-                : 'bg-black/50 text-white group-hover:bg-black/70 group-hover:scale-105'
+                : 'bg-black/40 text-white group-hover:bg-black/70 group-hover:scale-105'
             }`}>
-              <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''}`} />
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-white' : ''}`} />
             </div>
-            <span className="text-[11px] text-white font-mono font-bold drop-shadow-md">
+            <span className="text-[10px] sm:text-[11px] text-white font-mono font-bold drop-shadow-md">
               {reel.likesCount.toLocaleString('en-IN')}
             </span>
           </button>
@@ -450,12 +456,12 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           {/* Comment Button */}
           <button
             onClick={e => { e.stopPropagation(); setCommentsOpen(true); }}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 sm:gap-1 group"
           >
-            <div className="p-3 rounded-full bg-black/50 text-white backdrop-blur-md group-hover:bg-black/70 group-hover:scale-105 transition-all">
-              <MessageCircle className="w-5 h-5" />
+            <div className="p-2 sm:p-2.5 rounded-full bg-black/40 text-white backdrop-blur-md group-hover:bg-black/70 group-hover:scale-105 transition-all">
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="text-[11px] text-white font-mono font-bold drop-shadow-md">
+            <span className="text-[10px] sm:text-[11px] text-white font-mono font-bold drop-shadow-md">
               {reel.commentsCount.toLocaleString('en-IN')}
             </span>
           </button>
@@ -463,16 +469,16 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           {/* Save / Bookmark Button */}
           <button
             onClick={e => { e.stopPropagation(); toggleSave(reel.id); }}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 sm:gap-1 group"
           >
-            <div className={`p-3 rounded-full backdrop-blur-md transition-all ${
+            <div className={`p-2 sm:p-2.5 rounded-full backdrop-blur-md transition-all ${
               saved 
                 ? 'bg-amber-500 text-stone-950 scale-110 shadow-lg shadow-amber-500/50' 
-                : 'bg-black/50 text-white group-hover:bg-black/70 group-hover:scale-105'
+                : 'bg-black/40 text-white group-hover:bg-black/70 group-hover:scale-105'
             }`}>
-              <Bookmark className={`w-5 h-5 ${saved ? 'fill-stone-950' : ''}`} />
+              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${saved ? 'fill-stone-950' : ''}`} />
             </div>
-            <span className="text-[11px] text-white font-mono font-bold drop-shadow-md">
+            <span className="text-[10px] sm:text-[11px] text-white font-mono font-bold drop-shadow-md">
               {reel.savesCount.toLocaleString('en-IN')}
             </span>
           </button>
@@ -480,12 +486,12 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           {/* Share Button */}
           <button
             onClick={e => { e.stopPropagation(); handleShare(); }}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 sm:gap-1 group"
           >
-            <div className="p-3 rounded-full bg-black/50 text-white backdrop-blur-md group-hover:bg-black/70 group-hover:scale-105 transition-all">
-              <Share2 className="w-5 h-5" />
+            <div className="p-2 sm:p-2.5 rounded-full bg-black/40 text-white backdrop-blur-md group-hover:bg-black/70 group-hover:scale-105 transition-all">
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="text-[11px] text-white font-mono font-bold drop-shadow-md">
+            <span className="text-[10px] sm:text-[11px] text-white font-mono font-bold drop-shadow-md">
               {copiedLink ? 'कॉपी!' : reel.sharesCount.toLocaleString('en-IN')}
             </span>
           </button>
@@ -494,18 +500,17 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           {reel.audioId && (
             <button
               onClick={e => { e.stopPropagation(); onOpenAudio(reel.audioId!); }}
-              className="mt-2 w-9 h-9 rounded-full p-1 bg-stone-950/80 border-2 border-amber-500/60 shadow-lg animate-spin-slow flex items-center justify-center overflow-hidden"
+              className="mt-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full p-1 bg-stone-950/80 border border-amber-500/60 shadow-lg animate-spin-slow flex items-center justify-center overflow-hidden"
               title={`ऑडियो: ${reel.audioTitle}`}
             >
-              <Music className="w-4 h-4 text-amber-400" />
+              <Music className="w-3.5 h-3.5 text-amber-400" />
             </button>
           )}
 
         </div>
 
-        {/* Bottom Details Section */}
         {/* Bottom Details Section (Clean Instagram / Shorts Style) */}
-        <div className="relative z-10 p-3.5 sm:p-4 pb-2 space-y-1.5 pointer-events-auto text-white max-w-[85%] select-none">
+        <div className="relative z-10 p-3.5 sm:p-4 pb-16 sm:pb-3 space-y-1.5 pointer-events-auto text-white max-w-[85%] select-none">
           {/* Creator Line */}
           <div className="flex items-center gap-2">
             <button

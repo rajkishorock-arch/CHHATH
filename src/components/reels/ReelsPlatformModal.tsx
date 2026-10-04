@@ -74,14 +74,37 @@ export const ReelsPlatformModal: React.FC = () => {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Set of indices that the user intentionally navigated back to (re-watching)
+  const backtrackedIndicesRef = useRef<Set<number>>(new Set());
+  const lastActiveIndexRef = useRef<number>(0);
+
   const scrollToIndex = useCallback((idx: number) => {
     if (idx < 0 || idx >= reels.length) return;
     reelRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (idx < lastActiveIndexRef.current) {
+      backtrackedIndicesRef.current.add(idx);
+    }
+    lastActiveIndexRef.current = idx;
     setActiveReelIndex(idx);
     if (reels[idx]) {
       setActiveReelId(reels[idx].id);
     }
   }, [reels, setActiveReelIndex, setActiveReelId]);
+
+  // Auto-advance to next reel on completion with manual backtrack protection
+  const handleReelEnded = useCallback((endedIndex: number) => {
+    // If devotee intentionally navigated back to re-watch this reel, DO NOT auto-scroll away.
+    if (backtrackedIndicesRef.current.has(endedIndex)) {
+      return;
+    }
+
+    // Auto-advance to next reel
+    if (endedIndex < reels.length - 1) {
+      scrollToIndex(endedIndex + 1);
+    } else {
+      loadMoreReels();
+    }
+  }, [reels.length, scrollToIndex, loadMoreReels]);
 
   // Keyboard navigation (ArrowUp, ArrowDown, PageUp, PageDown, Escape)
   useEffect(() => {
@@ -119,6 +142,10 @@ export const ReelsPlatformModal: React.FC = () => {
               setActiveReelId(reelId);
             }
             if (!isNaN(idx)) {
+              if (idx < lastActiveIndexRef.current) {
+                backtrackedIndicesRef.current.add(idx);
+              }
+              lastActiveIndexRef.current = idx;
               setActiveReelIndex(idx);
               if (idx >= reels.length - 3) {
                 loadMoreReels();
@@ -149,6 +176,10 @@ export const ReelsPlatformModal: React.FC = () => {
         if (calculatedIndex >= 0 && calculatedIndex < reels.length) {
           if (reels[calculatedIndex] && reels[calculatedIndex].id !== activeReelId) {
             setActiveReelId(reels[calculatedIndex].id);
+            if (calculatedIndex < lastActiveIndexRef.current) {
+              backtrackedIndicesRef.current.add(calculatedIndex);
+            }
+            lastActiveIndexRef.current = calculatedIndex;
             setActiveReelIndex(calculatedIndex);
             if (calculatedIndex >= reels.length - 3) {
               loadMoreReels();
@@ -169,92 +200,39 @@ export const ReelsPlatformModal: React.FC = () => {
 
   // When jumping to a specific reel or initially opening:
   useEffect(() => {
-    if (reelsPlatformOpen && reelRefs.current[activeReelIndex]) {
-      reelRefs.current[activeReelIndex]?.scrollIntoView({ block: 'start' });
+    if (reelsPlatformOpen) {
+      backtrackedIndicesRef.current.clear();
+      lastActiveIndexRef.current = activeReelIndex;
+      if (reelRefs.current[activeReelIndex]) {
+        reelRefs.current[activeReelIndex]?.scrollIntoView({ block: 'start' });
+      }
     }
   }, [reelsPlatformOpen]);
 
   if (!reelsPlatformOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1000] bg-black text-stone-100 flex flex-col justify-between overflow-hidden animate-fadeIn">
-      {/* 1. TOP RESPONSIVE NAVIGATION HEADER */}
-      <header className="relative z-30 shrink-0 w-full px-3 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-b from-black via-black/80 to-transparent flex items-center justify-between border-b border-white/10 backdrop-blur-md">
+    <div className="fixed inset-0 z-[1000] bg-black text-stone-100 overflow-hidden select-none animate-fadeIn">
+      {/* 1. TOP FLOATING MINIMAL HEADER (Full immersion, doesn't eat vertical screen space) */}
+      <header className="absolute top-0 inset-x-0 z-30 px-3 sm:px-6 py-3 bg-gradient-to-b from-black/85 via-black/40 to-transparent flex items-center justify-between pointer-events-none">
         
-        {/* Left: Brand Logo & Feed Tabs */}
-        <div className="flex items-center gap-3 sm:gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center">
-              <span className="text-base">🌅</span>
-            </div>
-            <span className="font-rozha text-lg sm:text-xl font-black gold-foil-text tracking-wide hidden md:inline">
-              छठ रील्स
-            </span>
+        {/* Left: Brand Logo */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="w-8 h-8 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+            <span className="text-base">🌅</span>
           </div>
-
-          {/* Feed Switcher Tabs: For You | Following | Trending | Latest */}
-          <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-full bg-stone-900/90 border border-stone-800 shadow-inner">
-            <button
-              onClick={() => setFeedType('foryou')}
-              className={`px-3 py-1 text-xs font-bold font-mukta rounded-full transition-all flex items-center gap-1.5 ${
-                feedType === 'foryou' || feedType === 'explore'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-md scale-105'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-              title="आपके लिए चुनिंदा रील्स (Personalized algorithm feed)"
-            >
-              <Flame className="w-3.5 h-3.5" />
-              <span>For You</span>
-            </button>
-
-            <button
-              onClick={() => setFeedType('following')}
-              className={`px-3 py-1 text-xs font-bold font-mukta rounded-full transition-all flex items-center gap-1.5 ${
-                feedType === 'following'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-md scale-105'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-              title="जिन क्रिएटर्स को आप फॉलो करते हैं"
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Following</span>
-            </button>
-
-            <button
-              onClick={() => setFeedType('trending')}
-              className={`px-3 py-1 text-xs font-bold font-mukta rounded-full transition-all flex items-center gap-1.5 ${
-                feedType === 'trending'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-md scale-105'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-              title="सबसे ज्यादा देखे जा रहे ट्रेंडिंग रील्स"
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Trending</span>
-            </button>
-
-            <button
-              onClick={() => setFeedType('latest')}
-              className={`px-2.5 sm:px-3 py-1 text-xs font-bold font-mukta rounded-full transition-all flex items-center gap-1.5 ${
-                feedType === 'latest'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-md scale-105'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-              title="हाल ही में अपलोड किए गए नए रील्स"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Latest</span>
-            </button>
-          </div>
+          <span className="font-rozha text-lg sm:text-xl font-black gold-foil-text tracking-wide drop-shadow-md">
+            छठ रील्स
+          </span>
         </div>
 
-        {/* Right: Actions (Search, Create, Studio, Admin, User / Close) */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right: Actions (Search, Create, Studio, Admin, User, Close) */}
+        <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
           
           {/* Search Trigger */}
           <button
             onClick={() => setSearchOpen(true)}
-            className="p-2 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-amber-400 border border-stone-800 transition-all"
+            className="p-2 sm:p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-stone-200 hover:text-amber-400 border border-white/10 backdrop-blur-md transition-all shadow-md"
             title="सर्च करें (Search people, hashtags, reels)"
           >
             <Search className="w-4 h-4" />
@@ -263,17 +241,18 @@ export const ReelsPlatformModal: React.FC = () => {
           {/* Create Reel Button */}
           <button
             onClick={openCreateModal}
-            className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-stone-950 text-xs font-bold shadow-lg shadow-amber-500/20 flex items-center gap-1.5 transition-all"
+            className="p-2 sm:px-3.5 sm:py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-stone-950 text-xs font-bold shadow-lg shadow-amber-500/30 flex items-center gap-1.5 transition-all"
+            title="रील बनाएं (Create)"
           >
             <PlusCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">रील बनाएं (Create)</span>
+            <span className="hidden sm:inline">रील बनाएं</span>
           </button>
 
           {/* Creator Studio Trigger */}
           {isAuthenticated && (
             <button
               onClick={() => setCreatorStudioOpen(true)}
-              className="p-2 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-amber-400 border border-stone-800 transition-all hidden sm:flex"
+              className="p-2 sm:p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-stone-200 hover:text-amber-400 border border-white/10 backdrop-blur-md transition-all hidden sm:flex"
               title="क्रिएटर स्टूडियो (Creator Studio)"
             >
               <BarChart3 className="w-4 h-4" />
@@ -284,7 +263,7 @@ export const ReelsPlatformModal: React.FC = () => {
           {isAdmin && (
             <button
               onClick={() => setModerationOpen(true)}
-              className="p-2 rounded-full bg-red-950/60 hover:bg-red-900 border border-red-500/40 text-red-400 hover:text-red-200 transition-all"
+              className="p-2 sm:p-2.5 rounded-full bg-red-950/70 hover:bg-red-900 border border-red-500/40 text-red-300 hover:text-white transition-all shadow-md"
               title="मॉडरेशन डैशबोर्ड (Admin Moderation)"
             >
               <ShieldCheck className="w-4 h-4" />
@@ -295,7 +274,7 @@ export const ReelsPlatformModal: React.FC = () => {
           {currentUser ? (
             <button
               onClick={() => openProfileModal(currentUser)}
-              className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-500 to-orange-500 overflow-hidden shrink-0 hover:scale-105 transition-transform"
+              className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-500 to-orange-500 overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
               title={currentUser.name}
             >
               <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-full h-full rounded-full object-cover" />
@@ -303,7 +282,7 @@ export const ReelsPlatformModal: React.FC = () => {
           ) : (
             <button
               onClick={() => openAuthModal('login')}
-              className="px-3 py-1 rounded-full bg-stone-900 hover:bg-stone-800 text-amber-400 border border-amber-500/40 text-xs font-bold transition-all"
+              className="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all backdrop-blur-md"
             >
               लॉग इन
             </button>
@@ -312,7 +291,7 @@ export const ReelsPlatformModal: React.FC = () => {
           {/* Close Modal Button */}
           <button
             onClick={closeReelsPlatform}
-            className="p-2 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-400 hover:text-white transition-all ml-1"
+            className="p-2 sm:p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-stone-300 hover:text-white border border-white/10 backdrop-blur-md transition-all ml-1 shadow-md"
             title="वापस मुख्य पोर्टल पर जाएं"
           >
             <X className="w-5 h-5" />
@@ -336,8 +315,8 @@ export const ReelsPlatformModal: React.FC = () => {
         </div>
       )}
 
-      {/* 2. MAIN PLAYER VIEWPORT - Full Page Vertical Snap Scroll Feed */}
-      <main className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
+      {/* 2. MAIN PLAYER VIEWPORT - Full Screen Vertical Snap Scroll Feed */}
+      <main className="absolute inset-0 w-full h-full overflow-hidden bg-black">
         {reels.length === 0 ? (
           /* Empty State (#47) */
           <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-sm mx-auto animate-fadeIn">
@@ -391,6 +370,7 @@ export const ReelsPlatformModal: React.FC = () => {
                     onOpenAudio={(id) => setSelectedAudioId(id)}
                     onNext={() => scrollToIndex(index + 1)}
                     onPrev={() => scrollToIndex(index - 1)}
+                    onEnded={() => handleReelEnded(index)}
                     onPlaybackError={(reelId, videoId, errorCode) => {
                       handleVideoError(reelId, videoId, errorCode);
                     }}
@@ -402,19 +382,19 @@ export const ReelsPlatformModal: React.FC = () => {
         )}
       </main>
 
-      {/* 3. MOBILE BOTTOM NAVIGATION BAR (#40) */}
-      <footer className="lg:hidden relative z-30 shrink-0 w-full px-4 py-2 bg-black/90 border-t border-stone-800/80 backdrop-blur-md flex items-center justify-around">
+      {/* 3. MOBILE FLOATING BOTTOM NAVIGATION BAR */}
+      <footer className="lg:hidden absolute bottom-0 inset-x-0 z-30 px-4 py-2 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex items-center justify-around pointer-events-auto border-t border-white/5">
         <button
           onClick={closeReelsPlatform}
-          className="flex flex-col items-center gap-0.5 text-stone-400 hover:text-white"
+          className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-white transition-colors"
         >
           <Home className="w-5 h-5" />
-          <span className="text-[10px] font-mukta font-bold">होम पोर्टल</span>
+          <span className="text-[10px] font-mukta font-bold">होम</span>
         </button>
 
         <button
           onClick={() => setFeedType('foryou')}
-          className={`flex flex-col items-center gap-0.5 ${feedType === 'foryou' || feedType === 'explore' ? 'text-amber-400 font-bold' : 'text-stone-400'}`}
+          className="flex flex-col items-center gap-0.5 text-amber-400 font-bold"
         >
           <Film className="w-5 h-5" />
           <span className="text-[10px] font-mukta">रील्स</span>
@@ -424,7 +404,7 @@ export const ReelsPlatformModal: React.FC = () => {
           onClick={openCreateModal}
           className="flex flex-col items-center gap-0.5 text-amber-400"
         >
-          <div className="p-1 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950">
+          <div className="p-1 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 shadow-md">
             <PlusCircle className="w-5 h-5" />
           </div>
           <span className="text-[10px] font-mukta font-bold">बनाएं</span>
@@ -432,7 +412,7 @@ export const ReelsPlatformModal: React.FC = () => {
 
         <button
           onClick={() => setSearchOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-stone-400 hover:text-white"
+          className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-white transition-colors"
         >
           <Search className="w-5 h-5" />
           <span className="text-[10px] font-mukta">सर्च</span>
@@ -446,7 +426,7 @@ export const ReelsPlatformModal: React.FC = () => {
               openAuthModal('login');
             }
           }}
-          className="flex flex-col items-center gap-0.5 text-stone-400 hover:text-white"
+          className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-white transition-colors"
         >
           <User className="w-5 h-5" />
           <span className="text-[10px] font-mukta">प्रोफाइल</span>

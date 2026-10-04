@@ -5,9 +5,11 @@ interface YouTubeReelPlayerProps {
   videoId: string;
   title: string;
   isActive: boolean;
+  isPlaying?: boolean;
   isMuted: boolean;
   onPlaybackError?: (videoId: string, errorCode: number) => void;
   onReady?: () => void;
+  onEnded?: () => void;
 }
 
 declare global {
@@ -56,9 +58,11 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   videoId,
   title,
   isActive,
+  isPlaying = true,
   isMuted,
   onPlaybackError,
-  onReady
+  onReady,
+  onEnded
 }) => {
   const containerId = useRef(`yt_player_${videoId}_${Math.random().toString(36).substring(2, 7)}`);
   const playerRef = useRef<any>(null);
@@ -98,7 +102,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
           playsinline: 1,
           controls: 0,
           modestbranding: 1,
-          loop: 1,
+          loop: 0,
           playlist: videoId,
           origin: hostOrigin,
           iv_load_policy: 3,
@@ -126,6 +130,12 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
               }
             }
             onReady?.();
+          },
+          onStateChange: (event: any) => {
+            // YT.PlayerState: 0 = ENDED
+            if (event.data === 0) {
+              onEnded?.();
+            }
           },
           onError: (event: any) => {
             const errorCode = event.data;
@@ -162,11 +172,11 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
     };
   }, [isApiReady, videoId]);
 
-  // 3. Play / Pause based on isActive
+  // 3. Play / Pause based on isActive & isPlaying
   useEffect(() => {
     if (!playerRef.current || !isPlayerReady) return;
     try {
-      if (isActive) {
+      if (isActive && isPlaying) {
         playerRef.current.playVideo();
       } else {
         playerRef.current.pauseVideo();
@@ -174,7 +184,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
     } catch {
       // ignore state change errors
     }
-  }, [isActive, isPlayerReady]);
+  }, [isActive, isPlaying, isPlayerReady]);
 
   // 4. Handle Mute / Unmute
   useEffect(() => {
@@ -215,8 +225,15 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden">
-      {/* Target div for YouTube Iframe API */}
-      <div id={containerId.current} className="w-full h-full pointer-events-none select-none" />
+      {/* Target div for YouTube Iframe API with scale to fill vertical full screen cleanly */}
+      <div 
+        id={containerId.current} 
+        className="w-full h-full pointer-events-none select-none [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:pointer-events-none [&>iframe]:select-none" 
+        style={{
+          transform: 'scale(1.35)',
+          transformOrigin: 'center center'
+        }}
+      />
 
       {/* Autoplay Blocked Overlay */}
       {isAutoplayBlocked && (
