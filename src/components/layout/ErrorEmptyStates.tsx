@@ -14,7 +14,7 @@ export const NotFound404: React.FC<{ onGoHome: () => void }> = ({ onGoHome }) =>
 
       <div className="space-y-2 max-w-md">
         <span className="text-xs font-bold uppercase tracking-widest text-orange-600 dark:text-amber-400 font-mono">
-          त्रुटि ४०४ (Page Not Found)
+          त्रुटि 404 (Page Not Found)
         </span>
         <h2 className="font-rozha text-3xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100 gold-foil-text">
           घाट तो मिल जाएगा… लेकिन यह पन्ना नहीं मिला 😄

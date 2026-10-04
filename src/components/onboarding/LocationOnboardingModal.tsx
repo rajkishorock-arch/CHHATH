@@ -92,7 +92,7 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
         {/* State Selection Grid */}
         <div className="mt-5 space-y-4">
           <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
-            १. अपना राज्य / क्षेत्र चुनें (Select Region):
+            1. अपना राज्य / क्षेत्र चुनें (Select Region):
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {REGION_OPTIONS.map((item) => (
@@ -118,7 +118,7 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
           {/* City Selection */}
           <div className="space-y-2 pt-2">
             <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
-              २. अपना प्रमुख शहर चुनें (Select City):
+              2. अपना प्रमुख शहर चुनें (Select City):
             </label>
             <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 scrollbar-thin">
               {(CITIES_BY_STATE[selectedState] || []).map((city) => (

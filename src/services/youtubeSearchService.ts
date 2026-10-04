@@ -35,12 +35,12 @@ export const convertToSongModel = (ytSong: YouTubeSearchSong): Song => {
     title: cleanTitle,
     singer: cleanChannel,
     language: 'Bhojpuri',
-    category: 'YouTube Search',
+    category: 'छठ भक्ति संगीत',
     duration: '4:30',
     audioUrl: `https://www.youtube.com/watch?v=${ytSong.youtubeId}`,
     youtubeId: ytSong.youtubeId,
     thumbnail: ytSong.thumbnailUrl,
-    description: ytSong.description || `YouTube channel: ${cleanChannel}`
+    description: ytSong.description || `प्रस्तुति: ${cleanChannel}`
   };
 };
 

@@ -599,7 +599,7 @@ export const ReelsSearchDiscover: React.FC<ReelsSearchDiscoverProps> = ({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs font-bold text-red-400 uppercase tracking-wider">
                       <Film className="w-3.5 h-3.5" />
-                      <span>यूट्यूब छठ वीडियो ({matchedVideos.length})</span>
+                      <span>छठ वीडियो व पावन दर्शन ({matchedVideos.length})</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       {matchedVideos.map(r => (

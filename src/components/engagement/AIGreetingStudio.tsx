@@ -94,7 +94,7 @@ export const AIGreetingStudio: React.FC = () => {
           <form onSubmit={handleGenerate} className="lg:col-span-5 p-6 rounded-3xl bg-white dark:bg-stone-800/90 border border-amber-500/30 shadow-xl space-y-4">
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">
-                १. शुभकामना पाने वाले का नाम (Recipient Name):
+                1. शुभकामना पाने वाले का नाम (Recipient Name):
               </label>
               <input
                 type="text"
@@ -107,7 +107,7 @@ export const AIGreetingStudio: React.FC = () => {
 
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">
-                २. संबंध (Relationship):
+                2. संबंध (Relationship):
               </label>
               <select
                 value={relationship}
@@ -124,7 +124,7 @@ export const AIGreetingStudio: React.FC = () => {
 
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">
-                ३. आपका नाम (Your Name):
+                3. आपका नाम (Your Name):
               </label>
               <input
                 type="text"
@@ -137,7 +137,7 @@ export const AIGreetingStudio: React.FC = () => {
 
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1.5">
-                ४. भाव व शैली (Tone):
+                4. भाव व शैली (Tone):
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {(['Devotional', 'Emotional', 'Traditional', 'Family', 'Short', 'Lighthearted'] as ToneOption[]).map(t => (

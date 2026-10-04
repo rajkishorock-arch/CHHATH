@@ -232,7 +232,7 @@ export const ThekuaCalculator: React.FC = () => {
 
         <div className="flex items-center gap-1.5 text-xs text-amber-300 font-bold font-mukta shrink-0">
           <Flame className="w-4 h-4 text-orange-400 animate-diya-flicker" />
-          <span>१००% शुद्ध सात्विक प्रसाद</span>
+          <span>100% शुद्ध सात्विक प्रसाद</span>
         </div>
       </div>
 

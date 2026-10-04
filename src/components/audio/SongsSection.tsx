@@ -20,7 +20,8 @@ import {
   MicOff,
   X,
   CheckCircle2,
-  ListMusic
+  ListMusic,
+  Music
 } from 'lucide-react';
 
 import { SongLyricsModal } from './SongLyricsModal';
@@ -33,15 +34,7 @@ import {
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
 
-// Pixel-perfect official YouTube icon
-const YouTubeLogo: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path
-      d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-      fill="#FF0000"
-    />
-  </svg>
-);
+
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -112,10 +105,10 @@ const YouTubeVideoCard: React.FC<{
           {formatDuration(song.duration)}
         </div>
 
-        {/* YouTube Tag (Top-Left Corner) */}
+        {/* Devotional Category Tag (Top-Left Corner) */}
         <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-stone-950/80 backdrop-blur-xs text-white text-[10px] font-bold shadow flex items-center gap-1 border border-stone-800/80">
-          <YouTubeLogo className="w-3.5 h-3.5" />
-          <span>{isLiveApi ? 'YouTube' : (song.category || 'छठ')}</span>
+          <Music className="w-3.5 h-3.5 text-amber-400" />
+          <span>{isLiveApi ? 'भक्ति संगीत' : (song.category || 'छठ')}</span>
         </div>
 
         {/* Playing Animated Equalizer Bar (Bottom-Left) */}
@@ -588,7 +581,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     { id: 'bhojpuri', label: 'भोजपुरी', type: 'category', cat: 'भोजपुरी' },
     { id: 'playlists', label: `प्लेलिस्ट्स (${megaPlaylists.length})`, type: 'tab', tab: 'playlists' },
     { id: 'favs', label: `पसंदीदा ❤️ (${favorites.length})`, type: 'category', cat: 'पसंदीदा' },
-    { id: 'custom', label: '+ यूट्यूब लिंक', type: 'tab', tab: 'customLink' },
+    { id: 'custom', label: '+ कस्टम गीत लिंक', type: 'tab', tab: 'customLink' },
   ];
 
   const handleChipClick = (chip: typeof chips[0]) => {
@@ -629,14 +622,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     const yId = extractYoutubeId(url);
 
     if (!yId && !pId) {
-      alert('कृपया सही यूट्यूब वीडियो या प्लेलिस्ट लिंक दर्ज करें');
+      alert('कृपया सही ऑडियो या वीडियो लिंक दर्ज करें');
       setUserLinkLoading(false);
       return;
     }
 
     try {
-      let title = pId ? 'यूट्यूब प्लेलिस्ट' : 'छठ भक्ति गीत';
-      let singer = 'यूट्यूब कलाकार';
+      let title = pId ? 'पावन प्लेलिस्ट' : 'छठ भक्ति गीत';
+      let singer = 'भक्ति कलाकार';
       let thumb = yId ? `https://i.ytimg.com/vi/${yId}/hqdefault.jpg` : getImageUrl('images/daura_arghya.jpg');
 
       if (yId) {
@@ -688,17 +681,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         <div className="space-y-2.5">
           {/* Header Row: YouTube Red Logo + Title + Grid/List Switcher */}
           <div className="flex items-center justify-between gap-2 px-1">
-            <div className="flex items-center gap-2">
-              <YouTubeLogo className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-stone-950 shadow-md shadow-amber-500/25 shrink-0">
+                <Music className="w-4 h-4 text-stone-950" />
+              </div>
               <div>
                 <h2 className="font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 flex items-center gap-1.5 leading-none">
-                  <span>छठ संगीत</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-600/30 border border-red-500/40 text-red-500 dark:text-red-300 font-extrabold uppercase tracking-wider">
-                    LIVE
+                  <span>छठ संगीत स्टूडियो</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-extrabold uppercase tracking-wider">
+                    लाइव
                   </span>
                 </h2>
                 <p className="text-[11px] text-stone-600 dark:text-stone-400 mt-0.5 hidden sm:block">
-                  यूट्यूब एवं क्यूरेटेड छठ महापर्व भक्ति गीत संग्रह
+                  पारंपरिक एवं लोकप्रिय छठ महापर्व भक्ति संगीत संग्रह
                 </p>
               </div>
             </div>
@@ -710,10 +705,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 onClick={() => setViewMode('grid')}
                 className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
                   viewMode === 'grid'
-                    ? 'bg-red-600 text-white shadow-xs'
+                    ? 'bg-amber-500 text-stone-950 shadow-xs'
                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }`}
-                title="यूट्यूब वीडियो ग्रिड"
+                title="वीडियो ग्रिड"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">वीडियो</span>
@@ -723,7 +718,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 onClick={() => setViewMode('list')}
                 className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
                   viewMode === 'list'
-                    ? 'bg-red-600 text-white shadow-xs'
+                    ? 'bg-amber-500 text-stone-950 shadow-xs'
                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }`}
                 title="म्यूजिक ट्रैक सूची"
@@ -734,9 +729,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             </div>
           </div>
 
-          {/* Clean YouTube Search Input Bar */}
+          {/* Clean Chhath Song Search Input Bar */}
           <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-            <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/40 rounded-full transition-all shadow-xs">
+            <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/40 rounded-full transition-all shadow-xs">
               <div className="pl-3.5 pr-2 text-stone-500 dark:text-stone-400 flex items-center pointer-events-none">
                 <Search className="w-4 h-4" />
               </div>
@@ -745,7 +740,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="यूट्यूब छठ गीत या गायक खोजें... (उदा: शारदा सिन्हा, पवन सिंह)"
+                placeholder="छठ गीत या गायक खोजें... (उदा: शारदा सिन्हा, पवन सिंह)"
                 className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 outline-none pr-2"
               />
 
@@ -776,9 +771,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             <button
               type="submit"
               disabled={searchStatus === 'loading' || !searchQuery.trim()}
-              className="ml-2 px-4 py-2 sm:py-2.5 rounded-full bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0 active:scale-95"
+              className="ml-2 px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-stone-950 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0 active:scale-95"
             >
-              {searchStatus === 'loading' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {searchStatus === 'loading' ? <RefreshCw className="w-4 h-4 animate-spin text-stone-950" /> : <Search className="w-4 h-4 text-stone-950" />}
               <span className="hidden sm:inline">खोजें</span>
             </button>
           </form>
@@ -790,7 +785,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           )}
 
           {/* ========================================================
-              SINGLE HORIZONTAL ROW OF YOUTUBE PILL CHIPS
+              SINGLE HORIZONTAL ROW OF PILL CHIPS
              ======================================================== */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-none snap-x touch-pan-x">
             {chips.map((chip) => {
@@ -813,18 +808,20 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         </div>
 
         {/* ========================================================
-            TAB: CUSTOM YOUTUBE LINK FORM
+            TAB: CUSTOM LINK FORM
            ======================================================== */}
         {activeViewTab === 'customLink' && (
           <div className="max-w-xl mx-auto p-4 sm:p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3">
             <div className="flex items-center gap-2.5">
-              <YouTubeLogo className="w-6 h-6" />
+              <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center">
+                <Music className="w-4 h-4" />
+              </div>
               <div>
                 <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                  अपना यूट्यूब लिंक तुरंत बजाएं
+                  अपना मनपसंद गीत लिंक बजाएं
                 </h3>
                 <p className="text-[11px] text-stone-600 dark:text-stone-400">
-                  यूट्यूब वीडियो या प्लेलिस्ट लिंक पेस्ट करें और सीधे सुनें
+                  वीडियो या ऑडियो लिंक पेस्ट करें और सीधे ऐप में सुनें
                 </p>
               </div>
             </div>
@@ -954,8 +951,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             {searchStatus === 'loading' && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 px-1 text-xs text-stone-600 dark:text-stone-400">
-                  <RefreshCw className="w-3.5 h-3.5 text-red-500 animate-spin" />
-                  <span>यूट्यूब पर &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
+                  <RefreshCw className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+                  <span>लाइव &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -1013,9 +1010,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
-                    <YouTubeLogo className="w-4 h-4" />
+                    <Music className="w-4 h-4 text-amber-500" />
                     <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-200">
-                      यूट्यूब परिणाम: <span className="text-amber-600 dark:text-amber-400">&ldquo;{searchQuery}&rdquo;</span> ({ytSearchResults.length})
+                      खोज परिणाम: <span className="text-amber-600 dark:text-amber-400">&ldquo;{searchQuery}&rdquo;</span> ({ytSearchResults.length})
                     </h3>
                   </div>
                   <button
@@ -1193,10 +1190,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         setSearchQuery(`${selectedSinger} Chhath Geet`);
                         handleExecuteSearch(`${selectedSinger} Chhath Geet`);
                       }}
-                      className="text-xs text-red-600 dark:text-red-400 hover:underline flex items-center gap-1 font-bold"
+                      className="text-xs text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 font-bold"
                     >
-                      <YouTubeLogo className="w-3.5 h-3.5" />
-                      <span>यूट्यूब पर खोजें</span>
+                      <Search className="w-3.5 h-3.5" />
+                      <span>लाइव खोजें</span>
                     </button>
                   )}
                 </div>

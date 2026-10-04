@@ -23,9 +23,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAudio } from '../../context/AudioContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Language, ReelUser } from '../../types';
 
 export const AuthModal: React.FC = () => {
+  const { language } = useLanguage();
   const { 
     authModalOpen, 
     authModalTab, 
@@ -36,6 +38,211 @@ export const AuthModal: React.FC = () => {
     resetPassword,
     authPromptMessage 
   } = useAuth();
+
+  const authStrings = {
+    hi: {
+      ariaTitle: 'छठ महापर्व श्रद्धालु प्रवेश',
+      title: 'जय छठी मईया',
+      subtitle: 'पावन आस्था, सूर्य उपासना एवं भक्त समुदाय',
+      closeBtn: 'बंद करें',
+      tab1Tap: '1-टैप प्रवेश',
+      tab1TapSub: 'तुरंत दर्शन',
+      tabLogin: 'लॉग इन',
+      tabLoginSub: 'खाता प्रवेश',
+      tabSignup: 'नया खाता',
+      tabSignupSub: 'साइन अप',
+      quickPrompt: 'बिना किसी पासवर्ड के तुरंत व्रती के रूप में प्रवेश करें:',
+      nameLabel: 'आपका शुभ नाम (Your Name - Optional)',
+      namePlaceholder: 'उदा. राहुल कुमार / सीमा देवी',
+      roleLabel: 'आपकी भूमिका चुनें:',
+      roles: ['छठ व्रती', 'सूर्य उपासक', 'भजन प्रेमी'] as const,
+      cityLabel: 'आपका शहर / घाट:',
+      quickSubmit: '🙏 पावन व्रती रूप में तुरंत प्रवेश करें',
+      loadingSubmit: 'प्रवेश हो रहा है...',
+      curatedHeading: 'या किसी समर्पित पावन मंडल से जुड़ें (1-Tap Direct Login)',
+      loginIdLabel: 'ईमेल, मोबाइल नंबर या यूजरनेम',
+      loginIdPlaceholder: 'उदा. 9876543210 या devotee@chhath.in',
+      loginPassLabel: 'पासवर्ड / पिन (Password)',
+      forgotLink: 'पासवर्ड भूल गए?',
+      passPlaceholder: '•••••••• (वैकल्पिक / सरल पासवर्ड)',
+      loginBtn: 'लॉग इन करें',
+      loginLoading: 'लॉगिन हो रहा है...',
+      noPassLink: 'पासवर्ड याद नहीं? 1-टैप व्रती प्रवेश का उपयोग करें',
+      signupNameLabel: 'आपका पूरा नाम (Full Name) *',
+      signupNamePlaceholder: 'उदा. अमित कुमार',
+      signupContactLabel: 'मोबाइल नंबर या ईमेल (Mobile or Email) *',
+      signupContactPlaceholder: 'उदा. 9876543210 या amit@example.com',
+      signupPassLabel: 'सरल पासवर्ड / पिन (Password)',
+      signupPassPlaceholder: 'कम से कम 4 अक्षर (उदा. 1234)',
+      signupCityLabel: 'आपका शहर (City)',
+      signupBtn: 'खाता बनाएं व आशीर्वाद पाएं',
+      signupLoading: 'पंजीकरण हो रहा है...',
+      guestLink: 'अतिथि (Guest) के रूप में जारी रखें →',
+      securePlatform: 'सुरक्षित व पावन मंच'
+    },
+    en: {
+      ariaTitle: 'Chhath Mahaparv Devotee Entry',
+      title: 'Jai Chhathi Maiya',
+      subtitle: 'Divine Devotion, Solar Worship & Community',
+      closeBtn: 'Close',
+      tab1Tap: '1-Tap Entry',
+      tab1TapSub: 'Instant Darshan',
+      tabLogin: 'Log In',
+      tabLoginSub: 'Devotee Access',
+      tabSignup: 'New Account',
+      tabSignupSub: 'Sign Up',
+      quickPrompt: 'Enter instantly as a devotee without any password:',
+      nameLabel: 'Your Good Name (Optional)',
+      namePlaceholder: 'e.g. Rahul Kumar / Seema Devi',
+      roleLabel: 'Select Your Devotional Role:',
+      roles: ['Fasting Devotee', 'Solar Devotee', 'Music Lover'] as const,
+      cityLabel: 'Your City / Ghat:',
+      quickSubmit: '🙏 Enter as Devotee & Seek Blessings',
+      loadingSubmit: 'Entering...',
+      curatedHeading: 'Or Join via Devotional Portals (1-Tap Direct Login)',
+      loginIdLabel: 'Email, Mobile Number or Username',
+      loginIdPlaceholder: 'e.g. 9876543210 or devotee@chhath.in',
+      loginPassLabel: 'Password / PIN',
+      forgotLink: 'Forgot Password?',
+      passPlaceholder: '•••••••• (Optional / Simple Password)',
+      loginBtn: 'Log In',
+      loginLoading: 'Logging in...',
+      noPassLink: "Don't remember password? Use 1-Tap Devotee Entry",
+      signupNameLabel: 'Full Name *',
+      signupNamePlaceholder: 'e.g. Amit Kumar',
+      signupContactLabel: 'Mobile Number or Email *',
+      signupContactPlaceholder: 'e.g. 9876543210 or amit@example.com',
+      signupPassLabel: 'Simple Password / PIN',
+      signupPassPlaceholder: 'At least 4 characters (e.g. 1234)',
+      signupCityLabel: 'Your City',
+      signupBtn: 'Create Account & Receive Blessings',
+      signupLoading: 'Creating account...',
+      guestLink: 'Continue as Guest →',
+      securePlatform: 'Secure & Sacred Portal'
+    },
+    bho: {
+      ariaTitle: 'छठ महापर्व श्रद्धालु प्रवेश',
+      title: 'जय छठी मईया',
+      subtitle: 'पावन आस्था, सुरुज उपासना आ भक्त समाज',
+      closeBtn: 'बंद करीं',
+      tab1Tap: '1-टैप प्रवेश',
+      tab1TapSub: 'तुरंत दर्शन',
+      tabLogin: 'लॉग इन',
+      tabLoginSub: 'खाता प्रवेश',
+      tabSignup: 'नया खाता',
+      tabSignupSub: 'साइन अप',
+      quickPrompt: 'बिना कवनो पासवर्ड के तुरंत व्रती रूप में प्रवेश करीं:',
+      nameLabel: 'रउआ शुभ नाम (वैकल्पिक)',
+      namePlaceholder: 'उदा. राहुल कुमार / सीमा देवी',
+      roleLabel: 'अपन भूमिका चुनीं:',
+      roles: ['छठ व्रती', 'सूर्य उपासक', 'भजन प्रेमी'] as const,
+      cityLabel: 'रउआ शहर / घाट:',
+      quickSubmit: '🙏 पावन व्रती रूप में तुरंत प्रवेश करीं',
+      loadingSubmit: 'प्रवेश होत बा...',
+      curatedHeading: 'भा समर्पित पावन मंडल से जुड़ीं (1-Tap Direct Login)',
+      loginIdLabel: 'ईमेल, मोबाइल नंबर भा यूजरनेम',
+      loginIdPlaceholder: 'उदा. 9876543210 भा devotee@chhath.in',
+      loginPassLabel: 'पासवर्ड / पिन (Password)',
+      forgotLink: 'पासवर्ड भुला गइल?',
+      passPlaceholder: '•••••••• (सरल पासवर्ड)',
+      loginBtn: 'लॉग इन करीं',
+      loginLoading: 'लॉगिन होत बा...',
+      noPassLink: 'पासवर्ड नइखे याद? 1-टैप व्रती प्रवेश करीं',
+      signupNameLabel: 'रउआ पूरा नाम *',
+      signupNamePlaceholder: 'उदा. अमित कुमार',
+      signupContactLabel: 'मोबाइल नंबर भा ईमेल *',
+      signupContactPlaceholder: 'उदा. 9876543210 भा amit@example.com',
+      signupPassLabel: 'सरल पासवर्ड / पिन (Password)',
+      signupPassPlaceholder: 'कम से कम 4 अक्षर (उदा. 1234)',
+      signupCityLabel: 'रउआ शहर (City)',
+      signupBtn: 'खाता बनाईं आ असीस पाईं',
+      signupLoading: 'खाता बनत बा...',
+      guestLink: 'अतिथि (Guest) के रूप में आगे बढ़ीं →',
+      securePlatform: 'सुरक्षित आ पावन मंच'
+    },
+    mai: {
+      ariaTitle: 'छठि महापर्व श्रद्धालु प्रवेश',
+      title: 'जय छठी मईया',
+      subtitle: 'पावन आस्था, सूर्य उपासना ओ भक्त समुदाय',
+      closeBtn: 'बंद करू',
+      tab1Tap: '1-टैप प्रवेश',
+      tab1TapSub: 'तुरंत दर्शन',
+      tabLogin: 'लॉग इन',
+      tabLoginSub: 'खाता प्रवेश',
+      tabSignup: 'नव खाता',
+      tabSignupSub: 'साइन अप',
+      quickPrompt: 'बिना कोनो पासवर्ड के तुरंत व्रती रूप में प्रवेश करू:',
+      nameLabel: 'अहांक शुभ नाम (वैकल्पिक)',
+      namePlaceholder: 'उदा. राहुल कुमार / सीमा देवी',
+      roleLabel: 'अपन भूमिका चुनू:',
+      roles: ['छठि व्रती', 'सूर्य उपासक', 'भजन प्रेमी'] as const,
+      cityLabel: 'अहांक नगर / घाट:',
+      quickSubmit: '🙏 पावन व्रती रूप में तुरंत प्रवेश करू',
+      loadingSubmit: 'प्रवेश भ रहल अछि...',
+      curatedHeading: 'वा समर्पित पावन मंडल सं जुड़ू (1-Tap Direct Login)',
+      loginIdLabel: 'ईमेल, मोबाइल नंबर वा यूजरनेम',
+      loginIdPlaceholder: 'उदा. 9876543210 वा devotee@chhath.in',
+      loginPassLabel: 'पासवर्ड / पिन (Password)',
+      forgotLink: 'पासवर्ड बिसरि गेलाह?',
+      passPlaceholder: '•••••••• (सरल पासवर्ड)',
+      loginBtn: 'लॉग इन करू',
+      loginLoading: 'लॉगिन भ रहल अछि...',
+      noPassLink: 'पासवर्ड मोन नहि अछि? 1-टैप व्रती प्रवेश करू',
+      signupNameLabel: 'अहांक पूरा नाम *',
+      signupNamePlaceholder: 'उदा. अमित कुमार',
+      signupContactLabel: 'मोबाइल नंबर वा ईमेल *',
+      signupContactPlaceholder: 'उदा. 9876543210 वा amit@example.com',
+      signupPassLabel: 'सरल पासवर्ड / पिन (Password)',
+      signupPassPlaceholder: 'कम से कम 4 अक्षर (उदा. 1234)',
+      signupCityLabel: 'अहांक नगर (City)',
+      signupBtn: 'खाता बनाउ ओ आशीर्वाद पाऊ',
+      signupLoading: 'खाता बनि रहल अछि...',
+      guestLink: 'अतिथि (Guest) रूप में आगू बढ़ू →',
+      securePlatform: 'सुरक्षित ओ पावन मंच'
+    },
+    mag: {
+      ariaTitle: 'छठ महापर्व श्रद्धालु प्रवेश',
+      title: 'जय छठी मईया',
+      subtitle: 'पावन आस्था, सूर्य उपासना आ भक्त समुदाय',
+      closeBtn: 'बंद करी',
+      tab1Tap: '1-टैप प्रवेश',
+      tab1TapSub: 'तुरंत दर्शन',
+      tabLogin: 'लॉग इन',
+      tabLoginSub: 'खाता प्रवेश',
+      tabSignup: 'नया खाता',
+      tabSignupSub: 'साइन अप',
+      quickPrompt: 'बिना कवनो पासवर्ड के तुरंत व्रती रूप में प्रवेश करी:',
+      nameLabel: 'अपन शुभ नाम (वैकल्पिक)',
+      namePlaceholder: 'उदा. राहुल कुमार / सीमा देवी',
+      roleLabel: 'अपन भूमिका चुनी:',
+      roles: ['छठ व्रती', 'सूर्य उपासक', 'भजन प्रेमी'] as const,
+      cityLabel: 'अपन शहर / घाट:',
+      quickSubmit: '🙏 पावन व्रती रूप में तुरंत प्रवेश करी',
+      loadingSubmit: 'प्रवेश हो रहल हे...',
+      curatedHeading: 'या समर्पित पावन मंडल से जुड़ी (1-Tap Direct Login)',
+      loginIdLabel: 'ईमेल, मोबाइल नंबर या यूजरनेम',
+      loginIdPlaceholder: 'उदा. 9876543210 या devotee@chhath.in',
+      loginPassLabel: 'पासवर्ड / पिन (Password)',
+      forgotLink: 'पासवर्ड भुला गेली?',
+      passPlaceholder: '•••••••• (सरल पासवर्ड)',
+      loginBtn: 'लॉग इन करी',
+      loginLoading: 'लॉगिन हो रहल हे...',
+      noPassLink: 'पासवर्ड नइखे याद? 1-टैप व्रती प्रवेश करी',
+      signupNameLabel: 'अपन पूरा नाम *',
+      signupNamePlaceholder: 'उदा. अमित कुमार',
+      signupContactLabel: 'मोबाइल नंबर या ईमेल *',
+      signupContactPlaceholder: 'उदा. 9876543210 या amit@example.com',
+      signupPassLabel: 'सरल पासवर्ड / पिन (Password)',
+      signupPassPlaceholder: 'कम से कम 4 अक्षर (उदा. 1234)',
+      signupCityLabel: 'अपन शहर (City)',
+      signupBtn: 'खाता बनाई आ आशीर्वाद पाई',
+      signupLoading: 'खाता बन रहल हे...',
+      guestLink: 'अतिथि (Guest) के रूप में आगे बढ़ी →',
+      securePlatform: 'सुरक्षित आ पावन मंच'
+    }
+  };
+
+  const ui = authStrings[language] || authStrings.hi;
 
   const { ringBell } = useAudio();
 
@@ -238,7 +445,7 @@ export const AuthModal: React.FC = () => {
       className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-5 bg-stone-950/85 backdrop-blur-xl animate-in fade-in duration-300 font-mukta pointer-events-auto"
       role="dialog"
       aria-modal="true"
-      aria-label="छठ महापर्व श्रद्धालु प्रवेश"
+      aria-label={ui.ariaTitle}
     >
       {/* Clickable Backdrop Dismiss */}
       <div 
@@ -271,14 +478,14 @@ export const AuthModal: React.FC = () => {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-rozha text-xl sm:text-2xl font-black text-amber-300 leading-tight truncate">
-                  जय छठी मईया
+                  {ui.title}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-extrabold border border-amber-500/30">
-                  २०२६
+                  2026
                 </span>
               </div>
               <p className="text-xs text-amber-200/80 font-mukta truncate mt-0.5">
-                पावन आस्था, सूर्य उपासना एवं भक्त समुदाय
+                {ui.subtitle}
               </p>
             </div>
           </div>
@@ -287,7 +494,7 @@ export const AuthModal: React.FC = () => {
           <button
             onClick={closeAuthModal}
             className="p-2 rounded-full bg-stone-900/90 text-stone-400 hover:text-white hover:bg-stone-800 border border-stone-800 transition-all shrink-0 active:scale-95"
-            title="बंद करें"
+            title={ui.closeBtn}
           >
             <X className="w-4 h-4" />
           </button>
@@ -351,8 +558,8 @@ export const AuthModal: React.FC = () => {
                         : 'text-stone-400 hover:text-stone-200'
                     }`}
                   >
-                    <span>१-टैप प्रवेश</span>
-                    <span className="text-[9px] opacity-80 font-normal">तुरंत दर्शन</span>
+                    <span>{ui.tab1Tap}</span>
+                    <span className="text-[9px] opacity-80 font-normal">{ui.tab1TapSub}</span>
                   </button>
 
                   <button
@@ -364,8 +571,8 @@ export const AuthModal: React.FC = () => {
                         : 'text-stone-400 hover:text-stone-200'
                     }`}
                   >
-                    <span>लॉग इन</span>
-                    <span className="text-[9px] opacity-80 font-normal">खाता प्रवेश</span>
+                    <span>{ui.tabLogin}</span>
+                    <span className="text-[9px] opacity-80 font-normal">{ui.tabLoginSub}</span>
                   </button>
 
                   <button
@@ -377,8 +584,8 @@ export const AuthModal: React.FC = () => {
                         : 'text-stone-400 hover:text-stone-200'
                     }`}
                   >
-                    <span>नया खाता</span>
-                    <span className="text-[9px] opacity-80 font-normal">साइन अप</span>
+                    <span>{ui.tabSignup}</span>
+                    <span className="text-[9px] opacity-80 font-normal">{ui.tabSignupSub}</span>
                   </button>
                 </div>
               )}
@@ -403,19 +610,19 @@ export const AuthModal: React.FC = () => {
                   <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 space-y-3">
                     <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
                       <Sun className="w-4 h-4 text-amber-400" />
-                      <span>बिना किसी पासवर्ड के तुरंत व्रती के रूप में प्रवेश करें:</span>
+                      <span>{ui.quickPrompt}</span>
                     </div>
 
                     <div>
                       <label className="block text-[11px] font-bold text-stone-300 mb-1">
-                        आपका शुभ नाम (Your Name - Optional)
+                        {ui.nameLabel}
                       </label>
                       <div className="relative">
                         <input
                           type="text"
                           value={quickName}
                           onChange={(e) => setQuickName(e.target.value)}
-                          placeholder="उदा. राहुल कुमार / सीमा देवी"
+                          placeholder={ui.namePlaceholder}
                           className="w-full pl-9 pr-3 py-2 rounded-xl bg-stone-900 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
                         />
                         <User className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
@@ -425,14 +632,14 @@ export const AuthModal: React.FC = () => {
                     {/* Quick Sacred Role Selector */}
                     <div>
                       <label className="block text-[11px] font-bold text-stone-300 mb-1.5">
-                        आपकी भूमिका चुनें:
+                        {ui.roleLabel}
                       </label>
                       <div className="grid grid-cols-3 gap-1.5">
-                        {(['छठ व्रती', 'सूर्य उपासक', 'भजन प्रेमी'] as const).map((r) => (
+                        {ui.roles.map((r) => (
                           <button
                             key={r}
                             type="button"
-                            onClick={() => setQuickRole(r)}
+                            onClick={() => setQuickRole(r as any)}
                             className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all border ${
                               quickRole === r
                                 ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-xs font-extrabold'
@@ -448,7 +655,7 @@ export const AuthModal: React.FC = () => {
                     {/* Quick City Chips */}
                     <div>
                       <label className="block text-[11px] font-bold text-stone-300 mb-1.5 flex items-center justify-between">
-                        <span>आपका शहर / घाट:</span>
+                        <span>{ui.cityLabel}</span>
                         <span className="text-[10px] text-amber-400">{quickCity}</span>
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -475,14 +682,14 @@ export const AuthModal: React.FC = () => {
                     disabled={loading}
                     className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                   >
-                    <span>{loading ? 'प्रवेश हो रहा है...' : '🙏 पावन व्रती रूप में तुरंत प्रवेश करें'}</span>
+                    <span>{loading ? ui.loadingSubmit : ui.quickSubmit}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
                   {/* Representative Sacred Devotee Profiles */}
                   <div className="pt-2 border-t border-stone-800/80 space-y-2">
                     <span className="block text-[10px] text-stone-400 uppercase tracking-wider text-center font-bold">
-                      या किसी समर्पित पावन मंडल से जुड़ें (1-Tap Direct Login)
+                      {ui.curatedHeading}
                     </span>
                     <div className="grid grid-cols-2 gap-2">
                       <button
@@ -506,7 +713,7 @@ export const AuthModal: React.FC = () => {
                           <span className="text-base">🙏</span>
                           <span className="text-xs font-bold text-amber-300 truncate">व्रती परिवार</span>
                         </div>
-                        <span className="text-[10px] text-stone-400 block truncate mt-0.5">४ दिवसीय संपूर्ण अनुष्ठान</span>
+                        <span className="text-[10px] text-stone-400 block truncate mt-0.5">4 दिवसीय संपूर्ण अनुष्ठान</span>
                       </button>
 
                       <button
@@ -542,7 +749,7 @@ export const AuthModal: React.FC = () => {
                 <form onSubmit={handleLoginSubmit} className="space-y-3.5">
                   <div>
                     <label className="block text-[11px] font-bold text-amber-200/90 mb-1">
-                      ईमेल, मोबाइल नंबर या यूजरनेम
+                      {ui.loginIdLabel}
                     </label>
                     <div className="relative">
                       <input
@@ -550,7 +757,7 @@ export const AuthModal: React.FC = () => {
                         required
                         value={loginEmailOrUser}
                         onChange={(e) => setLoginEmailOrUser(e.target.value)}
-                        placeholder="उदा. 9876543210 या devotee@chhath.in"
+                        placeholder={ui.loginIdPlaceholder}
                         className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
                       />
                       <User className="w-4 h-4 text-stone-500 absolute left-3 top-3" />
@@ -559,13 +766,13 @@ export const AuthModal: React.FC = () => {
 
                   <div>
                     <label className="block text-[11px] font-bold text-amber-200/90 mb-1 flex justify-between items-center">
-                      <span>पासवर्ड / पिन (Password)</span>
+                      <span>{ui.loginPassLabel}</span>
                       <button
                         type="button"
                         onClick={() => setMode('forgot')}
                         className="text-amber-400 hover:underline text-[11px]"
                       >
-                        पासवर्ड भूल गए?
+                        {ui.forgotLink}
                       </button>
                     </label>
                     <div className="relative">
@@ -573,7 +780,7 @@ export const AuthModal: React.FC = () => {
                         type={showPass ? 'text' : 'password'}
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        placeholder="•••••••• (वैकल्पिक / सरल पासवर्ड)"
+                        placeholder={ui.passPlaceholder}
                         className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-stone-900 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
                       />
                       <Lock className="w-4 h-4 text-stone-500 absolute left-3 top-3" />
@@ -592,7 +799,7 @@ export const AuthModal: React.FC = () => {
                     disabled={loading}
                     className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 mt-1 active:scale-95 disabled:opacity-50"
                   >
-                    <span>{loading ? 'लॉगिन हो रहा है...' : 'लॉग इन करें'}</span>
+                    <span>{loading ? ui.loginLoading : ui.loginBtn}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
@@ -604,7 +811,7 @@ export const AuthModal: React.FC = () => {
                       className="text-xs text-amber-400 hover:text-amber-300 font-bold inline-flex items-center gap-1 hover:underline"
                     >
                       <Sparkles className="w-3 h-3" />
-                      <span>पासवर्ड याद नहीं? १-टैप व्रती प्रवेश का उपयोग करें</span>
+                      <span>{ui.noPassLink}</span>
                     </button>
                   </div>
                 </form>
@@ -615,7 +822,7 @@ export const AuthModal: React.FC = () => {
                 <form onSubmit={handleSignupSubmit} className="space-y-3">
                   <div>
                     <label className="block text-[11px] font-bold text-amber-200/90 mb-1">
-                      आपका पूरा नाम (Full Name) *
+                      {ui.signupNameLabel}
                     </label>
                     <div className="relative">
                       <input
@@ -623,7 +830,7 @@ export const AuthModal: React.FC = () => {
                         required
                         value={signupName}
                         onChange={(e) => setSignupName(e.target.value)}
-                        placeholder="उदा. अमित कुमार"
+                        placeholder={ui.signupNamePlaceholder}
                         className="w-full pl-9 pr-3 py-2 rounded-xl bg-stone-900 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
                       />
                       <User className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
@@ -632,7 +839,7 @@ export const AuthModal: React.FC = () => {
 
                   <div>
                     <label className="block text-[11px] font-bold text-amber-200/90 mb-1">
-                      मोबाइल नंबर या ईमेल (Mobile or Email) *
+                      {ui.signupContactLabel}
                     </label>
                     <div className="relative">
                       <input
@@ -640,7 +847,7 @@ export const AuthModal: React.FC = () => {
                         required
                         value={signupIdentifier}
                         onChange={(e) => setSignupIdentifier(e.target.value)}
-                        placeholder="उदा. 9876543210 या amit@example.com"
+                        placeholder={ui.signupContactPlaceholder}
                         className="w-full pl-9 pr-3 py-2 rounded-xl bg-stone-900 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
                       />
                       <Smartphone className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
@@ -649,14 +856,14 @@ export const AuthModal: React.FC = () => {
 
                   <div>
                     <label className="block text-[11px] font-bold text-amber-200/90 mb-1">
-                      सरल पासवर्ड / पिन (Password)
+                      {ui.signupPassLabel}
                     </label>
                     <div className="relative">
                       <input
                         type={showPass ? 'text' : 'password'}
                         value={signupPassword}
                         onChange={(e) => setSignupPassword(e.target.value)}
-                        placeholder="कम से कम 4 अक्षर (उदा. 1234)"
+                        placeholder={ui.signupPassPlaceholder}
                         className="w-full pl-9 pr-10 py-2 rounded-xl bg-stone-900 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
                       />
                       <Lock className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
@@ -672,7 +879,7 @@ export const AuthModal: React.FC = () => {
 
                   <div>
                     <label className="block text-[11px] font-bold text-amber-200/90 mb-1">
-                      आपका शहर (City)
+                      {ui.signupCityLabel}
                     </label>
                     <div className="relative">
                       <input
@@ -691,7 +898,7 @@ export const AuthModal: React.FC = () => {
                     disabled={loading}
                     className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 mt-2 active:scale-95 disabled:opacity-50"
                   >
-                    <span>{loading ? 'पंजीकरण हो रहा है...' : 'खाता बनाएं व आशीर्वाद पाएं'}</span>
+                    <span>{loading ? ui.signupLoading : ui.signupBtn}</span>
                     <Sparkles className="w-4 h-4" />
                   </button>
                 </form>
@@ -757,12 +964,12 @@ export const AuthModal: React.FC = () => {
               onClick={closeAuthModal}
               className="text-xs text-stone-400 hover:text-amber-300 transition-colors font-medium"
             >
-              अतिथि (Guest) के रूप में जारी रखें →
+              {ui.guestLink}
             </button>
 
             <span className="text-[10px] text-stone-500 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>सुरक्षित व पावन मंच</span>
+              <span>{ui.securePlatform}</span>
             </span>
           </div>
         )}

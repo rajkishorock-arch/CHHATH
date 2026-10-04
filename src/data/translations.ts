@@ -176,7 +176,7 @@ export const translations: Record<Language, TranslationDict> = {
 
     songsBadge: "पावन छठ गीतों का अमृत रस",
     songsSectionTitle: "छठ पूजा के मधुर लोकगीत 🎵",
-    songsSubtitle: "यूट्यूब पर कोई भी गीत या भजन लाइव खोजें, सम्पूर्ण प्लेलिस्ट बजाएं या अपना पसंदीदा लिंक तुरंत सुनें।",
+    songsSubtitle: "कोई भी पावन गीत या भजन लाइव खोजें, सम्पूर्ण प्लेलिस्ट बजाएं या अपना पसंदीदा लिंक तुरंत सुनें।",
     tabAllSongs: "पावन छठ गीत",
     tabPlaylists: "🎶 सम्पूर्ण छठ प्लेलिस्ट व जूकबॉक्स",
     tabCustomLink: "⚡ अपना मनपसंद लिंक बजाएं",
@@ -286,7 +286,7 @@ export const translations: Record<Language, TranslationDict> = {
 
     songsBadge: "पावन छठ गीतन के रस",
     songsSectionTitle: "छठ के मधुर पारंपरिक गीत 🎵",
-    songsSubtitle: "यूट्यूब पर कवनो गीत लाइव खोजीं, पूरा प्लेलिस्ट बजाईं भा आपन लिंक तुरंत सुनीं।",
+    songsSubtitle: "कवनो पावन गीत लाइव खोजीं, पूरा प्लेलिस्ट बजाईं भा आपन लिंक तुरंत सुनीं।",
     tabAllSongs: "सगरी छठ गीत",
     tabPlaylists: "🎶 पूरा छठ प्लेलिस्ट व जूकबॉक्स",
     tabCustomLink: "⚡ आपन मनपसंद लिंक बजाईं",
@@ -396,7 +396,7 @@ export const translations: Record<Language, TranslationDict> = {
 
     songsBadge: "पावन छठि गीतक अमृत",
     songsSectionTitle: "छठिक पावन मैथिली ओ पारंपरिक गीत 🎵",
-    songsSubtitle: "यूट्यूब पर कोनो गीत लाइव खोजू, सम्पूर्ण प्लेलिस्ट बजाउ वा अपन लिंक तुरंत सुनू।",
+    songsSubtitle: "कोनो पावन गीत लाइव खोजू, सम्पूर्ण प्लेलिस्ट बजाउ वा अपन लिंक तुरंत सुनू।",
     tabAllSongs: "समस्त छठि गीत",
     tabPlaylists: "🎶 सम्पूर्ण छठि प्लेलिस्ट ओ जूकबॉक्स",
     tabCustomLink: "⚡ अपन मनपसंद लिंक बजाउ",
@@ -506,7 +506,7 @@ export const translations: Record<Language, TranslationDict> = {
 
     songsBadge: "Divine Nectar of Chhath Folk Songs",
     songsSectionTitle: "Soulful Chhath Folk Songs & Bhajans 🎵",
-    songsSubtitle: "Search any song live on YouTube, stream complete curated jukeboxes, or play your custom link instantly.",
+    songsSubtitle: "Search any devotional song or bhajan live, stream complete curated jukeboxes, or play your custom link instantly.",
     tabAllSongs: "All Chhath Songs",
     tabPlaylists: "🎶 Complete Playlists & Jukeboxes",
     tabCustomLink: "⚡ Play Any Custom Link",
@@ -569,11 +569,11 @@ export const translations: Record<Language, TranslationDict> = {
     siteSubtitle: "सूर्य देव आ छठी मईया के पावन महाव्रत के डिजिटल संगम",
     heroHeading: "जय छठी मईया",
     heroSubheading: "लोक आस्था, सात्विकता आ प्रकृति पूजा के महापर्व पर रउआ सब के हार्दिक जोहार।",
-    heroBadge: "कार्तिक शुक्ल षष्ठी २०२६ • पावन महाव्रत",
+    heroBadge: "कार्तिक शुक्ल षष्ठी 2026 • पावन महाव्रत",
     exploreChhath: "महापर्व जाने (Explore)",
     listenSongs: "छठ गीत सुने (Songs)",
     pauseSong: "गीत रोके (Pause)",
-    countdownTitle: "छठ महापर्व २०२६ उल्टी गिनती (Countdown)",
+    countdownTitle: "छठ महापर्व 2026 उल्टी गिनती (Countdown)",
     daysRemaining: "दिन बाचल",
     hours: "घंटा",
     minutes: "मिनट",
@@ -596,7 +596,7 @@ export const translations: Record<Language, TranslationDict> = {
 
     timelineBadge: "चार दिन के पावन महाव्रत",
     timelineTitle: "छठ महापर्व के चार पावन दिन",
-    timelineSubtitle: "नहाय-खाय से लेके उषा अर्घ्य के पारण तक — ३६ घंटा के अखंड निर्जला तप।",
+    timelineSubtitle: "नहाय-खाय से लेके उषा अर्घ्य के पारण तक — 36 घंटा के अखंड निर्जला तप।",
     daySignificance: "दिन के महातम",
     dateAndTithi: "तारीख आ तिथि:",
     meaningAndSignificance: "अर्थ आ महातम (Significance)",

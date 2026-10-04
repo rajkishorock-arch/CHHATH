@@ -1,6 +1,7 @@
 import React from 'react';
 import { Home, Film, Sun, Music, User } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MobileNavProps {
   activeTab?: string;
@@ -12,13 +13,22 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   onNavigate
 }) => {
   const { reelsPlatformOpen, openReelsPlatform } = useReels();
+  const { language } = useLanguage();
+
+  const mobileNavLabels = {
+    hi: { home: 'होम', reels: 'रील्स', music: 'संगीत', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
+    en: { home: 'Home', reels: 'Reels', music: 'Music', arghya: 'Arghya', myChhath: 'My Chhath', navAria: 'Mobile Primary Navigation' },
+    bho: { home: 'होम', reels: 'रील्स', music: 'गीत', arghya: 'अरघ', myChhath: 'हमार छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
+    mai: { home: 'होम', reels: 'रील्स', music: 'गीत', arghya: 'अर्घ्य', myChhath: 'हमर छठि', navAria: 'मोबाइल मुख्य नेविगेशन' },
+    mag: { home: 'होम', reels: 'रील्स', music: 'गीत', arghya: 'अर्घ्य', myChhath: 'हमर छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
+  }[language] || { home: 'होम', reels: 'रील्स', music: 'संगीत', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' };
 
   const items = [
-    { id: 'home', label: 'होम', icon: Home, href: '#home' },
-    { id: 'reels', label: 'रील्स', icon: Film, href: '#reels' },
-    { id: 'music', label: 'संगीत', icon: Music, href: '#music' },
-    { id: 'arghya', label: 'अर्घ्य', icon: Sun, href: '#arghya' },
-    { id: 'my-chhath', label: 'मेरी छठ', icon: User, href: '#my-chhath' }
+    { id: 'home', label: mobileNavLabels.home, icon: Home, href: '#home' },
+    { id: 'reels', label: mobileNavLabels.reels, icon: Film, href: '#reels' },
+    { id: 'music', label: mobileNavLabels.music, icon: Music, href: '#music' },
+    { id: 'arghya', label: mobileNavLabels.arghya, icon: Sun, href: '#arghya' },
+    { id: 'my-chhath', label: mobileNavLabels.myChhath, icon: User, href: '#my-chhath' }
   ];
 
   const handleClick = (e: React.MouseEvent, id: string) => {
@@ -34,7 +44,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
   return (
     <nav 
-      aria-label="मोबाइल मुख्य नेविगेशन"
+      aria-label={mobileNavLabels.navAria}
       className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-950/95 backdrop-blur-xl border-t border-stone-200/90 dark:border-amber-500/20 py-1.5 px-2 shadow-2xl transition-all"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">

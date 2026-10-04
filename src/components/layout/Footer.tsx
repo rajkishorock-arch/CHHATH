@@ -72,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li><a href="/CHHATH/chhath-puja-katha/" className="hover:text-amber-400 transition-colors">छठ पूजा कथा 2026</a></li>
               <li><a href="#ghats" className="hover:text-amber-400 transition-colors">घाट एवं सुरक्षा निर्देश</a></li>
               <li><a href="#aarti" className="hover:text-amber-400 transition-colors">सूर्य देव आरती व वैदिक मंत्र</a></li>
-              <li><a href="#music" className="hover:text-amber-400 transition-colors">छठ संगीत स्टूडियो व यूट्यूब प्लेयर</a></li>
+              <li><a href="#music" className="hover:text-amber-400 transition-colors">छठ संगीत स्टूडियो व भक्ति प्लेयर</a></li>
               <li>
                 <a 
                   href="#settings" 

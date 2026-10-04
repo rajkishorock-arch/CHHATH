@@ -241,9 +241,9 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           value={query}
           onFocus={() => setIsOpen(true)}
           onChange={handleInputChange}
-          placeholder="यूट्यूब छठ गीत खोजें (उदा: Sharda Sinha, Pawan Singh)..."
+          placeholder="छठ गीत खोजें (उदा: Sharda Sinha, Pawan Singh)..."
           className="w-full pl-10 pr-24 py-2 sm:py-2.5 rounded-full bg-stone-100/90 dark:bg-stone-900/90 hover:bg-white dark:hover:bg-stone-900 border border-stone-200 dark:border-amber-500/30 hover:border-amber-400 focus:border-amber-500 focus:bg-white dark:focus:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 transition-all shadow-inner"
-          aria-label="यूट्यूब पर छठ गीत खोजें"
+          aria-label="छठ गीत खोजें"
         />
 
         <div className="absolute right-2 flex items-center gap-1">
@@ -298,7 +298,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           <div className="flex items-center justify-between text-xs font-bold text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-amber-500/15 pb-2">
             <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-              <span>यूट्यूब लाइव संगीत खोज</span>
+              <span>छठ लाइव संगीत खोज</span>
             </span>
             <button
               type="button"
@@ -418,7 +418,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
               ) : isSearching ? (
                 <div className="py-6 text-center text-xs text-stone-500 dark:text-stone-400 space-y-2">
                   <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                  <p>यूट्यूब परिणाम लोड हो रहे हैं...</p>
+                  <p>संगीत परिणाम लोड हो रहे हैं...</p>
                 </div>
               ) : (
                 <div className="py-4 text-center text-xs text-stone-500 dark:text-stone-400">

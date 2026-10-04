@@ -100,10 +100,168 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
     onClose();
   };
 
+  const drawerUi = {
+    hi: {
+      ariaTitle: 'छठ महापर्व संपूर्ण फीचर्स मेनू',
+      devoteeDefault: 'छठ व्रती / श्रद्धालु',
+      enterPrompt: 'प्रवेश करें व आशीर्वाद पाएं →',
+      closeTitle: 'मेनू बंद करें',
+      darkMode: 'डार्क',
+      lightMode: 'लाइट',
+      bellTitle: 'मंदिर घंटी बजाएं',
+      searchPlaceholder: 'फीचर या विधि खोजें...',
+      footerTitle: 'छठ महापर्व 2026',
+      footerSub: 'आस्था, पवित्रता व सूर्य उपासना',
+      shareBtn: 'शेयर',
+      copiedAlert: 'ऐप लिंक कॉपी हो गया!',
+      adminPanel: 'एडमिन कंट्रोल पैनल',
+      accountLogged: 'खाता व प्रोफ़ाइल केंद्र',
+      accountGuest: 'श्रद्धालु लॉगिन व नया खाता',
+      accountLoggedSub: 'लॉग इन व व्यक्तिगत विवरण',
+      accountGuestSub: '1-टैप व्रती प्रवेश / साइन अप',
+      badgeEntry: 'प्रवेश',
+      badgePage: 'पेज',
+      badgeNew: 'नया',
+      badgePanchang: 'पंचांग',
+      badgeDetailed: 'विस्तृत',
+      shareTitle: 'छठ महापर्व 2026 — संपूर्ण डिजिटल गाइड व संगीत',
+      shareDesc: 'छठ महापर्व 2026 की संपूर्ण पूजा विधि, सूर्य अर्घ्य मुहूर्त, छठ गीत, रील्स व 3D घाट दर्शन:'
+    },
+    en: {
+      ariaTitle: 'Chhath Mahaparv Complete Features Menu',
+      devoteeDefault: 'Chhath Devotee / Pilgrim',
+      enterPrompt: 'Enter & Receive Blessings →',
+      closeTitle: 'Close Menu',
+      darkMode: 'Dark',
+      lightMode: 'Light',
+      bellTitle: 'Ring Temple Bell',
+      searchPlaceholder: 'Search feature or ritual...',
+      footerTitle: 'Chhath Mahaparv 2026',
+      footerSub: 'Devotion, Purity & Solar Worship',
+      shareBtn: 'Share',
+      copiedAlert: 'App link copied to clipboard!',
+      adminPanel: 'Admin Control Panel',
+      accountLogged: 'Account & Profile Center',
+      accountGuest: 'Devotee Login & Register',
+      accountLoggedSub: 'Logged in & Profile details',
+      accountGuestSub: '1-Tap Devotee Entry / Sign Up',
+      badgeEntry: 'Entry',
+      badgePage: 'Page',
+      badgeNew: 'New',
+      badgePanchang: 'Calendar',
+      badgeDetailed: 'Guide',
+      shareTitle: 'Chhath Mahaparv 2026 — Complete Digital Guide & Music',
+      shareDesc: 'Complete Chhath Puja Vidhi, Surya Arghya Timings 2026, Devotional Songs, Reels & 3D Ghats:'
+    },
+    bho: {
+      ariaTitle: 'छठ महापर्व सगरी फीचर्स मेनू',
+      devoteeDefault: 'छठ व्रती / श्रद्धालु',
+      enterPrompt: 'प्रवेश करीं आ असीस पाईं →',
+      closeTitle: 'मेनू बंद करीं',
+      darkMode: 'डार्क',
+      lightMode: 'लाइट',
+      bellTitle: 'मंदिर के घंटी बजाईं',
+      searchPlaceholder: 'फीचर भा बिधि खोजीं...',
+      footerTitle: 'छठ महापर्व 2026',
+      footerSub: 'आस्था, पवित्रता आ सुरुज उपासना',
+      shareBtn: 'शेयर',
+      copiedAlert: 'ऐप लिंक कॉपी हो गइल!',
+      adminPanel: 'एडमिन कंट्रोल पैनल',
+      accountLogged: 'खाता आ प्रोफ़ाइल केंद्र',
+      accountGuest: 'श्रद्धालु लॉगिन आ नया खाता',
+      accountLoggedSub: 'लॉग इन आ व्यक्तिगत विवरण',
+      accountGuestSub: '1-टैप व्रती प्रवेश / साइन अप',
+      badgeEntry: 'प्रवेश',
+      badgePage: 'पेज',
+      badgeNew: 'नया',
+      badgePanchang: 'पंचांग',
+      badgeDetailed: 'बिस्तार',
+      shareTitle: 'छठ महापर्व 2026 — संपूर्ण डिजिटल गाइड व संगीत',
+      shareDesc: 'छठ महापर्व 2026 के संपूर्ण पूजा बिधि, सुरुज अरघ समय, छठ गीत, रील्स आ 3D घाट दर्शन:'
+    },
+    mai: {
+      ariaTitle: 'छठि महापर्व समस्त फीचर्स मेनू',
+      devoteeDefault: 'छठि व्रती / श्रद्धालु',
+      enterPrompt: 'प्रवेश करू ओ आशीर्वाद पाऊ →',
+      closeTitle: 'मेनू बंद करू',
+      darkMode: 'डार्क',
+      lightMode: 'लाइट',
+      bellTitle: 'मंदिरक घंटी बजाउ',
+      searchPlaceholder: 'फीचर वा विधि खोजू...',
+      footerTitle: 'छठि महापर्व 2026',
+      footerSub: 'आस्था, पवित्रता ओ सूर्य उपासना',
+      shareBtn: 'शेयर',
+      copiedAlert: 'ऐप लिंक कॉपी भ गेल!',
+      adminPanel: 'एडमिन कंट्रोल पैनल',
+      accountLogged: 'खाता ओ प्रोफ़ाइल केंद्र',
+      accountGuest: 'श्रद्धालु लॉगिन ओ नव खाता',
+      accountLoggedSub: 'लॉग इन ओ व्यक्तिगत विवरण',
+      accountGuestSub: '1-टैप व्रती प्रवेश / साइन अप',
+      badgeEntry: 'प्रवेश',
+      badgePage: 'पेज',
+      badgeNew: 'नव',
+      badgePanchang: 'पंचांग',
+      badgeDetailed: 'विस्तृत',
+      shareTitle: 'छठि महापर्व 2026 — संपूर्ण डिजिटल गाइड व संगीत',
+      shareDesc: 'छठि महापर्व 2026क संपूर्ण पूजा विधि, सूर्य अर्घ्य मुहूर्त, छठि गीत, रील्स ओ 3D घाट दर्शन:'
+    },
+    mag: {
+      ariaTitle: 'छठ महापर्व सभे फीचर्स मेनू',
+      devoteeDefault: 'छठ व्रती / श्रद्धालु',
+      enterPrompt: 'प्रवेश करी आ आशीर्वाद पाई →',
+      closeTitle: 'मेनू बंद करी',
+      darkMode: 'डार्क',
+      lightMode: 'लाइट',
+      bellTitle: 'मंदिर के घंटी बजाई',
+      searchPlaceholder: 'फीचर या विधि खोजी...',
+      footerTitle: 'छठ महापर्व 2026',
+      footerSub: 'आस्था, पवित्रता आ सूर्य उपासना',
+      shareBtn: 'शेयर',
+      copiedAlert: 'ऐप लिंक कॉपी हो गेल!',
+      adminPanel: 'एडमिन कंट्रोल पैनल',
+      accountLogged: 'खाता आ प्रोफ़ाइल केंद्र',
+      accountGuest: 'श्रद्धालु लॉगिन आ नया खाता',
+      accountLoggedSub: 'लॉग इन आ व्यक्तिगत विवरण',
+      accountGuestSub: '1-टैप व्रती प्रवेश / साइन अप',
+      badgeEntry: 'प्रवेश',
+      badgePage: 'पेज',
+      badgeNew: 'नया',
+      badgePanchang: 'पंचांग',
+      badgeDetailed: 'विस्तृत',
+      shareTitle: 'छठ महापर्व 2026 — संपूर्ण डिजिटल गाइड व संगीत',
+      shareDesc: 'छठ महापर्व 2026 के संपूर्ण पूजा विधि, सूर्य अर्घ्य समय, छठ गीत, रील्स आ 3D घाट दर्शन:'
+    }
+  }[language] || {
+    ariaTitle: 'छठ महापर्व संपूर्ण फीचर्स मेनू',
+    devoteeDefault: 'छठ व्रती / श्रद्धालु',
+    enterPrompt: 'प्रवेश करें व आशीर्वाद पाएं →',
+    closeTitle: 'मेनू बंद करें',
+    darkMode: 'डार्क',
+    lightMode: 'लाइट',
+    bellTitle: 'मंदिर घंटी बजाएं',
+    searchPlaceholder: 'फीचर या विधि खोजें...',
+    footerTitle: 'छठ महापर्व 2026',
+    footerSub: 'आस्था, पवित्रता व सूर्य उपासना',
+    shareBtn: 'शेयर',
+    copiedAlert: 'ऐप लिंक कॉपी हो गया!',
+    adminPanel: 'एडमिन कंट्रोल पैनल',
+    accountLogged: 'खाता व प्रोफ़ाइल केंद्र',
+    accountGuest: 'श्रद्धालु लॉगिन व नया खाता',
+    accountLoggedSub: 'लॉग इन व व्यक्तिगत विवरण',
+    accountGuestSub: '1-टैप व्रती प्रवेश / साइन अप',
+    badgeEntry: 'प्रवेश',
+    badgePage: 'पेज',
+    badgeNew: 'नया',
+    badgePanchang: 'पंचांग',
+    badgeDetailed: 'विस्तृत',
+    shareTitle: 'छठ महापर्व 2026 — संपूर्ण डिजिटल गाइड व संगीत',
+    shareDesc: 'छठ महापर्व 2026 की संपूर्ण पूजा विधि, सूर्य अर्घ्य मुहूर्त, छठ गीत, रील्स व 3D घाट दर्शन:'
+  };
+
   const handleShareApp = async () => {
     const shareData = {
-      title: 'छठ महापर्व २०२६ — संपूर्ण डिजिटल गाइड व संगीत',
-      text: 'छठ महापर्व २०२६ की संपूर्ण पूजा विधि, सूर्य अर्घ्य मुहूर्त, छठ गीत, रील्स व 3D घाट दर्शन:',
+      title: drawerUi.shareTitle,
+      text: drawerUi.shareDesc,
       url: window.location.origin + window.location.pathname
     };
     if (navigator.share) {
@@ -112,100 +270,460 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
       } catch {}
     } else {
       navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-      alert('ऐप लिंक कॉपी हो गया!');
+      alert(drawerUi.copiedAlert);
     }
   };
 
-  // Structured Categorized Feature Navigation
-  const featureCategories = [
-    {
-      title: 'मुख्य दर्शन व आज',
-      subtitle: 'Home & Daily Darshan',
-      items: [
-        { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आज का पंचांग, अर्घ्य व अपडेट्स', icon: Home, highlight: true }
-      ]
-    },
-    {
-      title: 'पवित्र अनुष्ठान व नियम',
-      subtitle: 'Core Rituals & Vidhi',
-      items: [
-        { id: 'guide', label: '४ दिवसीय टाइमलाइन', sub: 'नहाय-खाय से पारण', icon: Calendar, badge: 'पंचांग' },
-        { id: 'chhath-puja-vidhi', label: 'प्रामाणिक पूजा विधि', sub: 'क्रमवार नियम व संकल्प', icon: BookOpen, badge: 'विस्तृत' },
-        { id: 'chhath-samagri', label: 'सूप व दौरा सामग्री चेकलिस्ट', sub: 'पारंपरिक वस्तुओं की सूची', icon: CheckSquare },
-        { id: 'chhath-arghya-time-2026', label: 'सूर्य अर्घ्य मुहूर्त व समय', sub: 'सूर्यास्त व सूर्योदय समय', icon: Sun, highlight: true },
-        { id: 'thekua-recipe', label: 'ठेकुआ व महाप्रसाद विधि', sub: 'काठ के सांचे की रेसिपी', icon: Utensils },
-        { id: 'aarti', label: 'पावन मंत्र, स्तोत्र व आरती', sub: 'दैनिक स्तुति व सूर्य वंदना', icon: Flame },
-        { id: 'chhath-puja-katha', label: 'छठ व्रत पावन कथा', sub: 'राजा प्रियव्रत व छठी मईया', icon: FileText }
-      ]
-    },
-    {
-      title: 'भक्ति संगीत, रील्स व घाट',
-      subtitle: 'Media, Reels & Ghats',
-      items: [
-        { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'यूट्यूब रियल-टाइम सिंक', icon: Music, badge: 'यूट्यूब', highlight: true },
-        { id: 'reels', label: 'छठ रील्स व शॉर्ट वीडियो', sub: '9:16 पूर्ण स्क्रीन फीड', icon: Film, badge: 'नया', highlight: true },
-        { id: 'ghats', label: 'पावन घाट व सुरक्षा निर्देशिका', sub: 'पटना, वाराणसी, हरिद्वार', icon: Compass },
-        { 
-          id: 'mixer_action', 
-          label: 'वातावरण ऑडियो मिक्सर', 
-          sub: 'गंगा लहर, बांसुरी, दीया', 
-          icon: Sliders,
-          action: () => {
-            onClose();
-            onOpenMixer?.();
-          }
-        }
-      ]
-    },
-    {
-      title: 'डिजिटल अनुभव व एआई',
-      subtitle: 'Interactive & AI Tools',
-      items: [
-        { id: 'explore', label: 'एक्सप्लोर हब (सभी फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
-        { 
-          id: 'assistant_action', 
-          label: 'छठी मईया एआई सहायक', 
-          sub: 'पूछें कोई भी सवाल', 
-          icon: MessageSquare,
-          badge: 'AI',
-          action: () => {
-            onClose();
-            onOpenAssistant?.();
-          }
-        }
-      ]
-    },
-    {
-      title: 'मेरी छठ व परिवार',
-      subtitle: 'Personal & Family',
-      items: [
-        { id: 'my-chhath', label: 'मेरी छठ डायरी व संकल्प', sub: 'व्यक्तिगत व्रत चेकलिस्ट', icon: Heart, highlight: true }
-      ]
-    },
-    {
-      title: 'ऐप प्रबंधन व सेटिंग्स',
-      subtitle: 'Preferences & System',
-      items: [
-        { id: 'settings', label: 'ऐप सेटिंग्स व कस्टमाइजेशन', sub: 'थीम, अलार्म, ऑडियो, कैशे', icon: Settings, badge: 'पेज', highlight: true },
-        { 
-          id: 'account_action', 
-          label: isAuthenticated ? 'खाता व प्रोफ़ाइल केंद्र' : 'श्रद्धालु लॉगिन व नया खाता', 
-          sub: isAuthenticated ? 'लॉग इन व व्यक्तिगत विवरण' : '१-टैप व्रती प्रवेश / साइन अप', 
-          icon: User,
-          highlight: !isAuthenticated,
-          badge: !isAuthenticated ? 'प्रवेश' : undefined,
-          action: () => {
-            onClose();
-            if (isAuthenticated) {
-              openAccountCenter('profile');
-            } else {
-              openAuthModal('quick_devotee');
+  // Structured Categorized Feature Navigation with full multi-language localization
+  const categoriesData = {
+    hi: [
+      {
+        title: 'मुख्य दर्शन व आज',
+        subtitle: 'Home & Daily Darshan',
+        items: [
+          { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आज का पंचांग, अर्घ्य व अपडेट्स', icon: Home, highlight: true }
+        ]
+      },
+      {
+        title: 'पवित्र अनुष्ठान व नियम',
+        subtitle: 'Core Rituals & Vidhi',
+        items: [
+          { id: 'guide', label: '4 दिवसीय टाइमलाइन', sub: 'नहाय-खाय से पारण', icon: Calendar, badge: 'पंचांग' },
+          { id: 'chhath-puja-vidhi', label: 'प्रामाणिक पूजा विधि', sub: 'क्रमवार नियम व संकल्प', icon: BookOpen, badge: 'विस्तृत' },
+          { id: 'chhath-samagri', label: 'सूप व दौरा सामग्री चेकलिस्ट', sub: 'पारंपरिक वस्तुओं की सूची', icon: CheckSquare },
+          { id: 'chhath-arghya-time-2026', label: 'सूर्य अर्घ्य मुहूर्त व समय', sub: 'सूर्यास्त व सूर्योदय समय', icon: Sun, highlight: true },
+          { id: 'thekua-recipe', label: 'ठेकुआ व महाप्रसाद विधि', sub: 'काठ के सांचे की रेसिपी', icon: Utensils },
+          { id: 'aarti', label: 'पावन मंत्र, स्तोत्र व आरती', sub: 'दैनिक स्तुति व सूर्य वंदना', icon: Flame },
+          { id: 'chhath-puja-katha', label: 'छठ व्रत पावन कथा', sub: 'राजा प्रियव्रत व छठी मईया', icon: FileText }
+        ]
+      },
+      {
+        title: 'भक्ति संगीत, रील्स व घाट',
+        subtitle: 'Media, Reels & Ghats',
+        items: [
+          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'अमृतमयी भक्ति स्वर व भजन', icon: Music, badge: 'संगीत', highlight: true },
+          { id: 'reels', label: 'छठ रील्स व शॉर्ट वीडियो', sub: '9:16 पूर्ण स्क्रीन फीड', icon: Film, badge: 'नया', highlight: true },
+          { id: 'ghats', label: 'पावन घाट व सुरक्षा निर्देशिका', sub: 'पटना, वाराणसी, हरिद्वार', icon: Compass },
+          { 
+            id: 'mixer_action', 
+            label: 'वातावरण ऑडियो मिक्सर', 
+            sub: 'गंगा लहर, बांसुरी, दीया', 
+            icon: Sliders,
+            action: () => {
+              onClose();
+              onOpenMixer?.();
             }
           }
-        }
-      ]
-    }
-  ];
+        ]
+      },
+      {
+        title: 'डिजिटल अनुभव व एआई',
+        subtitle: 'Interactive & AI Tools',
+        items: [
+          { id: 'explore', label: 'एक्सप्लोर हब (सभी फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { 
+            id: 'assistant_action', 
+            label: 'छठी मईया एआई सहायक', 
+            sub: 'पूछें कोई भी सवाल', 
+            icon: MessageSquare,
+            badge: 'AI',
+            action: () => {
+              onClose();
+              onOpenAssistant?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'मेरी छठ व परिवार',
+        subtitle: 'Personal & Family',
+        items: [
+          { id: 'my-chhath', label: 'मेरी छठ डायरी व संकल्प', sub: 'व्यक्तिगत व्रत चेकलिस्ट', icon: Heart, highlight: true }
+        ]
+      },
+      {
+        title: 'ऐप प्रबंधन व सेटिंग्स',
+        subtitle: 'Preferences & System',
+        items: [
+          { id: 'settings', label: 'ऐप सेटिंग्स व कस्टमाइजेशन', sub: 'थीम, अलार्म, ऑडियो, कैशे', icon: Settings, badge: 'पेज', highlight: true },
+          { 
+            id: 'account_action', 
+            label: isAuthenticated ? drawerUi.accountLogged : drawerUi.accountGuest, 
+            sub: isAuthenticated ? drawerUi.accountLoggedSub : drawerUi.accountGuestSub, 
+            icon: User,
+            highlight: !isAuthenticated,
+            badge: !isAuthenticated ? drawerUi.badgeEntry : undefined,
+            action: () => {
+              onClose();
+              if (isAuthenticated) {
+                openAccountCenter('profile');
+              } else {
+                openAuthModal('quick_devotee');
+              }
+            }
+          }
+        ]
+      }
+    ],
+    en: [
+      {
+        title: 'Home & Daily Darshan',
+        subtitle: 'Daily Updates & Timing',
+        items: [
+          { id: 'home', label: 'Home (Daily Darshan)', sub: "Today's Panchang, Arghya & Updates", icon: Home, highlight: true }
+        ]
+      },
+      {
+        title: 'Sacred Rituals & Vidhi',
+        subtitle: 'Core Procedures & Rules',
+        items: [
+          { id: 'guide', label: '4-Day Sacred Timeline', sub: 'Nahay-Khay to Paran', icon: Calendar, badge: 'Calendar' },
+          { id: 'chhath-puja-vidhi', label: 'Authentic Puja Vidhi', sub: 'Step-by-step rules & resolution', icon: BookOpen, badge: 'Guide' },
+          { id: 'chhath-samagri', label: 'Puja Samagri Checklist', sub: 'Traditional essentials checklist', icon: CheckSquare },
+          { id: 'chhath-arghya-time-2026', label: 'Surya Arghya Timings 2026', sub: 'Sunset & sunrise timings', icon: Sun, highlight: true },
+          { id: 'thekua-recipe', label: 'Thekua & Mahaprasad Recipe', sub: 'Authentic traditional recipe', icon: Utensils },
+          { id: 'aarti', label: 'Sacred Mantras & Aarti', sub: 'Daily solar hymns & prayers', icon: Flame },
+          { id: 'chhath-puja-katha', label: 'Chhath Mahaparv Katha', sub: 'Legend of King Priyavrata', icon: FileText }
+        ]
+      },
+      {
+        title: 'Devotional Music & Reels',
+        subtitle: 'Media, Reels & Ghats',
+        items: [
+          { id: 'music', label: 'Chhath Music Studio', sub: 'Soulful devotional songs & bhajans', icon: Music, badge: 'Music', highlight: true },
+          { id: 'reels', label: 'Chhath Reels & Short Videos', sub: '9:16 full-screen feed', icon: Film, badge: 'New', highlight: true },
+          { id: 'ghats', label: 'Sacred Ghats & Safety Guide', sub: 'Patna, Varanasi, Haridwar', icon: Compass },
+          { 
+            id: 'mixer_action', 
+            label: 'Ambient Sound Mixer', 
+            sub: 'Ganga waves, flute, temple bell', 
+            icon: Sliders,
+            action: () => {
+              onClose();
+              onOpenMixer?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'Interactive Tools & AI',
+        subtitle: 'Digital Features',
+        items: [
+          { id: 'explore', label: 'Explore Hub (All Features)', sub: '3D Ghat, Quiz, Diary & More', icon: Sparkles },
+          { 
+            id: 'assistant_action', 
+            label: 'Chhathi Maiya AI Assistant', 
+            sub: 'Ask any puja query anytime', 
+            icon: MessageSquare,
+            badge: 'AI',
+            action: () => {
+              onClose();
+              onOpenAssistant?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'My Chhath & Family',
+        subtitle: 'Personal Devotion',
+        items: [
+          { id: 'my-chhath', label: 'My Chhath Diary & Vow', sub: 'Personal fasting checklist', icon: Heart, highlight: true }
+        ]
+      },
+      {
+        title: 'Preferences & Settings',
+        subtitle: 'Customization & Account',
+        items: [
+          { id: 'settings', label: 'App Settings & Customization', sub: 'Theme, Alarms, Audio, Cache', icon: Settings, badge: 'Page', highlight: true },
+          { 
+            id: 'account_action', 
+            label: isAuthenticated ? drawerUi.accountLogged : drawerUi.accountGuest, 
+            sub: isAuthenticated ? drawerUi.accountLoggedSub : drawerUi.accountGuestSub, 
+            icon: User,
+            highlight: !isAuthenticated,
+            badge: !isAuthenticated ? drawerUi.badgeEntry : undefined,
+            action: () => {
+              onClose();
+              if (isAuthenticated) {
+                openAccountCenter('profile');
+              } else {
+                openAuthModal('quick_devotee');
+              }
+            }
+          }
+        ]
+      }
+    ],
+    bho: [
+      {
+        title: 'मुख्य दर्शन आ आज',
+        subtitle: 'Home & Daily Darshan',
+        items: [
+          { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आज के पंचांग, अरघ आ अपडेट्स', icon: Home, highlight: true }
+        ]
+      },
+      {
+        title: 'पवित्र अनुष्ठान आ नियम',
+        subtitle: 'Core Rituals & Vidhi',
+        items: [
+          { id: 'guide', label: '4 दिनी टाइमलाइन', sub: 'नहाय-खाय से पारण तक', icon: Calendar, badge: 'पंचांग' },
+          { id: 'chhath-puja-vidhi', label: 'प्रामाणिक पूजा बिधि', sub: 'क्रमवार नियम आ संकल्प', icon: BookOpen, badge: 'बिस्तार' },
+          { id: 'chhath-samagri', label: 'सूप आ दउरा सामग्री चेकलिस्ट', sub: 'पारंपरिक समान के सूची', icon: CheckSquare },
+          { id: 'chhath-arghya-time-2026', label: 'सुरुज अरघ समय', sub: 'सूर्यास्त आ सूर्योदय बेरा', icon: Sun, highlight: true },
+          { id: 'thekua-recipe', label: 'ठेकुआ आ महाप्रसाद बिधि', sub: 'काठ के सांचा के रेसिपी', icon: Utensils },
+          { id: 'aarti', label: 'पावन मंत्र, स्तोत्र आ आरती', sub: 'दैनिक स्तुति आ सुरुज बंदना', icon: Flame },
+          { id: 'chhath-puja-katha', label: 'छठ बरत पावन कथा', sub: 'राजा प्रियव्रत आ छठी मईया', icon: FileText }
+        ]
+      },
+      {
+        title: 'भक्ति संगीत, रील्स आ घाट',
+        subtitle: 'Media, Reels & Ghats',
+        items: [
+          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'अमृतमयी स्वर आ भजन', icon: Music, badge: 'गीत', highlight: true },
+          { id: 'reels', label: 'छठ रील्स आ छोट वीडियो', sub: '9:16 पूरा स्क्रीन', icon: Film, badge: 'नया', highlight: true },
+          { id: 'ghats', label: 'पावन घाट निर्देशिका', sub: 'पटना, बनारस, हरिद्वार', icon: Compass },
+          { 
+            id: 'mixer_action', 
+            label: 'ऑडियो मिक्सर', 
+            sub: 'गंगा लहर, बांसुरी, दीया', 
+            icon: Sliders,
+            action: () => {
+              onClose();
+              onOpenMixer?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'डिजिटल अनुभव आ एआई',
+        subtitle: 'Interactive & AI Tools',
+        items: [
+          { id: 'explore', label: 'एक्सप्लोर हब (सगरी फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { 
+            id: 'assistant_action', 
+            label: 'छठी मईया एआई सहायक', 
+            sub: 'पूछीं कवनो सवाल', 
+            icon: MessageSquare,
+            badge: 'AI',
+            action: () => {
+              onClose();
+              onOpenAssistant?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'हमार छठ आ परिवार',
+        subtitle: 'Personal & Family',
+        items: [
+          { id: 'my-chhath', label: 'हमार छठ डायरी व संकल्प', sub: 'अपन बरत चेकलिस्ट', icon: Heart, highlight: true }
+        ]
+      },
+      {
+        title: 'ऐप प्रबंधन आ सेटिंग्स',
+        subtitle: 'Preferences & System',
+        items: [
+          { id: 'settings', label: 'ऐप सेटिंग्स आ कस्टमाइजेशन', sub: 'थीम, अलार्म, ऑडियो, कैशे', icon: Settings, badge: 'पेज', highlight: true },
+          { 
+            id: 'account_action', 
+            label: isAuthenticated ? drawerUi.accountLogged : drawerUi.accountGuest, 
+            sub: isAuthenticated ? drawerUi.accountLoggedSub : drawerUi.accountGuestSub, 
+            icon: User,
+            highlight: !isAuthenticated,
+            badge: !isAuthenticated ? drawerUi.badgeEntry : undefined,
+            action: () => {
+              onClose();
+              if (isAuthenticated) {
+                openAccountCenter('profile');
+              } else {
+                openAuthModal('quick_devotee');
+              }
+            }
+          }
+        ]
+      }
+    ],
+    mai: [
+      {
+        title: 'मुख्य दर्शन ओ आइ',
+        subtitle: 'Home & Daily Darshan',
+        items: [
+          { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आइ के पंचांग, अर्घ्य ओ अपडेट्स', icon: Home, highlight: true }
+        ]
+      },
+      {
+        title: 'पवित्र अनुष्ठान ओ नियम',
+        subtitle: 'Core Rituals & Vidhi',
+        items: [
+          { id: 'guide', label: '4 दिवसीय टाइमलाइन', sub: 'नहाय-खाय सं पारण धरि', icon: Calendar, badge: 'पंचांग' },
+          { id: 'chhath-puja-vidhi', label: 'प्रामाणिक पूजा विधि', sub: 'क्रमवार नियम ओ संकल्प', icon: BookOpen, badge: 'विस्तृत' },
+          { id: 'chhath-samagri', label: 'सूप ओ दौरा सामग्री चेकलिस्ट', sub: 'पारंपरिक सामग्री सूची', icon: CheckSquare },
+          { id: 'chhath-arghya-time-2026', label: 'सूर्य अर्घ्य मुहूर्त', sub: 'सूर्यास्त ओ सूर्योदय काल', icon: Sun, highlight: true },
+          { id: 'thekua-recipe', label: 'ठेकुआ ओ महाप्रसाद विधि', sub: 'काठक सांचाक रेसिपी', icon: Utensils },
+          { id: 'aarti', label: 'पावन मंत्र, स्तोत्र ओ आरती', sub: 'दैनिक स्तुति ओ सूर्य वंदना', icon: Flame },
+          { id: 'chhath-puja-katha', label: 'छठि व्रत पावन कथा', sub: 'राजा प्रियव्रत ओ छठी मईया', icon: FileText }
+        ]
+      },
+      {
+        title: 'भक्ति संगीत, रील्स ओ घाट',
+        subtitle: 'Media, Reels & Ghats',
+        items: [
+          { id: 'music', label: 'छठि भक्ति गीत स्टूडियो', sub: 'अमृतमयी स्वर ओ भजन', icon: Music, badge: 'गीत', highlight: true },
+          { id: 'reels', label: 'छठि रील्स ओ वीडियो', sub: '9:16 पूर्ण स्क्रीन', icon: Film, badge: 'नव', highlight: true },
+          { id: 'ghats', label: 'पावन घाट निर्देशिका', sub: 'पटना, दरभंगा, हरिद्वार', icon: Compass },
+          { 
+            id: 'mixer_action', 
+            label: 'ऑडियो मिक्सर', 
+            sub: 'गंगा तरंग, बांसुरी, दीप', 
+            icon: Sliders,
+            action: () => {
+              onClose();
+              onOpenMixer?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'डिजिटल अनुभव ओ एआई',
+        subtitle: 'Interactive & AI Tools',
+        items: [
+          { id: 'explore', label: 'एक्सप्लोर हब (समस्त फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { 
+            id: 'assistant_action', 
+            label: 'छठी मईया एआई सहायक', 
+            sub: 'पुछू कोनो प्रश्न', 
+            icon: MessageSquare,
+            badge: 'AI',
+            action: () => {
+              onClose();
+              onOpenAssistant?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'हमर छठि ओ परिवार',
+        subtitle: 'Personal & Family',
+        items: [
+          { id: 'my-chhath', label: 'हमर छठि डायरी ओ संकल्प', sub: 'व्यक्तिगत व्रत चेकलिस्ट', icon: Heart, highlight: true }
+        ]
+      },
+      {
+        title: 'ऐप प्रबंधन ओ सेटिंग्स',
+        subtitle: 'Preferences & System',
+        items: [
+          { id: 'settings', label: 'ऐप सेटिंग्स ओ कस्टमाइजेशन', sub: 'थीम, अलार्म, ऑडियो, कैशे', icon: Settings, badge: 'पेज', highlight: true },
+          { 
+            id: 'account_action', 
+            label: isAuthenticated ? drawerUi.accountLogged : drawerUi.accountGuest, 
+            sub: isAuthenticated ? drawerUi.accountLoggedSub : drawerUi.accountGuestSub, 
+            icon: User,
+            highlight: !isAuthenticated,
+            badge: !isAuthenticated ? drawerUi.badgeEntry : undefined,
+            action: () => {
+              onClose();
+              if (isAuthenticated) {
+                openAccountCenter('profile');
+              } else {
+                openAuthModal('quick_devotee');
+              }
+            }
+          }
+        ]
+      }
+    ],
+    mag: [
+      {
+        title: 'मुख्य दर्शन आ आज',
+        subtitle: 'Home & Daily Darshan',
+        items: [
+          { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आज के पंचांग, अर्घ्य आ अपडेट्स', icon: Home, highlight: true }
+        ]
+      },
+      {
+        title: 'पवित्र अनुष्ठान व नियम',
+        subtitle: 'Core Rituals & Vidhi',
+        items: [
+          { id: 'guide', label: '4 दिनी टाइमलाइन', sub: 'नहाय-खाय से पारण', icon: Calendar, badge: 'पंचांग' },
+          { id: 'chhath-puja-vidhi', label: 'प्रामाणिक पूजा विधि', sub: 'क्रमवार नियम व संकल्प', icon: BookOpen, badge: 'विस्तृत' },
+          { id: 'chhath-samagri', label: 'सूप व दौरा सामग्री चेकलिस्ट', sub: 'पारंपरिक सामग्री सूची', icon: CheckSquare },
+          { id: 'chhath-arghya-time-2026', label: 'सूर्य अर्घ्य मुहूर्त व समय', sub: 'सूर्यास्त व सूर्योदय समय', icon: Sun, highlight: true },
+          { id: 'thekua-recipe', label: 'ठेकुआ व महाप्रसाद विधि', sub: 'काठ के सांचे की रेसिपी', icon: Utensils },
+          { id: 'aarti', label: 'पावन मंत्र, स्तोत्र व आरती', sub: 'दैनिक स्तुति व सूर्य वंदना', icon: Flame },
+          { id: 'chhath-puja-katha', label: 'छठ व्रत पावन कथा', sub: 'राजा प्रियव्रत व छठी मईया', icon: FileText }
+        ]
+      },
+      {
+        title: 'भक्ति संगीत, रील्स आ घाट',
+        subtitle: 'Media, Reels & Ghats',
+        items: [
+          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'अमृतमयी स्वर आ भजन', icon: Music, badge: 'गीत', highlight: true },
+          { id: 'reels', label: 'छठ रील्स व शॉर्ट वीडियो', sub: '9:16 पूर्ण स्क्रीन फीड', icon: Film, badge: 'नया', highlight: true },
+          { id: 'ghats', label: 'पावन घाट व निर्देशिका', sub: 'पटना, गया, हरिद्वार', icon: Compass },
+          { 
+            id: 'mixer_action', 
+            label: 'वातावरण ऑडियो मिक्सर', 
+            sub: 'गंगा लहर, बांसुरी, दीया', 
+            icon: Sliders,
+            action: () => {
+              onClose();
+              onOpenMixer?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'डिजिटल अनुभव व एआई',
+        subtitle: 'Interactive & AI Tools',
+        items: [
+          { id: 'explore', label: 'एक्सप्लोर हब (सभे फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { 
+            id: 'assistant_action', 
+            label: 'छठी मईया एआई सहायक', 
+            sub: 'पूछीं कवनो सवाल', 
+            icon: MessageSquare,
+            badge: 'AI',
+            action: () => {
+              onClose();
+              onOpenAssistant?.();
+            }
+          }
+        ]
+      },
+      {
+        title: 'हमर छठ आ परिवार',
+        subtitle: 'Personal & Family',
+        items: [
+          { id: 'my-chhath', label: 'हमर छठ डायरी व संकल्प', sub: 'व्यक्तिगत व्रत चेकलिस्ट', icon: Heart, highlight: true }
+        ]
+      },
+      {
+        title: 'ऐप प्रबंधन व सेटिंग्स',
+        subtitle: 'Preferences & System',
+        items: [
+          { id: 'settings', label: 'ऐप सेटिंग्स व कस्टमाइजेशन', sub: 'थीम, अलार्म, ऑडियो, कैशे', icon: Settings, badge: 'पेज', highlight: true },
+          { 
+            id: 'account_action', 
+            label: isAuthenticated ? drawerUi.accountLogged : drawerUi.accountGuest, 
+            sub: isAuthenticated ? drawerUi.accountLoggedSub : drawerUi.accountGuestSub, 
+            icon: User,
+            highlight: !isAuthenticated,
+            badge: !isAuthenticated ? drawerUi.badgeEntry : undefined,
+            action: () => {
+              onClose();
+              if (isAuthenticated) {
+                openAccountCenter('profile');
+              } else {
+                openAuthModal('quick_devotee');
+              }
+            }
+          }
+        ]
+      }
+    ]
+  };
+
+  const featureCategories = categoriesData[language] || categoriesData.hi;
 
   if (!isOpen) return null;
 
@@ -214,7 +732,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
       className="fixed inset-0 z-[9999] flex pointer-events-auto font-mukta"
       role="dialog"
       aria-modal="true"
-      aria-label="छठ महापर्व संपूर्ण फीचर्स मेनू"
+      aria-label={drawerUi.ariaTitle}
     >
       {/* Backdrop Blur Overlay */}
       <div 
@@ -254,11 +772,11 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="font-rozha text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  {isAuthenticated ? currentUser?.name : 'छठ व्रती / श्रद्धालु'}
+                  {isAuthenticated ? currentUser?.name : drawerUi.devoteeDefault}
                 </span>
               </div>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
-                {isAuthenticated ? (currentUser?.email || `@${currentUser?.username}`) : 'प्रवेश करें व आशीर्वाद पाएं →'}
+                {isAuthenticated ? (currentUser?.email || `@${currentUser?.username}`) : drawerUi.enterPrompt}
               </p>
             </div>
           </button>
@@ -266,7 +784,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           <button
             onClick={onClose}
             className="p-2 rounded-full bg-stone-100 dark:bg-stone-900 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white border border-stone-200 dark:border-stone-800 transition-colors shrink-0"
-            title="मेनू बंद करें"
+            title={drawerUi.closeTitle}
           >
             <X className="w-5 h-5" />
           </button>
@@ -279,17 +797,17 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           <button
             onClick={toggleTheme}
             className="flex-1 py-1.5 px-2.5 rounded-xl bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-750 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:border-amber-400/50 transition-all"
-            title={theme === 'light' ? 'डार्क मोड' : 'लाइट मोड'}
+            title={theme === 'light' ? drawerUi.darkMode : drawerUi.lightMode}
           >
             {theme === 'light' ? (
               <>
                 <Moon className="w-3.5 h-3.5 text-indigo-600" />
-                <span>डार्क</span>
+                <span>{drawerUi.darkMode}</span>
               </>
             ) : (
               <>
                 <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span>लाइट</span>
+                <span>{drawerUi.lightMode}</span>
               </>
             )}
           </button>
@@ -330,7 +848,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           <button
             onClick={ringBell}
             className="p-1.5 px-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-400 hover:bg-amber-500/25 transition-all flex items-center justify-center"
-            title="मंदिर घंटी बजाएं"
+            title={drawerUi.bellTitle}
           >
             <BellRing className="w-3.5 h-3.5" />
           </button>
@@ -344,7 +862,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="फीचर या विधि खोजें..."
+              placeholder={drawerUi.searchPlaceholder}
               className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:border-amber-400 transition-colors"
             />
             {searchQuery && (
@@ -460,7 +978,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4" />
-                  <span>एडमिन कंट्रोल पैनल</span>
+                  <span>{drawerUi.adminPanel}</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -472,10 +990,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         <div className="p-3 sm:p-4 border-t border-stone-200/80 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 flex items-center justify-between shrink-0">
           <div>
             <span className="font-rozha text-xs font-bold text-amber-700 dark:text-amber-400 block">
-              छठ महापर्व २०२६
+              {drawerUi.footerTitle}
             </span>
             <span className="text-[10px] text-stone-500 dark:text-stone-400">
-              आस्था, पवित्रता व सूर्य उपासना
+              {drawerUi.footerSub}
             </span>
           </div>
 
@@ -484,7 +1002,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
             className="px-3 py-1.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs flex items-center gap-1.5 hover:bg-amber-400 transition-colors shadow-xs"
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span>शेयर</span>
+            <span>{drawerUi.shareBtn}</span>
           </button>
         </div>
 

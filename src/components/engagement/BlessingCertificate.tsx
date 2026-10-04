@@ -76,7 +76,7 @@ export const BlessingCertificate: React.FC = () => {
     ctx.font = 'bold 16px sans-serif';
     ctx.fillStyle = '#fde047';
     ctx.letterSpacing = '4px';
-    ctx.fillText('॥ श्री सूर्य षष्ठी महाव्रत • कार्तिक मास २०२६ ॥', 600, 105);
+    ctx.fillText('॥ श्री सूर्य षष्ठी महाव्रत • कार्तिक मास 2026 ॥', 600, 105);
 
     // Main Title
     ctx.font = 'bold 44px serif';
@@ -118,7 +118,7 @@ export const BlessingCertificate: React.FC = () => {
     // 5. Blessing Text Body
     ctx.font = '20px sans-serif';
     ctx.fillStyle = '#e2e8f0';
-    ctx.fillText('सच्ची श्रद्धा, निर्मल मन और कठोर ३६ घंटे के अखंड निर्जला तप से', 600, 480);
+    ctx.fillText('सच्ची श्रद्धा, निर्मल मन और कठोर 36 घंटे के अखंड निर्जला तप से', 600, 480);
     ctx.fillText('भगवान सूर्य नारायण व छठी मईया के चरणों में अर्घ्य व आराधना अर्पित की गई।', 600, 515);
     ctx.fillText('छठी मईया आपके कुल, परिवार और संतति को उत्तम स्वास्थ्य, दीर्घायु व समृद्धि का आशीष दें।', 600, 550);
 
@@ -138,7 +138,7 @@ export const BlessingCertificate: React.FC = () => {
     ctx.textAlign = 'left';
     ctx.font = '15px sans-serif';
     ctx.fillStyle = '#94a3b8';
-    ctx.fillText('पावन तिथि: कार्तिक शुक्ल षष्ठी-सप्तमी २०२६', 100, 730);
+    ctx.fillText('पावन तिथि: कार्तिक शुक्ल षष्ठी-सप्तमी 2026', 100, 730);
     ctx.fillText('स्थान: पावन गंगा-यमुना तट व तीर्थ स्थल', 100, 755);
 
     // Right: Divine Seal Stamp
@@ -197,7 +197,7 @@ export const BlessingCertificate: React.FC = () => {
             वीआईपी छठ महापर्व पुण्य-आशीष पत्र
           </h2>
           <p className="font-mukta text-base sm:text-lg text-stone-300">
-            व्रती व श्रद्धालु जन अपना नाम दर्ज करके २४ कैरेट स्वर्ण बॉर्डर वाला पावन आशीष पत्र तैयार करें और व्हाट्सएप या सोशल मीडिया पर साझा करें।
+            व्रती व श्रद्धालु जन अपना नाम दर्ज करके 24 कैरेट स्वर्ण बॉर्डर वाला पावन आशीष पत्र तैयार करें और व्हाट्सएप या सोशल मीडिया पर साझा करें।
           </p>
         </div>
 

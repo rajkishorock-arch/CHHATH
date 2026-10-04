@@ -17,7 +17,7 @@ const ARCHIVE_YEARS: Record<string, ArchiveYearData> = {
     nahayKhayDate: '13 नवंबर 2026',
     sandhyaDate: '15 नवंबर 2026',
     totalDevoteesEst: '12 करोड़+',
-    keyHighlight: 'डिजिटल छठ पोर्टल, ३डी घाट दर्शन व वैश्विक दीप श्रृंखला का ऐतिहासिक प्रारंभ।',
+    keyHighlight: 'डिजिटल छठ पोर्टल, 3डी घाट दर्शन व वैश्विक दीप श्रृंखला का ऐतिहासिक प्रारंभ।',
     participatingNations: 42
   },
   '2025': {
@@ -81,7 +81,7 @@ export const ChhathArchiveReport: React.FC = () => {
             className="px-5 py-2.5 rounded-full text-xs font-bold bg-gradient-to-r from-orange-600 to-amber-500 text-stone-950 font-rozha shadow-lg hover:scale-105 transition-all flex items-center gap-1.5 self-start sm:self-auto shrink-0"
           >
             <FileText className="w-4 h-4" />
-            <span>वार्षिक रिपोर्ट २०२६ देखें</span>
+            <span>वार्षिक रिपोर्ट 2026 देखें</span>
           </button>
         </div>
 
@@ -156,7 +156,7 @@ export const ChhathArchiveReport: React.FC = () => {
                     आधिकारिक राष्ट्रीय रिपोर्ट
                   </span>
                   <h3 className="font-rozha text-2xl sm:text-3xl font-bold gold-foil-text mt-0.5">
-                    छठ महापर्व २०२६ — डिजिटल उत्सव रिपोर्ट
+                    छठ महापर्व 2026 — डिजिटल उत्सव रिपोर्ट
                   </h3>
                 </div>
                 <button
@@ -169,12 +169,12 @@ export const ChhathArchiveReport: React.FC = () => {
 
               <div className="space-y-4 text-xs font-mukta text-stone-300 leading-relaxed">
                 <p>
-                  छठ महापर्व २०२६ ने लोक आस्था और डिजिटल तकनीक के संगम का एक स्वर्णिम अध्याय लिखा है। देश-विदेश के लाखों श्रद्धालुओं ने इस डिजिटल सांस्कृतिक मंच के माध्यम से सूर्य अर्घ्य, वैदिक मंत्र, प्रामाणिक विधि और भक्ति संगीत का लाभ उठाया।
+                  छठ महापर्व 2026 ने लोक आस्था और डिजिटल तकनीक के संगम का एक स्वर्णिम अध्याय लिखा है। देश-विदेश के लाखों श्रद्धालुओं ने इस डिजिटल सांस्कृतिक मंच के माध्यम से सूर्य अर्घ्य, वैदिक मंत्र, प्रामाणिक विधि और भक्ति संगीत का लाभ उठाया।
                 </p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center my-4">
                   <div className="p-3 rounded-xl bg-stone-900 border border-stone-800">
-                    <span className="font-rozha text-xl font-bold text-amber-400 block">२.४ लाख+</span>
+                    <span className="font-rozha text-xl font-bold text-amber-400 block">2.4 लाख+</span>
                     <span className="text-[10px] text-stone-400">वेबसाइट आगंतुक</span>
                   </div>
                   <div className="p-3 rounded-xl bg-stone-900 border border-stone-800">
@@ -182,11 +182,11 @@ export const ChhathArchiveReport: React.FC = () => {
                     <span className="text-[10px] text-stone-400">डिजिटल दीप प्रज्वलित</span>
                   </div>
                   <div className="p-3 rounded-xl bg-stone-900 border border-stone-800">
-                    <span className="font-rozha text-xl font-bold text-amber-400 block">१८,०००+</span>
+                    <span className="font-rozha text-xl font-bold text-amber-400 block">18,000+</span>
                     <span className="text-[10px] text-stone-400">बधाई पत्र जनरेट</span>
                   </div>
                   <div className="p-3 rounded-xl bg-stone-900 border border-stone-800">
-                    <span className="font-rozha text-xl font-bold text-amber-400 block">४२</span>
+                    <span className="font-rozha text-xl font-bold text-amber-400 block">42</span>
                     <span className="text-[10px] text-stone-400">भागीदार देश</span>
                   </div>
                 </div>

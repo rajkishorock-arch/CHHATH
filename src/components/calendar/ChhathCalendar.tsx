@@ -40,7 +40,7 @@ const CALENDAR_DATES: CalendarDate[] = [
     dayName: 'सोमवार',
     tithi: 'कार्तिक शुक्ल सप्तमी',
     ritualName: 'उषा अर्घ्य व पारण (Usha Arghya)',
-    description: 'उदीयमान (उगते) सूर्य को द्वितीय अर्घ्य व ३६ घंटे के व्रत का पारण।',
+    description: 'उदीयमान (उगते) सूर्य को द्वितीय अर्घ्य व 36 घंटे के व्रत का पारण।',
     highlight: true
   }
 ];
@@ -67,7 +67,7 @@ export const ChhathCalendar: React.FC = () => {
             <span>पावन पर्व पंचांग (Digital Chhath Calendar)</span>
           </div>
           <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-900 dark:text-stone-100 gold-foil-text">
-            छठ महापर्व २०२६ कैलेंडर 📅
+            छठ महापर्व 2026 कैलेंडर 📅
           </h2>
           <p className="font-mukta text-base text-stone-600 dark:text-stone-300">
             चारों पावन दिनों की आधिकारिक तिथियां, अनुष्ठान विवरण और एक-क्लिक <strong>गूगल कैलेंडर रिमाइंडर</strong>।

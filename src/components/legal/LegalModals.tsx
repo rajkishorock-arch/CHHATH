@@ -44,15 +44,15 @@ export const LegalModals: React.FC<LegalModalsProps> = ({ activeModal, onClose }
               <p>
                 छठ महापर्व डिजिटल मंच पर आपकी निजता और डाटा सुरक्षा हमारी सर्वोच्च प्राथमिकता है।
               </p>
-              <h3 className="font-bold text-stone-900 dark:text-stone-100">१. सार्वजनिक पहुँच</h3>
+              <h3 className="font-bold text-stone-900 dark:text-stone-100">1. सार्वजनिक पहुँच</h3>
               <p>
                 हमारा मंच बिना किसी लॉगिन के संपूर्ण धार्मिक सामग्री (अर्घ्य समय, पूजा विधि, सामग्री चेकलिस्ट, घाट निर्देश) तक निःशुल्क पहुँच प्रदान करता है।
               </p>
-              <h3 className="font-bold text-stone-900 dark:text-stone-100">२. व्यक्तिगत डेटा संग्रह</h3>
+              <h3 className="font-bold text-stone-900 dark:text-stone-100">2. व्यक्तिगत डेटा संग्रह</h3>
               <p>
                 यदि आप खाता बनाते हैं, तो हम केवल आपका नाम, ईमेल/उपयोगकर्ता नाम और शहर की पसंद ही सुरक्षित रखते हैं। हम कभी भी आपका व्यक्तिगत डेटा किसी तीसरे पक्ष को नहीं बेचते।
               </p>
-              <h3 className="font-bold text-stone-900 dark:text-stone-100">३. कुकीज़ एवं लोकल स्टोरेज</h3>
+              <h3 className="font-bold text-stone-900 dark:text-stone-100">3. कुकीज़ एवं लोकल स्टोरेज</h3>
               <p>
                 आपकी भाषा, विषय (डार्क/लाइट मोड) और ऑफलाइन चेकलिस्ट को केवल आपके ब्राउज़र के लोकल स्टोरेज में ही सहेजा जाता है।
               </p>

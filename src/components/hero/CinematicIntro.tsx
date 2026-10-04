@@ -145,7 +145,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
         >
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-mukta font-bold tracking-widest uppercase mb-3">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>छठ महापर्व २०२६</span>
+            <span>छठ महापर्व 2026</span>
           </div>
           <h1 className="font-rozha text-5xl sm:text-7xl md:text-8xl font-black tracking-wide gold-foil-text drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)]">
             जय छठी मईया

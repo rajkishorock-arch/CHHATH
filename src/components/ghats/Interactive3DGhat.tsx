@@ -44,7 +44,7 @@ const OBJECT_DETAILS: Record<string, SelectedObjectInfo> = {
   devotee: {
     name: 'Vrati Devotee',
     hindiName: 'छठ व्रती साधक',
-    desc: '३६ घंटे के अखंड निर्जला तप में लीन, पीत वस्त्र धारण किए श्रद्धा की प्रतिमूर्ति।',
+    desc: '36 घंटे के अखंड निर्जला तप में लीन, पीत वस्त्र धारण किए श्रद्धा की प्रतिमूर्ति।',
     significance: 'व्रती की साधना पूरे कुल व समाज के आरोग्य एवं संतान कल्याण हेतु होती है।'
   }
 };
@@ -335,10 +335,10 @@ export const Interactive3DGhat: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
           <div className="badge-saffron inline-flex items-center gap-1.5">
             <Rotate3d className="w-3.5 h-3.5" />
-            <span>३डी इंटरैक्टिव घाट दर्शन (3D Interactive Ghat)</span>
+            <span>3डी इंटरैक्टिव घाट दर्शन (3D Interactive Ghat)</span>
           </div>
           <h2 className="font-rozha text-3xl sm:text-5xl font-bold gold-foil-text">
-            आभासी ३डी छठ घाट अनुभव
+            आभासी 3डी छठ घाट अनुभव
           </h2>
           <p className="font-mukta text-base sm:text-lg text-stone-300">
             पवित्र गंगा, घाट की सीढ़ियां, सूर्य देव, दउरा, ईख व तैरते दीयों को स्पर्श करें और 360° घुमाकर दर्शन करें।

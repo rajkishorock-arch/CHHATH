@@ -302,7 +302,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                   छठ पूजा के गीत
                 </h3>
                 <p className="font-mukta text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
-                  पारंपरिक छठ गीत, छठ मैया भजन व यूट्यूब म्यूजिक प्लेयर।
+                  पारंपरिक छठ गीत, छठ मैया भजन व भक्ति म्यूजिक प्लेयर।
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">

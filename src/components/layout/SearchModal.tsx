@@ -859,7 +859,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-bold text-red-400 uppercase tracking-wider">
                       <Film className="w-3.5 h-3.5" />
-                      <span>यूट्यूब छठ वीडियो (YouTube Videos - {searchResponse.categorized.videos.length})</span>
+                      <span>छठ वीडियो व पावन दर्शन ({searchResponse.categorized.videos.length})</span>
                     </div>
                   </div>
 

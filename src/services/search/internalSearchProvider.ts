@@ -444,7 +444,7 @@ export class InternalSearchProvider {
             id: `timing-${c.cityName}`,
             source: 'internal',
             type: 'event',
-            title: `${c.cityName} में अर्घ्य मुहूर्त २०२६`,
+            title: `${c.cityName} में अर्घ्य मुहूर्त 2026`,
             description: `संध्या अर्घ्य: ${c.sandhyaSunset} • उषा अर्घ्य: ${c.ushaSunrise} • तापमान: ${c.weatherTemp}`,
             thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
             relevanceScore: 95,

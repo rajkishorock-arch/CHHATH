@@ -288,7 +288,7 @@ export const GreetingGenerator: React.FC = () => {
     ctx.font = 'bold 15px "Mukta", sans-serif';
     ctx.fillStyle = '#fde047';
     ctx.letterSpacing = '2px';
-    ctx.fillText('⚜️ श्री सूर्योपासना महापर्व २०२६ • कार्तिक शुक्ल षष्ठी ⚜️', W / 2, 91);
+    ctx.fillText('⚜️ श्री सूर्योपासना महापर्व 2026 • कार्तिक शुक्ल षष्ठी ⚜️', W / 2, 91);
     ctx.restore();
 
     // 5. VECTOR DIVINE SURYA MANDALA & LOTUS CREST (No low-res emojis!)
@@ -620,7 +620,7 @@ export const GreetingGenerator: React.FC = () => {
 
   // Direct WhatsApp Share with Rich Formatted Message
   const handleShareWhatsApp = () => {
-    const text = `🌅 *॥ जय छठी मईया ॥* 🙏\n*सूर्य उपासना एवं लोक आस्था का महापर्व २०२६*\n\n${customWish}\n\n*— ${senderTitle.replace(/⚜️/g, '').trim()}:* *${name}*\n\n🎴 *आप भी अपना शाही छठ बधाई पत्र मुफ्त बनाएं:* https://chhathmahaparv.org/#wishes`;
+    const text = `🌅 *॥ जय छठी मईया ॥* 🙏\n*सूर्य उपासना एवं लोक आस्था का महापर्व 2026*\n\n${customWish}\n\n*— ${senderTitle.replace(/⚜️/g, '').trim()}:* *${name}*\n\n🎴 *आप भी अपना शाही छठ बधाई पत्र मुफ्त बनाएं:* https://chhathmahaparv.org/#wishes`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };

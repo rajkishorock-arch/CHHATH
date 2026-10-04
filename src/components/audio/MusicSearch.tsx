@@ -139,9 +139,9 @@ export const MusicSearch: React.FC<MusicSearchProps> = ({
           onFocus={() => setShowSuggestions(true)}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="यूट्यूब पर छठ गीत खोजें (उदा: Sharda Sinha, Pawan Singh)..."
+          placeholder="छठ गीत खोजें (उदा: Sharda Sinha, Pawan Singh)..."
           className="w-full pl-11 pr-36 py-3 rounded-2xl bg-stone-950 border border-amber-500/35 text-stone-100 placeholder-stone-400 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner"
-          aria-label="Search YouTube Chhath Songs"
+          aria-label="Search Chhath Songs"
         />
 
         <div className="absolute right-2 flex items-center gap-1.5">

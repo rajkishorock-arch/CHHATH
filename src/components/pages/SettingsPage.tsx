@@ -160,8 +160,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
   const handleShareApp = async () => {
     const shareData = {
-      title: 'छठ महापर्व २०२६ — संपूर्ण डिजिटल गाइड व संगीत',
-      text: 'छठ महापर्व २०२६ की संपूर्ण पूजा विधि, सूर्य अर्घ्य मुहूर्त, पारंपरिक छठ गीत, रील्स व 3D घाट दर्शन ऐप:',
+      title: 'छठ महापर्व 2026 — संपूर्ण डिजिटल गाइड व संगीत',
+      text: 'छठ महापर्व 2026 की संपूर्ण पूजा विधि, सूर्य अर्घ्य मुहूर्त, पारंपरिक छठ गीत, रील्स व 3D घाट दर्शन ऐप:',
       url: window.location.origin + window.location.pathname
     };
 
@@ -388,7 +388,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         {/* =========================================================
             SECTION 2: AUDIO & MUSIC PLAYER CUSTOMIZATION
            ========================================================= */}
-        {(activeSection === 'all' || activeSection === 'audio') && matchesSearch('संगीत ऑडियो प्लेयर यूट्यूब audio music sound player mixer') && (
+        {(activeSection === 'all' || activeSection === 'audio') && matchesSearch('संगीत ऑडियो प्लेयर audio music sound player mixer') && (
           <div className="bg-white dark:bg-stone-900 rounded-3xl p-5 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-md space-y-5">
             <div className="flex items-center gap-2.5 pb-3 border-b border-stone-100 dark:border-stone-800">
               <div className="w-9 h-9 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -399,7 +399,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   ऑडियो व संगीत प्राथमिकताएं
                 </h2>
                 <p className="text-xs text-stone-500 dark:text-stone-400">
-                  यूट्यूब सिंक, ऑटो-प्लेबैक व मंदिर ध्वनि प्रभाव
+                  लाइव सिंक, ऑटो-प्लेबैक व मंदिर ध्वनि प्रभाव
                 </p>
               </div>
             </div>
@@ -781,7 +781,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               </div>
               <div>
                 <h2 className="font-bold text-base text-stone-900 dark:text-stone-100">
-                  छठ महापर्व २०२६ ऐप के बारे में
+                  छठ महापर्व 2026 ऐप के बारे में
                 </h2>
                 <p className="text-xs text-stone-500 dark:text-stone-400">
                   सांस्कृतिक निष्ठा, तकनीकी समर्पण एवं आभार
@@ -791,7 +791,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
             <div className="space-y-3 text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
               <p>
-                यह ऐप लोक आस्था के महापर्व <strong>छठ पूजा २०२६</strong> के अवसर पर देश-विदेश में बसे समस्त बिहार, झारखंड व पूर्वांचल के व्रतियों और श्रद्धालुओं की सुविधा हेतु पूर्ण निष्ठा से निर्मित किया गया है।
+                यह ऐप लोक आस्था के महापर्व <strong>छठ पूजा 2026</strong> के अवसर पर देश-विदेश में बसे समस्त बिहार, झारखंड व पूर्वांचल के व्रतियों और श्रद्धालुओं की सुविधा हेतु पूर्ण निष्ठा से निर्मित किया गया है।
               </p>
               
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-100 dark:border-stone-800 font-mono text-[11px]">

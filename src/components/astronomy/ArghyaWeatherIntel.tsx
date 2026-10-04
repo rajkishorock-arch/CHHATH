@@ -41,21 +41,21 @@ export const ArghyaWeatherIntel: React.FC = () => {
         <div className="p-4 rounded-2xl bg-stone-800/60 border border-stone-700 text-center">
           <Droplets className="w-6 h-6 text-sky-400 mx-auto mb-1" />
           <span className="text-[11px] text-stone-400 block">वर्षा की संभावना</span>
-          <span className="text-xl font-bold text-white">०% (0% Rain)</span>
+          <span className="text-xl font-bold text-white">0% (0% Rain)</span>
           <span className="text-[10px] text-green-400 block mt-0.5">पूर्णतः शुष्क व निर्मल</span>
         </div>
 
         <div className="p-4 rounded-2xl bg-stone-800/60 border border-stone-700 text-center">
           <Wind className="w-6 h-6 text-stone-300 mx-auto mb-1" />
           <span className="text-[11px] text-stone-400 block">वायु गति (Wind)</span>
-          <span className="text-xl font-bold text-white">७ किमी/घंटा</span>
+          <span className="text-xl font-bold text-white">7 किमी/घंटा</span>
           <span className="text-[10px] text-stone-400 block mt-0.5">मंद व सुखद समीर</span>
         </div>
 
         <div className="p-4 rounded-2xl bg-stone-800/60 border border-stone-700 text-center">
           <Eye className="w-6 h-6 text-orange-400 mx-auto mb-1" />
           <span className="text-[11px] text-stone-400 block">क्षितिज दृश्यता (Visibility)</span>
-          <span className="text-xl font-bold text-white">१० / १०</span>
+          <span className="text-xl font-bold text-white">10 / 10</span>
           <span className="text-[10px] text-green-400 block mt-0.5">स्पष्ट सूर्य दर्शन</span>
         </div>
       </div>

@@ -112,11 +112,11 @@ export class GlobalSearchService {
                   title: v.title,
                   description: v.description || 'छठ महापर्व का पावन वीडियो',
                   thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
-                  creator: v.channelTitle || 'YouTube Video',
+                  creator: v.channelTitle || 'पावन भक्ति संगीत',
                   url: v.url || `https://www.youtube.com/watch?v=${v.videoId}`,
                   videoId: v.videoId,
                   relevanceScore: score,
-                  badge: 'Source: YouTube',
+                  badge: 'भक्ति दर्शन',
                   metadata: {
                     channelTitle: v.channelTitle,
                     publishedAt: v.publishedAt,

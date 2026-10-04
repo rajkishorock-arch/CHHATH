@@ -92,7 +92,7 @@ export const SongLyricsModal: React.FC<SongLyricsModalProps> = ({ song, isOpen, 
   }
 
   const handleCopy = () => {
-    const text = `${song.title}\nगायक: ${song.singer}\n\nबोल (Lyrics):\n${lyricsData.bhojpuri.join('\n')}\n\nभावार्थ:\n${lyricsData.meaning}\n\nछठ महापर्व २०२६`;
+    const text = `${song.title}\nगायक: ${song.singer}\n\nबोल (Lyrics):\n${lyricsData.bhojpuri.join('\n')}\n\nभावार्थ:\n${lyricsData.meaning}\n\nछठ महापर्व 2026`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

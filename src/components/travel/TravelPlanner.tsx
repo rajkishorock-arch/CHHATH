@@ -31,7 +31,7 @@ export const TravelPlanner: React.FC = () => {
       durationMins: '25-35 मिनट',
       parkingZone: 'अशोक राजपथ निर्धारित छठ पार्किंग स्थल (P-2)',
       walkingMinsToGhat: '5 मिनट पैदल मार्ग',
-      trafficNote: '⚠️ सायं ०३:०० से ०७:०० बजे तक अर्घ्य भीड़ के कारण मुख्य घाट मार्ग केवल पैदल यात्रियों हेतु आरक्षित रहेगा। भारी वाहनों का प्रवेश वर्जित है।',
+      trafficNote: '⚠️ सायं 03:00 से 07:00 बजे तक अर्घ्य भीड़ के कारण मुख्य घाट मार्ग केवल पैदल यात्रियों हेतु आरक्षित रहेगा। भारी वाहनों का प्रवेश वर्जित है।',
       googleMapsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`
     };
 
