@@ -42,10 +42,11 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
       console.warn('Pull-to-refresh handler error:', e);
     }
 
-    // Actual real hard/soft page reload
+    // Smoothly conclude refresh animation without destroying the page or stopping the background song
     setTimeout(() => {
-      window.location.reload();
-    }, 450);
+      setIsRefreshing(false);
+      setPullDistance(0);
+    }, 700);
   }, [onRefresh]);
 
   useEffect(() => {

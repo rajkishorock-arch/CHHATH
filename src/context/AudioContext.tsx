@@ -97,6 +97,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [ytPlayerReady, setYtPlayerReady] = useState<boolean>(false);
   const timeIntervalRef = useRef<any>(null);
   const userRequestedPauseRef = useRef<boolean>(false);
+  const hasStartedPlaybackRef = useRef<boolean>(false);
 
   // Background audio & system media notification keepalive ref
   const bgAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -388,6 +389,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     currentSongRef.current = song;
 
     // 4. REACT STATE UPDATES
+    hasStartedPlaybackRef.current = true;
     userRequestedPauseRef.current = false;
     setPlaybackError(null);
     setQueueState(finalQueue);
@@ -674,7 +676,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // Native notification actions (Previous, Play/Pause, Next)
+  // Native notification actions (Previous, Play/Pause, Next, Dismiss)
   useEffect(() => {
     const handleNotificationAction = (e: any) => {
       const action = e?.detail;
@@ -684,18 +686,27 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         togglePlay();
       } else if (action === 'next') {
         playNext();
+      } else if (action === 'dismiss') {
+        pauseSong();
+        hasStartedPlaybackRef.current = false;
+        syncWithAndroidNotification(null, false);
       }
     };
     window.addEventListener('notification-action', handleNotificationAction);
     return () => window.removeEventListener('notification-action', handleNotificationAction);
-  }, [playPrevious, togglePlay, playNext]);
+  }, [playPrevious, togglePlay, playNext, pauseSong, syncWithAndroidNotification]);
 
-  // Sync MediaSession Metadata & Notification Shade
+  // Sync MediaSession Metadata & Notification Shade (ONLY when song was actually played by user)
   useEffect(() => {
-    syncWithAndroidNotification(currentSong, isPlaying);
+    if (hasStartedPlaybackRef.current && currentSong) {
+      syncWithAndroidNotification(currentSong, isPlaying);
+    } else {
+      syncWithAndroidNotification(null, false);
+    }
+
     if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
 
-    if (currentSong) {
+    if (currentSong && hasStartedPlaybackRef.current) {
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentSong.title,
@@ -714,7 +725,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         console.warn('[MediaSession] metadata setup warning:', err);
       }
     }
-  }, [currentSong]);
+  }, [currentSong, isPlaying, syncWithAndroidNotification]);
 
   // Sync MediaSession Playback State & Action Handlers
   useEffect(() => {

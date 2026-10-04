@@ -674,6 +674,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     return () => observer.disconnect();
   }, [searchStatus, nextPageToken, isLoadingMore, searchQuery, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
 
+  // Handle in-app pull to refresh without destructive full page reload
+  useEffect(() => {
+    const handlePullRefresh = () => {
+      if (searchStatus === 'idle') {
+        fetchInitialLiveSongs();
+      } else if (searchQuery.trim()) {
+        handleExecuteSearch(searchQuery.trim());
+      }
+    };
+    window.addEventListener('chhath-app-pull-refresh', handlePullRefresh);
+    return () => window.removeEventListener('chhath-app-pull-refresh', handlePullRefresh);
+  }, [searchStatus, searchQuery, fetchInitialLiveSongs, handleExecuteSearch]);
+
   return (
     <section id="songs" className="py-2 sm:py-6 px-1 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta">
       <div className="max-w-6xl mx-auto space-y-3.5">

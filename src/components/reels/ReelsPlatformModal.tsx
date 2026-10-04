@@ -103,6 +103,17 @@ export const ReelsPlatformModal: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [reelsPlatformOpen, activeReelIndex, scrollToIndex, closeReelsPlatform]);
 
+  // Handle pull to refresh while reels is active
+  useEffect(() => {
+    const handlePullRefresh = () => {
+      if (reelsPlatformOpen) {
+        scrollToIndex(0);
+      }
+    };
+    window.addEventListener('chhath-app-pull-refresh', handlePullRefresh);
+    return () => window.removeEventListener('chhath-app-pull-refresh', handlePullRefresh);
+  }, [reelsPlatformOpen, scrollToIndex]);
+
   // Active Reel Detection via IntersectionObserver + Scroll sync
   useEffect(() => {
     if (!reelsPlatformOpen) return;

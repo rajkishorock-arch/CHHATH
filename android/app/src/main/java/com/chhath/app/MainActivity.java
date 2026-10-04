@@ -36,8 +36,14 @@ public class MainActivity extends BridgeActivity {
     public static final String ACTION_PREV = "com.chhath.app.ACTION_PREV";
     public static final String ACTION_PLAY_PAUSE = "com.chhath.app.ACTION_PLAY_PAUSE";
     public static final String ACTION_NEXT = "com.chhath.app.ACTION_NEXT";
+    public static final String ACTION_DISMISS = "com.chhath.app.ACTION_DISMISS";
 
     private static MainActivity sInstance;
+    private static boolean sIsPlayingState = false;
+
+    public static boolean isCurrentlyPlaying() {
+        return sIsPlayingState;
+    }
 
     private long lastBackPressTime = 0;
     private PowerManager.WakeLock wakeLock = null;
@@ -107,6 +113,9 @@ public class MainActivity extends BridgeActivity {
                                 // User is on Home page: double-tap to exit
                                 long now = System.currentTimeMillis();
                                 if (now - lastBackPressTime < 2000) {
+                                    if (!sIsPlayingState) {
+                                        hideMediaNotification();
+                                    }
                                     finish();
                                 } else {
                                     lastBackPressTime = now;
@@ -116,6 +125,9 @@ public class MainActivity extends BridgeActivity {
                         }
                     );
                 } else {
+                    if (!sIsPlayingState) {
+                        hideMediaNotification();
+                    }
                     finish();
                 }
             }
@@ -156,7 +168,8 @@ public class MainActivity extends BridgeActivity {
                     }
                     @Override
                     public void onStop() {
-                        handleMediaAction(ACTION_PLAY_PAUSE);
+                        hideMediaNotification();
+                        handleMediaAction("dismiss");
                     }
                 });
                 mediaSession.setActive(true);
@@ -177,6 +190,8 @@ public class MainActivity extends BridgeActivity {
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('notification-action', { detail: 'toggle' }))", null);
             } else if (ACTION_NEXT.equals(action)) {
                 webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('notification-action', { detail: 'next' }))", null);
+            } else if (ACTION_DISMISS.equals(action) || "dismiss".equals(action)) {
+                webView.evaluateJavascript("window.dispatchEvent(new CustomEvent('notification-action', { detail: 'dismiss' }))", null);
             }
         });
     }
@@ -235,6 +250,7 @@ public class MainActivity extends BridgeActivity {
 
     private void buildAndPostNotification(String title, String singer, boolean isPlaying) {
         try {
+            sIsPlayingState = isPlaying;
             initMediaSession();
 
             String displayTitle = (title != null && !title.isEmpty()) ? title : "छठ महापर्व भक्ति संगीत";
@@ -293,6 +309,11 @@ public class MainActivity extends BridgeActivity {
             nextIntent.setAction(ACTION_NEXT);
             PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this, 3, nextIntent, flags);
 
+            // Dismiss Action Intent when swiped away by user
+            Intent dismissIntent = new Intent(this, MediaActionReceiver.class);
+            dismissIntent.setAction(ACTION_DISMISS);
+            PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 4, dismissIntent, flags);
+
             int playPauseIcon = isPlaying ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play;
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -301,6 +322,7 @@ public class MainActivity extends BridgeActivity {
                 .setContentText(displaySinger)
                 .setSubText("छठ महापर्व")
                 .setContentIntent(openPendingIntent)
+                .setDeleteIntent(dismissPendingIntent)
                 .setOngoing(isPlaying)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -335,7 +357,15 @@ public class MainActivity extends BridgeActivity {
                     NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification);
                 }
             } else {
-                NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification);
+                // When paused: update service with ACTION_PAUSE so it detaches from foreground, allowing swipe to dismiss
+                Intent serviceIntent = new Intent(this, MediaPlaybackService.class);
+                serviceIntent.setAction(MediaPlaybackService.ACTION_PAUSE);
+                serviceIntent.putExtra("notification", notification);
+                try {
+                    startService(serviceIntent);
+                } catch (Exception e) {
+                    NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -343,6 +373,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     public void hideMediaNotification() {
+        sIsPlayingState = false;
         try {
             NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
         } catch (Exception ignored) {}
@@ -393,6 +424,13 @@ public class MainActivity extends BridgeActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent == null) return;
             String action = intent.getAction();
+            if (ACTION_DISMISS.equals(action)) {
+                if (sInstance != null) {
+                    sInstance.hideMediaNotification();
+                    sInstance.handleMediaAction("dismiss");
+                }
+                return;
+            }
             if (sInstance != null && action != null) {
                 sInstance.handleMediaAction(action);
             }
@@ -454,8 +492,10 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onDestroy() {
-        hideMediaNotification();
-        if (mediaSession != null) {
+        if (!sIsPlayingState) {
+            hideMediaNotification();
+        }
+        if (mediaSession != null && !sIsPlayingState) {
             try {
                 mediaSession.release();
             } catch (Exception ignored) {}
