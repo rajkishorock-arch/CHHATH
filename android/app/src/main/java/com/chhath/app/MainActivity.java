@@ -18,6 +18,20 @@ public class MainActivity extends BridgeActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Native Hardware & Gesture Back Button Handling
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                WebView webView = getBridge().getWebView();
+                if (webView != null && webView.canGoBack()) {
+                    webView.goBack();
+                } else {
+                    // Minimize app smoothly so background playback continues
+                    moveTaskToBack(true);
+                }
+            }
+        });
     }
 
     @Override
