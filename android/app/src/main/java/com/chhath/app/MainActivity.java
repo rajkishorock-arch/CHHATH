@@ -34,4 +34,19 @@ public class MainActivity extends BridgeActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        try {
+            // Keep WebView timers and media alive even when device screen is turned off
+            WebView webView = getBridge().getWebView();
+            if (webView != null) {
+                webView.resumeTimers();
+                webView.onResume();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

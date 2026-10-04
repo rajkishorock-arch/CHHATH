@@ -96,7 +96,39 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const pendingSongRef = useRef<Song | null>(null);
   const [ytPlayerReady, setYtPlayerReady] = useState<boolean>(false);
   const timeIntervalRef = useRef<any>(null);
-  
+
+  // Background audio & system media notification keepalive ref
+  const bgAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const getSilentAudioUrl = useCallback(() => {
+    try {
+      const rawBase = import.meta.env.BASE_URL || '/';
+      const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+      return `${base}silent.wav`;
+    } catch {
+      return '/silent.wav';
+    }
+  }, []);
+
+  const startAudioKeepalive = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (!bgAudioRef.current) {
+        const audio = new Audio();
+        audio.src = getSilentAudioUrl();
+        audio.loop = true;
+        audio.volume = 0.05;
+        audio.preload = 'auto';
+        bgAudioRef.current = audio;
+      }
+      bgAudioRef.current.play().catch(e => {
+        console.log('[MediaSession] silent keepalive play:', e);
+      });
+    } catch (e) {
+      console.warn('[MediaSession] keepalive error:', e);
+    }
+  }, [getSilentAudioUrl]);
+
   // Authoritative synchronous playback state refs to prevent stale closure bugs
   const currentSongRef = useRef<Song | null>(currentSong);
   const queueRef = useRef<Song[]>(queue);
@@ -341,6 +373,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentIndex(targetIndex);
     setCurrentSong(song);
     setIsPlaying(true);
+    startAudioKeepalive();
 
     // Track recently played
     setRecentlyPlayed(prev => [song.id, ...prev.filter(id => id !== song.id)].slice(0, 20));
@@ -408,6 +441,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (isPlaying) {
       setIsPlaying(false);
+      bgAudioRef.current?.pause();
       if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
         try {
           ytPlayerRef.current.pauseVideo();
@@ -417,6 +451,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     } else {
       setIsPlaying(true);
+      startAudioKeepalive();
       if (ytPlayerRef.current && ytPlayerRef.current.playVideo) {
         try {
           if (ytPlayerRef.current.unMute) ytPlayerRef.current.unMute();
@@ -433,6 +468,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const pauseSong = () => {
     setIsPlaying(false);
+    bgAudioRef.current?.pause();
     if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
       try {
         ytPlayerRef.current.pauseVideo();
@@ -582,24 +618,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // BACKGROUND AUDIO & SYSTEM MEDIA SESSION API
   // (Lock Screen & Notification Panel Controls)
   // ==========================================
-  const bgAudioRef = useRef<HTMLAudioElement | null>(null);
+  // ==========================================
+  // BACKGROUND AUDIO & SYSTEM MEDIA SESSION API
+  // (Lock Screen & Notification Panel Controls)
+  // ==========================================
 
-  // Initialize hidden background audio element to maintain wake lock and system media notification
+  // Prime audio on first touch/interaction on mobile devices
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!bgAudioRef.current) {
-      try {
-        const audio = new Audio();
-        // Generate a tiny inaudible continuous audio loop so Android/iOS OS keeps media session active
-        audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-        audio.loop = true;
-        audio.volume = 0.01;
-        bgAudioRef.current = audio;
-      } catch (err) {
-        console.warn('Background audio keepalive setup error:', err);
-      }
-    }
-  }, []);
+    const primeAudio = () => {
+      startAudioKeepalive();
+      window.removeEventListener('touchstart', primeAudio);
+      window.removeEventListener('click', primeAudio);
+    };
+    window.addEventListener('touchstart', primeAudio, { once: true, passive: true });
+    window.addEventListener('click', primeAudio, { once: true, passive: true });
+    return () => {
+      window.removeEventListener('touchstart', primeAudio);
+      window.removeEventListener('click', primeAudio);
+    };
+  }, [startAudioKeepalive]);
 
   // Sync MediaSession Metadata & Notification Shade
   useEffect(() => {
@@ -632,14 +669,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     try {
       navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-
-      // Keep mobile OS audio session active when playing
-      if (bgAudioRef.current) {
-        if (isPlaying) {
-          bgAudioRef.current.play().catch(() => {});
-        } else {
-          bgAudioRef.current.pause();
-        }
+      if (isPlaying) {
+        startAudioKeepalive();
+      } else {
+        bgAudioRef.current?.pause();
       }
     } catch {}
 
@@ -679,15 +712,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch {}
       }
     };
-  }, [isPlaying, currentSong]);
+  }, [isPlaying, currentSong, startAudioKeepalive]);
 
-  // Resilience: Keep audio playing if Android or browser backgrounds the app
+  // Resilience: Keep audio playing if Android or browser backgrounds or minimizes the app
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && isPlaying) {
-        if (bgAudioRef.current && bgAudioRef.current.paused) {
-          bgAudioRef.current.play().catch(() => {});
-        }
+    const handleKeepAlive = () => {
+      if (isPlaying) {
+        startAudioKeepalive();
         setTimeout(() => {
           if (ytPlayerRef.current && isPlaying) {
             try {
@@ -698,13 +729,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               }
             } catch (err) {}
           }
-        }, 200);
+        }, 180);
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isPlaying]);
+    document.addEventListener('visibilitychange', handleKeepAlive);
+    window.addEventListener('blur', handleKeepAlive);
+    return () => {
+      document.removeEventListener('visibilitychange', handleKeepAlive);
+      window.removeEventListener('blur', handleKeepAlive);
+    };
+  }, [isPlaying, startAudioKeepalive]);
 
   // Sync Position State in MediaSession (for progress bar in Notification Panel & Lock Screen)
   useEffect(() => {

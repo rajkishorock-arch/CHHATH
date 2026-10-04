@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { RefreshCw, Sparkles } from 'lucide-react';
 
 interface PullToRefreshProps {
   children: React.ReactNode;
@@ -10,7 +9,7 @@ interface PullToRefreshProps {
 export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   children,
   onRefresh,
-  threshold = 68
+  threshold = 65
 }) => {
   const [pullDistance, setPullDistance] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -29,37 +28,32 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
     if ('vibrate' in navigator) {
       try {
         navigator.vibrate([25, 20]);
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
 
-    // Dispatch global refresh event so data across the app syncs
+    // Dispatch global custom event for any listening sub-components
     window.dispatchEvent(new CustomEvent('chhath-app-pull-refresh'));
 
     try {
       if (onRefresh) {
         await Promise.resolve(onRefresh());
-      } else {
-        // Default soft refresh animation duration
-        await new Promise(resolve => setTimeout(resolve, 850));
       }
     } catch (e) {
       console.warn('Pull-to-refresh handler error:', e);
-    } finally {
-      setTimeout(() => {
-        setIsRefreshing(false);
-        setPullDistance(0);
-      }, 300);
     }
+
+    // Actual real hard/soft page reload
+    setTimeout(() => {
+      window.location.reload();
+    }, 450);
   }, [onRefresh]);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
       if (isRefreshingRef.current) return;
-      // Only engage if scroll position is at the very top
+      // Only engage if scroll position is at the very top of page
       const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
-      if (currentScroll <= 3 && e.touches.length === 1) {
+      if (currentScroll <= 2 && e.touches.length === 1) {
         startYRef.current = e.touches[0].clientY;
         startXRef.current = e.touches[0].clientX;
         isPullingRef.current = true;
@@ -72,7 +66,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
       if (!isPullingRef.current || isRefreshingRef.current || e.touches.length !== 1) return;
 
       const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
-      if (currentScroll > 5) {
+      if (currentScroll > 3) {
         isPullingRef.current = false;
         setPullDistance(0);
         return;
@@ -83,18 +77,18 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
       const deltaY = touchY - startYRef.current;
       const deltaX = touchX - startXRef.current;
 
-      // Ignore horizontal gestures (swiping left/right)
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 15) {
+      // Ignore horizontal swipes
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 12) {
         isPullingRef.current = false;
         setPullDistance(0);
         return;
       }
 
       if (deltaY > 0) {
-        // Natural dampening physics curve
-        const damped = Math.min(Math.pow(deltaY, 0.82) * 1.6, 92);
+        // Natural resistance physics
+        const damped = Math.min(Math.pow(deltaY, 0.82) * 1.5, 85);
         setPullDistance(damped);
-        if (damped > 15 && e.cancelable) {
+        if (damped > 12 && e.cancelable) {
           e.preventDefault();
         }
       } else {
@@ -135,63 +129,35 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   }, [pullDistance, threshold, handleRefresh]);
 
   const progress = Math.min(pullDistance / threshold, 1);
-  const isTriggered = pullDistance >= threshold;
 
   return (
     <div className="relative w-full">
-      {/* Floating Divine Pull-to-Refresh Indicator */}
+      {/* 
+        Dead-Center Floating Refresh Indicator:
+        Uses full width container with flex justify-center so it is 100% centered horizontally on every mobile screen
+      */}
       <div
-        className={`fixed left-1/2 -translate-x-1/2 z-[100] transition-transform duration-200 pointer-events-none ${
-          pullDistance > 5 || isRefreshing ? 'opacity-100' : 'opacity-0'
-        }`}
+        className="fixed top-0 left-0 right-0 w-full flex justify-center items-start pointer-events-none z-[9999]"
         style={{
-          top: `${Math.max(pullDistance * 0.75 - 12, 10)}px`,
-          transform: `translate(-50%, ${pullDistance > 0 || isRefreshing ? 0 : -60}px)`,
-          transition: isPullingRef.current ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease'
+          transform: `translateY(${pullDistance > 0 || isRefreshing ? Math.min(pullDistance * 0.72 + 6, 52) : -50}px)`,
+          opacity: pullDistance > 5 || isRefreshing ? 1 : 0,
+          transition: isPullingRef.current ? 'none' : 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease'
         }}
       >
-        <div
-          className={`flex items-center gap-2.5 px-4 py-2 rounded-full border shadow-2xl backdrop-blur-md transition-all duration-300 font-mukta ${
-            isTriggered || isRefreshing
-              ? 'bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-amber-100 border-amber-300/60 shadow-amber-500/30 scale-105'
-              : 'bg-stone-900/90 text-stone-200 border-amber-500/30 shadow-black/40'
-          }`}
-        >
-          <div className="relative flex items-center justify-center">
-            {isRefreshing ? (
-              <RefreshCw className="w-4 h-4 text-amber-200 animate-spin" />
-            ) : (
-              <RefreshCw
-                className="w-4 h-4 text-amber-300 transition-transform duration-100"
-                style={{ transform: `rotate(${progress * 360}deg)` }}
-              />
-            )}
-            {isTriggered && !isRefreshing && (
-              <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-300"></span>
-              </span>
-            )}
-          </div>
-
-          <span className="text-xs font-semibold tracking-wide flex items-center gap-1">
-            {isRefreshing ? (
-              <>
-                <span>सामग्री ताज़ा की जा रही है...</span>
-              </>
-            ) : isTriggered ? (
-              <>
-                <Sparkles className="w-3 h-3 text-amber-300 animate-pulse" />
-                <span>छोड़ें और रिफ्रेश करें</span>
-              </>
-            ) : (
-              <span>नीचे खींचकर रिफ्रेश करें</span>
-            )}
-          </span>
+        <div className="w-10 h-10 rounded-full bg-stone-900/95 border-2 border-amber-500 shadow-2xl shadow-black/80 flex items-center justify-center backdrop-blur-md">
+          <div
+            className={`w-5 h-5 rounded-full border-2 border-amber-400 border-t-transparent ${
+              isRefreshing ? 'animate-spin' : ''
+            }`}
+            style={{
+              transform: isRefreshing ? undefined : `rotate(${progress * 360}deg)`,
+              transition: isRefreshing ? undefined : 'transform 0.05s linear'
+            }}
+          />
         </div>
       </div>
 
-      {/* Main Page Content */}
+      {/* Main Content */}
       {children}
     </div>
   );
