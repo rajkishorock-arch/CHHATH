@@ -6,6 +6,7 @@ import { AudioProvider, useAudio } from './context/AudioContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ReelsProvider, useReels } from './context/ReelsContext';
 import { ChatProvider } from './context/ChatContext';
+import { App as CapApp } from '@capacitor/app';
 
 // Layout & Core Navigation Components
 import { Navbar } from './components/layout/Navbar';
@@ -194,8 +195,36 @@ const getInitialTabFromLocation = (): string => {
 };
 
 const MainContent: React.FC = () => {
-  const { openReelsPlatform } = useReels();
-  const { openAuthModal } = useAuth();
+  const { 
+    openReelsPlatform, 
+    reelsPlatformOpen, 
+    closeReelsPlatform, 
+    createModalOpen, 
+    closeCreateModal, 
+    creatorStudioOpen, 
+    setCreatorStudioOpen 
+  } = useReels();
+
+  const { 
+    openAuthModal, 
+    authModalOpen, 
+    closeAuthModal, 
+    onboardingModalOpen, 
+    closeOnboarding, 
+    accountCenterModalOpen, 
+    closeAccountCenter 
+  } = useAuth();
+
+  const { 
+    isExpandedOpen, 
+    setIsExpandedOpen, 
+    isQueueOpen, 
+    setIsQueueOpen, 
+    showVideo, 
+    setShowVideo, 
+    lyricsSong, 
+    setLyricsSong 
+  } = useAudio();
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
 
@@ -371,6 +400,144 @@ const MainContent: React.FC = () => {
     } catch (e) {}
   };
 
+  // Hardware & Gesture Back Button Integration
+  const lastBackPressRef = React.useRef<number>(0);
+  const [exitToastVisible, setExitToastVisible] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    let removeListener: (() => void) | undefined;
+
+    const setupBackButton = async () => {
+      try {
+        const listener = await CapApp.addListener('backButton', () => {
+          // 1. Close any active overlay/modal first
+          if (isExpandedOpen) {
+            setIsExpandedOpen(false);
+            return;
+          }
+          if (isQueueOpen) {
+            setIsQueueOpen(false);
+            return;
+          }
+          if (lyricsSong) {
+            setLyricsSong(null);
+            return;
+          }
+          if (showVideo) {
+            setShowVideo(false);
+            return;
+          }
+          if (searchModalOpen) {
+            setSearchModalOpen(false);
+            return;
+          }
+          if (reelsPlatformOpen) {
+            closeReelsPlatform();
+            return;
+          }
+          if (createModalOpen) {
+            closeCreateModal();
+            return;
+          }
+          if (creatorStudioOpen) {
+            setCreatorStudioOpen(false);
+            return;
+          }
+          if (authModalOpen) {
+            closeAuthModal();
+            return;
+          }
+          if (onboardingModalOpen) {
+            closeOnboarding();
+            return;
+          }
+          if (accountCenterModalOpen) {
+            closeAccountCenter();
+            return;
+          }
+          if (assistantModalOpen) {
+            setAssistantModalOpen(false);
+            return;
+          }
+          if (mixerModalOpen) {
+            setMixerModalOpen(false);
+            return;
+          }
+          if (adminModalOpen) {
+            setAdminModalOpen(false);
+            return;
+          }
+          if (locationModalOpen) {
+            setLocationModalOpen(false);
+            return;
+          }
+
+          // 2. Navigation: If user is on any other tab/page, return to previous or home!
+          if (activeTab !== 'home') {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              handleNavigate('home');
+            }
+            return;
+          }
+
+          // 3. User is on Home page: double-tap back to exit/minimize gracefully
+          const now = Date.now();
+          if (now - lastBackPressRef.current < 2000) {
+            // Second press within 2s -> minimize app smoothly (keeps background music playing!)
+            CapApp.minimizeApp().catch(() => {
+              CapApp.exitApp();
+            });
+          } else {
+            lastBackPressRef.current = now;
+            setExitToastVisible(true);
+            setTimeout(() => setExitToastVisible(false), 2000);
+          }
+        });
+
+        removeListener = () => {
+          listener.remove();
+        };
+      } catch (err) {
+        console.warn('Capacitor backButton setup warning:', err);
+      }
+    };
+
+    setupBackButton();
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [
+    activeTab,
+    isExpandedOpen,
+    setIsExpandedOpen,
+    isQueueOpen,
+    setIsQueueOpen,
+    lyricsSong,
+    setLyricsSong,
+    showVideo,
+    setShowVideo,
+    searchModalOpen,
+    reelsPlatformOpen,
+    closeReelsPlatform,
+    createModalOpen,
+    closeCreateModal,
+    creatorStudioOpen,
+    setCreatorStudioOpen,
+    authModalOpen,
+    closeAuthModal,
+    onboardingModalOpen,
+    closeOnboarding,
+    accountCenterModalOpen,
+    closeAccountCenter,
+    assistantModalOpen,
+    mixerModalOpen,
+    adminModalOpen,
+    locationModalOpen
+  ]);
+
   return (
     <PullToRefresh>
       <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col relative transition-colors duration-300">
@@ -535,6 +702,14 @@ const MainContent: React.FC = () => {
         <CallScreenModal />
         <ShareToChatModal />
       </Suspense>
+
+      {/* Double Tap Back to Exit Toast Banner */}
+      {exitToastVisible && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[110] bg-stone-900/95 border border-amber-500/50 text-amber-200 px-5 py-2.5 rounded-full text-xs font-bold shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200 flex items-center gap-2 pointer-events-none">
+          <span>🪔</span>
+          <span>बाहर निकलने के लिए एक बार फिर बैक दबाएं</span>
+        </div>
+      )}
     </div>
     </PullToRefresh>
   );
