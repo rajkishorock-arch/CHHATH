@@ -11,6 +11,8 @@ const routes = [
   'chhath-arghya-time-2026',
   'chhath-arghya-time',
   'thekua-recipe',
+  'prasad',
+  'aarti',
   'chhath-puja-geet',
   'chhath-puja-katha',
   'chhath-calendar-2026',

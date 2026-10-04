@@ -6,8 +6,6 @@ import { ArghyaTimeCalc } from '../astronomy/ArghyaTimeCalc';
 import { FourDaysTimeline } from '../timeline/FourDaysTimeline';
 import { GhatFinder } from '../ghats/GhatFinder';
 import { GhatSafetySection } from '../ghats/GhatSafetySection';
-import { PrasadSection } from '../prasad/PrasadSection';
-import { MantraAarti } from '../spiritual/MantraAarti';
 import { SongsSection } from '../audio/SongsSection';
 import { MyFirstChhath } from '../beginner/MyFirstChhath';
 import {
@@ -20,7 +18,8 @@ import {
   BookOpen,
   ArrowRight,
   Info,
-  Users
+  Users,
+  Flame
 } from 'lucide-react';
 
 interface PublicHomeViewProps {
@@ -407,14 +406,142 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         <GhatFinder />
       </section>
 
-      {/* Prasad & Recipes */}
+      {/* Pakwan & Prasad Compact Intro Card */}
       <section id="prasad" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
-        <PrasadSection />
+        <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 p-6 sm:p-8 shadow-sm space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3 flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
+                <Utensils className="w-3.5 h-3.5" />
+                <span>छठ महापर्व के पवित्र महाप्रसाद • विधि व वीडियो गाइड</span>
+              </div>
+              <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
+                पावन पकवान व ठेकुआ रेसिपी (Chhath Prasad & Recipes)
+              </h2>
+              <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
+                पारंपरिक सांचे पर गढ़ा खस्ता ठेकुआ, खरना का अमृततुल्य रसियाव (गुड़ की खीर), चावल के कसार लड्डू और मौसमी फल। संपूर्ण प्रामाणिक सामग्री, चरणबद्ध विधि और वीडियो ट्यूटोरियल प्लेलिस्ट के साथ देखें।
+              </p>
+              
+              {/* Quick Pakwan feature pills */}
+              <div className="flex flex-wrap gap-2 pt-1 text-xs font-semibold text-stone-700 dark:text-stone-300">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('thekua-recipe')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🍪 पारंपरिक खस्ता ठेकुआ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('thekua-recipe')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🥣 खरना रसियाव (गुड़ खीर)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('thekua-recipe')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🟡 कसार के लड्डू (भुसवा)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('thekua-recipe')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🎋 ईख व ऋतु फल
+                </button>
+                <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30 flex items-center gap-1.5 font-bold shadow-2xs">
+                  📹 वीडियो प्लेलिस्ट उपलब्ध
+                </span>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="shrink-0 flex sm:flex-col justify-end">
+              <button
+                type="button"
+                onClick={() => onNavigate('thekua-recipe')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+              >
+                <span>सभी पकवान रेसिपी व वीडियो देखें</span>
+                <ArrowRight className="w-4 h-4 text-stone-950" />
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Mantra & Aarti */}
-      <section id="aarti" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24 space-y-8">
-        <MantraAarti />
+      {/* Mantra & Aarti Compact Intro Card */}
+      <section id="aarti" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+        <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 p-6 sm:p-8 shadow-sm space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3 flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
+                <Flame className="w-3.5 h-3.5 text-orange-500 animate-diya-flicker" />
+                <span>वैदिक मंत्र, स्तोत्र व पावन आरती • संपूर्ण आध्यात्मिक संग्रह</span>
+              </div>
+              <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
+                सूर्य देव वैदिक मंत्र व छठी मईया आरती (Mantra & Aarti)
+              </h2>
+              <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
+                सूर्य अर्घ्य समर्पण महामंत्र, षष्ठी देवी ध्यान, सूर्य गायत्री, आदित्य हृदय स्तोत्र और छठी मईया की संपूर्ण पावन आरती। शुद्ध संस्कृत श्लोक, हिंदी भावार्थ, ऑडियो उच्चारण और संपूर्ण वीडियो प्लेलिस्ट के लिए समर्पित पेज पर जाएं।
+              </p>
+              
+              {/* Quick Mantra feature pills */}
+              <div className="flex flex-wrap gap-2 pt-1 text-xs font-semibold text-stone-700 dark:text-stone-300">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('aarti')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🌅 सूर्य अर्घ्य महामंत्र
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('aarti')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🪔 षष्ठी देवी ध्यान मंत्र
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('aarti')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  ☀️ सूर्य गायत्री 108 जप
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('aarti')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  📜 आदित्य हृदय स्तोत्र
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('aarti')}
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 hover:bg-amber-500/20 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  🔔 संपूर्ण पावन आरती
+                </button>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="shrink-0 flex sm:flex-col justify-end">
+              <button
+                type="button"
+                onClick={() => onNavigate('aarti')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+              >
+                <span>संपूर्ण मंत्र, आरती व वीडियो सुनें</span>
+                <ArrowRight className="w-4 h-4 text-stone-950" />
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Dedicated Chhath Music Studio */}

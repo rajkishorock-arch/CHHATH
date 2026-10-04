@@ -177,7 +177,19 @@ const getInitialTabFromLocation = (): string => {
 
   const rawPath = window.location.pathname.toLowerCase();
   const cleanPath = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
-  return normalizeTabKey(cleanPath);
+  const normPath = normalizeTabKey(cleanPath);
+  if (normPath !== 'home') return normPath;
+
+  // Persist current tab across refresh from sessionStorage
+  try {
+    const savedTab = sessionStorage.getItem('chhath_active_tab');
+    if (savedTab && savedTab !== 'home') {
+      const normSaved = normalizeTabKey(savedTab);
+      if (normSaved !== 'home') return normSaved;
+    }
+  } catch (e) {}
+
+  return 'home';
 };
 
 const MainContent: React.FC = () => {
@@ -206,12 +218,57 @@ const MainContent: React.FC = () => {
   const [assistantModalOpen, setAssistantModalOpen] = useState(false);
   const [mixerModalOpen, setMixerModalOpen] = useState(false);
 
-  // Deep-linking & URL route listener
+  // Helper to restore home scroll position smoothly
+  const restoreHomeScroll = () => {
+    try {
+      const savedY = sessionStorage.getItem('home_scroll_y');
+      if (savedY) {
+        const y = parseInt(savedY, 10);
+        if (!isNaN(y) && y > 0) {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, left: 0, behavior: 'instant' });
+            setTimeout(() => {
+              window.scrollTo({ top: y, left: 0, behavior: 'instant' });
+            }, 60);
+          });
+          return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  };
+
+  // Keep track of scroll position when user is on home view
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (activeTab === 'home') {
+        const y = window.scrollY || document.documentElement.scrollTop || 0;
+        try {
+          sessionStorage.setItem('home_scroll_y', y.toString());
+        } catch (e) {}
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab]);
+
+  // Deep-linking & URL route listener (handles browser back/forward and hash changes)
   React.useEffect(() => {
     const handleUrlChange = () => {
       const tab = getInitialTabFromLocation();
       setActiveTab(tab);
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      try {
+        sessionStorage.setItem('chhath_active_tab', tab);
+      } catch (e) {}
+
+      if (tab === 'home') {
+        if (!restoreHomeScroll()) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
+
       const hash = window.location.hash;
       const qMatch = hash.match(/[?&]q=([^&]+)/);
       if (qMatch) {
@@ -266,8 +323,28 @@ const MainContent: React.FC = () => {
     if (query !== undefined) {
       setMusicInitialQuery(query);
     }
+
+    // Save scroll position before leaving home
+    if (activeTab === 'home') {
+      const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+      try {
+        sessionStorage.setItem('home_scroll_y', currentY.toString());
+      } catch (e) {}
+    }
+
     setActiveTab(targetTab);
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    try {
+      sessionStorage.setItem('chhath_active_tab', targetTab);
+    } catch (e) {}
+
+    // When navigating to home, restore saved scroll position; otherwise go to top
+    if (targetTab === 'home') {
+      if (!restoreHomeScroll()) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
 
     const rawBase = import.meta.env.BASE_URL || '/';
     const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
@@ -283,6 +360,8 @@ const MainContent: React.FC = () => {
     else if (targetTab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
     else if (targetTab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
     else if (targetTab === 'settings') urlPath = `${base}#settings`;
+    else if (targetTab === 'aarti') urlPath = `${base}#aarti`;
+    else if (targetTab === 'ghats') urlPath = `${base}#ghats`;
     else if (targetTab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
     else if (targetTab !== 'home') urlPath = `${base}#${targetTab}`;
 
@@ -330,7 +409,7 @@ const MainContent: React.FC = () => {
             <ChhathArghyaTimePage onNavigate={handleNavigate} />
           )}
 
-          {activeTab === 'thekua-recipe' && (
+          {(activeTab === 'thekua-recipe' || activeTab === 'prasad') && (
             <ThekuaRecipePage onNavigate={handleNavigate} />
           )}
 
@@ -377,24 +456,13 @@ const MainContent: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'prasad' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
-              <Breadcrumbs 
-                items={[{ label: 'प्रसाद व ठेकुआ रेसिपी', url: '#prasad' }]} 
-                onNavigate={handleNavigate} 
-              />
-              <PrasadSection />
-              <CookingStudio />
-            </div>
-          )}
-
           {activeTab === 'aarti' && (
             <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
               <Breadcrumbs 
                 items={[{ label: 'सूर्य देव आरती व वैदिक मंत्र', url: '#aarti' }]} 
                 onNavigate={handleNavigate} 
               />
-              <MantraAarti />
+              <MantraAarti onNavigate={handleNavigate} />
             </div>
           )}
 
