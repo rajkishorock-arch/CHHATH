@@ -404,111 +404,36 @@ const MainContent: React.FC = () => {
   const lastBackPressRef = React.useRef<number>(0);
   const [exitToastVisible, setExitToastVisible] = useState<boolean>(false);
 
-  React.useEffect(() => {
-    let removeListener: (() => void) | undefined;
+  const handleBackLogic = React.useCallback((): string => {
+    // 1. Close any active overlay/modal first
+    if (isExpandedOpen) { setIsExpandedOpen(false); return 'handled'; }
+    if (isQueueOpen) { setIsQueueOpen(false); return 'handled'; }
+    if (lyricsSong) { setLyricsSong(null); return 'handled'; }
+    if (showVideo) { setShowVideo(false); return 'handled'; }
+    if (searchModalOpen) { setSearchModalOpen(false); return 'handled'; }
+    if (reelsPlatformOpen) { closeReelsPlatform(); return 'handled'; }
+    if (createModalOpen) { closeCreateModal(); return 'handled'; }
+    if (creatorStudioOpen) { setCreatorStudioOpen(false); return 'handled'; }
+    if (authModalOpen) { closeAuthModal(); return 'handled'; }
+    if (onboardingModalOpen) { closeOnboarding(); return 'handled'; }
+    if (accountCenterModalOpen) { closeAccountCenter(); return 'handled'; }
+    if (assistantModalOpen) { setAssistantModalOpen(false); return 'handled'; }
+    if (mixerModalOpen) { setMixerModalOpen(false); return 'handled'; }
+    if (adminModalOpen) { setAdminModalOpen(false); return 'handled'; }
+    if (locationModalOpen) { setLocationModalOpen(false); return 'handled'; }
 
-    const setupBackButton = async () => {
-      try {
-        const listener = await CapApp.addListener('backButton', () => {
-          // 1. Close any active overlay/modal first
-          if (isExpandedOpen) {
-            setIsExpandedOpen(false);
-            return;
-          }
-          if (isQueueOpen) {
-            setIsQueueOpen(false);
-            return;
-          }
-          if (lyricsSong) {
-            setLyricsSong(null);
-            return;
-          }
-          if (showVideo) {
-            setShowVideo(false);
-            return;
-          }
-          if (searchModalOpen) {
-            setSearchModalOpen(false);
-            return;
-          }
-          if (reelsPlatformOpen) {
-            closeReelsPlatform();
-            return;
-          }
-          if (createModalOpen) {
-            closeCreateModal();
-            return;
-          }
-          if (creatorStudioOpen) {
-            setCreatorStudioOpen(false);
-            return;
-          }
-          if (authModalOpen) {
-            closeAuthModal();
-            return;
-          }
-          if (onboardingModalOpen) {
-            closeOnboarding();
-            return;
-          }
-          if (accountCenterModalOpen) {
-            closeAccountCenter();
-            return;
-          }
-          if (assistantModalOpen) {
-            setAssistantModalOpen(false);
-            return;
-          }
-          if (mixerModalOpen) {
-            setMixerModalOpen(false);
-            return;
-          }
-          if (adminModalOpen) {
-            setAdminModalOpen(false);
-            return;
-          }
-          if (locationModalOpen) {
-            setLocationModalOpen(false);
-            return;
-          }
-
-          // 2. Navigation: If user is on any other tab/page, return to previous or home!
-          if (activeTab !== 'home') {
-            if (window.history.length > 1) {
-              window.history.back();
-            } else {
-              handleNavigate('home');
-            }
-            return;
-          }
-
-          // 3. User is on Home page: double-tap back to exit/minimize gracefully
-          const now = Date.now();
-          if (now - lastBackPressRef.current < 2000) {
-            // Second press within 2s -> minimize app smoothly (keeps background music playing!)
-            CapApp.minimizeApp().catch(() => {
-              CapApp.exitApp();
-            });
-          } else {
-            lastBackPressRef.current = now;
-            setExitToastVisible(true);
-            setTimeout(() => setExitToastVisible(false), 2000);
-          }
-        });
-
-        removeListener = () => {
-          listener.remove();
-        };
-      } catch (err) {
-        console.warn('Capacitor backButton setup warning:', err);
+    // 2. Navigation: If user is on any other tab/page, return to previous or home!
+    if (activeTab !== 'home') {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        handleNavigate('home');
       }
-    };
+      return 'handled';
+    }
 
-    setupBackButton();
-
-    return () => {
-      if (removeListener) removeListener();
-    };
+    // 3. User is on Home page
+    return 'unhandled';
   }, [
     activeTab,
     isExpandedOpen,
@@ -537,6 +462,51 @@ const MainContent: React.FC = () => {
     adminModalOpen,
     locationModalOpen
   ]);
+
+  // Expose directly to window for Native Android Java evaluateJavascript
+  React.useEffect(() => {
+    (window as any).handleAndroidBack = handleBackLogic;
+    return () => {
+      delete (window as any).handleAndroidBack;
+    };
+  }, [handleBackLogic]);
+
+  React.useEffect(() => {
+    let removeListener: (() => void) | undefined;
+
+    const setupBackButton = async () => {
+      try {
+        const listener = await CapApp.addListener('backButton', () => {
+          const res = handleBackLogic();
+          if (res === 'handled') return;
+
+          // Double tap back to exit on home page
+          const now = Date.now();
+          if (now - lastBackPressRef.current < 2000) {
+            CapApp.minimizeApp().catch(() => {
+              CapApp.exitApp();
+            });
+          } else {
+            lastBackPressRef.current = now;
+            setExitToastVisible(true);
+            setTimeout(() => setExitToastVisible(false), 2000);
+          }
+        });
+
+        removeListener = () => {
+          listener.remove();
+        };
+      } catch (err) {
+        console.warn('Capacitor backButton setup warning:', err);
+      }
+    };
+
+    setupBackButton();
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [handleBackLogic]);
 
   return (
     <PullToRefresh>

@@ -638,8 +638,46 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [startAudioKeepalive]);
 
+  // Synchronize with Native Android MediaNotification
+  const syncWithAndroidNotification = useCallback((song: Song | null, playing: boolean) => {
+    if (typeof window === 'undefined') return;
+    try {
+      if ((window as any).AndroidMedia) {
+        if (song) {
+          (window as any).AndroidMedia.updateMedia(
+            song.title || 'छठ महापर्व',
+            song.singer || 'शारदा सिन्हा व पारंपरिक भजन',
+            song.thumbnail || '',
+            playing
+          );
+        } else {
+          (window as any).AndroidMedia.stopMedia();
+        }
+      }
+    } catch (e) {
+      console.warn('AndroidMedia bridge warning:', e);
+    }
+  }, []);
+
+  // Native notification actions (Previous, Play/Pause, Next)
+  useEffect(() => {
+    const handleNotificationAction = (e: any) => {
+      const action = e?.detail;
+      if (action === 'prev') {
+        playPrevious();
+      } else if (action === 'toggle') {
+        togglePlay();
+      } else if (action === 'next') {
+        playNext();
+      }
+    };
+    window.addEventListener('notification-action', handleNotificationAction);
+    return () => window.removeEventListener('notification-action', handleNotificationAction);
+  }, [playPrevious, togglePlay, playNext]);
+
   // Sync MediaSession Metadata & Notification Shade
   useEffect(() => {
+    syncWithAndroidNotification(currentSong, isPlaying);
     if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
 
     if (currentSong) {
