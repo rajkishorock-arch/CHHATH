@@ -1385,6 +1385,16 @@ export const ReelsStorage = {
     localStorage.setItem(`${KEYS.IMPRESSIONS}_${userId}`, JSON.stringify(updated));
   },
 
+  getWatchedReelIds(userId?: string): Set<string> {
+    const list = this.getImpressions(userId || 'guest');
+    const set = new Set<string>();
+    for (const item of list) {
+      if (item.reelId) set.add(item.reelId);
+      if (item.youtubeId) set.add(item.youtubeId);
+    }
+    return set;
+  },
+
   // --- SEARCH HISTORY ---
   getSearchHistory(userId?: string): string[] {
     const key = userId ? `${KEYS.SEARCH_HISTORY}_${userId}` : KEYS.SEARCH_HISTORY;

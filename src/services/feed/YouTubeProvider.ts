@@ -25,7 +25,7 @@ const LIVE_CHHATH_SHORTS_QUERIES = [
   'chhath mahaparv status viral'
 ];
 
-let liveQueryIndex = 0;
+let liveQueryIndex = Math.floor(Math.random() * LIVE_CHHATH_SHORTS_QUERIES.length);
 let liveNextPageToken: string | null = null;
 const seenLiveVideoIds = new Set<string>();
 
@@ -127,7 +127,7 @@ export const YouTubeProvider = {
     const userId = currentUser?.id || 'guest';
     const catalog = ReelsStorage.getExternalCatalog();
 
-    return catalog.filter(reel => {
+    const filtered = catalog.filter(reel => {
       if (!reel.youtubeVideoId) return false;
 
       // Check blocklist
@@ -148,6 +148,23 @@ export const YouTubeProvider = {
 
       return true;
     });
+
+    // Helper: Fisher-Yates array shuffle for non-static, non-repetitive feed
+    const shuffle = <T>(array: T[]): T[] => {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+
+    // Partition by watched vs unseen: New/unseen reels ALWAYS come first!
+    const watchedIds = ReelsStorage.getWatchedReelIds(userId);
+    const unseen = filtered.filter(r => !watchedIds.has(r.id) && !watchedIds.has(r.youtubeVideoId || ''));
+    const seen = filtered.filter(r => watchedIds.has(r.id) || watchedIds.has(r.youtubeVideoId || ''));
+
+    return [...shuffle(unseen), ...shuffle(seen)];
   },
 
   /**

@@ -205,7 +205,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const primaryNavLinks: { id: string; label: string; href: string; badge?: string; isReels?: boolean }[] = [
     { id: 'home', label: navText.home, href: '#home' },
-    { id: 'reels', label: navText.reels, href: '#reels', isReels: true, badge: language === 'en' ? 'LIVE' : 'लाइव' },
+    { id: 'reels', label: navText.reels, href: '#reels', isReels: true },
     { id: 'guide', label: navText.guide, href: '#guide' },
     { id: 'arghya', label: navText.arghya, href: '#arghya' },
     { id: 'music', label: navText.music, href: '#music' }
@@ -319,11 +319,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   <Film className="w-3.5 h-3.5 text-red-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
                   <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase tracking-wider bg-red-600 text-white animate-pulse">
-                      {item.badge}
-                    </span>
-                  )}
                 </button>
               );
             }
@@ -358,9 +353,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <LayoutGrid className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform" />
             <span>{navText.allFeatures}</span>
-            <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500 text-stone-950 font-black">
-              20+
-            </span>
           </button>
         </nav>
 

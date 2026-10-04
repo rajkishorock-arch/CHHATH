@@ -227,11 +227,21 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       selectedUsername
     }).then(res => {
       if (isMounted) {
+        const userId = currentUser?.id || 'guest';
+        const watched = ReelsStorage.getWatchedReelIds(userId);
+        let startIdx = res.items.findIndex(r => !watched.has(r.id) && !watched.has(r.youtubeVideoId || ''));
+        if (startIdx === -1 && res.items.length > 1) {
+          startIdx = Math.floor(Math.random() * res.items.length);
+        }
+        if (startIdx === -1) startIdx = 0;
+
         setFeedItems(res.items);
         setFeedCursor(res.nextCursor);
         setHasMoreReels(res.hasMore);
-        if (res.items.length > 0) {
-          setActiveReelId(res.items[0].id);
+        setActiveReelIndex(startIdx);
+        if (res.items[startIdx]) {
+          setActiveReelId(res.items[startIdx].id);
+          ReelsStorage.recordImpression(userId, res.items[startIdx].id, res.items[startIdx].youtubeVideoId);
         }
         setIsLoadingBatch(false);
       }
@@ -333,13 +343,15 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const handleSetActiveReelIndex = useCallback((idx: number) => {
     setActiveReelIndex(idx);
     if (effectiveReels[idx]) {
-      setActiveReelId(effectiveReels[idx].id);
+      const activeItem = effectiveReels[idx];
+      setActiveReelId(activeItem.id);
+      ReelsStorage.recordImpression(currentUser?.id || 'guest', activeItem.id, activeItem.youtubeVideoId);
     }
     // Auto-fetch more live reels whenever user is within 3 reels of the end
     if (idx >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
       loadMoreReels();
     }
-  }, [effectiveReels, hasMoreReels, isLoadingBatch, loadMoreReels]);
+  }, [effectiveReels, hasMoreReels, isLoadingBatch, loadMoreReels, currentUser]);
 
   const handleSetActiveReelId = useCallback((id: string | null) => {
     setActiveReelId(id);
@@ -347,12 +359,13 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const idx = effectiveReels.findIndex(r => r.id === id);
       if (idx !== -1) {
         setActiveReelIndex(idx);
+        ReelsStorage.recordImpression(currentUser?.id || 'guest', id, effectiveReels[idx]?.youtubeVideoId);
         if (idx >= effectiveReels.length - 3 && hasMoreReels && !isLoadingBatch) {
           loadMoreReels();
         }
       }
     }
-  }, [effectiveReels, hasMoreReels, isLoadingBatch, loadMoreReels]);
+  }, [effectiveReels, hasMoreReels, isLoadingBatch, loadMoreReels, currentUser]);
 
   // Navigation methods
   const nextReel = () => {
@@ -659,10 +672,27 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setCustomFeedList(null);
     }
     setFeedType(initialFeed);
+
+    const targetList = (customList && customList.length > 0) ? customList : feedItems;
+    const userId = currentUser?.id || 'guest';
+    const watched = ReelsStorage.getWatchedReelIds(userId);
+
     if (specificReelId) {
       jumpToReelId(specificReelId);
     } else {
-      setActiveReelIndex(0);
+      // Find the first fresh unseen reel so user NEVER starts with a reel they've already seen
+      let targetIdx = targetList.findIndex(r => !watched.has(r.id) && !watched.has(r.youtubeVideoId || ''));
+      if (targetIdx === -1 && targetList.length > 1) {
+        // If all available have been seen, pick a dynamic randomized starting reel
+        targetIdx = Math.floor(Math.random() * targetList.length);
+      }
+      if (targetIdx === -1) targetIdx = 0;
+
+      setActiveReelIndex(targetIdx);
+      if (targetList[targetIdx]) {
+        setActiveReelId(targetList[targetIdx].id);
+        ReelsStorage.recordImpression(userId, targetList[targetIdx].id, targetList[targetIdx].youtubeVideoId);
+      }
     }
     setIsMuted(false);
     setReelsPlatformOpen(true);
