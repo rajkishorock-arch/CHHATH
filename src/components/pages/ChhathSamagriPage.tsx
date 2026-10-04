@@ -1,7 +1,7 @@
 import React from 'react';
 import { SeoHead } from '../seo/SeoHead';
 import { Breadcrumbs } from '../common/Breadcrumbs';
-import { CheckSquare, ArrowRight, HelpCircle, ShoppingBag, CheckCircle, Info } from 'lucide-react';
+import { CheckSquare, ArrowRight, ArrowLeft, HelpCircle, ShoppingBag, CheckCircle, Info } from 'lucide-react';
 import { SamagriChecklist } from '../vidhi/SamagriChecklist';
 
 interface PageProps {
@@ -134,8 +134,18 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
 
       <div className="container-custom max-w-4xl mx-auto px-4 pt-4 space-y-8">
         
-        {/* Breadcrumb */}
-        <Breadcrumbs items={breadcrumbs} onNavigate={onNavigate} />
+        {/* Top Back to Home Button & Breadcrumb */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30 text-xs sm:text-sm font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← मुख्य पृष्ठ (Back to Home)</span>
+          </button>
+          <Breadcrumbs items={breadcrumbs} onNavigate={onNavigate} />
+        </div>
 
         {/* Page Hero Header */}
         <header className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 text-center space-y-4 shadow-xl">
@@ -359,6 +369,18 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
               </a>
             </div>
           </section>
+
+          {/* Bottom Return to Home CTA */}
+          <div className="pt-6 pb-2 text-center">
+            <button
+              type="button"
+              onClick={() => onNavigate('home')}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 text-stone-950" />
+              <span>मुख्य पृष्ठ पर वापस जाएं (Back to Home)</span>
+            </button>
+          </div>
 
         </article>
       </div>

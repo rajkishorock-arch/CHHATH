@@ -209,7 +209,7 @@ const MainContent: React.FC = () => {
 
     let urlPath = base;
     if (tab === 'chhath-puja-vidhi') urlPath = `${base}chhath-puja-vidhi/`;
-    else if (tab === 'chhath-samagri') urlPath = `${base}chhath-samagri/`;
+    else if (tab === 'chhath-samagri' || tab === 'samagri') urlPath = `${base}chhath-samagri/`;
     else if (tab === 'chhath-arghya-time-2026') urlPath = `${base}chhath-arghya-time-2026/`;
     else if (tab === 'thekua-recipe') urlPath = `${base}thekua-recipe/`;
     else if (tab === 'chhath-puja-geet') urlPath = `${base}chhath-puja-geet/`;
@@ -254,7 +254,7 @@ const MainContent: React.FC = () => {
           <ChhathVidhiPage onNavigate={handleNavigate} />
         )}
 
-        {activeTab === 'chhath-samagri' && (
+        {(activeTab === 'chhath-samagri' || activeTab === 'samagri') && (
           <ChhathSamagriPage onNavigate={handleNavigate} />
         )}
 

@@ -4,7 +4,6 @@ import { ChhathCommandCenter } from './ChhathCommandCenter';
 import { getImageUrl } from '../../utils/imageUtils';
 import { ArghyaTimeCalc } from '../astronomy/ArghyaTimeCalc';
 import { FourDaysTimeline } from '../timeline/FourDaysTimeline';
-import { SamagriChecklist } from '../vidhi/SamagriChecklist';
 import { GhatFinder } from '../ghats/GhatFinder';
 import { GhatSafetySection } from '../ghats/GhatSafetySection';
 import { PrasadSection } from '../prasad/PrasadSection';
@@ -134,7 +133,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
                 onClick={(e) => {
                   if (cardHref.startsWith('/CHHATH/')) {
                     e.preventDefault();
-                    onNavigate(card.id);
+                    onNavigate(card.id === 'samagri' ? 'chhath-samagri' : card.id);
                   }
                 }}
                 className="group p-6 rounded-3xl bg-white dark:bg-stone-900 border border-amber-500/20 shadow-sm hover:shadow-md hover:border-amber-400 text-left transition-all flex flex-col justify-between text-decoration-none min-h-[160px]"
@@ -355,9 +354,52 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
         <MyFirstChhath />
       </section>
 
-      {/* Puja Samagri Checklist */}
+      {/* Puja Samagri Compact Intro Card */}
       <section id="samagri" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
-        <SamagriChecklist />
+        <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 p-6 sm:p-8 shadow-sm space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3 flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
+                <CheckSquare className="w-3.5 h-3.5" />
+                <span>40+ प्रामाणिक पूजन वस्तुएं • संपूर्ण चेकलिस्ट</span>
+              </div>
+              <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
+                छठ पूजा सामग्री सूची (Chhath Samagri)
+              </h2>
+              <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
+                दउरा, सूप, मौसमी अर्घ्य फल, ठेकुआ-कसार सामग्री और घाट की संपूर्ण आवश्यक वस्तुओं की विस्तृत प्रामाणिक सूची। अलग पेज पर इंटरैक्टिव चेकलिस्ट के साथ अपनी तैयारी भी ट्रैक करें।
+              </p>
+              
+              {/* Quick feature pills */}
+              <div className="flex flex-wrap gap-2 pt-1 text-xs font-semibold text-stone-700 dark:text-stone-300">
+                <span className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs">
+                  🧺 बाँस का दउरा व सूप
+                </span>
+                <span className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs">
+                  🥥 16+ अर्घ्य फल व द्रव्य
+                </span>
+                <span className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs">
+                  🌾 ठेकुआ व कसार सामग्री
+                </span>
+                <span className="px-3 py-1 rounded-xl bg-white/80 dark:bg-stone-900/80 border border-stone-200 dark:border-stone-800 flex items-center gap-1.5 shadow-2xs">
+                  🪔 दीप, कलश व घाट सामग्री
+                </span>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="shrink-0 flex sm:flex-col justify-end">
+              <button
+                type="button"
+                onClick={() => onNavigate('chhath-samagri')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+              >
+                <span>संपूर्ण सामग्री सूची देखें</span>
+                <ArrowRight className="w-4 h-4 text-stone-950" />
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Nearby Ghats */}
