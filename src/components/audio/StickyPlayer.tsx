@@ -91,6 +91,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
               <img
                 src={getImageUrl(currentSong.thumbnail)}
                 alt={currentSong.title}
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 onError={(e) => {
                   (e.target as HTMLElement).setAttribute('src', getImageUrl('images/daura_arghya.jpg'));

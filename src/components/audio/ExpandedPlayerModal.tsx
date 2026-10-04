@@ -148,6 +148,7 @@ export const ExpandedPlayerModal: React.FC = () => {
           <img
             src={getImageUrl(currentSong.thumbnail)}
             alt={currentSong.title}
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             onError={(e) => {
               (e.target as HTMLElement).setAttribute('src', getImageUrl('images/daura_arghya.jpg'));

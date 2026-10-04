@@ -62,6 +62,11 @@ const YouTubeVideoCardComponent: React.FC<{
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
 
+  useEffect(() => {
+    const nextThumb = song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
+    setThumbSrc(nextThumb);
+  }, [song.thumbnail, song.youtubeId]);
+
   const ytUrl = song.youtubeId ? `https://www.youtube.com/watch?v=${song.youtubeId}` : song.audioUrl;
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -82,10 +87,15 @@ const YouTubeVideoCardComponent: React.FC<{
           src={thumbSrc}
           alt={song.title}
           loading="lazy"
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={() => {
-            if (song.youtubeId) {
+            if (thumbSrc.includes('i.ytimg.com') && song.youtubeId) {
               setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`);
+            } else if (thumbSrc.includes('hqdefault.jpg') && song.youtubeId) {
+              setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`);
+            } else {
+              setThumbSrc('https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=80');
             }
           }}
         />

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Song } from '../types';
 import { useChhathData } from './ChhathDataContext';
 
@@ -136,137 +136,141 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [volume]);
 
+  const createGlobalYtPlayer = useCallback(() => {
+    const container = document.getElementById('global-yt-player-container');
+    if (ytPlayerRef.current || !container) return;
+    if (!(window as any).YT || !(window as any).YT.Player) return;
+
+    console.log('[YouTubePlayer] Initializing global YT.Player on container');
+
+    try {
+      const initialVideoId = pendingSongRef.current?.youtubeId || currentSongRef.current?.youtubeId || 'BsAFCc901MM';
+      const shouldAutoPlay = !!pendingSongRef.current;
+
+      ytPlayerRef.current = new (window as any).YT.Player('global-yt-player-container', {
+        height: '100%',
+        width: '100%',
+        videoId: initialVideoId,
+        playerVars: {
+          autoplay: shouldAutoPlay ? 1 : 0,
+          playsinline: 1,
+          controls: 1,
+          modestbranding: 1,
+          rel: 0,
+          enablejsapi: 1
+        },
+        events: {
+          onReady: (event: any) => {
+            console.log('[YouTubePlayer] Global Player Ready');
+            setYtPlayerReady(true);
+            try {
+              if (event.target.unMute) event.target.unMute();
+              event.target.setVolume(Math.round(volume * 100) || 100);
+            } catch (e) {
+              console.warn('unMute/setVolume onReady warning:', e);
+            }
+            if (pendingSongRef.current && pendingSongRef.current.youtubeId) {
+              const toPlay = pendingSongRef.current.youtubeId;
+              pendingSongRef.current = null;
+              try {
+                event.target.loadVideoById(toPlay);
+                event.target.playVideo();
+                setIsPlaying(true);
+              } catch (e) {
+                console.warn('Pending loadVideoById error:', e);
+              }
+            }
+          },
+          onStateChange: (event: any) => {
+            const state = event.data;
+            console.log('[YouTubePlayer] State Change:', state);
+
+            if (state === 1) {
+              setIsPlaying(true);
+              setPlaybackError(null);
+              try {
+                if (ytPlayerRef.current?.unMute) {
+                  ytPlayerRef.current.unMute();
+                }
+                if (ytPlayerRef.current?.setVolume) {
+                  ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
+                }
+                if (ytPlayerRef.current?.getDuration) {
+                  setDuration(ytPlayerRef.current.getDuration() || 0);
+                }
+              } catch {
+                // Catch cross-origin duration/data check
+              }
+            } else if (state === 2) {
+              setIsPlaying(false);
+            } else if (state === 0) {
+              setIsPlaying(false);
+              handleSongEnded();
+            }
+          },
+          onError: (event: any) => {
+            const errorCode = event.data;
+            const activeSong = currentSongRef.current;
+            console.warn('[YouTubePlayer] Error Code:', errorCode, 'for song:', activeSong?.title, '| youtubeId:', activeSong?.youtubeId);
+
+            let errorMsg = 'यह YouTube वीडियो इस वेबसाइट पर चलाया नहीं जा सकता। YouTube पर खोलें।';
+            if (errorCode === 2) {
+              errorMsg = 'अमान्य YouTube वीडियो ID।';
+            } else if (errorCode === 100) {
+              errorMsg = 'यह वीडियो YouTube पर हटा दिया गया है या प्राइवेट है।';
+            } else if (errorCode === 101 || errorCode === 150) {
+              errorMsg = 'वीडियो मालिक ने इस वेबसाइट पर एम्बेडिंग प्रतिबंधित की है।';
+            }
+
+            setIsPlaying(false);
+            setPlaybackError({
+              songId: activeSong?.id || '',
+              youtubeId: activeSong?.youtubeId,
+              message: errorMsg,
+              code: errorCode
+            });
+          }
+        }
+      });
+    } catch (err) {
+      console.warn('YouTube Player Initialization exception:', err);
+    }
+  }, [volume]);
+
   // Dynamic YouTube IFrame Player API Injection
   useEffect(() => {
-    const initYtApi = () => {
+    const existingScript = document.getElementById('yt-iframe-api-script');
+    if (!existingScript) {
+      const tag = document.createElement('script');
+      tag.id = 'yt-iframe-api-script';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.async = true;
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+
+    const previousCallback = (window as any).onYouTubeIframeAPIReady;
+    (window as any).onYouTubeIframeAPIReady = () => {
+      if (previousCallback) previousCallback();
+      createGlobalYtPlayer();
+    };
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      createGlobalYtPlayer();
+    }
+
+    // Safety polling interval (guarantees player loads even if script is cached)
+    const pollInterval = setInterval(() => {
       if ((window as any).YT && (window as any).YT.Player) {
         createGlobalYtPlayer();
-        return;
+        if (ytPlayerRef.current) {
+          clearInterval(pollInterval);
+        }
       }
+    }, 250);
 
-      const existingScript = document.getElementById('yt-iframe-api-script');
-      if (!existingScript) {
-        const tag = document.createElement('script');
-        tag.id = 'yt-iframe-api-script';
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-      }
-
-      const previousCallback = (window as any).onYouTubeIframeAPIReady;
-      (window as any).onYouTubeIframeAPIReady = () => {
-        if (previousCallback) previousCallback();
-        createGlobalYtPlayer();
-      };
-    };
-
-    const createGlobalYtPlayer = () => {
-      const container = document.getElementById('global-yt-player-container');
-      if (ytPlayerRef.current || !container) return;
-
-      console.log('[YouTubePlayer] Initializing global YT.Player on container');
-
-      try {
-        ytPlayerRef.current = new (window as any).YT.Player('global-yt-player-container', {
-          height: '100%',
-          width: '100%',
-          videoId: currentSongRef.current?.youtubeId || 'BsAFCc901MM',
-          playerVars: {
-            autoplay: 0,
-            playsinline: 1,
-            controls: 1,
-            modestbranding: 1,
-            rel: 0,
-            enablejsapi: 1,
-            origin: window.location.origin
-          },
-          events: {
-            onReady: (event: any) => {
-              console.log('[YouTubePlayer] Global Player Ready');
-              setYtPlayerReady(true);
-              try {
-                if (event.target.unMute) event.target.unMute();
-                event.target.setVolume(Math.round(volume * 100) || 100);
-              } catch (e) {
-                console.warn('unMute/setVolume onReady warning:', e);
-              }
-              if (pendingSongRef.current && pendingSongRef.current.youtubeId) {
-                console.log('[YouTubePlayer] Loading pending song onReady:', pendingSongRef.current.youtubeId);
-                try {
-                  event.target.loadVideoById(pendingSongRef.current.youtubeId);
-                  pendingSongRef.current = null;
-                } catch (e) {
-                  console.warn('Pending loadVideoById error:', e);
-                }
-              }
-            },
-            onStateChange: (event: any) => {
-              // YT.PlayerState: 1 = PLAYING, 2 = PAUSED, 0 = ENDED
-              const state = event.data;
-              console.log('[YouTubePlayer] State Change:', state);
-
-              if (state === 1) {
-                setIsPlaying(true);
-                setPlaybackError(null);
-                try {
-                  // Guarantee mobile sound output
-                  if (ytPlayerRef.current?.unMute) {
-                    ytPlayerRef.current.unMute();
-                  }
-                  if (ytPlayerRef.current?.setVolume) {
-                    ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
-                  }
-                  if (ytPlayerRef.current?.getDuration) {
-                    setDuration(ytPlayerRef.current.getDuration() || 0);
-                  }
-                  if (ytPlayerRef.current?.getVideoData) {
-                    const actualVideoId = ytPlayerRef.current.getVideoData()?.video_id;
-                    console.log('[YouTubePlayer] actualPlayerVideoId:', actualVideoId);
-                    if (actualVideoId && currentSongRef.current && currentSongRef.current.youtubeId !== actualVideoId) {
-                      console.warn(`[YouTubePlayer] WARNING: currentSong.youtubeId (${currentSongRef.current.youtubeId}) !== actualPlayerVideoId (${actualVideoId})`);
-                    }
-                  }
-                } catch {
-                  // Catch cross-origin duration/data check
-                }
-              } else if (state === 2) {
-                setIsPlaying(false);
-              } else if (state === 0) {
-                setIsPlaying(false);
-                handleSongEnded();
-              }
-            },
-            onError: (event: any) => {
-              const errorCode = event.data;
-              const activeSong = currentSongRef.current;
-              console.warn('[YouTubePlayer] Error Code:', errorCode, 'for song:', activeSong?.title, '| youtubeId:', activeSong?.youtubeId);
-
-              let errorMsg = 'यह YouTube वीडियो इस वेबसाइट पर चलाया नहीं जा सकता। YouTube पर खोलें।';
-              if (errorCode === 2) {
-                errorMsg = 'अमान्य YouTube वीडियो ID।';
-              } else if (errorCode === 100) {
-                errorMsg = 'यह वीडियो YouTube पर हटा दिया गया है या प्राइवेट है।';
-              } else if (errorCode === 101 || errorCode === 150) {
-                errorMsg = 'वीडियो मालिक ने इस वेबसाइट पर एम्बेडिंग प्रतिबंधित की है।';
-              }
-
-              setIsPlaying(false);
-              setPlaybackError({
-                songId: activeSong?.id || '',
-                youtubeId: activeSong?.youtubeId,
-                message: errorMsg,
-                code: errorCode
-              });
-            }
-          }
-        });
-      } catch (err) {
-        console.warn('YouTube Player Initialization exception:', err);
-      }
-    };
-
-    initYtApi();
-  }, []);
+    return () => clearInterval(pollInterval);
+  }, [createGlobalYtPlayer]);
 
   // Poll current time when playing with whole-second updates
   useEffect(() => {
@@ -390,8 +394,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         console.warn('[YouTubePlayer] loadVideoById error:', e);
       }
     } else {
-      console.log('[YouTubePlayer] Player not ready yet. Queuing pending song:', song.youtubeId);
+      console.log('[YouTubePlayer] Player not ready yet. Queuing pending song and creating player:', song.youtubeId);
       pendingSongRef.current = song;
+      createGlobalYtPlayer();
     }
   };
 
@@ -420,6 +425,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch (e) {
           console.warn('YouTube playVideo error:', e);
         }
+      } else if (currentSong) {
+        playSong(currentSong);
       }
     }
   };
@@ -730,7 +737,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         className={
           showVideo
             ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
-            : "fixed -bottom-24 -right-24 w-44 h-44 opacity-[0.02] pointer-events-none z-0 overflow-hidden"
+            : "fixed bottom-0 right-0 w-[240px] h-[200px] pointer-events-none -z-50 opacity-[0.01] overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
