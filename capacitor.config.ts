@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'छठ महापर्व',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    url: 'https://chhathvibes.vercel.app',
     cleartext: true
   }
 };
