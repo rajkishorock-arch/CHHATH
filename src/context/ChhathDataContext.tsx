@@ -79,6 +79,9 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     try {
       const obsoleteKeys = [
+        'chhath_custom_songs_v6',
+        'chhath_custom_songs_v5',
+        'chhath_custom_songs_v4',
         'chhath_custom_songs_v3',
         'chhath_custom_songs_v2',
         'chhath_custom_songs',
@@ -91,15 +94,15 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, []);
 
-  // 1. Songs with localStorage persistence (verified real playable YouTube songs v6)
+  // 1. Songs with localStorage persistence (verified real playable YouTube songs v7)
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
-      const saved = localStorage.getItem('chhath_custom_songs_v6');
+      const saved = localStorage.getItem('chhath_custom_songs_v7');
       if (saved) {
         const parsed: Song[] = JSON.parse(saved);
-        // Ensure all cached songs have legitimate playable YouTube IDs
+        // Ensure all cached songs have legitimate playable YouTube IDs and valid thumbnails
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const hasInvalid = parsed.some(s => !s.youtubeId || s.youtubeId.length < 5);
+          const hasInvalid = parsed.some(s => !s.youtubeId || s.youtubeId.length < 5 || !s.thumbnail || s.thumbnail.includes('undefined'));
           if (!hasInvalid) return parsed;
         }
       }
@@ -217,7 +220,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem('chhath_custom_songs_v6', JSON.stringify(songs));
+    localStorage.setItem('chhath_custom_songs_v7', JSON.stringify(songs));
   }, [songs]);
 
   useEffect(() => {

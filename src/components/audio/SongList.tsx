@@ -40,7 +40,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
 
   return (
     <div className="space-y-2.5">
-      {songs.map((song, index) => {
+      {songs.filter(s => Boolean(s.thumbnail) && !s.thumbnail.includes('undefined') && !s.thumbnail.includes('null')).map((song, index) => {
         const isCurrent = currentSong?.id === song.id;
         const isFav = favorites.includes(song.id);
         const inQueue = queue.some(q => q.id === song.id);

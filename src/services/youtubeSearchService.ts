@@ -83,15 +83,17 @@ const GENERIC_CHHATH_TERMS = new Set([
 // Helper to normalize any incoming search item
 const normalizeItem = (item: any): YouTubeSearchSong | null => {
   const yid = item.youtubeId || item.id || item.videoId;
-  if (!yid) return null;
+  if (!yid || typeof yid !== 'string' || yid.length < 5) return null;
+  const thumb =
+    item.thumbnailUrl ||
+    item.thumbnail ||
+    `https://i.ytimg.com/vi/${yid}/hqdefault.jpg`;
+  if (!thumb || thumb.includes('undefined')) return null;
   return {
     youtubeId: yid,
     title: decodeHtmlEntities(item.title || ''),
-    channelTitle: decodeHtmlEntities(item.channelTitle || item.singer || item.author || 'Chhath Devotional'),
-    thumbnailUrl:
-      item.thumbnailUrl ||
-      item.thumbnail ||
-      `https://img.youtube.com/vi/${yid}/hqdefault.jpg`,
+    channelTitle: decodeHtmlEntities(item.channelTitle || item.singer || item.author || 'छठ भक्ति'),
+    thumbnailUrl: thumb,
     description: item.description || ''
   };
 };
@@ -105,17 +107,17 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
   const tokens = cleanQ.split(/\s+/).filter(Boolean);
   const specificTokens = tokens.filter(t => !GENERIC_CHHATH_TERMS.has(t));
 
-  const allSongs: Song[] = [...chhathSongs];
+  const allSongs: Song[] = chhathSongs.filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnail) && !s.thumbnail.includes('undefined'));
 
-  // If query is generic like "chhath song" or "chhath geet", return top catalog songs
+  // If query is generic like "chhath song" or "chhath geet", return verified catalog songs
   if (specificTokens.length === 0) {
-    return allSongs.slice(0, 16).map(s => ({
-      youtubeId: s.youtubeId || (s.audioUrl.split('v=')[1] || ''),
+    return allSongs.map(s => ({
+      youtubeId: s.youtubeId || '',
       title: s.title,
       channelTitle: s.singer,
-      thumbnailUrl: s.thumbnail || `https://img.youtube.com/vi/${s.youtubeId}/hqdefault.jpg`,
+      thumbnailUrl: s.thumbnail,
       description: s.lyricsSnippet || `${s.title} - ${s.singer}`
-    })).filter(s => Boolean(s.youtubeId));
+    })).filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnailUrl));
   }
 
   // Otherwise, match against specific tokens and phonetic mappings
@@ -128,14 +130,14 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
     });
   });
 
-  const finalPool = matched.length > 0 ? matched : allSongs.slice(0, 12);
+  const finalPool = matched.length > 0 ? matched : allSongs;
   return finalPool.map(s => ({
-    youtubeId: s.youtubeId || (s.audioUrl.split('v=')[1] || ''),
+    youtubeId: s.youtubeId || '',
     title: s.title,
     channelTitle: s.singer,
-    thumbnailUrl: s.thumbnail || `https://img.youtube.com/vi/${s.youtubeId}/hqdefault.jpg`,
+    thumbnailUrl: s.thumbnail,
     description: s.lyricsSnippet || `${s.title} - ${s.singer}`
-  })).filter(s => Boolean(s.youtubeId));
+  })).filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnailUrl));
 };
 
 export const searchYouTubeVideos = async (
@@ -163,11 +165,10 @@ export const searchYouTubeVideos = async (
   }
 
   // 2. TIER 1: Native Serverless / API Endpoint (/api/yt-search)
-  // Highly reliable on Vercel deployment and local Vite dev server
   try {
     const internalUrl = `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 1200);
 
     const res = await fetch(internalUrl, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -194,8 +195,8 @@ export const searchYouTubeVideos = async (
         return responseData;
       }
     }
-  } catch (err) {
-    console.warn('Native /api/yt-search endpoint unreached, attempting worker fallback:', err);
+  } catch {
+    // Fast fallback
   }
 
   // 3. TIER 2: Cloudflare Worker Gateway
@@ -204,7 +205,7 @@ export const searchYouTubeVideos = async (
     try {
       const endpoint = `${workerUrl.replace(/\/$/, '')}?q=${encodeURIComponent(trimmed)}&pageToken=${encodeURIComponent(pageToken)}`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 1800);
 
       const res = await fetch(endpoint, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -231,16 +232,16 @@ export const searchYouTubeVideos = async (
           return responseData;
         }
       }
-    } catch (err) {
-      console.warn('Cloudflare Worker request unreached, checking public proxy & fallback:', err);
+    } catch {
+      // Fast fallback
     }
   }
 
-  // 4. TIER 3: Public Invidious / Piped Mirror Search
+  // 4. TIER 3: Public Invidious Mirror Search
   try {
     const invidiousEndpoint = `https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(trimmed + ' chhath geet')}&type=video`;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 1800);
 
     const invRes = await fetch(invidiousEndpoint, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -251,10 +252,10 @@ export const searchYouTubeVideos = async (
         const normalized = invData.map((item: any) => ({
           youtubeId: item.videoId || '',
           title: decodeHtmlEntities(item.title || ''),
-          channelTitle: decodeHtmlEntities(item.author || 'Chhath Devotional'),
-          thumbnailUrl: item.videoThumbnails?.[0]?.url || `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`,
+          channelTitle: decodeHtmlEntities(item.author || 'छठ भक्ति'),
+          thumbnailUrl: item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
           description: item.description || ''
-        })).filter(s => Boolean(s.youtubeId));
+        })).filter((s: YouTubeSearchSong) => Boolean(s.youtubeId) && Boolean(s.thumbnailUrl));
 
         if (normalized.length > 0) {
           const responseData: YouTubeSearchResponse = {

@@ -199,100 +199,16 @@ export const chhathSongs: Song[] = [
     trackCount: 20
   },
   {
-    id: "song-sharda-extra-1",
-    title: "उगी हे सुरुज देव (Ugi He Suruj Dev) - शारदा सिन्हा",
-    singer: "शारदा सिन्हा (Sharda Sinha)",
-    language: "Bhojpuri",
-    category: "Traditional",
-    duration: "6:15",
-    audioUrl: "https://www.youtube.com/watch?v=yP5_aR0-j3g",
-    thumbnail: "https://i.ytimg.com/vi/yP5_aR0-j3g/hqdefault.jpg",
-    lyricsSnippet: "उगी हे सुरुज देव भइले अरग के बेर... तम हरहु दीनानाथ, जग भइल उजियार!",
-    youtubeId: "yP5_aR0-j3g"
-  },
-  {
-    id: "song-pawan-extra-1",
-    title: "जोड़े जोड़े फलवा सुरुज देव (Jode Jode Phalwa) - पवन सिंह",
-    singer: "पवन सिंह (Pawan Singh)",
+    id: "song-15",
+    title: "जय छठी मईया (Jai Chhathi Maiya)",
+    singer: "सोनू निगम, पवन सिंह व खुशबू जैन (T-Series)",
     language: "Bhojpuri",
     category: "Bhojpuri",
-    duration: "5:20",
-    audioUrl: "https://www.youtube.com/watch?v=FqE2gZg9r68",
-    thumbnail: "https://i.ytimg.com/vi/FqE2gZg9r68/hqdefault.jpg",
-    lyricsSnippet: "जोड़े जोड़े फलवा सुरुज देव तोहे चढ़ाइबो... छठी मईया के अंचरा में गोदी भराइबो!",
-    youtubeId: "FqE2gZg9r68"
-  },
-  {
-    id: "song-anuradha-extra-1",
-    title: "उ जे केरवा जे फरेला घवद से (U Je Kerwa Je Farela) - अनुराधा पौडवाल",
-    singer: "अनुराधा पौडवाल (Anuradha Paudwal)",
-    language: "Bhojpuri",
-    category: "Traditional",
-    duration: "5:45",
-    audioUrl: "https://www.youtube.com/watch?v=7uV8QO8E2d8",
-    thumbnail: "https://i.ytimg.com/vi/7uV8QO8E2d8/hqdefault.jpg",
-    lyricsSnippet: "उ जे केरवा जे फरेला घवद से, ओह पर सुगा मँडराए... मारबो रे सुगवा धनुष से!",
-    youtubeId: "7uV8QO8E2d8"
-  },
-  {
-    id: "song-khesari-extra-1",
-    title: "आरा के घाट शोभेला (Ara Ke Ghat Shobhela) - खेसारी लाल यादव",
-    singer: "खेसारी लाल यादव (Khesari Lal Yadav)",
-    language: "Bhojpuri",
-    category: "Bhojpuri",
-    duration: "4:50",
-    audioUrl: "https://www.youtube.com/watch?v=d_kX8k_8K9A",
-    thumbnail: "https://i.ytimg.com/vi/d_kX8k_8K9A/hqdefault.jpg",
-    lyricsSnippet: "गंगा जी के पावन तीरे दौरा सजइनी हो... छठी माई के अरघिया हम देहब!",
-    youtubeId: "d_kX8k_8K9A"
-  },
-  {
-    id: "song-maithili-extra-1",
-    title: "कांच ही बांस के बहंगिया (Kaanch Hi Baans Ke) - मैथिली ठाकुर",
-    singer: "मैथिली ठाकुर (Maithili Thakur)",
-    language: "Maithili",
-    category: "Traditional",
-    duration: "5:30",
-    audioUrl: "https://www.youtube.com/watch?v=x0X6V1P_1tI",
-    thumbnail: "https://i.ytimg.com/vi/x0X6V1P_1tI/hqdefault.jpg",
-    lyricsSnippet: "काँच ही बाँस के बहँगिया, बहँगी लचकत जाए... बात जे पुछेले बटोहिया बहँगी केकरा के जाए!",
-    youtubeId: "x0X6V1P_1tI"
-  },
-  {
-    id: "song-nirahua-extra-1",
-    title: "सुनिहा अरज छठी माई (Suniha Araj Chhathi Mai) - निरहुआ",
-    singer: "दिनेश लाल यादव 'निरहुआ' (Nirahua)",
-    language: "Bhojpuri",
-    category: "Bhojpuri",
-    duration: "4:42",
-    audioUrl: "https://www.youtube.com/watch?v=uK1m0j8_1g8",
-    thumbnail: "https://i.ytimg.com/vi/uK1m0j8_1g8/hqdefault.jpg",
-    lyricsSnippet: "सुनिहा अरज छठी माई हमार... दीनानाथ के कृपा से मंगल होइ संसार!",
-    youtubeId: "uK1m0j8_1g8"
-  },
-  {
-    id: "song-kalpana-extra-1",
-    title: "रोवेले बंझिनिया (Rowele Banjhiniya) - कल्पना पटवारी",
-    singer: "कल्पना पटवारी (Kalpana Patowary)",
-    language: "Bhojpuri",
-    category: "Traditional",
-    duration: "6:05",
-    audioUrl: "https://www.youtube.com/watch?v=8Vz6k7j_2s0",
-    thumbnail: "https://i.ytimg.com/vi/8Vz6k7j_2s0/hqdefault.jpg",
-    lyricsSnippet: "सुरुज देव के महिमा अपार, छठी माई करेली सभे के बेड़ा पार!",
-    youtubeId: "8Vz6k7j_2s0"
-  },
-  {
-    id: "song-manoj-extra-1",
-    title: "पटना के घाट पर हमहू अरघिया देब - मनोज तिवारी",
-    singer: "मनोज तिवारी (Manoj Tiwari)",
-    language: "Bhojpuri",
-    category: "Bhojpuri",
-    duration: "5:12",
-    audioUrl: "https://www.youtube.com/watch?v=m9X5t7Y_4k0",
-    thumbnail: "https://i.ytimg.com/vi/m9X5t7Y_4k0/hqdefault.jpg",
-    lyricsSnippet: "पटना के घाट पर हमहू अरघिया देब... छठी मईया के महिमा सब जग में गाएब!",
-    youtubeId: "m9X5t7Y_4k0"
+    duration: "5:15",
+    audioUrl: "https://www.youtube.com/watch?v=e-0FjvSOaw8",
+    thumbnail: "https://i.ytimg.com/vi/e-0FjvSOaw8/hqdefault.jpg",
+    lyricsSnippet: "जय छठी मईया, कांच ही बांस के बहंगिया बहंगी लचकत जाए... छठी माई के आशीर्वाद सदा रहे...",
+    youtubeId: "e-0FjvSOaw8"
   }
 ];
 

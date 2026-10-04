@@ -69,6 +69,13 @@ const YouTubeVideoCardComponent: React.FC<{
   onOpenLyrics,
   isLiveApi
 }) => {
+  const [bannerFailed, setBannerFailed] = useState(false);
+
+  // If banner fails to load or is invalid, completely remove this card from view!
+  if (bannerFailed || !song.thumbnail || song.thumbnail.includes('undefined') || song.thumbnail.includes('null')) {
+    return null;
+  }
+
   const singerInitial = (song.singer || 'छ').charAt(0);
   const ytUrl = song.youtubeId 
     ? `https://www.youtube.com/watch?v=${song.youtubeId}` 
@@ -92,8 +99,15 @@ const YouTubeVideoCardComponent: React.FC<{
           alt={song.title}
           loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            (e.target as HTMLElement).setAttribute('src', getImageUrl('images/daura_arghya.jpg'));
+          onLoad={(e) => {
+            const img = e.currentTarget;
+            // YouTube CDN returns a 120x90 grey "not found" image when video doesn't exist
+            if (img.naturalWidth <= 120 && img.naturalHeight <= 90) {
+              setBannerFailed(true);
+            }
+          }}
+          onError={() => {
+            setBannerFailed(true);
           }}
         />
 
@@ -521,7 +535,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         if (!res.nextPageToken) {
           recQueryIndexRef.current++;
         }
-        const newSongs = res.results.map(convertToSongModel);
+        const newSongs = res.results
+          .filter(r => r.thumbnailUrl && !r.thumbnailUrl.includes('undefined') && Boolean(r.youtubeId) && r.youtubeId.length >= 5)
+          .map(convertToSongModel);
+
         setRecommendedSongs(prev => {
           const existingIds = new Set(prev.map(s => s.id));
           const existingYt = new Set(prev.map(s => s.youtubeId).filter(Boolean));
@@ -538,7 +555,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     }
   };
 
-  // IntersectionObserver for auto-infinite scrolling
+  // Proactively pre-buffer first batch of recommendations in background so scrolling is instant
+  useEffect(() => {
+    if (activeViewTab === 'all' && searchStatus === 'idle' && recommendedSongs.length === 0 && !isLoadingRecommendations) {
+      loadMoreRecommendations();
+    }
+  }, [activeViewTab, searchStatus, recommendedSongs.length, isLoadingRecommendations]);
+
+  // IntersectionObserver for seamless auto-infinite scrolling
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
@@ -553,7 +577,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           }
         }
       },
-      { rootMargin: '400px' }
+      { rootMargin: '600px' }
     );
 
     observer.observe(sentinel);
@@ -562,12 +586,21 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
   // Combined Curated + Endless Recommended Songs (for searchStatus === 'idle')
   const allEndlessSongs = useMemo(() => {
-    if (selectedSinger || (selectedCategory !== 'सभी' && selectedCategory !== 'पसंदीदा')) {
-      return filteredCatalogSongs;
-    }
-    const seenYt = new Set(filteredCatalogSongs.map(s => s.youtubeId).filter(Boolean));
-    const uniqueRecs = recommendedSongs.filter(s => !s.youtubeId || !seenYt.has(s.youtubeId));
-    return [...filteredCatalogSongs, ...uniqueRecs];
+    const list = (selectedSinger || (selectedCategory !== 'सभी' && selectedCategory !== 'पसंदीदा'))
+      ? filteredCatalogSongs
+      : (() => {
+          const seenYt = new Set(filteredCatalogSongs.map(s => s.youtubeId).filter(Boolean));
+          const uniqueRecs = recommendedSongs.filter(s => !s.youtubeId || !seenYt.has(s.youtubeId));
+          return [...filteredCatalogSongs, ...uniqueRecs];
+        })();
+
+    // Strictly remove any songs without working/valid banner or invalid youtubeId
+    return list.filter(s => 
+      Boolean(s.thumbnail) && 
+      !s.thumbnail.includes('undefined') && 
+      !s.thumbnail.includes('null') && 
+      Boolean(s.youtubeId && s.youtubeId.length >= 5)
+    );
   }, [filteredCatalogSongs, recommendedSongs, selectedSinger, selectedCategory]);
 
   // YouTube Category / Artist Pills Definition
