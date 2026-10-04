@@ -280,6 +280,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const liveTopicIndexRef = useRef<number>(0);
   const seenYoutubeIdsRef = useRef<Set<string>>(new Set());
   const seenSignaturesRef = useRef<Set<string>>(new Set());
+  const searchSeenIdsRef = useRef<Set<string>>(new Set());
+  const searchSeenSigsRef = useRef<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const CHHATH_LIVE_TOPICS = useMemo(() => [
@@ -442,29 +444,59 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     seenYoutubeIdsRef.current.clear();
     seenSignaturesRef.current.clear();
     try {
-      // Execute 3 concurrent high-diversity queries:
-      // 1. All-time immortal beloved Chhath anthems (Sharda Sinha & Anuradha Paudwal)
-      // 2. 2026 Trending hits (Pawan Singh & Khesari Lal & Maithili Thakur)
-      // 3. Traditional Arghya devotional classics
-      const [resAllTime, resTrending, resTradition] = await Promise.allSettled([
-        searchYouTubeVideos('छठ पूजा के अमर सुपरहिट गीत शारदा सिन्हा अनुराधा पौडवाल', '', 'video'),
-        searchYouTubeVideos('नए छठ गीत 2026 पवन सिंह खेसारी लाल मैथिली ठाकुर', '', 'video'),
-        searchYouTubeVideos('कांच ही बांस के बहंगिया केलवा के पात छठ पूजा सुपरहिट', '', 'video')
+      // 3 High-diversity query pools to ensure new, fresh song combination on every page refresh!
+      const LEGEND_QUERIES = [
+        'छठ पूजा के अमर सुपरहिट गीत शारदा सिन्हा अनुराधा पौडवाल',
+        'केलवा के पात पर उगेलन सुरुज देव शारदा सिन्हा',
+        'कांच ही बांस के बहंगिया पारम्परिक छठ गीत शारदा सिन्हा',
+        'हे छठी मईया सुन लीं पुकार अनुराधा पौडवाल',
+        'उ जे केरवा जे फरेला घवद से छठ गीत सुपरहिट'
+      ];
+
+      const TRENDING_QUERIES = [
+        'नए छठ गीत 2026 पवन सिंह खेसारी लाल मैथिली ठाकुर',
+        'पवन सिंह छठ पूजा स्पेशल नए 2026 गीत सुपरहिट',
+        'खेसारी लाल यादव छठ गीत 2026 भक्ति',
+        'मैथिली ठाकुर छठ महापर्व भक्ति गीत लाइव',
+        'अक्षरा सिंह छठ पूजा स्पेशल नए गीत 2026'
+      ];
+
+      const DEVOTIONAL_QUERIES = [
+        'कांच ही बांस के बहंगिया केलवा के पात छठ पूजा सुपरहिट',
+        'मनोज तिवारी छठ महापर्व सुपरहिट गीत',
+        'कल्पना पटवारी छठ पूजा पारम्परिक गीत',
+        'सोनू निगम छठ मईया भजन सुपरहिट',
+        'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026',
+        'छठ संध्या अर्घ्य उषा अर्घ्य स्पेशल भक्ति गीत'
+      ];
+
+      const pickRandom = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+      const query1 = pickRandom(LEGEND_QUERIES);
+      const query2 = pickRandom(TRENDING_QUERIES);
+      const query3 = pickRandom(DEVOTIONAL_QUERIES);
+
+      // Randomize the initial topic index for smooth diverse continuation scrolling
+      liveTopicIndexRef.current = Math.floor(Math.random() * CHHATH_LIVE_TOPICS.length);
+
+      const [res1, res2, res3] = await Promise.allSettled([
+        searchYouTubeVideos(query1, '', 'video'),
+        searchYouTubeVideos(query2, '', 'video'),
+        searchYouTubeVideos(query3, '', 'video')
       ]);
 
       const rawPool: YouTubeSearchSong[] = [];
       let tokenToKeep: string | null = null;
 
-      if (resAllTime.status === 'fulfilled' && resAllTime.value.results) {
-        rawPool.push(...resAllTime.value.results);
+      if (res1.status === 'fulfilled' && res1.value.results) {
+        rawPool.push(...res1.value.results);
       }
-      if (resTrending.status === 'fulfilled' && resTrending.value.results) {
-        rawPool.push(...resTrending.value.results);
-        tokenToKeep = resTrending.value.nextPageToken || null;
+      if (res2.status === 'fulfilled' && res2.value.results) {
+        rawPool.push(...res2.value.results);
+        tokenToKeep = res2.value.nextPageToken || null;
       }
-      if (resTradition.status === 'fulfilled' && resTradition.value.results) {
-        rawPool.push(...resTradition.value.results);
-        if (!tokenToKeep) tokenToKeep = resTradition.value.nextPageToken || null;
+      if (res3.status === 'fulfilled' && res3.value.results) {
+        rawPool.push(...res3.value.results);
+        if (!tokenToKeep) tokenToKeep = res3.value.nextPageToken || null;
       }
 
       setLiveNextPageToken(tokenToKeep);
@@ -478,14 +510,13 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
       if (diversified.length > 0) {
         setLiveSongs(diversified);
-        liveTopicIndexRef.current = 1;
       }
     } catch (err) {
       console.warn('Initial multi-singer live songs fetch failed:', err);
     } finally {
       setIsLiveInitialLoading(false);
     }
-  }, [deduplicateSongs, interleaveSingers]);
+  }, [deduplicateSongs, interleaveSingers, CHHATH_LIVE_TOPICS]);
 
   useEffect(() => {
     fetchInitialLiveSongs();
@@ -542,6 +573,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     if (!query.trim()) return;
 
     if (!token) {
+      searchSeenIdsRef.current.clear();
+      searchSeenSigsRef.current.clear();
       setSearchStatus('loading');
       setYtSearchResults([]);
       setNextPageToken(null);
@@ -555,20 +588,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       setIsLiveApi(response.isLiveApi);
 
       if (response.results && response.results.length > 0) {
-        // Filter out shorts/reels and deduplicate
+        // Filter out shorts/reels and deduplicate across entire search session
         const cleanResults: YouTubeSearchSong[] = [];
-        const seenSearchIds = new Set<string>();
-        const seenSearchSigs = new Set<string>();
 
         for (const r of response.results) {
+          if (!r.youtubeId || r.youtubeId.length < 5) continue;
           const t = r.title.toLowerCase();
           if (t.includes('#short') || t.includes('#reel')) continue;
-          if (seenSearchIds.has(r.youtubeId)) continue;
+          if (searchSeenIdsRef.current.has(r.youtubeId)) continue;
           const sig = getCanonicalSongSignature(r.title);
-          if (sig && seenSearchSigs.has(sig)) continue;
+          if (sig && searchSeenSigsRef.current.has(sig)) continue;
 
-          seenSearchIds.add(r.youtubeId);
-          if (sig) seenSearchSigs.add(sig);
+          searchSeenIdsRef.current.add(r.youtubeId);
+          if (sig) searchSeenSigsRef.current.add(sig);
           cleanResults.push(r);
         }
 
@@ -592,6 +624,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   };
 
   const handleClearSearch = () => {
+    searchSeenIdsRef.current.clear();
+    searchSeenSigsRef.current.clear();
     setSearchQuery('');
     setSearchStatus('idle');
     setYtSearchResults([]);
@@ -835,21 +869,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {/* SEARCH RESULTS */}
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <Music className="w-4 h-4 text-amber-500" />
-                <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-200">
-                  खोज परिणाम: <span className="text-amber-600 dark:text-amber-400">&ldquo;{searchQuery}&rdquo;</span> ({ytSearchResults.length})
-                </h3>
-              </div>
-              <button
-                onClick={handleClearSearch}
-                className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white font-bold cursor-pointer"
-              >
-                साफ़ करें &times;
-              </button>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {ytSearchResults.map((ytSong) => {
                 const songObj = convertToSongModel(ytSong);
@@ -879,25 +898,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 );
               })}
             </div>
-
-            {nextPageToken && (
-              <div className="text-center pt-2">
-                <button
-                  onClick={() => handleExecuteSearch(searchQuery, nextPageToken)}
-                  disabled={isLoadingMore}
-                  className="px-5 py-2.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-red-500 text-stone-800 dark:text-stone-200 font-bold text-xs shadow-xs inline-flex items-center gap-2 disabled:opacity-50 transition-all cursor-pointer"
-                >
-                  {isLoadingMore ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-red-500" />
-                      <span>लोड हो रहा है...</span>
-                    </>
-                  ) : (
-                    <span>और वीडियो देखें (Load More)</span>
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         )}
 
@@ -976,18 +976,24 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 </button>
               </div>
             )}
-
-            {/* Infinite Scroll Bottom Sentinel & Live Loader Indicator */}
-            <div ref={sentinelRef} className="py-6 text-center">
-              {isLoadingMoreLive && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-                  <span>और नए लाइव छठ गीत लोड हो रहे हैं...</span>
-                </div>
-              )}
-            </div>
           </div>
         )}
+
+        {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
+        <div ref={sentinelRef} className="py-6 text-center">
+          {isLoadingMore && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
+              <span>और गाने लोड हो रहे हैं...</span>
+            </div>
+          )}
+          {searchStatus === 'idle' && isLoadingMoreLive && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
+              <span>और नए लाइव छठ गीत लोड हो रहे हैं...</span>
+            </div>
+          )}
+        </div>
 
         {/* Lyrics Modal */}
         {lyricsSong && (
