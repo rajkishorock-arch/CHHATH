@@ -164,11 +164,17 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
     };
   }, [isApiReady, videoId]);
 
-  // 3. Play / Pause based on isActive & isPlaying
+  // 3. Play / Pause based on isActive & isPlaying with instant response
   useEffect(() => {
     if (!playerRef.current || !isPlayerReady) return;
     try {
       if (isActive && isPlaying) {
+        if (!isMuted) {
+          try {
+            playerRef.current.unMute();
+            playerRef.current.setVolume(100);
+          } catch {}
+        }
         playerRef.current.playVideo();
       } else {
         playerRef.current.pauseVideo();
@@ -176,7 +182,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
     } catch {
       // ignore state change errors
     }
-  }, [isActive, isPlaying, isPlayerReady]);
+  }, [isActive, isPlaying, isPlayerReady, isMuted]);
 
   // 4. Handle Mute / Unmute
   useEffect(() => {

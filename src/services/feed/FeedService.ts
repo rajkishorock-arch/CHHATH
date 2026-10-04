@@ -124,12 +124,14 @@ export const FeedService = {
     }
     let batchItems: DynamicReel[] = combined.length > 0 ? combined : [...ytItems];
 
-    // Strict filter: Discard any dummy stock videos completely
+    // Strict filter: Discard any dummy seed reels or sample videos completely
     batchItems = batchItems.filter(r => 
       !r.videoUrl?.includes('/videos/sample') &&
       !r.videoUrl?.includes('/videos/chhath_reel_') &&
       !r.videoUrl?.includes('mixkit.co') &&
-      !r.id.startsWith('demo-reel-')
+      !r.id.startsWith('demo-') &&
+      !r.id.startsWith('ig-chhath-') &&
+      !r.id.startsWith('curated-ig-')
     );
 
     // 4. Deduplication: Ensure each reel in this batch has a unique ID and unique video

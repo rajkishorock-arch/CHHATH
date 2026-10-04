@@ -269,6 +269,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const [isLoadingMoreLive, setIsLoadingMoreLive] = useState<boolean>(false);
   const liveTopicIndexRef = useRef<number>(0);
   const seenYoutubeIdsRef = useRef<Set<string>>(new Set());
+  const seenSignaturesRef = useRef<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const CHHATH_LIVE_TOPICS = useMemo(() => [
@@ -288,6 +289,30 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026'
   ], []);
 
+  // Canonical signature normalizer: Strips channel/promotional noise and hashtags to deduplicate re-uploaded songs
+  const getCanonicalSongSignature = (title: string): string => {
+    if (!title) return '';
+    const clean = title.toLowerCase()
+      .replace(/#\S+/g, ' ')
+      .replace(/\(.*?\)|\[.*?\]/g, ' ')
+      .replace(/official\s+video|audio\s+song|video\s+song|full\s+song|full\s+video|lyrical\s+video|special|superhit|hit\s+geet|bhojpuri|chhath\s+puja|chhath\s+geet|छठ\s+गीत|छठ\s+पूजा/gi, ' ')
+      .replace(/[^a-z0-9\u0900-\u097F]/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const devanagari = clean.replace(/[^\u0900-\u097F]/g, '');
+    if (devanagari.length >= 5) {
+      return `dev_${devanagari.slice(0, 12)}`;
+    }
+
+    const roman = clean.replace(/[^a-z0-9]/g, '');
+    if (roman.length >= 5) {
+      return `rom_${roman.slice(0, 14)}`;
+    }
+
+    return clean.slice(0, 15);
+  };
+
   // Filter helper: STRICTLY exclude shorts / reels from the songs section
   const filterValidLandscapeSongs = (rawSongs: YouTubeSearchSong[]): Song[] => {
     return rawSongs
@@ -303,27 +328,41 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       .map(convertToSongModel);
   };
 
-  // Load real-time live songs on mount directly from YouTube
+  // Deduplicate against both YouTube video ID and canonical song title signature
+  const deduplicateSongs = useCallback((songs: Song[]): Song[] => {
+    const unique: Song[] = [];
+    for (const s of songs) {
+      if (!s.youtubeId) continue;
+      if (seenYoutubeIdsRef.current.has(s.youtubeId)) continue;
+
+      const sig = getCanonicalSongSignature(s.title);
+      if (sig && seenSignaturesRef.current.has(sig)) continue;
+
+      seenYoutubeIdsRef.current.add(s.youtubeId);
+      if (sig) seenSignaturesRef.current.add(sig);
+      unique.push(s);
+    }
+    return unique;
+  }, []);
+
+  // Load real-time live songs on mount directly from YouTube (Randomized starting topic for freshness!)
   const fetchInitialLiveSongs = useCallback(async () => {
     setIsLiveInitialLoading(true);
+    seenYoutubeIdsRef.current.clear();
+    seenSignaturesRef.current.clear();
     try {
-      const topic = CHHATH_LIVE_TOPICS[0];
+      // Pick a random starting topic index so every reload gives fresh, non-static songs!
+      const randomStart = Math.floor(Math.random() * CHHATH_LIVE_TOPICS.length);
+      liveTopicIndexRef.current = randomStart;
+      const topic = CHHATH_LIVE_TOPICS[randomStart];
       const res = await searchYouTubeVideos(topic, '', 'video');
       if (res.results && res.results.length > 0) {
         setLiveNextPageToken(res.nextPageToken || null);
         const filtered = filterValidLandscapeSongs(res.results);
-
-        const unique: Song[] = [];
-        for (const s of filtered) {
-          if (s.youtubeId && !seenYoutubeIdsRef.current.has(s.youtubeId)) {
-            seenYoutubeIdsRef.current.add(s.youtubeId);
-            unique.push(s);
-          }
-        }
+        const unique = deduplicateSongs(filtered);
 
         if (unique.length > 0) {
           setLiveSongs(unique);
-          liveTopicIndexRef.current = 1;
         }
       }
     } catch (err) {
@@ -331,7 +370,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     } finally {
       setIsLiveInitialLoading(false);
     }
-  }, [CHHATH_LIVE_TOPICS]);
+  }, [CHHATH_LIVE_TOPICS, deduplicateSongs]);
 
   useEffect(() => {
     fetchInitialLiveSongs();
@@ -371,14 +410,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       setLiveNextPageToken(newNextToken);
 
       // Append strictly unique songs so NO song is ever repeated!
-      const uniqueNew: Song[] = [];
-      for (const s of results) {
-        if (s.youtubeId && !seenYoutubeIdsRef.current.has(s.youtubeId)) {
-          seenYoutubeIdsRef.current.add(s.youtubeId);
-          uniqueNew.push(s);
-        }
-      }
-
+      const uniqueNew = deduplicateSongs(results);
       if (uniqueNew.length > 0) {
         setLiveSongs(prev => [...prev, ...uniqueNew]);
       }
@@ -387,7 +419,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     } finally {
       setIsLoadingMoreLive(false);
     }
-  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS]);
+  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS, deduplicateSongs]);
 
   // Execute YouTube API Search
   const handleExecuteSearch = async (query: string, token: string = '') => {
@@ -407,11 +439,22 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       setIsLiveApi(response.isLiveApi);
 
       if (response.results && response.results.length > 0) {
-        // Filter out shorts/reels
-        const cleanResults = response.results.filter(r => {
+        // Filter out shorts/reels and deduplicate
+        const cleanResults: YouTubeSearchSong[] = [];
+        const seenSearchIds = new Set<string>();
+        const seenSearchSigs = new Set<string>();
+
+        for (const r of response.results) {
           const t = r.title.toLowerCase();
-          return !t.includes('#short') && !t.includes('#reel');
-        });
+          if (t.includes('#short') || t.includes('#reel')) continue;
+          if (seenSearchIds.has(r.youtubeId)) continue;
+          const sig = getCanonicalSongSignature(r.title);
+          if (sig && seenSearchSigs.has(sig)) continue;
+
+          seenSearchIds.add(r.youtubeId);
+          if (sig) seenSearchSigs.add(sig);
+          cleanResults.push(r);
+        }
 
         setYtSearchResults(prev => token ? [...prev, ...cleanResults] : cleanResults);
         setNextPageToken(response.nextPageToken);

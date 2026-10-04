@@ -173,50 +173,22 @@ export const YouTubeProvider = {
   },
 
   /**
-   * Get a slice of validated external YouTube reels with live infinite stream capability
+   * Get a slice of verified live YouTube Chhath Shorts (100% Real-time, 0 dummy data)
    */
   async getValidatedItems(
     options: YouTubeFilterOptions, 
     startIndex: number, 
     count: number
   ): Promise<{ items: DynamicReel[]; nextIndex: number; hasMore: boolean }> {
-    const pool = this.getCandidatePool(options);
     const items: DynamicReel[] = [];
-    let idx = startIndex;
-    let attempts = 0;
-    const maxAttempts = pool.length * 2;
     const userId = options.currentUser?.id || 'guest';
     const watchedIds = ReelsStorage.getWatchedReelIds(userId);
 
-    // 1. First consume available UNSEEN items from local pool
-    while (items.length < count && idx < pool.length && attempts < maxAttempts) {
-      const candidate = pool[idx];
+    // 1. PRIMARY SOURCE: Real-time Live Trending Chhath Shorts streamed directly from YouTube API!
+    let fetchAttempts = 0;
+    const maxFetchAttempts = 6;
 
-      const isAlreadyWatched = watchedIds.has(candidate.id) || 
-        (candidate.youtubeVideoId && watchedIds.has(candidate.youtubeVideoId));
-
-      if (candidate && candidate.youtubeVideoId && !seenLiveVideoIds.has(candidate.youtubeVideoId) && !isAlreadyWatched) {
-        const validation = await this.validateVideo(candidate.youtubeVideoId);
-        if (validation.isValid) {
-          seenLiveVideoIds.add(candidate.youtubeVideoId);
-          items.push({
-            ...candidate,
-            id: candidate.id,
-            title: validation.metadata?.title || candidate.title,
-            thumbnailUrl: validation.metadata?.thumbnail || candidate.thumbnailUrl,
-            channelTitle: validation.metadata?.channelTitle || candidate.channelTitle,
-            sourceType: 'YOUTUBE',
-            isEmbeddable: true
-          });
-        }
-      }
-
-      idx++;
-      attempts++;
-    }
-
-    // 2. If pool is exhausted or needs more items, fetch live YouTube Chhath Shorts dynamically!
-    if (items.length < count) {
+    while (items.length < count && fetchAttempts < maxFetchAttempts) {
       try {
         const query = LIVE_CHHATH_SHORTS_QUERIES[liveQueryIndex % LIVE_CHHATH_SHORTS_QUERIES.length];
         const ytRes = await searchYouTubeVideos(query, liveNextPageToken || '', 'shorts');
@@ -229,7 +201,13 @@ export const YouTubeProvider = {
 
           for (const res of ytRes.results) {
             if (items.length >= count) break;
-            if (ReelsStorage.isBlockedVideo(res.youtubeId) || seenLiveVideoIds.has(res.youtubeId) || watchedIds.has(res.youtubeId)) {
+            if (
+              !res.youtubeId ||
+              res.youtubeId.length < 5 ||
+              ReelsStorage.isBlockedVideo(res.youtubeId) ||
+              seenLiveVideoIds.has(res.youtubeId) ||
+              watchedIds.has(res.youtubeId)
+            ) {
               continue;
             }
 
@@ -292,16 +270,20 @@ export const YouTubeProvider = {
           }
         } else {
           liveQueryIndex++;
+          liveNextPageToken = null;
         }
       } catch (err) {
         console.warn('Live YouTube reels fetch error:', err);
+        liveQueryIndex++;
+        liveNextPageToken = null;
       }
+      fetchAttempts++;
     }
 
     // Always maintain hasMore = true so reel scrolling NEVER ends!
     return {
       items,
-      nextIndex: idx,
+      nextIndex: startIndex + items.length,
       hasMore: true
     };
   }
