@@ -584,9 +584,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // ==========================================
   const bgAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize hidden background audio element to maintain mobile wake lock / OS audio session
+  // Initialize hidden background audio element only on mobile to maintain wake lock without desktop audio overhead
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const isMobile = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+    if (!isMobile) return;
     if (!bgAudioRef.current) {
       const audio = new Audio();
       // Generate a tiny inaudible continuous audio loop so mobile OS does not suspend the tab on screen lock

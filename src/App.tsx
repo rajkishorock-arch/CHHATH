@@ -429,8 +429,10 @@ const MainContent: React.FC = () => {
       <ExpandedPlayerModal />
       <PlaybackQueueModal />
 
-      {/* Footer Component */}
-      <Footer onNavigate={handleNavigate} />
+      {/* Footer Component - Only visible on the Home Page */}
+      {activeTab === 'home' && (
+        <Footer onNavigate={handleNavigate} />
+      )}
 
       {/* Mobile Bottom Navigation */}
       <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />

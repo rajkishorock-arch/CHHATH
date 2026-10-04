@@ -980,7 +980,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
-        <div ref={sentinelRef} className="py-6 text-center">
+        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 text-center">
           {isLoadingMore && (
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
