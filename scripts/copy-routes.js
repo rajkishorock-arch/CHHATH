@@ -33,8 +33,24 @@ if (fs.existsSync(indexPath)) {
       fs.mkdirSync(routeDir, { recursive: true });
     }
     fs.writeFileSync(path.join(routeDir, 'index.html'), indexHtml, 'utf-8');
-    console.log(`[post-build] Successfully created ${route}/index.html for GitHub Pages clean route serving`);
+    console.log(`[post-build] Successfully created ${route}/index.html for clean route serving`);
   });
+
+  // Also mirror routes to dist/CHHATH/ for legacy paths and GitHub Pages
+  const chhathDir = path.join(distDir, 'CHHATH');
+  if (!fs.existsSync(chhathDir)) {
+    fs.mkdirSync(chhathDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(chhathDir, 'index.html'), indexHtml, 'utf-8');
+
+  routes.forEach((route) => {
+    const chhathRouteDir = path.join(chhathDir, route);
+    if (!fs.existsSync(chhathRouteDir)) {
+      fs.mkdirSync(chhathRouteDir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(chhathRouteDir, 'index.html'), indexHtml, 'utf-8');
+  });
+  console.log(`[post-build] Successfully mirrored routes to CHHATH/ prefix`);
 } else {
   console.warn('[post-build] dist/index.html not found!');
 }

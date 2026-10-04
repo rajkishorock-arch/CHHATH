@@ -32,7 +32,8 @@ export const GhatFinder: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedState, setSelectedState] = useState<string>('All');
   const [selectedTab, setSelectedTab] = useState<'all' | 'myCity' | 'saved'>('all');
-  const [selectedGhat, setSelectedGhat] = useState<Ghat>(ghats[0] || {});
+  const [selectedGhat, setSelectedGhat] = useState<Ghat | null>(() => ghats[0] || null);
+  const activeGhat = (selectedGhat && selectedGhat.id ? selectedGhat : (ghats[0] || {} as Ghat));
   const [savedGhatIds, setSavedGhatIds] = useState<string[]>(currentUser?.savedGhats || []);
   const [communityReports, setCommunityReports] = useState<Record<string, { status: Ghat['crowdStatus']; count: number }>>(() => {
     try {
@@ -222,7 +223,7 @@ export const GhatFinder: React.FC = () => {
           {/* Left Column: Ghats List */}
           <div className="space-y-3 max-h-[620px] overflow-y-auto pr-1">
             {filteredGhats.map((ghat) => {
-              const isSelected = selectedGhat.id === ghat.id;
+              const isSelected = activeGhat?.id === ghat.id;
               const isSaved = isGhatSaved(ghat.id);
               const isUserCity = currentUser?.city && ghat.city.toLowerCase().includes(currentUser.city.toLowerCase());
 
@@ -299,17 +300,17 @@ export const GhatFinder: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
-                    {selectedGhat.state} • {selectedGhat.district}
+                    {activeGhat.state} • {activeGhat.district}
                   </span>
-                  {getCrowdBadge(selectedGhat.crowdStatus)}
+                  {getCrowdBadge(activeGhat.crowdStatus)}
                 </div>
                 <h3 className="font-rozha text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 font-bold flex items-center gap-2">
-                  <span>{selectedGhat.name}</span>
+                  <span>{activeGhat.name}</span>
                   <span className="inline-block text-base animate-float-diya">🪔</span>
                 </h3>
                 <span className="text-xs text-stone-500 dark:text-stone-400 font-mukta flex items-center gap-1.5 mt-0.5">
                   <Droplet className="w-3.5 h-3.5 text-sky-500 animate-pulse" />
-                  <span>पवित्र तट: {selectedGhat.river}</span>
+                  <span>पवित्र तट: {activeGhat.river}</span>
                   <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">• गंगा आरती व अर्घ्य स्थल</span>
                 </span>
               </div>
@@ -317,14 +318,14 @@ export const GhatFinder: React.FC = () => {
               <div className="flex items-center gap-2 shrink-0 flex-wrap">
                 {currentUser && (
                   <button
-                    onClick={() => handleToggleBookmark(selectedGhat.id)}
+                    onClick={() => handleToggleBookmark(activeGhat.id)}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold font-mukta flex items-center gap-1.5 transition-all border ${
-                      isGhatSaved(selectedGhat.id)
+                      isGhatSaved(activeGhat.id)
                         ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md font-extrabold'
                         : 'bg-stone-900/80 text-stone-200 border-amber-500/30 hover:border-amber-400 hover:text-amber-300'
                     }`}
                   >
-                    {isGhatSaved(selectedGhat.id) ? (
+                    {isGhatSaved(activeGhat.id) ? (
                       <>
                         <BookmarkCheck className="w-4 h-4 fill-stone-950" />
                         <span>सहेजा गया</span>
@@ -340,7 +341,7 @@ export const GhatFinder: React.FC = () => {
 
                 {/* Navigation Link to Google Maps */}
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedGhat.googleMapsQuery)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeGhat.googleMapsQuery || activeGhat.name)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="btn-primary text-xs py-2 px-4 flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 shrink-0"
@@ -355,11 +356,11 @@ export const GhatFinder: React.FC = () => {
                   onClick={() => {
                     openShareModal({
                       type: 'ghat',
-                      id: selectedGhat.id,
-                      title: selectedGhat.name,
-                      subtitle: `${selectedGhat.city}, ${selectedGhat.state}`,
+                      id: activeGhat.id,
+                      title: activeGhat.name,
+                      subtitle: `${activeGhat.city}, ${activeGhat.state}`,
                       thumbnail: getImageUrl('/images/sandhya_arghya.jpg'),
-                      metadata: { ghat: selectedGhat }
+                      metadata: { ghat: activeGhat }
                     });
                   }}
                   className="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 shrink-0 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30"
@@ -380,10 +381,12 @@ export const GhatFinder: React.FC = () => {
               <div className="relative z-10 text-center text-white space-y-2 p-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/80 backdrop-blur-md text-xs font-bold text-amber-300 border border-amber-500/40">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>अक्षांश: {selectedGhat.coordinates.lat.toFixed(4)}° N, देशांतर: {selectedGhat.coordinates.lng.toFixed(4)}° E</span>
+                  <span>
+                    अक्षांश: {activeGhat.coordinates?.lat != null ? activeGhat.coordinates.lat.toFixed(4) : '25.6120'}° N, देशांतर: {activeGhat.coordinates?.lng != null ? activeGhat.coordinates.lng.toFixed(4) : '85.1588'}° E
+                  </span>
                 </div>
                 <p className="text-xs text-stone-200 font-mukta max-w-md">
-                  लाइव जीपीएस स्थिति: {selectedGhat.googleMapsQuery}
+                  लाइव जीपीएस स्थिति: {activeGhat.googleMapsQuery || activeGhat.name}
                 </p>
               </div>
             </div>
@@ -436,12 +439,12 @@ export const GhatFinder: React.FC = () => {
                     लाइव घाट भीड़ स्थिति (Community Crowd Status):
                   </span>
                   <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                    {communityReports[selectedGhat.id]?.status || selectedGhat.crowdStatus}
-                    {communityReports[selectedGhat.id]?.count ? ` (${communityReports[selectedGhat.id].count} श्रद्धालुओं द्वारा रिपोर्ट)` : ''}
+                    {communityReports[activeGhat.id]?.status || activeGhat.crowdStatus}
+                    {communityReports[activeGhat.id]?.count ? ` (${communityReports[activeGhat.id].count} श्रद्धालुओं द्वारा रिपोर्ट)` : ''}
                   </span>
                 </div>
 
-                {hasReportedGhat === selectedGhat.id ? (
+                {hasReportedGhat === activeGhat.id ? (
                   <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                     ✓ आपकी रिपोर्ट दर्ज हो गई!
                   </span>
@@ -449,19 +452,19 @@ export const GhatFinder: React.FC = () => {
                   <div className="flex items-center gap-1.5 text-xs">
                     <span className="text-[11px] text-stone-500">भीड़ रिपोर्ट करें:</span>
                     <button
-                      onClick={() => reportCrowdLevel(selectedGhat.id, 'Normal')}
+                      onClick={() => reportCrowdLevel(activeGhat.id, 'Normal')}
                       className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-500/30 text-[11px]"
                     >
                       सामान्य
                     </button>
                     <button
-                      onClick={() => reportCrowdLevel(selectedGhat.id, 'Moderate')}
+                      onClick={() => reportCrowdLevel(activeGhat.id, 'Moderate')}
                       className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-500/30 text-[11px]"
                     >
                       मध्यम
                     </button>
                     <button
-                      onClick={() => reportCrowdLevel(selectedGhat.id, 'Heavy')}
+                      onClick={() => reportCrowdLevel(activeGhat.id, 'Heavy')}
                       className="px-2 py-0.5 rounded-lg bg-red-500/20 text-red-700 dark:text-red-300 font-bold hover:bg-red-500/30 text-[11px]"
                     >
                       अधिक
@@ -478,7 +481,7 @@ export const GhatFinder: React.FC = () => {
                 <span>प्रशासनिक सुविधाएं एवं सुरक्षा व्यवस्था (Facilities)</span>
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {selectedGhat.facilities.map((fac, idx) => (
+                {(activeGhat.facilities || []).map((fac, idx) => (
                   <div
                     key={idx}
                     className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-mukta text-stone-800 dark:text-stone-200 flex items-center gap-2"
@@ -499,7 +502,7 @@ export const GhatFinder: React.FC = () => {
                   <span>पार्किंग व्यवस्था:</span>
                 </span>
                 <p className="text-xs text-stone-600 dark:text-stone-300">
-                  {selectedGhat.parkingInfo}
+                  {activeGhat.parkingInfo || 'पर्याप्त पार्किंग उपलब्ध'}
                 </p>
               </div>
 
@@ -509,7 +512,7 @@ export const GhatFinder: React.FC = () => {
                   <span>प्रकाश एवं जल स्वच्छता:</span>
                 </span>
                 <p className="text-xs text-stone-600 dark:text-stone-300">
-                  {selectedGhat.lightingStatus} • {selectedGhat.waterQuality}
+                  {activeGhat.lightingStatus || 'उत्कृष्ट प्रकाश व्यवस्था'} • {activeGhat.waterQuality || 'स्वच्छ एवं निर्मल जल'}
                 </p>
               </div>
 
@@ -520,7 +523,7 @@ export const GhatFinder: React.FC = () => {
               <div className="flex items-center gap-2 text-xs font-mukta text-stone-800 dark:text-stone-200">
                 <PhoneCall className="w-4 h-4 text-red-500 shrink-0" />
                 <span>
-                  <strong>आपातकालीन संपर्क / नियंत्रण कक्ष:</strong> {selectedGhat.emergencyHelpline}
+                  <strong>आपातकालीन संपर्क / नियंत्रण कक्ष:</strong> {activeGhat.emergencyHelpline || '112 / 108'}
                 </span>
               </div>
               <span className="text-[11px] text-stone-500">24x7 सक्रिय</span>

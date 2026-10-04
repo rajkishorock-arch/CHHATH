@@ -51,7 +51,7 @@ export const MantraAarti: React.FC = () => {
   };
 
   return (
-    <section id="mantras" className="section-padding relative overflow-hidden bg-gradient-to-b from-orange-500/5 via-transparent to-amber-500/5">
+    <section id="aarti" className="section-padding relative overflow-hidden bg-gradient-to-b from-orange-500/5 via-transparent to-amber-500/5">
       
       {/* Devotional Background Watermark */}
       <div className="absolute -top-10 -right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>

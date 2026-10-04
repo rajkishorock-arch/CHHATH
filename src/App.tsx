@@ -16,6 +16,7 @@ import { ScrollProgressBar } from './components/layout/ScrollProgressBar';
 import { StickyPlayer } from './components/audio/StickyPlayer';
 import { ExpandedPlayerModal } from './components/audio/ExpandedPlayerModal';
 import { PlaybackQueueModal } from './components/audio/PlaybackQueueModal';
+import { Breadcrumbs } from './components/common/Breadcrumbs';
 
 // Modals
 import { CinematicIntro } from './components/hero/CinematicIntro';
@@ -69,53 +70,114 @@ const ComponentLoader: React.FC = () => (
   </div>
 );
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  onReset?: () => void;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class SectionErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Section render error caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="container-custom max-w-xl mx-auto my-16 p-8 rounded-3xl bg-stone-900/90 border border-amber-500/30 text-center space-y-4 backdrop-blur-md shadow-2xl font-mukta">
+          <div className="text-4xl">🪔</div>
+          <h2 className="text-2xl font-bold font-rozha text-amber-300">
+            सामग्री लोड करने में तकनीकी समस्या आई
+          </h2>
+          <p className="text-sm text-stone-300 leading-relaxed">
+            क्षमा करें, इस अनुभाग को प्रदर्शित करने में कुछ रुकावट आई। कृपया मुख्य पृष्ठ पर वापस जाएँ।
+          </p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false });
+              if (this.props.onReset) this.props.onReset();
+            }}
+            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold hover:brightness-110 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+          >
+            मुख्य पृष्ठ (Home) पर जाएँ
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export const normalizeTabKey = (rawTab: string): string => {
+  if (!rawTab) return 'home';
+  let t = rawTab.trim().toLowerCase();
+
+  try {
+    if (t.startsWith('http://') || t.startsWith('https://')) {
+      const parsed = new URL(t);
+      t = parsed.pathname + parsed.hash;
+    }
+  } catch (e) {}
+
+  if (t.includes('?')) {
+    t = t.split('?')[0];
+  }
+  if (t.startsWith('#')) {
+    t = t.slice(1);
+  }
+
+  // Remove /chhath/ prefix if present and leading/trailing slashes
+  t = t.replace(/^\/?(chhath\/)?/, '').replace(/\/$/, '');
+
+  // Exact mappings and aliases
+  if (t === 'chhath-puja-vidhi' || t === 'vidhi' || t === 'guide' || t === 'timeline') return 'chhath-puja-vidhi';
+  if (t === 'chhath-samagri' || t === 'samagri') return 'chhath-samagri';
+  if (t === 'chhath-arghya-time-2026' || t === 'chhath-arghya-time' || t === 'arghya') return 'chhath-arghya-time-2026';
+  if (t === 'thekua-recipe' || t === 'thekua' || t === 'prasad') return 'thekua-recipe';
+  if (t === 'chhath-puja-geet' || t === 'geet') return 'chhath-puja-geet';
+  if (t === 'chhath-puja-katha' || t === 'katha') return 'chhath-puja-katha';
+  if (t === 'chhath-calendar-2026' || t === 'chhath-calendar' || t === 'calendar') return 'chhath-calendar-2026';
+  if (t === 'chhath-puja-date-2026' || t === 'chhath-puja-date' || t === 'date') return 'chhath-puja-date-2026';
+  if (t === 'patna-chhath-puja-2026' || t === 'patna-chhath' || t === 'patna') return 'patna-chhath-puja-2026';
+  if (t === 'settings' || t === 'setting') return 'settings';
+  if (t === 'ghats' || t === 'ghat') return 'ghats';
+  if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
+  if (t === 'music' || t === 'songs' || t === 'song') return 'music';
+  if (t === 'explore') return 'explore';
+  if (t === 'my-chhath') return 'my-chhath';
+  if (t === 'home' || t === '') return 'home';
+
+  return t;
+};
+
 const getInitialTabFromLocation = (): string => {
   if (typeof window === 'undefined') return 'home';
-  const rawPath = window.location.pathname.toLowerCase();
-  const path = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
+
   const hash = window.location.hash.toLowerCase();
-
-  if (path.endsWith('chhath-puja-vidhi') || hash === '#chhath-puja-vidhi') {
-    return 'chhath-puja-vidhi';
-  }
-  if (path.endsWith('chhath-samagri') || hash === '#chhath-samagri') {
-    return 'chhath-samagri';
-  }
-  if (path.endsWith('chhath-arghya-time-2026') || path.endsWith('chhath-arghya-time') || hash === '#chhath-arghya-time' || hash === '#arghya') {
-    return 'chhath-arghya-time-2026';
-  }
-  if (path.endsWith('thekua-recipe') || hash === '#thekua-recipe') {
-    return 'thekua-recipe';
-  }
-  if (path.endsWith('chhath-puja-geet') || hash === '#chhath-puja-geet' || hash === '#geet') {
-    return 'chhath-puja-geet';
-  }
-  if (path.endsWith('chhath-puja-katha') || hash === '#chhath-puja-katha' || hash === '#katha') {
-    return 'chhath-puja-katha';
-  }
-  if (path.endsWith('chhath-calendar-2026') || path.endsWith('chhath-calendar') || hash === '#chhath-calendar-2026' || hash === '#calendar') {
-    return 'chhath-calendar-2026';
-  }
-  if (path.endsWith('chhath-puja-date-2026') || hash === '#chhath-puja-date-2026' || hash === '#date') {
-    return 'chhath-puja-date-2026';
-  }
-  if (path.endsWith('patna-chhath-puja-2026') || hash === '#patna-chhath-puja-2026' || hash === '#patna') {
-    return 'patna-chhath-puja-2026';
+  if (hash) {
+    const rawHash = hash.replace(/^#/, '');
+    const cleanHash = rawHash.split('?')[0];
+    if (cleanHash) {
+      const normHash = normalizeTabKey(cleanHash);
+      if (normHash !== 'home') return normHash;
+    }
   }
 
-  if (path.endsWith('settings') || hash === '#settings' || hash === '#setting') {
-    return 'settings';
-  }
-
-  if (hash === '#guide' || hash === '#timeline' || hash === '#vidhi') return 'guide';
-  if (hash === '#ghats') return 'ghats';
-  if (hash === '#prasad') return 'prasad';
-  if (hash === '#aarti') return 'aarti';
-  if (hash.startsWith('#music') || hash.startsWith('#songs')) return 'music';
-  if (hash === '#explore') return 'explore';
-  if (hash === '#my-chhath') return 'my-chhath';
-
-  return 'home';
+  const rawPath = window.location.pathname.toLowerCase();
+  const cleanPath = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
+  return normalizeTabKey(cleanPath);
 };
 
 const MainContent: React.FC = () => {
@@ -149,6 +211,7 @@ const MainContent: React.FC = () => {
     const handleUrlChange = () => {
       const tab = getInitialTabFromLocation();
       setActiveTab(tab);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       const hash = window.location.hash;
       const qMatch = hash.match(/[?&]q=([^&]+)/);
       if (qMatch) {
@@ -186,42 +249,46 @@ const MainContent: React.FC = () => {
   }, [openAuthModal]);
 
   const handleNavigate = (tab: string, query?: string) => {
-    if (tab === 'reels') {
+    const targetTab = normalizeTabKey(tab);
+
+    if (targetTab === 'reels') {
       openReelsPlatform('foryou');
       return;
     }
-    if (tab === 'login') {
+    if (targetTab === 'login') {
       openAuthModal('login');
       return;
     }
-    if (tab === 'signup') {
+    if (targetTab === 'signup') {
       openAuthModal('signup');
       return;
     }
     if (query !== undefined) {
       setMusicInitialQuery(query);
     }
-    setActiveTab(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveTab(targetTab);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
     const rawBase = import.meta.env.BASE_URL || '/';
     const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 
     let urlPath = base;
-    if (tab === 'chhath-puja-vidhi') urlPath = `${base}chhath-puja-vidhi/`;
-    else if (tab === 'chhath-samagri' || tab === 'samagri') urlPath = `${base}chhath-samagri/`;
-    else if (tab === 'chhath-arghya-time-2026') urlPath = `${base}chhath-arghya-time-2026/`;
-    else if (tab === 'thekua-recipe') urlPath = `${base}thekua-recipe/`;
-    else if (tab === 'chhath-puja-geet') urlPath = `${base}chhath-puja-geet/`;
-    else if (tab === 'chhath-puja-katha') urlPath = `${base}chhath-puja-katha/`;
-    else if (tab === 'chhath-calendar-2026') urlPath = `${base}chhath-calendar-2026/`;
-    else if (tab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
-    else if (tab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
-    else if (tab === 'settings') urlPath = `${base}#settings`;
-    else if (tab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
-    else if (tab !== 'home') urlPath = `${base}#${tab}`;
+    if (targetTab === 'chhath-puja-vidhi') urlPath = `${base}chhath-puja-vidhi/`;
+    else if (targetTab === 'chhath-samagri') urlPath = `${base}chhath-samagri/`;
+    else if (targetTab === 'chhath-arghya-time-2026') urlPath = `${base}chhath-arghya-time-2026/`;
+    else if (targetTab === 'thekua-recipe') urlPath = `${base}thekua-recipe/`;
+    else if (targetTab === 'chhath-puja-geet') urlPath = `${base}chhath-puja-geet/`;
+    else if (targetTab === 'chhath-puja-katha') urlPath = `${base}chhath-puja-katha/`;
+    else if (targetTab === 'chhath-calendar-2026') urlPath = `${base}chhath-calendar-2026/`;
+    else if (targetTab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
+    else if (targetTab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
+    else if (targetTab === 'settings') urlPath = `${base}#settings`;
+    else if (targetTab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
+    else if (targetTab !== 'home') urlPath = `${base}#${targetTab}`;
 
-    window.history.pushState(null, '', urlPath);
+    try {
+      window.history.pushState(null, '', urlPath);
+    } catch (e) {}
   };
 
   return (
@@ -246,97 +313,115 @@ const MainContent: React.FC = () => {
 
       {/* Main Content Area based on destination tab */}
       <main className="flex-1 pb-36 lg:pb-16">
-        {activeTab === 'home' && (
-          <PublicHomeView onNavigate={handleNavigate} />
-        )}
+        <SectionErrorBoundary onReset={() => handleNavigate('home')}>
+          {activeTab === 'home' && (
+            <PublicHomeView onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'chhath-puja-vidhi' && (
-          <ChhathVidhiPage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'chhath-puja-vidhi' && (
+            <ChhathVidhiPage onNavigate={handleNavigate} />
+          )}
 
-        {(activeTab === 'chhath-samagri' || activeTab === 'samagri') && (
-          <ChhathSamagriPage onNavigate={handleNavigate} />
-        )}
+          {(activeTab === 'chhath-samagri' || activeTab === 'samagri') && (
+            <ChhathSamagriPage onNavigate={handleNavigate} />
+          )}
 
-        {(activeTab === 'chhath-arghya-time-2026' || activeTab === 'chhath-arghya-time' || activeTab === 'arghya') && (
-          <ChhathArghyaTimePage onNavigate={handleNavigate} />
-        )}
+          {(activeTab === 'chhath-arghya-time-2026' || activeTab === 'chhath-arghya-time' || activeTab === 'arghya') && (
+            <ChhathArghyaTimePage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'thekua-recipe' && (
-          <ThekuaRecipePage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'thekua-recipe' && (
+            <ThekuaRecipePage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'chhath-puja-geet' && (
-          <ChhathGeetPage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'chhath-puja-geet' && (
+            <ChhathGeetPage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'chhath-puja-katha' && (
-          <ChhathKathaPage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'chhath-puja-katha' && (
+            <ChhathKathaPage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'chhath-calendar-2026' && (
-          <ChhathCalendarPage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'chhath-calendar-2026' && (
+            <ChhathCalendarPage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'chhath-puja-date-2026' && (
-          <ChhathDatePage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'chhath-puja-date-2026' && (
+            <ChhathDatePage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'patna-chhath-puja-2026' && (
-          <PatnaChhathPage onNavigate={handleNavigate} />
-        )}
+          {activeTab === 'patna-chhath-puja-2026' && (
+            <PatnaChhathPage onNavigate={handleNavigate} />
+          )}
 
-        {activeTab === 'guide' && (
-          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
-            <FourDaysTimeline />
-            <PujaVidhi />
-            <SamagriChecklist />
-          </div>
-        )}
+          {activeTab === 'guide' && (
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+              <Breadcrumbs 
+                items={[{ label: 'छठ पूजा विधि व संपूर्ण मार्गदर्शिका', url: '#guide' }]} 
+                onNavigate={handleNavigate} 
+              />
+              <FourDaysTimeline />
+              <PujaVidhi />
+              <SamagriChecklist />
+            </div>
+          )}
 
-        {activeTab === 'ghats' && (
-          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
-            <GhatFinder />
-            <GhatSafetySection />
-          </div>
-        )}
+          {activeTab === 'ghats' && (
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+              <Breadcrumbs 
+                items={[{ label: 'घाट एवं सुरक्षा निर्देश', url: '#ghats' }]} 
+                onNavigate={handleNavigate} 
+              />
+              <GhatFinder />
+              <GhatSafetySection />
+            </div>
+          )}
 
-        {activeTab === 'prasad' && (
-          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
-            <PrasadSection />
-            <CookingStudio />
-          </div>
-        )}
+          {activeTab === 'prasad' && (
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+              <Breadcrumbs 
+                items={[{ label: 'प्रसाद व ठेकुआ रेसिपी', url: '#prasad' }]} 
+                onNavigate={handleNavigate} 
+              />
+              <PrasadSection />
+              <CookingStudio />
+            </div>
+          )}
 
-        {activeTab === 'aarti' && (
-          <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
-            <MantraAarti />
-          </div>
-        )}
+          {activeTab === 'aarti' && (
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+              <Breadcrumbs 
+                items={[{ label: 'सूर्य देव आरती व वैदिक मंत्र', url: '#aarti' }]} 
+                onNavigate={handleNavigate} 
+              />
+              <MantraAarti />
+            </div>
+          )}
 
-        {activeTab === 'music' && (
-          <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
-            <SongsSection initialQuery={musicInitialQuery} />
-          </div>
-        )}
+          {activeTab === 'music' && (
+            <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
+              <SongsSection initialQuery={musicInitialQuery} />
+            </div>
+          )}
 
-        {activeTab === 'my-chhath' && (
-          <MyChhathDashboard />
-        )}
+          {activeTab === 'my-chhath' && (
+            <MyChhathDashboard />
+          )}
 
-        {activeTab === 'explore' && (
-          <Suspense fallback={<ComponentLoader />}>
-            <ExploreView />
-          </Suspense>
-        )}
+          {activeTab === 'explore' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <ExploreView />
+            </Suspense>
+          )}
 
-        {activeTab === 'settings' && (
-          <SettingsPage 
-            onNavigate={handleNavigate}
-            onOpenMixer={() => setMixerModalOpen(true)}
-            onOpenAssistant={() => setAssistantModalOpen(true)}
-          />
-        )}
+          {activeTab === 'settings' && (
+            <SettingsPage 
+              onNavigate={handleNavigate}
+              onOpenMixer={() => setMixerModalOpen(true)}
+              onOpenAssistant={() => setAssistantModalOpen(true)}
+            />
+          )}
+        </SectionErrorBoundary>
       </main>
 
       {/* Global Interactive Dock & Persistent Audio Player */}

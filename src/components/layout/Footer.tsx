@@ -61,32 +61,46 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               मुख्य अनुभाग
             </h4>
             <ul className="space-y-2 text-sm font-mukta text-stone-400 list-none p-0">
-              <li><a href="/CHHATH/chhath-calendar-2026/" className="hover:text-amber-400 transition-colors">छठ पूजा कैलेंडर 2026</a></li>
-              <li><a href="/CHHATH/chhath-puja-date-2026/" className="hover:text-amber-400 transition-colors">छठ पूजा 2026 तिथियां एवं समय</a></li>
-              <li><a href="/CHHATH/chhath-puja-vidhi/" className="hover:text-amber-400 transition-colors">छठ पूजा विधि 2026</a></li>
-              <li><a href="/CHHATH/chhath-samagri/" className="hover:text-amber-400 transition-colors">छठ पूजा सामग्री सूची</a></li>
-              <li><a href="/CHHATH/chhath-arghya-time-2026/" className="hover:text-amber-400 transition-colors">छठ अर्घ्य समय 2026</a></li>
-              <li><a href="/CHHATH/patna-chhath-puja-2026/" className="hover:text-amber-400 transition-colors">पटना गंगा घाट छठ पूजा 2026</a></li>
-              <li><a href="/CHHATH/thekua-recipe/" className="hover:text-amber-400 transition-colors">ठेकुआ प्रसाद रेसिपी</a></li>
-              <li><a href="/CHHATH/chhath-puja-geet/" className="hover:text-amber-400 transition-colors">छठ पूजा के गीत 2026</a></li>
-              <li><a href="/CHHATH/chhath-puja-katha/" className="hover:text-amber-400 transition-colors">छठ पूजा कथा 2026</a></li>
-              <li><a href="#ghats" className="hover:text-amber-400 transition-colors">घाट एवं सुरक्षा निर्देश</a></li>
-              <li><a href="#aarti" className="hover:text-amber-400 transition-colors">सूर्य देव आरती व वैदिक मंत्र</a></li>
-              <li><a href="#music" className="hover:text-amber-400 transition-colors">छठ संगीत स्टूडियो व भक्ति प्लेयर</a></li>
-              <li>
-                <a 
-                  href="#settings" 
-                  onClick={(e) => {
-                    if (onNavigate) {
-                      e.preventDefault();
-                      onNavigate('settings');
-                    }
-                  }} 
-                  className="hover:text-amber-400 transition-colors text-amber-300 font-bold"
-                >
-                  ऐप सेटिंग्स व कस्टमाइजेशन
-                </a>
-              </li>
+              {[
+                { id: 'chhath-calendar-2026', label: 'छठ पूजा कैलेंडर 2026' },
+                { id: 'chhath-puja-date-2026', label: 'छठ पूजा 2026 तिथियां एवं समय' },
+                { id: 'chhath-puja-vidhi', label: 'छठ पूजा विधि 2026' },
+                { id: 'chhath-samagri', label: 'छठ पूजा सामग्री सूची' },
+                { id: 'chhath-arghya-time-2026', label: 'छठ अर्घ्य समय 2026' },
+                { id: 'patna-chhath-puja-2026', label: 'पटना गंगा घाट छठ पूजा 2026' },
+                { id: 'thekua-recipe', label: 'ठेकुआ प्रसाद रेसिपी' },
+                { id: 'chhath-puja-geet', label: 'छठ पूजा के गीत 2026' },
+                { id: 'chhath-puja-katha', label: 'छठ पूजा कथा 2026' },
+                { id: 'ghats', label: 'घाट एवं सुरक्षा निर्देश', isAnchor: true },
+                { id: 'aarti', label: 'सूर्य देव आरती व वैदिक मंत्र', isAnchor: true },
+                { id: 'music', label: 'छठ संगीत स्टूडियो व भक्ति प्लेयर', isAnchor: true },
+                { id: 'settings', label: 'ऐप सेटिंग्स व कस्टमाइजेशन', isHighlight: true, isAnchor: true }
+              ].map((sec) => {
+                const basePath = import.meta.env.BASE_URL || '/';
+                const cleanBase = basePath.endsWith('/') ? basePath : `${basePath}/`;
+                const targetHref = sec.isAnchor ? `#${sec.id}` : `${cleanBase}${sec.id}/`;
+
+                return (
+                  <li key={sec.id}>
+                    <a
+                      href={targetHref}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (onNavigate) {
+                          onNavigate(sec.id);
+                        } else {
+                          window.location.hash = `#${sec.id}`;
+                        }
+                      }}
+                      className={`hover:text-amber-400 transition-colors block ${
+                        sec.isHighlight ? 'text-amber-300 font-bold' : ''
+                      }`}
+                    >
+                      {sec.label}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

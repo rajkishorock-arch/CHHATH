@@ -24,8 +24,8 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, onNavigate }) =
       <ol className="flex items-center flex-wrap gap-1.5 text-xs sm:text-sm font-mukta text-stone-600 dark:text-stone-300 list-none p-0 m-0">
         <li className="flex items-center gap-1">
           <a
-            href="/CHHATH/"
-            onClick={(e) => handleClick(e, '/CHHATH/')}
+            href={import.meta.env.BASE_URL || '/'}
+            onClick={(e) => handleClick(e, 'home')}
             className="flex items-center gap-1 hover:text-amber-600 dark:hover:text-amber-300 transition-colors text-decoration-none font-semibold"
           >
             <Home className="w-3.5 h-3.5" />
