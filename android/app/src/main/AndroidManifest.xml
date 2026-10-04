@@ -35,6 +35,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Media Foreground Service for Background Playback -->
+        <service
+            android:name=".MediaPlaybackService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="false" />
+
+        <!-- Media Action Broadcast Receiver for Notification Controls -->
+        <receiver
+            android:name=".MainActivity$MediaActionReceiver"
+            android:exported="false" />
     </application>
 
     <!-- Permissions -->

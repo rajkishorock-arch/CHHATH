@@ -66,9 +66,8 @@ const CallScreenModal = lazy(() => import('./components/chat/CallScreenModal').t
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
 
 const ComponentLoader: React.FC = () => (
-  <div className="p-12 text-center font-mukta text-stone-500 flex flex-col items-center justify-center gap-3">
+  <div className="p-12 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
     <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
-    <span className="text-sm font-semibold">सामग्री लोड हो रही है...</span>
   </div>
 );
 

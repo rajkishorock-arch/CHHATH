@@ -96,6 +96,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const pendingSongRef = useRef<Song | null>(null);
   const [ytPlayerReady, setYtPlayerReady] = useState<boolean>(false);
   const timeIntervalRef = useRef<any>(null);
+  const userRequestedPauseRef = useRef<boolean>(false);
 
   // Background audio & system media notification keepalive ref
   const bgAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -234,7 +235,26 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 // Catch cross-origin duration/data check
               }
             } else if (state === 2) {
-              setIsPlaying(false);
+              if (userRequestedPauseRef.current) {
+                setIsPlaying(false);
+                bgAudioRef.current?.pause();
+              } else {
+                console.log('[YouTubePlayer] Involuntary background pause detected (screen lock / minimize). Auto-resuming...');
+                setIsPlaying(true);
+                startAudioKeepalive();
+                try {
+                  ytPlayerRef.current?.playVideo();
+                } catch (e) {
+                  console.warn('Auto-resume playVideo error:', e);
+                }
+                setTimeout(() => {
+                  if (!userRequestedPauseRef.current && ytPlayerRef.current) {
+                    try {
+                      ytPlayerRef.current.playVideo();
+                    } catch (e) {}
+                  }
+                }, 200);
+              }
             } else if (state === 0) {
               setIsPlaying(false);
               handleSongEnded();
@@ -368,6 +388,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     currentSongRef.current = song;
 
     // 4. REACT STATE UPDATES
+    userRequestedPauseRef.current = false;
     setPlaybackError(null);
     setQueueState(finalQueue);
     setCurrentIndex(targetIndex);
@@ -440,16 +461,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     if (isPlaying) {
-      setIsPlaying(false);
-      bgAudioRef.current?.pause();
-      if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
-        try {
-          ytPlayerRef.current.pauseVideo();
-        } catch (e) {
-          console.warn('YouTube pauseVideo error:', e);
-        }
-      }
+      pauseSong();
     } else {
+      userRequestedPauseRef.current = false;
       setIsPlaying(true);
       startAudioKeepalive();
       if (ytPlayerRef.current && ytPlayerRef.current.playVideo) {
@@ -467,6 +481,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const pauseSong = () => {
+    userRequestedPauseRef.current = true;
     setIsPlaying(false);
     bgAudioRef.current?.pause();
     if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
@@ -752,32 +767,67 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [isPlaying, currentSong, startAudioKeepalive]);
 
+  // Prevent webview/browser from reporting hidden visibility
+  useEffect(() => {
+    try {
+      Object.defineProperty(document, 'hidden', {
+        get: () => false,
+        configurable: true
+      });
+      Object.defineProperty(document, 'visibilityState', {
+        get: () => 'visible',
+        configurable: true
+      });
+    } catch (e) {}
+  }, []);
+
   // Resilience: Keep audio playing if Android or browser backgrounds or minimizes the app
   useEffect(() => {
     const handleKeepAlive = () => {
-      if (isPlaying) {
+      if (!userRequestedPauseRef.current && currentSongRef.current) {
         startAudioKeepalive();
+        setIsPlaying(true);
         setTimeout(() => {
-          if (ytPlayerRef.current && isPlaying) {
+          if (!userRequestedPauseRef.current && ytPlayerRef.current) {
             try {
-              if (typeof ytPlayerRef.current.getPlayerState === 'function') {
-                if (ytPlayerRef.current.getPlayerState() === 2) { // 2 = paused
-                  ytPlayerRef.current.playVideo();
-                }
-              }
+              ytPlayerRef.current.playVideo();
             } catch (err) {}
           }
-        }, 180);
+        }, 150);
       }
     };
 
     document.addEventListener('visibilitychange', handleKeepAlive);
     window.addEventListener('blur', handleKeepAlive);
+    window.addEventListener('pagehide', handleKeepAlive);
     return () => {
       document.removeEventListener('visibilitychange', handleKeepAlive);
       window.removeEventListener('blur', handleKeepAlive);
+      window.removeEventListener('pagehide', handleKeepAlive);
     };
-  }, [isPlaying, startAudioKeepalive]);
+  }, [startAudioKeepalive]);
+
+  // Periodic watchdog to ensure continuous background playback even under aggressive OS throttling
+  useEffect(() => {
+    const watchdog = setInterval(() => {
+      if (!userRequestedPauseRef.current && currentSongRef.current && isPlaying) {
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.getPlayerState === 'function') {
+          try {
+            const state = ytPlayerRef.current.getPlayerState();
+            if (state === 2) {
+              console.log('[Watchdog] Resuming video in background');
+              ytPlayerRef.current.playVideo();
+            }
+          } catch (e) {}
+        }
+        if (bgAudioRef.current && bgAudioRef.current.paused) {
+          bgAudioRef.current.play().catch(() => {});
+        }
+      }
+    }, 1500);
+
+    return () => clearInterval(watchdog);
+  }, [isPlaying]);
 
   // Sync Position State in MediaSession (for progress bar in Notification Panel & Lock Screen)
   useEffect(() => {

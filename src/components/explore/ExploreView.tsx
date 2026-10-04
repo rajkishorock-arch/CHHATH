@@ -22,9 +22,8 @@ const ChhathArchiveReport = lazy(() => import('../archive/ChhathArchiveReport').
 const SankalpWall = lazy(() => import('../engagement/SankalpWall').then(m => ({ default: m.SankalpWall })));
 
 const ComponentLoader: React.FC = () => (
-  <div className="p-8 text-center font-mukta text-stone-500 flex flex-col items-center gap-2">
+  <div className="p-8 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
     <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin"></div>
-    <span className="text-xs">सामग्री लोड हो रही है...</span>
   </div>
 );
 

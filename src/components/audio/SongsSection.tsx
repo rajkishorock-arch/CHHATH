@@ -40,23 +40,18 @@ const YouTubeVideoCardComponent: React.FC<{
   song: Song;
   isCurrent: boolean;
   isPlayingThis: boolean;
-  inQueue: boolean;
-  isFav: boolean;
+  inQueue?: boolean;
+  isFav?: boolean;
   onPlay: () => void;
-  onToggleQueue: () => void;
-  onToggleFav: () => void;
+  onToggleQueue?: () => void;
+  onToggleFav?: () => void;
   onOpenLyrics?: () => void;
   isLiveApi?: boolean;
 }> = ({
   song,
   isCurrent,
   isPlayingThis,
-  inQueue,
-  isFav,
   onPlay,
-  onToggleQueue,
-  onToggleFav,
-  onOpenLyrics,
 }) => {
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
@@ -67,12 +62,12 @@ const YouTubeVideoCardComponent: React.FC<{
     setThumbSrc(nextThumb);
   }, [song.thumbnail, song.youtubeId]);
 
-  const ytUrl = song.youtubeId ? `https://www.youtube.com/watch?v=${song.youtubeId}` : song.audioUrl;
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
   return (
     <div
-      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md ${
+      onClick={onPlay}
+      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer select-none ${
         isCurrent
           ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
           : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
@@ -80,8 +75,7 @@ const YouTubeVideoCardComponent: React.FC<{
     >
       {/* 16:9 YouTube Thumbnail Container */}
       <div 
-        onClick={onPlay} 
-        className="relative aspect-video w-full bg-stone-950 overflow-hidden cursor-pointer select-none"
+        className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none"
       >
         <img
           src={thumbSrc}
@@ -123,14 +117,6 @@ const YouTubeVideoCardComponent: React.FC<{
           </div>
         </div>
 
-        {/* Playing Animated Equalizer Bar */}
-        {isPlayingThis && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-xs border border-amber-400/30 flex items-center gap-1.5 z-10">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-            <span className="text-[10px] font-bold text-amber-300">बज रहा है</span>
-          </div>
-        )}
-
         {/* Video Duration Badge */}
         {song.duration && (
           <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
@@ -143,8 +129,7 @@ const YouTubeVideoCardComponent: React.FC<{
       <div className="p-3 flex items-start gap-2.5">
         {/* Channel / Artist Avatar Circle */}
         <div 
-          onClick={onPlay}
-          className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 cursor-pointer shadow-sm mt-0.5"
+          className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5"
         >
           {singerInitial}
         </div>
@@ -152,8 +137,7 @@ const YouTubeVideoCardComponent: React.FC<{
         {/* Title & Metadata */}
         <div className="min-w-0 flex-1">
           <h4 
-            onClick={onPlay}
-            className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug cursor-pointer transition-colors ${
+            className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug transition-colors ${
               isCurrent ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
             }`}
             title={song.title}
@@ -173,65 +157,6 @@ const YouTubeVideoCardComponent: React.FC<{
             <span>•</span>
             <span>{song.language || 'भोजपुरी'}</span>
           </div>
-        </div>
-      </div>
-
-      {/* Action Bar (Play, Queue, Favorite, Lyrics, YouTube) */}
-      <div className="px-3 pb-3 pt-1 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-between gap-1 text-xs">
-        <button
-          onClick={onPlay}
-          className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all text-xs cursor-pointer ${
-            isPlayingThis
-              ? 'bg-red-600 text-white shadow'
-              : 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow'
-          }`}
-        >
-          {isPlayingThis ? <Pause className="w-3.5 h-3.5 fill-white" /> : <Play className="w-3.5 h-3.5 fill-stone-950 ml-0.5" />}
-          <span>{isPlayingThis ? 'रोकें' : 'बजाएं'}</span>
-        </button>
-
-        <div className="flex items-center gap-1">
-          {onOpenLyrics && song.lyrics && (
-            <button
-              onClick={onOpenLyrics}
-              className="p-1.5 rounded-lg text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-              title="गीत के बोल (Lyrics)"
-            >
-              <FileText className="w-4 h-4" />
-            </button>
-          )}
-
-          <button
-            onClick={onToggleQueue}
-            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              inQueue ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800'
-            }`}
-            title={inQueue ? 'कतार में मौजूद' : 'कतार में जोड़ें'}
-          >
-            {inQueue ? <Check className="w-4 h-4 text-amber-500" /> : <Plus className="w-4 h-4" />}
-          </button>
-
-          <button
-            onClick={onToggleFav}
-            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              isFav ? 'text-rose-500' : 'text-stone-500 dark:text-stone-400 hover:text-rose-500 hover:bg-stone-100 dark:hover:bg-stone-800'
-            }`}
-            title={isFav ? 'पसंदीदा से हटाएं' : 'पसंदीदा में जोड़ें'}
-          >
-            <Heart className={`w-4 h-4 ${isFav ? 'fill-rose-500' : ''}`} />
-          </button>
-
-          {ytUrl && (
-            <a
-              href={ytUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="p-1.5 rounded-lg text-stone-500 dark:text-stone-400 hover:text-red-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-              title="YouTube पर खोलें"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          )}
         </div>
       </div>
     </div>
@@ -812,10 +737,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
         {/* SKELETON LOADERS WHILE SEARCHING */}
         {searchStatus === 'loading' && (
-          <div className="space-y-3 pt-1">
-            <div className="flex items-center gap-2 px-1 text-xs text-stone-600 dark:text-stone-400">
-              <RefreshCw className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-              <span>लाइव &ldquo;{searchQuery}&rdquo; खोजा जा रहा है...</span>
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-center py-2">
+              <RefreshCw className="w-6 h-6 text-amber-500 animate-spin" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -908,10 +832,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           <div className="space-y-3 pt-1">
             {/* Initial Loading Skeletons */}
             {isLiveInitialLoading && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 px-1 text-xs text-amber-600 dark:text-amber-400 font-bold animate-pulse">
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-                  <span>यूट्यूब से लाइव ट्रेंडिंग छठ गीत लोड हो रहे हैं...</span>
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-center py-2">
+                  <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -980,17 +903,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
-        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 text-center">
-          {isLoadingMore && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-              <span>और गाने लोड हो रहे हैं...</span>
-            </div>
-          )}
-          {searchStatus === 'idle' && isLoadingMoreLive && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-amber-600 dark:text-amber-400 text-xs font-bold shadow-md animate-pulse">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-500" />
-              <span>और नए लाइव छठ गीत लोड हो रहे हैं...</span>
+        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex items-center justify-center">
+          {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) && (
+            <div className="p-3 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
+              <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
             </div>
           )}
         </div>
