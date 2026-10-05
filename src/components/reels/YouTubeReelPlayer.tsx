@@ -22,6 +22,8 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const initialActiveRef = useRef(isActive);
+  const initialMutedRef = useRef(isMuted);
 
   // Send direct command to YouTube HTML5 Player via postMessage
   const sendYtCommand = useCallback((func: string, args: any[] = []) => {
@@ -54,6 +56,10 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
         if (!isMuted) {
           sendYtCommand('unMute', []);
           sendYtCommand('setVolume', [100]);
+          setTimeout(() => {
+            sendYtCommand('unMute', []);
+            sendYtCommand('setVolume', [100]);
+          }, 200);
         } else {
           sendYtCommand('mute', []);
         }
@@ -89,12 +95,16 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
         // When YouTube player is initialized and ready
         if (data.event === 'onReady' || data.event === 'initialDelivery') {
           setIsLoaded(true);
+          onReady?.();
           if (isActive && isPlaying) {
             sendYtCommand('playVideo', []);
             if (!isMuted) {
               sendYtCommand('unMute', []);
               sendYtCommand('setVolume', [100]);
             }
+          } else {
+            sendYtCommand('pauseVideo', []);
+            sendYtCommand('mute', []);
           }
         }
 
@@ -103,7 +113,10 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
           if (data.info.playerState === 1) {
             setIsLoaded(true);
             onReady?.();
-            if (!isMuted) {
+            if (!isActive || !isPlaying) {
+              sendYtCommand('pauseVideo', []);
+              sendYtCommand('mute', []);
+            } else if (!isMuted) {
               sendYtCommand('unMute', []);
               sendYtCommand('setVolume', [100]);
             }
@@ -145,15 +158,18 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
           sendYtCommand('setVolume', [100]);
         }, 600);
       }
+    } else {
+      sendYtCommand('pauseVideo', []);
+      sendYtCommand('mute', []);
     }
   };
 
   // High-speed embed URL with controls=0, modestbranding=1, enablejsapi=1
-  // Initialized with mute=0 so audio plays instantly from second 0 without 10s delay
-  const initialMutedRef = useRef(isMuted);
+  // If active at mount time, starts with autoplay=1, otherwise preloads paused and muted
   const embedUrl = useMemo(() => {
-    const initialMute = initialMutedRef.current ? 1 : 0;
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMute}&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
+    const initialAutoplay = initialActiveRef.current ? 1 : 0;
+    const initialMute = initialActiveRef.current ? (initialMutedRef.current ? 1 : 0) : 1;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=${initialAutoplay}&mute=${initialMute}&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
   }, [videoId]);
 
   if (hasError) {

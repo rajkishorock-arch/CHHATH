@@ -16,6 +16,7 @@ import android.os.PowerManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
@@ -81,6 +82,14 @@ public class MainActivity extends BridgeActivity {
                 settings.setDatabaseEnabled(true);
                 settings.setAllowFileAccess(true);
                 settings.setAllowContentAccess(true);
+
+                // High-performance cache & 60fps rendering settings
+                settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+                settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+                settings.setEnableSmoothTransition(true);
+
+                // Enable GPU hardware acceleration layer for WebView
+                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
                 // Add Javascript interface for direct communication
                 webView.addJavascriptInterface(new MediaBridge(), "AndroidMedia");

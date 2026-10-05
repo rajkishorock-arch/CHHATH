@@ -223,7 +223,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         {/* Video / Media Viewport (YouTube Iframe, Instagram Iframe Fallback, or Native Video) */}
         {reel.youtubeVideoId ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {isActive && (
+            {(isActive || isNearby) && (
               <YouTubeReelPlayer
                 key={reel.youtubeVideoId}
                 videoId={reel.youtubeVideoId}

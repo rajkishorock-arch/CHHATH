@@ -255,13 +255,10 @@ export const ReelsSearchDiscover: React.FC<ReelsSearchDiscoverProps> = ({
             </div>
           )}
 
-          {/* LOADING SKELETON */}
+          {/* LOADING SKELETON (Pure loading sign, no text) */}
           {localQuery.trim() && isLoading && liveShorts.length === 0 && (
-            <div className="space-y-4 py-8 text-center animate-fadeIn">
-              <Loader2 className="w-8 h-8 mx-auto text-amber-400 animate-spin" />
-              <p className="text-xs font-bold text-stone-300 font-mukta">
-                &ldquo;{localQuery}&rdquo; से जुड़ी रील्स खोजी जा रही हैं...
-              </p>
+            <div className="py-16 flex items-center justify-center animate-fadeIn">
+              <Loader2 className="w-9 h-9 text-amber-400 animate-spin" />
             </div>
           )}
 
@@ -309,13 +306,6 @@ export const ReelsSearchDiscover: React.FC<ReelsSearchDiscoverProps> = ({
               {/* Real-time YouTube Shorts Grid */}
               {liveShorts.length > 0 ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-stone-300 font-mukta flex items-center gap-1.5">
-                      <Film className="w-3.5 h-3.5 text-amber-400" />
-                      <span>रील्स परिणाम ({liveShorts.length})</span>
-                    </span>
-                  </div>
-
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
                     {liveShorts.map(reel => (
                       <div
@@ -358,13 +348,10 @@ export const ReelsSearchDiscover: React.FC<ReelsSearchDiscoverProps> = ({
                     ))}
                   </div>
 
-                  {/* Infinite Scroll Sentinel */}
-                  <div ref={observerRef} className="py-4 text-center">
+                  {/* Infinite Scroll Sentinel (Pure loading sign, no text) */}
+                  <div ref={observerRef} className="py-6 flex items-center justify-center">
                     {isLoadingMore && (
-                      <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-400 font-mukta">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>अधिक रील्स लोड हो रही हैं...</span>
-                      </div>
+                      <Loader2 className="w-7 h-7 animate-spin text-amber-400" />
                     )}
                   </div>
                 </div>
