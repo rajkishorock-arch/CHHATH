@@ -27,6 +27,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
     playPrevious,
     showVideo,
     setShowVideo,
+    setVideoExpanded,
     setIsExpandedOpen,
     setIsQueueOpen,
     playbackError,
@@ -157,8 +158,15 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
           {/* Queue & Video Toggles */}
           <div className="flex items-center gap-1 shrink-0 border-l border-stone-200 dark:border-amber-500/20 pl-2">
             <button
-              onClick={() => setShowVideo(!showVideo)}
-              className={`p-2 rounded-xl transition-all ${
+              onClick={() => {
+                if (!showVideo) {
+                  setVideoExpanded(true);
+                  setShowVideo(true);
+                } else {
+                  setShowVideo(false);
+                }
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
                 showVideo
                   ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-400/40'
                   : 'text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-stone-100 dark:hover:bg-stone-900'

@@ -171,6 +171,7 @@ export const searchYouTubeVideos = async (
   const workerBase = getWorkerUrl().replace(/\/+$/, '');
   const searchEndpoints = [
     `${workerBase}/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
+    `${workerBase}/?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
     `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`
   ];
 
@@ -224,7 +225,9 @@ export const searchYouTubeVideos = async (
     if (pageToken) {
       bodyPayload.continuation = pageToken;
     } else {
-      bodyPayload.query = type === 'shorts' ? `${trimmed} #shorts` : `${trimmed} chhath geet`;
+      bodyPayload.query = type === 'shorts'
+        ? (trimmed.toLowerCase().includes('short') ? trimmed : `${trimmed} #shorts`)
+        : trimmed;
     }
 
     const controller = new AbortController();
@@ -288,7 +291,7 @@ export const searchYouTubeVideos = async (
 
   // 4. TIER 3: Public Invidious Mirror Search
   try {
-    const invidiousQuery = type === 'shorts' ? `${trimmed} shorts` : (trimmed.toLowerCase().includes('chhath') ? trimmed : `${trimmed} geet`);
+    const invidiousQuery = type === 'shorts' ? (trimmed.toLowerCase().includes('short') ? trimmed : `${trimmed} shorts`) : trimmed;
     const invidiousEndpoint = `https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(invidiousQuery)}&type=video`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);

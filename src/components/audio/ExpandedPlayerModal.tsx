@@ -33,6 +33,8 @@ export const ExpandedPlayerModal: React.FC = () => {
     isRepeat,
     favorites,
     showVideo,
+    setShowVideo,
+    setVideoExpanded,
     togglePlay,
     playNext,
     playPrevious,
@@ -42,7 +44,6 @@ export const ExpandedPlayerModal: React.FC = () => {
     toggleShuffle,
     toggleRepeat,
     setIsQueueOpen,
-    setShowVideo,
     setLyricsSong,
     playbackError,
     clearPlaybackError
@@ -93,8 +94,16 @@ export const ExpandedPlayerModal: React.FC = () => {
         </div>
 
         <button
-          onClick={() => setShowVideo(!showVideo)}
-          className={`p-2 rounded-full border transition-all ${
+          onClick={() => {
+            if (!showVideo) {
+              setVideoExpanded(true);
+              setShowVideo(true);
+              setIsExpandedOpen(false);
+            } else {
+              setShowVideo(false);
+            }
+          }}
+          className={`p-2 rounded-full border transition-all cursor-pointer ${
             showVideo
               ? 'bg-amber-500 border-amber-400 text-stone-950'
               : 'bg-stone-100 border-stone-200 text-stone-700 hover:text-stone-900 dark:bg-stone-900 dark:border-amber-500/20 dark:text-stone-300 dark:hover:text-white'

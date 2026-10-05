@@ -16,7 +16,8 @@ import {
   MicOff,
   X,
   CheckCircle2,
-  Music
+  Music,
+  Video
 } from 'lucide-react';
 
 import { SongLyricsModal } from './SongLyricsModal';
@@ -35,7 +36,7 @@ const formatDuration = (val?: string | number) => {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 };
 
-// YouTube-Style Video Card Component (Landscape 16:9 for songs)
+// YouTube-Style Video Card Component (Landscape 16:9 for songs & videos)
 const YouTubeVideoCardComponent: React.FC<{
   song: Song;
   isCurrent: boolean;
@@ -43,6 +44,7 @@ const YouTubeVideoCardComponent: React.FC<{
   inQueue?: boolean;
   isFav?: boolean;
   onPlay: () => void;
+  onPlayVideo?: () => void;
   onToggleQueue?: () => void;
   onToggleFav?: () => void;
   onOpenLyrics?: () => void;
@@ -51,7 +53,13 @@ const YouTubeVideoCardComponent: React.FC<{
   song,
   isCurrent,
   isPlayingThis,
+  inQueue,
+  isFav,
   onPlay,
+  onPlayVideo,
+  onToggleQueue,
+  onToggleFav,
+  onOpenLyrics,
 }) => {
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
@@ -67,96 +75,192 @@ const YouTubeVideoCardComponent: React.FC<{
   return (
     <div
       onClick={onPlay}
-      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer select-none ${
+      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer select-none flex flex-col justify-between ${
         isCurrent
           ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
           : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
       }`}
     >
-      {/* 16:9 YouTube Thumbnail Container */}
-      <div 
-        className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none"
-      >
-        <img
-          src={thumbSrc}
-          alt={song.title}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={() => {
-            if (thumbSrc.includes('i.ytimg.com') && song.youtubeId) {
-              setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`);
-            } else if (thumbSrc.includes('hqdefault.jpg') && song.youtubeId) {
-              setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`);
-            } else {
-              setThumbSrc('https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=80');
-            }
-          }}
-        />
-
-        {/* Hover / Play Overlay */}
-        <div
-          className={`absolute inset-0 transition-opacity flex items-center justify-center ${
-            isPlayingThis
-              ? 'bg-black/40 opacity-100'
-              : 'bg-black/30 opacity-0 group-hover:opacity-100'
-          }`}
+      <div>
+        {/* 16:9 YouTube Thumbnail Container */}
+        <div 
+          className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none"
         >
+          <img
+            src={thumbSrc}
+            alt={song.title}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={() => {
+              if (thumbSrc.includes('i.ytimg.com') && song.youtubeId) {
+                setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`);
+              } else if (thumbSrc.includes('hqdefault.jpg') && song.youtubeId) {
+                setThumbSrc(`https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`);
+              } else {
+                setThumbSrc('https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=80');
+              }
+            }}
+          />
+
+          {/* Hover / Play Overlay */}
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
+            className={`absolute inset-0 transition-opacity flex items-center justify-center ${
               isPlayingThis
-                ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
-                : 'bg-stone-950/80 text-white group-hover:scale-110'
+                ? 'bg-black/40 opacity-100'
+                : 'bg-black/30 opacity-0 group-hover:opacity-100'
             }`}
           >
-            {isPlayingThis ? (
-              <Pause className="w-5 h-5 fill-current" />
-            ) : (
-              <Play className="w-5 h-5 fill-current ml-0.5" />
-            )}
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
+                isPlayingThis
+                  ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
+                  : 'bg-stone-950/80 text-white group-hover:scale-110'
+              }`}
+            >
+              {isPlayingThis ? (
+                <Pause className="w-5 h-5 fill-current" />
+              ) : (
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              )}
+            </div>
           </div>
+
+          {/* Direct "Watch Video" pill on thumbnail */}
+          {onPlayVideo && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlayVideo();
+              }}
+              className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-red-600/90 hover:bg-red-600 text-white text-[11px] font-bold flex items-center gap-1 shadow-md backdrop-blur-xs transition-transform active:scale-95 z-10 cursor-pointer"
+              title="पूरा वीडियो देखें"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>वीडियो देखें</span>
+            </button>
+          )}
+
+          {/* Video Duration Badge */}
+          {song.duration && (
+            <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
+              {formatDuration(song.duration)}
+            </div>
+          )}
         </div>
 
-        {/* Video Duration Badge */}
-        {song.duration && (
-          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
-            {formatDuration(song.duration)}
+        {/* Video Details Row (YouTube App Layout) */}
+        <div className="p-3 flex items-start gap-2.5">
+          {/* Channel / Artist Avatar Circle */}
+          <div 
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5"
+          >
+            {singerInitial}
           </div>
-        )}
+
+          {/* Title & Metadata */}
+          <div className="min-w-0 flex-1">
+            <h4 
+              className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug transition-colors ${
+                isCurrent ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
+              }`}
+              title={song.title}
+            >
+              {song.title}
+            </h4>
+
+            {/* Singer Name & Verified Badge */}
+            <div className="flex items-center gap-1 mt-1 text-xs text-stone-600 dark:text-stone-400 truncate">
+              <span className="truncate">{song.singer}</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
+            </div>
+
+            {/* Category & Tags */}
+            <div className="flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 mt-1">
+              <span className="truncate">{song.category || 'भक्ति'}</span>
+              <span>•</span>
+              <span className="truncate">{song.language || 'भोजपुरी'}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Video Details Row (YouTube App Layout) */}
-      <div className="p-3 flex items-start gap-2.5">
-        {/* Channel / Artist Avatar Circle */}
-        <div 
-          className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5"
-        >
-          {singerInitial}
+      {/* Action Footer: Dedicated Video vs Audio buttons + Quick controls */}
+      <div className="px-3 pb-3 pt-0 flex items-center justify-between gap-1.5 border-t border-stone-100 dark:border-stone-800/80 mt-1">
+        <div className="flex items-center gap-1.5 pt-2">
+          {onPlayVideo && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlayVideo();
+              }}
+              className="px-2.5 py-1 rounded-lg bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+              title="थिएटर मोड में वीडियो देखें"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>वीडियो</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlay();
+            }}
+            className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+            title="ऑडियो सुनें"
+          >
+            {isPlayingThis ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
+            <span>{isPlayingThis ? 'रोकें' : 'ऑडियो'}</span>
+          </button>
         </div>
 
-        {/* Title & Metadata */}
-        <div className="min-w-0 flex-1">
-          <h4 
-            className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug transition-colors ${
-              isCurrent ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
-            }`}
-            title={song.title}
-          >
-            {song.title}
-          </h4>
-
-          {/* Singer Name & Verified Badge */}
-          <div className="flex items-center gap-1 mt-1 text-xs text-stone-600 dark:text-stone-400 truncate">
-            <span className="truncate">{song.singer}</span>
-            <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
-          </div>
-
-          {/* Category & Tags */}
-          <div className="flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 mt-1">
-            <span className="truncate">{song.category || 'भक्ति'}</span>
-            <span>•</span>
-            <span className="truncate">{song.language || 'भोजपुरी'}</span>
-          </div>
+        <div className="flex items-center gap-1 pt-2">
+          {onOpenLyrics && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenLyrics();
+              }}
+              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+              title="बोल (Lyrics)"
+            >
+              <FileText className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {onToggleFav && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFav();
+              }}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                isFav ? 'text-red-500' : 'text-stone-400 hover:text-red-500 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+              title={isFav ? "पसंदीदा से हटाएं" : "पसंदीदा में जोड़ें"}
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
+            </button>
+          )}
+          {onToggleQueue && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleQueue();
+              }}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                inQueue ? 'text-amber-500' : 'text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+              title={inQueue ? "कतार में जोड़ा गया" : "कतार में जोड़ें"}
+            >
+              {inQueue ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -174,6 +278,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     currentSong, 
     isPlaying, 
     playSong, 
+    playVideo,
     togglePlay, 
     favorites, 
     toggleFavorite,
@@ -193,6 +298,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
+  // Endless search pagination refs
+  const searchFacetIndexRef = useRef<number>(0);
+  const currentSearchTermRef = useRef<string>('');
+
   // Voice Search States
   const [isListening, setIsListening] = useState<boolean>(false);
   const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
@@ -206,7 +315,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const seenYoutubeIdsRef = useRef<Set<string>>(new Set());
   const seenSignaturesRef = useRef<Set<string>>(new Set());
   const searchSeenIdsRef = useRef<Set<string>>(new Set());
-  const searchSeenSigsRef = useRef<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const CHHATH_LIVE_TOPICS = useMemo(() => [
@@ -494,12 +602,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS, deduplicateSongs, interleaveSingers]);
 
   // Execute YouTube API Search
-  const handleExecuteSearch = async (query: string, token: string = '') => {
-    if (!query.trim()) return;
+  const handleExecuteSearch = async (query: string, token: string = '', isContinuation: boolean = false) => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
 
-    if (!token) {
+    if (!token && !isContinuation) {
+      currentSearchTermRef.current = trimmed;
+      searchFacetIndexRef.current = 0;
       searchSeenIdsRef.current.clear();
-      searchSeenSigsRef.current.clear();
       setSearchStatus('loading');
       setYtSearchResults([]);
       setNextPageToken(null);
@@ -509,7 +619,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     }
 
     try {
-      const response = await searchYouTubeVideos(query, token, 'video');
+      const response = await searchYouTubeVideos(trimmed, token, 'video');
       setIsLiveApi(response.isLiveApi);
 
       if (response.results && response.results.length > 0) {
@@ -521,36 +631,64 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           const t = r.title.toLowerCase();
           if (t.includes('#short') || t.includes('#reel')) continue;
           if (searchSeenIdsRef.current.has(r.youtubeId)) continue;
-          const sig = getCanonicalSongSignature(r.title);
-          if (sig && searchSeenSigsRef.current.has(sig)) continue;
 
           searchSeenIdsRef.current.add(r.youtubeId);
-          if (sig) searchSeenSigsRef.current.add(sig);
           cleanResults.push(r);
         }
 
-        setYtSearchResults(prev => token ? [...prev, ...cleanResults] : cleanResults);
+        setYtSearchResults(prev => (token || isContinuation) ? [...prev, ...cleanResults] : cleanResults);
         setNextPageToken(response.nextPageToken);
         setSearchStatus('success');
       } else {
-        if (!token) {
+        if (!token && !isContinuation) {
           setYtSearchResults([]);
           setSearchStatus('no_results');
-          setErrorMessage(response.error || 'कोई गाना नहीं मिला।');
+          setErrorMessage(response.error || 'कोई गाना या वीडियो नहीं मिला।');
         }
       }
     } catch (err: any) {
       console.error('Search error:', err);
-      setSearchStatus('error');
-      setErrorMessage(err.message || 'नेटवर्क या API त्रुटि हुई।');
+      if (!token && !isContinuation) {
+        setSearchStatus('error');
+        setErrorMessage(err.message || 'नेटवर्क या API त्रुटि हुई।');
+      }
     } finally {
       setIsLoadingMore(false);
     }
   };
 
+  // Continuous infinite scroll: never stops even if single-query page tokens run out!
+  const loadMoreSearchResults = useCallback(async () => {
+    if (isLoadingMore || searchStatus !== 'success') return;
+    const baseQuery = currentSearchTermRef.current || searchQuery.trim();
+    if (!baseQuery) return;
+
+    // 1. If we have a nextPageToken from the current query, fetch next page
+    if (nextPageToken) {
+      await handleExecuteSearch(baseQuery, nextPageToken);
+      return;
+    }
+
+    // 2. If token exhausted or null, branch to related search facets so scrolling NEVER stops!
+    searchFacetIndexRef.current += 1;
+    const facets = [
+      `${baseQuery} songs`,
+      `${baseQuery} full video`,
+      `${baseQuery} superhit`,
+      `${baseQuery} live`,
+      `${baseQuery} hits`,
+      `${baseQuery} jukebox`,
+      `${baseQuery} remix`,
+      `${baseQuery} collection`
+    ];
+    const nextFacetQuery = facets[searchFacetIndexRef.current % facets.length];
+    await handleExecuteSearch(nextFacetQuery, '', true);
+  }, [isLoadingMore, searchStatus, nextPageToken, searchQuery]);
+
   const handleClearSearch = () => {
     searchSeenIdsRef.current.clear();
-    searchSeenSigsRef.current.clear();
+    currentSearchTermRef.current = '';
+    searchFacetIndexRef.current = 0;
     setSearchQuery('');
     setSearchStatus('idle');
     setYtSearchResults([]);
@@ -660,8 +798,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          if (searchStatus === 'success' && nextPageToken && !isLoadingMore) {
-            handleExecuteSearch(searchQuery, nextPageToken);
+          if (searchStatus === 'success' && !isLoadingMore) {
+            loadMoreSearchResults();
           } else if (searchStatus === 'idle' && !isLoadingMoreLive && !isLiveInitialLoading) {
             loadMoreLiveSongs();
           }
@@ -672,7 +810,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [searchStatus, nextPageToken, isLoadingMore, searchQuery, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
+  }, [searchStatus, isLoadingMore, loadMoreSearchResults, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
 
   // Handle in-app pull to refresh without destructive full page reload
   useEffect(() => {
@@ -704,7 +842,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="छठ गीत या गायक खोजें... (उदा: शारदा सिन्हा, पवन सिंह)"
+              placeholder="YouTube पर कोई भी गाना, गायक या वीडियो खोजें..."
               className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 outline-none pr-2"
             />
 
@@ -826,6 +964,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       if (isCurrent) togglePlay();
                       else playSong(songObj, ytSearchResults.map(convertToSongModel));
                     }}
+                    onPlayVideo={() => {
+                      playVideo(songObj, ytSearchResults.map(convertToSongModel));
+                    }}
                     onToggleQueue={() => {
                       if (!inQueue) addToQueue(songObj);
                     }}
@@ -886,6 +1027,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       onPlay={() => {
                         if (isCurrent) togglePlay();
                         else playSong(song, liveSongs);
+                      }}
+                      onPlayVideo={() => {
+                        playVideo(song, liveSongs);
                       }}
                       onToggleQueue={() => {
                         if (!inQueue) addToQueue(song);

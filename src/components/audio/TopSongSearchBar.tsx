@@ -110,9 +110,9 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="छठ गीत खोजें (उदा: Sharda Sinha, Pawan Singh)..."
+          placeholder="YouTube पर कोई भी गाना, गायक या वीडियो खोजें..."
           className="w-full pl-10 pr-16 py-2 sm:py-2.5 rounded-full bg-stone-100/90 dark:bg-stone-900/90 hover:bg-white dark:hover:bg-stone-900 border border-stone-200 dark:border-amber-500/30 hover:border-amber-400 focus:border-amber-500 focus:bg-white dark:focus:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 transition-all shadow-inner"
-          aria-label="छठ गीत खोजें"
+          aria-label="गाना या वीडियो खोजें"
         />
 
         <div className="absolute right-2 flex items-center gap-1">

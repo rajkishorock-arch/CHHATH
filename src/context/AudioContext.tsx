@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { Maximize2, Minimize2, ExternalLink } from 'lucide-react';
 import { Song } from '../types';
 import { useChhathData } from './ChhathDataContext';
 
@@ -24,11 +25,14 @@ interface AudioContextType {
   isExpandedOpen: boolean;
   isQueueOpen: boolean;
   showVideo: boolean;
+  videoExpanded: boolean;
+  setVideoExpanded: (expanded: boolean) => void;
   lyricsSong: Song | null;
   ytPlayerReady: boolean;
   playbackError: PlaybackError | null;
 
   playSong: (song: Song, contextQueue?: Song[]) => void;
+  playVideo: (song: Song, contextQueue?: Song[]) => void;
   pauseSong: () => void;
   togglePlay: () => void;
   playNext: () => void;
@@ -89,6 +93,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isExpandedOpen, setIsExpandedOpen] = useState<boolean>(false);
   const [isQueueOpen, setIsQueueOpen] = useState<boolean>(false);
   const [showVideo, setShowVideo] = useState<boolean>(false);
+  const [videoExpanded, setVideoExpanded] = useState<boolean>(true);
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
 
   // YouTube Player Ref & Pending Song Ref
@@ -455,6 +460,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       createGlobalYtPlayer();
     }
   };
+
+  const playVideo = useCallback((song: Song, contextQueue?: Song[]) => {
+    setShowVideo(true);
+    setVideoExpanded(true);
+    playSong(song, contextQueue);
+  }, [playSong]);
 
   const togglePlay = () => {
     if (!currentSong && queueRef.current.length > 0) {
@@ -853,10 +864,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isExpandedOpen,
         isQueueOpen,
         showVideo,
+        videoExpanded,
+        setVideoExpanded,
         lyricsSong,
         ytPlayerReady,
         playbackError,
         playSong,
+        playVideo,
         pauseSong,
         togglePlay,
         playNext,
@@ -881,31 +895,72 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
       {/* 
         Persistent Single Global YouTube Player Container
-        - When showVideo is true: Floats at z-[90] (ABOVE ExpandedPlayerModal z-[80]) with a visible rounded frame.
+        - When showVideo is true:
+          - If videoExpanded: Full Theater Cinema View (fixed inset-0 z-[100] bg-black/90 backdrop-blur-md)
+          - If !videoExpanded: Floating PIP Corner Window (fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4)
         - When showVideo is false: Placed with 16:9 micro dimensions (w-16 h-9) inside viewport at bottom-0 right-0.
-        This ensures YouTube player remains intersecting viewport while invisible to user!
+        This guarantees continuous playback with zero reloading!
       */}
       <div
         className={
           showVideo
-            ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
+            ? videoExpanded
+              ? "fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-6 transition-all select-none animate-in fade-in"
+              : "fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4 w-72 sm:w-88 aspect-video rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all flex flex-col select-none animate-in slide-in-from-bottom"
             : "fixed bottom-0 right-0 w-16 h-9 pointer-events-none opacity-[0.01] z-[-1] overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
         {showVideo && (
-          <div className="flex items-center justify-between px-3 py-1.5 bg-stone-900 border-b border-amber-500/20 text-xs text-amber-300 font-bold">
-            <span className="truncate">{currentSong?.title || 'YouTube Video'}</span>
-            <button
-              onClick={() => setShowVideo(false)}
-              className="text-stone-400 hover:text-white ml-2 text-sm font-bold"
-              title="वीडियो छुपाएं"
-            >
-              ✕
-            </button>
+          <div className="w-full max-w-4xl flex items-center justify-between px-3 py-2 bg-stone-900/95 border-b border-amber-500/30 text-xs text-amber-300 font-bold shrink-0">
+            <div className="flex items-center gap-2 truncate flex-1 mr-2">
+              <span className="px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-[10px] font-extrabold uppercase tracking-wider">Video</span>
+              <span className="truncate text-stone-100">{currentSong?.title || 'YouTube Video'}</span>
+              <span className="text-stone-400 font-normal truncate hidden sm:inline">• {currentSong?.singer}</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {currentSong?.youtubeId && (
+                <a
+                  href={`https://www.youtube.com/watch?v=${currentSong.youtubeId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors hidden sm:flex items-center gap-1 text-[11px] px-2.5"
+                  title="YouTube पर खोलें"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>YouTube</span>
+                </a>
+              )}
+              <button
+                onClick={() => setVideoExpanded(!videoExpanded)}
+                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 text-[11px] px-2.5 cursor-pointer"
+                title={videoExpanded ? "छोटा करें (PIP मोड)" : "बड़ा करें (थिएटर मोड)"}
+              >
+                {videoExpanded ? (
+                  <>
+                    <Minimize2 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">छोटा करें</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">बड़ा करें</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowVideo(false)}
+                className="p-1.5 rounded-lg bg-stone-800 hover:bg-rose-900/60 text-stone-400 hover:text-rose-300 transition-colors px-2.5 text-[11px] cursor-pointer"
+                title="वीडियो छुपाएं (ऑडियो जारी रहेगा)"
+              >
+                ✕ <span className="hidden sm:inline">छुपाएं</span>
+              </button>
+            </div>
           </div>
         )}
-        <div id="global-yt-player-container" className="w-full h-full"></div>
+        <div className={showVideo && videoExpanded ? "w-full max-w-4xl flex-1 aspect-video bg-black flex items-center justify-center overflow-hidden rounded-b-2xl shadow-2xl" : "w-full flex-1 bg-black flex items-center justify-center overflow-hidden"}>
+          <div id="global-yt-player-container" className="w-full h-full"></div>
+        </div>
       </div>
     </AudioContext.Provider>
   );
