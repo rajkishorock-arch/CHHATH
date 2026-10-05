@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { Maximize2, Minimize2, ExternalLink } from 'lucide-react';
+import { Maximize2, Minimize2, ExternalLink, Play, Pause, X } from 'lucide-react';
 import { Song } from '../types';
 import { useChhathData } from './ChhathDataContext';
 
@@ -94,7 +94,34 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isQueueOpen, setIsQueueOpen] = useState<boolean>(false);
   const [showVideo, setShowVideo] = useState<boolean>(false);
   const [videoExpanded, setVideoExpanded] = useState<boolean>(true);
+  const [videoOverlayVisible, setVideoOverlayVisible] = useState<boolean>(true);
+  const overlayTimerRef = useRef<any>(null);
+  const theaterVideoBoxRef = useRef<HTMLDivElement | null>(null);
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
+
+  const showVideoControlsTemporarily = useCallback(() => {
+    setVideoOverlayVisible(true);
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    overlayTimerRef.current = setTimeout(() => {
+      setVideoOverlayVisible(false);
+    }, 3500);
+  }, []);
+
+  const toggleNativeFullscreen = useCallback(() => {
+    const el = theaterVideoBoxRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if ((el as any).webkitRequestFullscreen) {
+        (el as any).webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }, []);
 
   // YouTube Player Ref & Pending Song Ref
   const ytPlayerRef = useRef<any>(null);
@@ -905,62 +932,139 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         className={
           showVideo
             ? videoExpanded
-              ? "fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-6 transition-all select-none animate-in fade-in"
-              : "fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4 w-72 sm:w-88 aspect-video rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all flex flex-col select-none animate-in slide-in-from-bottom"
+              ? "fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 transition-all animate-in fade-in"
+              : "fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4 w-72 sm:w-88 aspect-video rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all flex flex-col animate-in slide-in-from-bottom"
             : "fixed bottom-0 right-0 w-16 h-9 pointer-events-none opacity-[0.01] z-[-1] overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
-        {showVideo && (
-          <div className="w-full max-w-4xl flex items-center justify-between px-3 py-2 bg-stone-900/95 border-b border-amber-500/30 text-xs text-amber-300 font-bold shrink-0">
-            <div className="flex items-center gap-2 truncate flex-1 mr-2">
-              <span className="px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-[10px] font-extrabold uppercase tracking-wider">Video</span>
-              <span className="truncate text-stone-100">{currentSong?.title || 'YouTube Video'}</span>
-              <span className="text-stone-400 font-normal truncate hidden sm:inline">• {currentSong?.singer}</span>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {currentSong?.youtubeId && (
-                <a
-                  href={`https://www.youtube.com/watch?v=${currentSong.youtubeId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors hidden sm:flex items-center gap-1 text-[11px] px-2.5"
-                  title="YouTube पर खोलें"
+        {/* THEATER MODE CONTAINER (No clunky top header bar - ultra clean YouTube-style!) */}
+        {showVideo && videoExpanded && (
+          <div
+            ref={theaterVideoBoxRef}
+            onClick={showVideoControlsTemporarily}
+            onMouseMove={showVideoControlsTemporarily}
+            onTouchStart={showVideoControlsTemporarily}
+            className="relative w-full max-w-5xl aspect-video bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center group"
+          >
+            {/* The single persistent YouTube Player instance */}
+            <div id="global-yt-player-container" className="w-full h-full pointer-events-auto"></div>
+
+            {/* YouTube-Style Controls Overlay: Responsive on Phone View & Desktop */}
+            <div
+              className={`absolute inset-0 transition-opacity duration-300 pointer-events-none flex flex-col justify-between p-3 sm:p-5 ${
+                videoOverlayVisible || !isPlaying
+                  ? 'opacity-100 bg-gradient-to-t from-black/80 via-transparent to-black/60'
+                  : 'opacity-0'
+              }`}
+            >
+              {/* Top Row: Song Title & Close Button */}
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2 truncate max-w-[80%] drop-shadow">
+                  <span className="text-white text-xs sm:text-sm font-semibold truncate">
+                    {currentSong?.title}
+                  </span>
+                  {currentSong?.singer && (
+                    <span className="text-stone-300 text-xs truncate hidden sm:inline">
+                      • {currentSong.singer}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowVideo(false);
+                  }}
+                  className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-colors cursor-pointer pointer-events-auto shadow-md border border-white/10"
+                  title="बंद करें"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>YouTube</span>
-                </a>
-              )}
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
+
+              {/* Center: Large YouTube-Style Play/Pause Button for Phone & Desktop */}
+              <div className="flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePlay();
+                    showVideoControlsTemporarily();
+                  }}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black/65 hover:bg-black/85 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 shadow-2xl border border-white/20 cursor-pointer pointer-events-auto"
+                  title={isPlaying ? "रोकें (Pause)" : "चलाएं (Play)"}
+                >
+                  {isPlaying ? (
+                    <Pause className="w-7 h-7 fill-white" />
+                  ) : (
+                    <Play className="w-7 h-7 fill-white ml-1" />
+                  )}
+                </button>
+              </div>
+
+              {/* Bottom Right: YouTube-Style Toggles (Pop-up PIP & Fullscreen) with NO text */}
+              <div className="flex items-center justify-end gap-2.5 w-full">
+                {/* Pop-up / PIP Toggle */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setVideoExpanded(false);
+                  }}
+                  className="p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer pointer-events-auto border border-white/15 shadow-md"
+                  title="पॉप-अप विंडो (PIP मोड)"
+                >
+                  <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* Fullscreen Toggle */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleNativeFullscreen();
+                  }}
+                  className="p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer pointer-events-auto border border-white/15 shadow-md"
+                  title="फुल स्क्रीन"
+                >
+                  <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PIP FLOATING MINI-PLAYER MODE */}
+        {showVideo && !videoExpanded && (
+          <div className="relative w-full h-full bg-black">
+            <div id="global-yt-player-container" className="w-full h-full pointer-events-auto"></div>
+            {/* Top-Right Quick Toggles in PIP */}
+            <div className="absolute top-2 right-2 flex items-center gap-1.5 z-20 pointer-events-auto">
               <button
-                onClick={() => setVideoExpanded(!videoExpanded)}
-                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 text-[11px] px-2.5 cursor-pointer"
-                title={videoExpanded ? "छोटा करें (PIP मोड)" : "बड़ा करें (थिएटर मोड)"}
+                type="button"
+                onClick={() => setVideoExpanded(true)}
+                className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-white backdrop-blur-xs transition-colors cursor-pointer border border-white/15 shadow"
+                title="बड़ा करें (थिएटर मोड)"
               >
-                {videoExpanded ? (
-                  <>
-                    <Minimize2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">छोटा करें</span>
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">बड़ा करें</span>
-                  </>
-                )}
+                <Maximize2 className="w-4 h-4" />
               </button>
               <button
+                type="button"
                 onClick={() => setShowVideo(false)}
-                className="p-1.5 rounded-lg bg-stone-800 hover:bg-rose-900/60 text-stone-400 hover:text-rose-300 transition-colors px-2.5 text-[11px] cursor-pointer"
-                title="वीडियो छुपाएं (ऑडियो जारी रहेगा)"
+                className="p-1.5 rounded-lg bg-black/75 hover:bg-rose-900/90 text-white backdrop-blur-xs transition-colors cursor-pointer border border-white/15 shadow"
+                title="छुपाएं"
               >
-                ✕ <span className="hidden sm:inline">छुपाएं</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
-        <div className={showVideo && videoExpanded ? "w-full max-w-4xl flex-1 aspect-video bg-black flex items-center justify-center overflow-hidden rounded-b-2xl shadow-2xl" : "w-full flex-1 bg-black flex items-center justify-center overflow-hidden"}>
+
+        {/* BACKGROUND KEEP-ALIVE CONTAINER (When video is hidden) */}
+        {!showVideo && (
           <div id="global-yt-player-container" className="w-full h-full"></div>
-        </div>
+        )}
       </div>
     </AudioContext.Provider>
   );
