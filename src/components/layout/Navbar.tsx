@@ -203,13 +203,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     logout: 'लॉग आउट करें'
   };
 
-  const primaryNavLinks: { id: string; label: string; href: string; badge?: string; isReels?: boolean; isSpotify?: boolean }[] = [
+  const primaryNavLinks: { id: string; label: string; href: string; badge?: string; isReels?: boolean }[] = [
     { id: 'home', label: navText.home, href: '#home' },
     { id: 'reels', label: navText.reels, href: '#reels', isReels: true },
     { id: 'guide', label: navText.guide, href: '#guide' },
     { id: 'arghya', label: navText.arghya, href: '#arghya' },
-    { id: 'music', label: navText.music, href: '#music' },
-    { id: 'spotify', label: 'Spotify', href: '#spotify', isSpotify: true }
+    { id: 'music', label: navText.music, href: '#music' }
   ];
 
   // Global listener to open sidebar drawer from any feature or button
@@ -321,26 +320,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Film className="w-3.5 h-3.5 text-red-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
                   <span>{item.label}</span>
                 </button>
-              );
-            }
-            if (item.isSpotify) {
-              return (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.id)}
-                  title={item.label}
-                  className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 border shadow-xs group active:scale-95 text-decoration-none ${
-                    isActive
-                      ? 'bg-[#1DB954] text-black border-[#1DB954] shadow-[#1DB954]/30 ring-2 ring-[#1DB954]/50'
-                      : 'bg-[#1DB954]/15 hover:bg-[#1DB954]/25 text-[#1DB954] border-[#1DB954]/30 hover:border-[#1DB954]/60'
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.303c-.216.353-.674.467-1.027.25-2.815-1.72-6.358-2.108-10.533-1.155-.403.092-.806-.16-.898-.563-.092-.403.16-.806.563-.898 4.568-1.043 8.49-.607 11.645 1.339.353.217.467.674.25 1.027zm1.467-3.26c-.272.443-.847.585-1.29.313-3.224-1.982-8.14-2.556-11.954-1.398-.498.151-1.028-.135-1.18-.633-.151-.498.135-1.028.633-1.18 4.364-1.324 9.778-.684 13.478 1.598.443.272.585.847.313 1.3zm.126-3.41C15.226 8.35 8.847 8.14 5.15 9.262c-.59.18-1.218-.16-1.398-.75-.18-.59.16-1.218.75-1.398 4.24-1.288 11.285-1.045 15.748 1.604.53.315.703 1.002.388 1.533-.315.53-1.002.703-1.533.388z"/>
-                  </svg>
-                  <span>{item.label}</span>
-                </a>
               );
             }
             return (

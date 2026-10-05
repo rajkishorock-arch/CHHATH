@@ -41,7 +41,6 @@ import { PrasadSection } from './components/prasad/PrasadSection';
 import { CookingStudio } from './components/prasad/CookingStudio';
 import { MantraAarti } from './components/spiritual/MantraAarti';
 import { SongsSection } from './components/audio/SongsSection';
-import { SpotifySection } from './components/spotify/SpotifySection';
 import { MyChhathDashboard } from './components/dashboard/MyChhathDashboard';
 import { FamilyChhathHub } from './components/family/FamilyChhathHub';
 import { Lock, LogIn, Sparkles } from 'lucide-react';
@@ -157,7 +156,6 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
   if (t === 'music' || t === 'songs' || t === 'song') return 'music';
-  if (t === 'spotify' || t === 'chhath-spotify' || t === 'spotify-geet' || t === 'spotify-music') return 'spotify';
   if (t === 'explore') return 'explore';
   if (t === 'my-chhath') return 'my-chhath';
   if (t === 'home' || t === '') return 'home';
@@ -393,7 +391,6 @@ const MainContent: React.FC = () => {
     else if (targetTab === 'settings') urlPath = `${base}#settings`;
     else if (targetTab === 'aarti') urlPath = `${base}#aarti`;
     else if (targetTab === 'ghats') urlPath = `${base}#ghats`;
-    else if (targetTab === 'spotify') urlPath = `${base}#spotify`;
     else if (targetTab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
     else if (targetTab !== 'home') urlPath = `${base}#${targetTab}`;
 
@@ -609,12 +606,8 @@ const MainContent: React.FC = () => {
 
           {activeTab === 'music' && (
             <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
-              <SongsSection initialQuery={musicInitialQuery} onNavigate={handleNavigate} />
+              <SongsSection initialQuery={musicInitialQuery} />
             </div>
-          )}
-
-          {activeTab === 'spotify' && (
-            <SpotifySection onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'my-chhath' && (
