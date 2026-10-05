@@ -289,7 +289,7 @@ export const YouTubeProvider = {
               creatorAvatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(channelName)}`,
               creatorCity: 'भारत • India',
               title: cleanTitle,
-              description: res.description || `${cleanTitle} • ट्रेंडिंग रील्स #Trending #Shorts`,
+              description: res.description || cleanTitle,
               category: detectedCategory,
               tags: detectedTags,
               videoUrl: `https://www.youtube.com/watch?v=${res.youtubeId}`,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Song } from '../../types';
 import { useAudio } from '../../context/AudioContext';
-import { Play, Pause, Heart, FileText, Share2, Sparkles, Volume2 } from 'lucide-react';
+import { Play, Pause, Heart, Share2, Sparkles } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 
 interface FeaturedSongCardProps {
@@ -87,10 +87,6 @@ export const FeaturedSongCard: React.FC<FeaturedSongCardProps> = ({ song }) => {
 
         {/* Details & Actions */}
         <div className="flex-1 text-center md:text-left min-w-0">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold mb-2">
-            <Volume2 className="w-3.5 h-3.5" />
-            <span>{song.category || 'प्रसिद्ध छठ गीत'} • {song.language || 'भोजपुरी'}</span>
-          </div>
 
           <h3 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-amber-400 mb-1 truncate leading-tight">
             {song.title}
@@ -139,23 +135,13 @@ export const FeaturedSongCard: React.FC<FeaturedSongCardProps> = ({ song }) => {
               <span className="hidden sm:inline">{isFav ? 'पसंदीदा' : 'पसंद करें'}</span>
             </button>
 
-            {song.lyrics && (
-              <button
-                onClick={() => setLyricsSong(song)}
-                className="p-3 rounded-2xl bg-stone-900/60 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/40 transition-all flex items-center gap-2 text-sm font-semibold"
-                title="बोल (Lyrics) देखें"
-              >
-                <FileText className="w-5 h-5" />
-                <span className="hidden sm:inline">गीत के बोल</span>
-              </button>
-            )}
-
             <button
               onClick={handleShare}
-              className="p-3 rounded-2xl bg-stone-900/60 border border-amber-500/20 text-stone-300 hover:text-white hover:border-amber-500/40 transition-all"
-              title="शेयर करें"
+              className="p-3 rounded-2xl bg-stone-900/60 border border-amber-500/20 text-stone-300 hover:text-white hover:border-amber-500/40 transition-all flex items-center gap-2 text-sm font-semibold"
+              title="शेयर करें (WhatsApp / Share)"
             >
               <Share2 className="w-5 h-5" />
+              <span className="hidden sm:inline">शेयर करें</span>
             </button>
           </div>
 

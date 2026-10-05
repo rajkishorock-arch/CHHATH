@@ -322,16 +322,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
 
         {/* Top Floating Controls */}
         <div className="relative z-20 pt-3 sm:pt-4 px-3 sm:px-4 flex items-center justify-between pointer-events-auto">
-          {/* Sound Pill Hint if Muted */}
-          {isMuted && isActive ? (
-            <button
-              onClick={e => { e.stopPropagation(); toggleMute(); }}
-              className="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-300 text-[11px] font-mukta font-bold flex items-center gap-1.5 shadow-lg animate-pulse"
-            >
-              <VolumeX className="w-3.5 h-3.5 text-amber-400" />
-              <span>साउंड ऑन करें</span>
-            </button>
-          ) : <div />}
+          <div />
 
           {/* Sound & More Buttons */}
           <div className="flex items-center gap-2">
@@ -531,9 +522,11 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               <span className="font-bold text-amber-300 text-xs sm:text-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                 {reel.creatorName}
               </span>
-              <span className="text-[11px] text-stone-200 font-mono drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
-                {reel.creatorUsername}
-              </span>
+              {reel.creatorUsername && !reel.creatorUsername.includes('trending') && (
+                <span className="text-[11px] text-stone-200 font-mono drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
+                  {reel.creatorUsername}
+                </span>
+              )}
             </button>
           </div>
 
@@ -542,16 +535,18 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
             {reel.title || reel.description}
           </p>
 
-          {/* Audio Ticker (Instagram Style) */}
-          <div 
-            onClick={() => reel.audioId && onOpenAudio(reel.audioId)}
-            className="flex items-center gap-1.5 text-[11px] text-amber-300/95 font-mukta cursor-pointer hover:underline pt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
-          >
-            <Music className="w-3 h-3 text-amber-400 shrink-0 animate-pulse" />
-            <span className="truncate max-w-[200px] sm:max-w-[280px]">
-              {reel.audioTitle ? `${reel.audioTitle} • ${reel.audioArtist || 'पारंपरिक धुन'}` : 'छठ महापर्व पावन ध्वनि (Original Audio)'}
-            </span>
-          </div>
+          {/* Audio Ticker (Only show if genuine real audio title exists) */}
+          {reel.audioTitle && !reel.audioTitle.includes('पावन ध्वनि') && !reel.audioTitle.includes('छठ महापर्व') && (
+            <div 
+              onClick={() => reel.audioId && onOpenAudio(reel.audioId)}
+              className="flex items-center gap-1.5 text-[11px] text-amber-300/95 font-mukta cursor-pointer hover:underline pt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+            >
+              <Music className="w-3 h-3 text-amber-400 shrink-0 animate-pulse" />
+              <span className="truncate max-w-[200px] sm:max-w-[280px]">
+                {reel.audioTitle} {reel.audioArtist ? `• ${reel.audioArtist}` : ''}
+              </span>
+            </div>
+          )}
 
           {/* Progress Indicator Bar */}
           <div className="w-full h-1 bg-stone-700/60 rounded-full overflow-hidden mt-1.5">

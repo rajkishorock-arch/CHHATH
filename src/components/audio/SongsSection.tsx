@@ -17,10 +17,9 @@ import {
   X,
   CheckCircle2,
   Music,
-  Video
+  Video,
+  Share2
 } from 'lucide-react';
-
-import { SongLyricsModal } from './SongLyricsModal';
 import { 
   searchYouTubeVideos, 
   convertToSongModel, 
@@ -49,7 +48,7 @@ const YouTubeVideoCardComponent: React.FC<{
   onThumbnailClick?: () => void;
   onToggleQueue?: () => void;
   onToggleFav?: () => void;
-  onOpenLyrics?: () => void;
+  onShareSong?: () => void;
   isLiveApi?: boolean;
 }> = ({
   song,
@@ -63,7 +62,7 @@ const YouTubeVideoCardComponent: React.FC<{
   onThumbnailClick,
   onToggleQueue,
   onToggleFav,
-  onOpenLyrics,
+  onShareSong,
 }) => {
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
@@ -191,13 +190,6 @@ const YouTubeVideoCardComponent: React.FC<{
               <span className="truncate">{song.singer}</span>
               <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
             </div>
-
-            {/* Category & Tags */}
-            <div className="flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 mt-1">
-              <span className="truncate">{song.category || 'भक्ति'}</span>
-              <span>•</span>
-              <span className="truncate">{song.language || 'भोजपुरी'}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -234,17 +226,17 @@ const YouTubeVideoCardComponent: React.FC<{
         </div>
 
         <div className="flex items-center gap-1 pt-2">
-          {onOpenLyrics && (
+          {onShareSong && (
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onOpenLyrics();
+                onShareSong();
               }}
               className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-              title="बोल (Lyrics)"
+              title="गीत शेयर करें (WhatsApp / Share)"
             >
-              <FileText className="w-3.5 h-3.5" />
+              <Share2 className="w-3.5 h-3.5" />
             </button>
           )}
           {onToggleFav && (
@@ -324,6 +316,36 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   // Voice Search States
   const [isListening, setIsListening] = useState<boolean>(false);
   const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+
+  const handleShareSong = useCallback(async (song: Song) => {
+    const songUrl = song.youtubeId 
+      ? `https://www.youtube.com/watch?v=${song.youtubeId}` 
+      : (song.audioUrl || window.location.href);
+    const shareText = `🎶 *${song.title}*\nगायक: ${song.singer}\nछठ महापर्व एवं भक्ति संगीत सुनें:\n${songUrl}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: song.title,
+          text: `🎶 ${song.title} - ${song.singer}`,
+          url: songUrl
+        });
+        return;
+      } catch {
+        // Fallback to clipboard if cancelled or unavailable
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareFeedback(`"${song.title}" का लिंक कॉपी हो गया! WhatsApp पर शेयर करें 🎶`);
+      setTimeout(() => setShareFeedback(null), 3500);
+    } catch {
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+      window.open(waUrl, '_blank');
+    }
+  }, []);
 
   // Real-time Live YouTube Songs Stream State
   const [liveSongs, setLiveSongs] = useState<Song[]>([]);
@@ -1029,7 +1051,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       if (!inQueue) addToQueue(songObj);
                     }}
                     onToggleFav={() => toggleFavorite(songObj.id)}
-                    onOpenLyrics={() => setLyricsSong(songObj)}
+                    onShareSong={() => handleShareSong(songObj)}
                     isLiveApi={isLiveApi}
                   />
                 );
@@ -1107,7 +1129,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         if (!inQueue) addToQueue(song);
                       }}
                       onToggleFav={() => toggleFavorite(song.id)}
-                      onOpenLyrics={() => setLyricsSong(song)}
+                      onShareSong={() => handleShareSong(song)}
                     />
                   );
                 })}
@@ -1140,13 +1162,12 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           )}
         </div>
 
-        {/* Lyrics Modal */}
-        {lyricsSong && (
-          <SongLyricsModal
-            song={lyricsSong}
-            isOpen={Boolean(lyricsSong)}
-            onClose={() => setLyricsSong(null)}
-          />
+        {/* Floating Share Feedback Toast */}
+        {shareFeedback && (
+          <div className="fixed bottom-24 sm:bottom-28 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-stone-900/95 text-amber-300 border border-amber-500/50 shadow-2xl backdrop-blur-md text-xs sm:text-sm font-mukta flex items-center gap-2 animate-bounce">
+            <span>✨</span>
+            <span>{shareFeedback}</span>
+          </div>
         )}
 
       </div>

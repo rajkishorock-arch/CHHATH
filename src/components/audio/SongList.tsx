@@ -1,7 +1,7 @@
 import React from 'react';
 import { Song } from '../../types';
 import { useAudio } from '../../context/AudioContext';
-import { Play, Pause, Heart, FileText, Plus, Check } from 'lucide-react';
+import { Play, Pause, Heart, Share2, Plus, Check } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 
 interface SongListProps {
@@ -109,14 +109,6 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
                 </div>
                 <div className="text-xs text-stone-500 dark:text-stone-400 truncate flex items-center gap-2 mt-0.5 font-mukta">
                   <span className="truncate">{song.singer}</span>
-                  {song.category && (
-                    <>
-                      <span>•</span>
-                      <span className="text-amber-600 dark:text-amber-400/90 font-semibold text-[11px] truncate">
-                        {song.category}
-                      </span>
-                    </>
-                  )}
                 </div>
               </div>
 
@@ -125,19 +117,25 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
             {/* Right Action Icons & Badges */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               
-              {/* Lyrics Button */}
-              {song.lyrics && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLyricsSong(song);
-                  }}
-                  className="p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
-                  title="गीत के बोल (Lyrics)"
-                >
-                  <FileText className="w-4 h-4" />
-                </button>
-              )}
+              {/* Share Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const songUrl = song.youtubeId 
+                    ? `https://www.youtube.com/watch?v=${song.youtubeId}` 
+                    : (song.audioUrl || window.location.href);
+                  const shareText = `🎶 *${song.title}*\nगायक: ${song.singer}\nछठ महापर्व एवं भक्ति संगीत सुनें:\n${songUrl}`;
+                  if (navigator.share) {
+                    navigator.share({ title: song.title, text: `🎶 ${song.title} - ${song.singer}`, url: songUrl }).catch(() => {});
+                  } else {
+                    navigator.clipboard?.writeText(shareText);
+                  }
+                }}
+                className="p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                title="गीत शेयर करें (WhatsApp / Share)"
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
 
               {/* Queue Add Button */}
               <button

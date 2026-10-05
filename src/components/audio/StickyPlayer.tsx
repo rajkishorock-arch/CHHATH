@@ -114,12 +114,6 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
               </div>
               <div className="text-[11px] text-stone-500 dark:text-stone-400 truncate flex items-center gap-1.5">
                 <span className="truncate">{currentSong.singer}</span>
-                {currentSong.language && (
-                  <>
-                    <span>•</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-semibold">{currentSong.language}</span>
-                  </>
-                )}
               </div>
             </div>
           </div>
