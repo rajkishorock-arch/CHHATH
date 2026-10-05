@@ -112,7 +112,9 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
   const allSongs: Song[] = chhathSongs.filter(s => Boolean(s.youtubeId) && Boolean(s.thumbnail) && !s.thumbnail.includes('undefined'));
 
   if (specificTokens.length === 0) {
-    return allSongs.map(s => ({
+    // Return dynamically randomized catalog so even offline fallback never feels static
+    const shuffled = [...allSongs].sort(() => Math.random() - 0.5);
+    return shuffled.map(s => ({
       youtubeId: s.youtubeId || '',
       title: s.title,
       channelTitle: s.singer,
@@ -132,7 +134,8 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
   });
 
   const finalPool = matched.length > 0 ? matched : allSongs;
-  return finalPool.map(s => ({
+  const randomizedFinal = [...finalPool].sort(() => Math.random() - 0.5);
+  return randomizedFinal.map(s => ({
     youtubeId: s.youtubeId || '',
     title: s.title,
     channelTitle: s.singer,
@@ -145,7 +148,8 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
 export const searchYouTubeVideos = async (
   query: string,
   pageToken: string = '',
-  type: 'video' | 'shorts' = 'video'
+  type: 'video' | 'shorts' = 'video',
+  bypassCache: boolean = false
 ): Promise<YouTubeSearchResponse> => {
   const trimmed = query.trim();
   if (!trimmed) {
@@ -154,17 +158,19 @@ export const searchYouTubeVideos = async (
 
   const cacheKey = `chhath_live_search_${type}_${trimmed.toLowerCase()}_${pageToken}`;
 
-  // 1. Check client 30-min cache
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < 1800000 && parsed.data?.results?.length > 0) {
-        return parsed.data;
+  // 1. Check client 5-min cache (bypassed on fresh loads for maximum real-time novelty)
+  if (!bypassCache) {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.timestamp < 300000 && parsed.data?.results?.length > 0) {
+          return parsed.data;
+        }
       }
+    } catch {
+      // Ignore cache errors
     }
-  } catch {
-    // Ignore cache errors
   }
 
   // 2. TIER 1: Dedicated High-Speed Live Worker API + Native Serverless

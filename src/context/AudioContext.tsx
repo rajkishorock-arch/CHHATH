@@ -108,18 +108,22 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleNativeFullscreen = useCallback(() => {
-    const el = theaterVideoBoxRef.current;
-    if (!el) return;
-    if (!document.fullscreenElement) {
-      if (el.requestFullscreen) {
-        el.requestFullscreen();
-      } else if ((el as any).webkitRequestFullscreen) {
-        (el as any).webkitRequestFullscreen();
+    try {
+      const el = theaterVideoBoxRef.current;
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        if (el.requestFullscreen) {
+          el.requestFullscreen().catch(() => {});
+        } else if ((el as any).webkitRequestFullscreen) {
+          (el as any).webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
       }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+    } catch (e) {
+      console.warn('Native fullscreen toggle error:', e);
     }
   }, []);
 
@@ -938,28 +942,33 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
         aria-hidden={!showVideo}
       >
-        {/* THEATER MODE CONTAINER (No clunky top header bar - ultra clean YouTube-style!) */}
-        {showVideo && videoExpanded && (
-          <div
-            ref={theaterVideoBoxRef}
-            onClick={showVideoControlsTemporarily}
-            onMouseMove={showVideoControlsTemporarily}
-            onTouchStart={showVideoControlsTemporarily}
-            className="relative w-full max-w-5xl aspect-video bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center group"
-          >
-            {/* The single persistent YouTube Player instance */}
-            <div id="global-yt-player-container" className="w-full h-full pointer-events-auto"></div>
+        <div
+          ref={theaterVideoBoxRef}
+          onClick={showVideo && videoExpanded ? showVideoControlsTemporarily : undefined}
+          onMouseMove={showVideo && videoExpanded ? showVideoControlsTemporarily : undefined}
+          onTouchStart={showVideo && videoExpanded ? showVideoControlsTemporarily : undefined}
+          className={
+            !showVideo
+              ? "w-full h-full pointer-events-none"
+              : videoExpanded
+              ? "relative w-full max-w-5xl aspect-video bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center group pointer-events-auto"
+              : "relative w-full h-full bg-black group pointer-events-auto"
+          }
+        >
+          {/* THE SINGLE PERSISTENT YOUTUBE PLAYER CONTAINER - NEVER UNMOUNTS */}
+          <div id="global-yt-player-container" className="w-full h-full pointer-events-auto" />
 
-            {/* YouTube-Style Controls Overlay: Responsive on Phone View & Desktop */}
+          {/* THEATER OVERLAY CONTROLS (Only visible in full theater cinema mode) */}
+          {showVideo && videoExpanded && (
             <div
-              className={`absolute inset-0 transition-opacity duration-300 pointer-events-none flex flex-col justify-between p-3 sm:p-5 ${
+              className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-3 sm:p-5 ${
                 videoOverlayVisible || !isPlaying
-                  ? 'opacity-100 bg-gradient-to-t from-black/80 via-transparent to-black/60'
-                  : 'opacity-0'
+                  ? 'opacity-100 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-auto'
+                  : 'opacity-0 pointer-events-none'
               }`}
             >
               {/* Top Row: Song Title & Close Button */}
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full pointer-events-auto">
                 <div className="flex items-center gap-2 truncate max-w-[80%] drop-shadow">
                   <span className="text-white text-xs sm:text-sm font-semibold truncate">
                     {currentSong?.title}
@@ -984,7 +993,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               </div>
 
               {/* Center: Large YouTube-Style Play/Pause Button for Phone & Desktop */}
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center pointer-events-auto">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1004,7 +1013,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               </div>
 
               {/* Bottom Right: YouTube-Style Toggles (Pop-up PIP & Fullscreen) with NO text */}
-              <div className="flex items-center justify-end gap-2.5 w-full">
+              <div className="flex items-center justify-end gap-2.5 w-full pointer-events-auto">
                 {/* Pop-up / PIP Toggle */}
                 <button
                   type="button"
@@ -1032,14 +1041,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* PIP FLOATING MINI-PLAYER MODE */}
-        {showVideo && !videoExpanded && (
-          <div className="relative w-full h-full bg-black">
-            <div id="global-yt-player-container" className="w-full h-full pointer-events-auto"></div>
-            {/* Top-Right Quick Toggles in PIP */}
+          {/* PIP FLOATING MINI-PLAYER MODE QUICK CONTROLS */}
+          {showVideo && !videoExpanded && (
             <div className="absolute top-2 right-2 flex items-center gap-1.5 z-20 pointer-events-auto">
               <button
                 type="button"
@@ -1058,13 +1063,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 <X className="w-4 h-4" />
               </button>
             </div>
-          </div>
-        )}
-
-        {/* BACKGROUND KEEP-ALIVE CONTAINER (When video is hidden) */}
-        {!showVideo && (
-          <div id="global-yt-player-container" className="w-full h-full"></div>
-        )}
+          )}
+        </div>
       </div>
     </AudioContext.Provider>
   );

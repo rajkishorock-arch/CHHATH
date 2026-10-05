@@ -68,6 +68,7 @@ const YouTubeVideoCardComponent: React.FC<{
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
+  const [isThumbHovered, setIsThumbHovered] = useState<boolean>(false);
 
   useEffect(() => {
     const nextThumb = song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
@@ -85,23 +86,37 @@ const YouTubeVideoCardComponent: React.FC<{
       }`}
     >
       <div>
-        {/* 16:9 YouTube Thumbnail Container with Inline Video Support */}
+        {/* 16:9 YouTube Thumbnail Container with Inline Video Support & Hover-Responsive Controls */}
         <div 
           onClick={() => {
             if (!isInlinePlaying && onThumbnailClick) {
               onThumbnailClick();
             }
           }}
-          className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none cursor-pointer"
+          onMouseEnter={() => setIsThumbHovered(true)}
+          onMouseLeave={() => setIsThumbHovered(false)}
+          className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none cursor-pointer group/thumb"
         >
           {isInlinePlaying && song.youtubeId ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0`}
-              title={song.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="w-full h-full border-0"
-            />
+            <div className="relative w-full h-full">
+              <iframe
+                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0&controls=1&autohide=1&modestbranding=1&iv_load_policy=3`}
+                title={song.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className={`w-full h-full border-0 transition-opacity duration-200 ${
+                  isThumbHovered ? 'pointer-events-auto' : 'pointer-events-none'
+                }`}
+              />
+              {/* When cursor moves outside the thumbnail, transparent overlay cleanly catches next hover/touch to re-engage */}
+              {!isThumbHovered && (
+                <div 
+                  className="absolute inset-0 bg-transparent cursor-pointer pointer-events-auto"
+                  onMouseEnter={() => setIsThumbHovered(true)}
+                  onTouchStart={() => setIsThumbHovered(true)}
+                />
+              )}
+            </div>
           ) : (
             <>
               <img
@@ -324,21 +339,49 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const searchSeenIdsRef = useRef<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
+  // Helper to randomly shuffle an array (Fisher-Yates)
+  const shuffleArray = <T,>(arr: T[]): T[] => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
   const CHHATH_LIVE_TOPICS = useMemo(() => [
-    'शारदा सिन्हा लोकप्रिय छठ गीत',
-    'पवन सिंह नए छठ गीत 2026',
+    'शारदा सिन्हा लोकप्रिय छठ गीत संग्रह',
+    'पवन सिंह नए छठ गीत 2026 स्पेशल',
     'अनुराधा पौडवाल संपूर्ण छठ भजन',
-    'खेसारी लाल यादव छठ पूजा',
-    'मैथिली ठाकुर छठ महापर्व लाइव',
-    'मनोज तिवारी छठ महापर्व गीत',
+    'खेसारी लाल यादव छठ पूजा नए 2026',
+    'मैथिली ठाकुर छठ महापर्व भक्ति लाइव',
+    'मनोज तिवारी छठ महापर्व पारम्परिक गीत',
     'कांच ही बांस के बहंगिया छठ स्पेशल',
     'केलवा के पात पर उगेलन सुरुज देव',
-    'कल्पना पटवारी छठ गीत',
-    'छठ संध्या अर्घ्य लाइव गीत',
-    'उषा अर्घ्य दर्शन भक्ति गीत',
-    'अक्षरा सिंह छठ पूजा स्पेशल',
-    'सोनू निगम छठ मईया भजन',
-    'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026'
+    'कल्पना पटवारी छठ पूजा पारम्परिक',
+    'छठ संध्या अर्घ्य लाइव आरती भजन',
+    'उषा अर्घ्य दर्शन भक्ति गीत भोरवा',
+    'अक्षरा सिंह छठ पूजा स्पेशल नए',
+    'सोनू निगम छठ मईया भजन सुपरहिट',
+    'रितेश पांडे नए छठ गीत 2026',
+    'प्रिया मल्लिक छठ गीत पारम्परिक',
+    'शिल्पी राज नए छठ गीत 2026',
+    'नीलकमल सिंह छठ पूजा स्पेशल',
+    'पटना गंगा घाट छठ पूजा लाइव दर्शन',
+    'दउरा उठावे के पारम्परिक छठ गीत',
+    'कोसी भराई छठ पूजा स्पेशल गीत',
+    'नहाय खाय स्पेशल पारंपरिक छठ गीत',
+    'खरना स्पेशल छठ पूजा प्रसाद गीत',
+    'प्रमोद प्रेमी यादव छठ महापर्व',
+    'अरविंद अकेला कल्लू छठ महापर्व',
+    'अंकुश राजा छठ गीत सुपरहिट',
+    'देवी छठ महापर्व पारंपरिक गीत',
+    'सुनील छैला बिहारी छठ स्पेशल',
+    'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026',
+    'छठ मईया के पारंपरिक पचरा वंदना',
+    'उग हे सुरुज देव अस्ताचल अर्घ्य',
+    'जोड़िले जोड़िया फलवा सुरुज देव',
+    'केरवा जे फरेला घवद से छठ सुपरहिट'
   ], []);
 
   // Canonical signature normalizer: Strips channel/promotional noise and hashtags to deduplicate re-uploaded songs
@@ -374,62 +417,41 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     if (text.includes('anuradha') || text.includes('अनुराधा') || text.includes('paudwal')) return 'anuradha';
     if (text.includes('maithili') || text.includes('मैथिली')) return 'maithili';
     if (text.includes('manoj') || text.includes('मनोज') || text.includes('tiwari')) return 'manoj';
+    if (text.includes('ritesh') || text.includes('रितेश')) return 'ritesh';
     if (text.includes('kalpana') || text.includes('कल्पना')) return 'kalpana';
     if (text.includes('akshara') || text.includes('अक्षरा')) return 'akshara';
+    if (text.includes('shilpi') || text.includes('शिल्पी')) return 'shilpi';
+    if (text.includes('pramod') || text.includes('प्रमोद')) return 'pramod';
     if (text.includes('sonu') || text.includes('सोनू')) return 'sonu';
+    if (text.includes('priya') || text.includes('प्रिया')) return 'priya';
     return 'devotional_folk';
   };
 
-  // Scoring engine: prioritize evergreen all-time hits that devotees love most, followed by top artists & 2026 trends
-  const getPopularityScore = (song: Song): number => {
-    let score = 0;
-    const t = song.title.toLowerCase();
-
-    // All-time immortal devotional anthems
-    const EVERGREEN_TITLES = [
-      'पहिले पहिल', 'कांच ही बांस', 'केलवा के पात', 'उग हे सुरुज देव',
-      'मारबो रे सुगवा', 'जोड़िले जोड़िया', 'दउरा', 'अरघ के बेरा', 'उगेलन',
-      'pahile pahil', 'kaanch hi baans', 'kelwa ke paat', 'uga he suruj dev'
-    ];
-    if (EVERGREEN_TITLES.some(h => t.includes(h.toLowerCase()))) {
-      score += 60;
-    }
-
-    // Legendary devotional voices
-    if (t.includes('शारदा') || t.includes('sharda')) score += 40;
-    if (t.includes('अनुराधा') || t.includes('anuradha')) score += 35;
-    if (t.includes('पवन') || t.includes('pawan')) score += 30;
-    if (t.includes('खेसारी') || t.includes('khesari')) score += 30;
-    if (t.includes('मैथिली') || t.includes('maithili')) score += 25;
-    if (t.includes('मनोज') || t.includes('manoj')) score += 20;
-
-    // Trending 2026 boost
-    if (t.includes('2026') || t.includes('नए') || t.includes('हिट') || t.includes('hit')) {
-      score += 20;
-    }
-
-    return score;
-  };
-
-  // Diversity Interleaving Engine: guarantees adjacent cards are NEVER all by the same singer!
+  // Dynamic Diversity Interleaving Engine: guarantees variety and fresh combination every single time!
   const interleaveSingers = useCallback((songs: Song[]): Song[] => {
     const buckets: Record<string, Song[]> = {};
-    const sorted = [...songs].sort((a, b) => getPopularityScore(b) - getPopularityScore(a));
 
-    for (const s of sorted) {
+    for (const s of songs) {
       const bucketKey = detectSingerBucket(s);
       if (!buckets[bucketKey]) buckets[bucketKey] = [];
       buckets[bucketKey].push(s);
     }
 
-    // Diverse rotation order across all beloved artists
-    const singerOrder = ['sharda', 'pawan', 'anuradha', 'khesari', 'maithili', 'manoj', 'kalpana', 'akshara', 'devotional_folk'];
+    // Shuffle songs inside each bucket so positions are completely dynamic
+    for (const k in buckets) {
+      buckets[k] = shuffleArray(buckets[k]);
+    }
+
+    // Dynamically randomize the artist rotation order so no single artist is fixed in position #1
+    const allArtists = ['sharda', 'pawan', 'maithili', 'khesari', 'anuradha', 'manoj', 'ritesh', 'kalpana', 'akshara', 'shilpi', 'pramod', 'priya', 'devotional_folk'];
+    const activeArtists = shuffleArray(allArtists.filter(k => buckets[k]?.length > 0));
+
     const result: Song[] = [];
     let addedAny = true;
 
     while (addedAny) {
       addedAny = false;
-      for (const key of singerOrder) {
+      for (const key of activeArtists) {
         if (buckets[key] && buckets[key].length > 0) {
           result.push(buckets[key].shift()!);
           addedAny = true;
@@ -490,7 +512,11 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         'केलवा के पात पर उगेलन सुरुज देव शारदा सिन्हा',
         'कांच ही बांस के बहंगिया पारम्परिक छठ गीत शारदा सिन्हा',
         'हे छठी मईया सुन लीं पुकार अनुराधा पौडवाल',
-        'उ जे केरवा जे फरेला घवद से छठ गीत सुपरहिट'
+        'उ जे केरवा जे फरेला घवद से छठ गीत सुपरहिट',
+        'शारदा सिन्हा छठ महापर्व आरधना गीत',
+        'मनोज तिवारी पारम्परिक छठ पूजा गीत',
+        'सोनू निगम सूर्य देव छठ भजन',
+        'देवी छठ महापर्व पारंपरिक गीत'
       ];
 
       const TRENDING_QUERIES = [
@@ -498,14 +524,22 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         'पवन सिंह छठ पूजा स्पेशल नए 2026 गीत सुपरहिट',
         'खेसारी लाल यादव छठ गीत 2026 भक्ति',
         'मैथिली ठाकुर छठ महापर्व भक्ति गीत लाइव',
-        'अक्षरा सिंह छठ पूजा स्पेशल नए गीत 2026'
+        'अक्षरा सिंह छठ पूजा स्पेशल नए गीत 2026',
+        'रितेश पांडे नए छठ गीत 2026',
+        'शिल्पी राज नए छठ गीत सुपरहिट',
+        'नीलकमल सिंह छठ पूजा स्पेशल 2026',
+        'प्रमोद प्रेमी यादव छठ महापर्व'
       ];
 
       const DEVOTIONAL_QUERIES = [
         'कांच ही बांस के बहंगिया केलवा के पात छठ पूजा सुपरहिट',
-        'मनोज तिवारी छठ महापर्व सुपरहिट गीत',
-        'कल्पना पटवारी छठ पूजा पारम्परिक गीत',
-        'सोनू निगम छठ मईया भजन सुपरहिट',
+        'पटना गंगा घाट छठ पूजा लाइव आरती दर्शन',
+        'छठ पूजा संध्या अर्घ्य लाइव आरती भजन',
+        'उषा अर्घ्य भोरवा के अर्घ्य छठ गीत',
+        'दउरा उठावे के पारम्परिक छठ गीत',
+        'कोसी भराई छठ पूजा स्पेशल गीत',
+        'नहाय खाय स्पेशल पारंपरिक छठ गीत',
+        'खरना स्पेशल छठ पूजा प्रसाद गीत',
         'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026',
         'छठ संध्या अर्घ्य उषा अर्घ्य स्पेशल भक्ति गीत'
       ];
@@ -518,10 +552,11 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       // Randomize the initial topic index for smooth diverse continuation scrolling
       liveTopicIndexRef.current = Math.floor(Math.random() * CHHATH_LIVE_TOPICS.length);
 
+      // Fetch with bypassCache = true to guarantee 100% fresh, live real-world YouTube songs
       const [res1, res2, res3] = await Promise.allSettled([
-        searchYouTubeVideos(query1, '', 'video'),
-        searchYouTubeVideos(query2, '', 'video'),
-        searchYouTubeVideos(query3, '', 'video')
+        searchYouTubeVideos(query1, '', 'video', true),
+        searchYouTubeVideos(query2, '', 'video', true),
+        searchYouTubeVideos(query3, '', 'video', true)
       ]);
 
       const rawPool: YouTubeSearchSong[] = [];
@@ -545,7 +580,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       const filtered = filterValidLandscapeSongs(rawPool);
       const unique = deduplicateSongs(filtered);
 
-      // Multi-singer round-robin interleaving so no single singer monopolizes the feed!
+      // Multi-singer round-robin dynamic interleaving
       const diversified = interleaveSingers(unique);
 
       if (diversified.length > 0) {

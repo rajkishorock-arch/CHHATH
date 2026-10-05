@@ -689,15 +689,17 @@ export function App() {
     <ThemeProvider>
       <LanguageProvider>
         <ChhathDataProvider>
-          <AudioProvider>
-            <AuthProvider>
-              <ReelsProvider>
-                <ChatProvider>
-                  <MainContent />
-                </ChatProvider>
-              </ReelsProvider>
-            </AuthProvider>
-          </AudioProvider>
+          <SectionErrorBoundary onReset={() => { window.location.hash = ''; window.location.reload(); }}>
+            <AudioProvider>
+              <AuthProvider>
+                <ReelsProvider>
+                  <ChatProvider>
+                    <MainContent />
+                  </ChatProvider>
+                </ReelsProvider>
+              </AuthProvider>
+            </AudioProvider>
+          </SectionErrorBoundary>
         </ChhathDataProvider>
       </LanguageProvider>
     </ThemeProvider>
