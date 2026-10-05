@@ -10,22 +10,36 @@ export interface YouTubeFilterOptions {
   selectedHashtag?: string | null;
 }
 
-// Rotating list of authentic Chhath Puja YouTube Shorts queries
-const LIVE_CHHATH_SHORTS_QUERIES = [
+// Rotating list of authentic Trending Instagram-style Reels & Shorts queries
+const LIVE_TRENDING_REELS_QUERIES = [
+  // 1. Trending Reels & Viral Shorts
+  'trending reels',
+  'instagram trending reels',
+  'viral shorts trending india',
+  'trending dance reels',
+  'explore reels viral',
+  // 2. Bhojpuri & Regional Viral Songs
+  'bhojpuri viral reels',
+  'pawan singh new reels',
+  'khesari lal trending reels',
+  'bhojpuri dance reels',
+  // 3. Bollywood & Hindi Songs
+  'bollywood trending reels',
+  'hindi songs viral shorts',
+  'romantic status reels',
+  // 4. Comedy & Entertainment
+  'comedy reels viral hindi',
+  'funny shorts trending',
+  'desi funny comedy reels',
+  // 5. Chhath & Cultural Traditions
   'chhath puja shorts',
   'छठ पूजा रील्स',
   'chhath geet shorts',
-  'sharda sinha chhath shorts',
-  'pawan singh chhath shorts',
-  'khesari lal chhath shorts',
-  'chhath ghat status shorts',
-  'sandhya arghya chhath shorts',
-  'usha arghya chhath shorts',
-  'thekua prasad chhath shorts',
-  'chhath mahaparv status viral'
+  'patna ghat status shorts',
+  'bihar viral reels'
 ];
 
-let liveQueryIndex = Math.floor(Math.random() * LIVE_CHHATH_SHORTS_QUERIES.length);
+let liveQueryIndex = Math.floor(Math.random() * LIVE_TRENDING_REELS_QUERIES.length);
 let liveNextPageToken: string | null = null;
 const seenLiveVideoIds = new Set<string>();
 
@@ -173,7 +187,7 @@ export const YouTubeProvider = {
   },
 
   /**
-   * Get a slice of verified live YouTube Chhath Shorts (100% Real-time, 0 dummy data)
+   * Get a slice of verified live trending reels (100% Real-time, 0 dummy data)
    */
   async getValidatedItems(
     options: YouTubeFilterOptions, 
@@ -184,13 +198,13 @@ export const YouTubeProvider = {
     const userId = options.currentUser?.id || 'guest';
     const watchedIds = ReelsStorage.getWatchedReelIds(userId);
 
-    // 1. PRIMARY SOURCE: Real-time Live Trending Chhath Shorts streamed directly from YouTube API!
+    // 1. PRIMARY SOURCE: Real-time Live Trending Instagram-style Shorts streamed directly from YouTube API!
     let fetchAttempts = 0;
     const maxFetchAttempts = 6;
 
     while (items.length < count && fetchAttempts < maxFetchAttempts) {
       try {
-        const query = LIVE_CHHATH_SHORTS_QUERIES[liveQueryIndex % LIVE_CHHATH_SHORTS_QUERIES.length];
+        const query = LIVE_TRENDING_REELS_QUERIES[liveQueryIndex % LIVE_TRENDING_REELS_QUERIES.length];
         const ytRes = await searchYouTubeVideos(query, liveNextPageToken || '', 'shorts');
         
         if (ytRes.results && ytRes.results.length > 0) {
@@ -211,46 +225,61 @@ export const YouTubeProvider = {
               continue;
             }
 
-            const cleanTitle = decodeHtmlEntities(res.title) || 'छठ महापर्व रील्स';
+            const cleanTitle = decodeHtmlEntities(res.title) || 'ट्रेंडिंग रील्स';
             const desc = res.description || '';
             const textToInspect = `${cleanTitle} ${desc} ${res.channelTitle || ''}`.toLowerCase();
-            const chhathKeywords = [
-              'chhath', 'chhat', 'छठ', 'छठी', 'arghya', 'aragh', 'अर्घ्य', 'अरघ',
-              'thekua', 'ठेकुआ', 'daura', 'दउरा', 'ghat', 'घाट', 'soop', 'सूप',
-              'suruj', 'surya', 'सुरुज', 'सूरज', 'सूर्य', 'dinanath', 'दीनानाथ',
-              'nahay', 'नहाय', 'kharna', 'खरना', 'sharda', 'शारदा', 'koshi', 'कोशी'
-            ];
-            const isChhath = chhathKeywords.some(kw => textToInspect.includes(kw));
-            if (!isChhath) {
-              continue;
+
+            // Smart category classification
+            let detectedCategory: ReelCategory = 'Trending';
+            let detectedTags = ['#Trending', '#Viral', '#Reels', '#InstaReels'];
+
+            const chhathKeywords = ['chhath', 'chhat', 'छठ', 'छठी', 'arghya', 'aragh', 'अर्घ्य', 'thekua', 'ठेकुआ', 'daura', 'दउरा', 'ghat', 'घाट', 'soop', 'सूप', 'suruj', 'surya', 'सुरुज', 'सूरज', 'सूर्य', 'dinanath', 'दीनानाथ', 'nahay', 'नहाय', 'kharna', 'खरना', 'sharda', 'शारदा'];
+            const comedyKeywords = ['comedy', 'funny', 'hasna', 'joke', 'meme', 'roast', 'fun', 'मजाक', 'कॉमेडी'];
+            const musicKeywords = ['dance', 'song', 'geet', 'music', 'bhojpuri', 'pawan', 'khesari', 'dance cover', 'gana', 'गाना', 'गीत', 'नाच', 'dj'];
+
+            if (chhathKeywords.some(kw => textToInspect.includes(kw))) {
+              detectedCategory = 'Chhath Geet';
+              detectedTags = ['#ChhathPuja', '#ChhathiMaiya', '#Bhakti', '#Shorts'];
+            } else if (comedyKeywords.some(kw => textToInspect.includes(kw))) {
+              detectedCategory = 'Comedy';
+              detectedTags = ['#Comedy', '#Funny', '#DesiComedy', '#Entertainment'];
+            } else if (musicKeywords.some(kw => textToInspect.includes(kw))) {
+              detectedCategory = 'Dance & Music';
+              detectedTags = ['#Dance', '#Music', '#Bhojpuri', '#Bollywood', '#ViralSong'];
+            } else {
+              detectedCategory = 'Entertainment';
+              detectedTags = ['#Trending', '#Viral', '#InstagramReels', '#Shorts'];
             }
 
-            // Exclude video editing tutorials, tech guides, memes, and non-devotional clutter
+            // Exclude only true junk like video editing software tutorials
             const junkKeywords = [
-              'video editing', 'reels editing', 'editing video', 'status kaise banaye',
-              'video kaise banaye', 'kaise banaye', 'tutorial', 'kinemaster', 'capcut',
-              'vn app', 'alight motion', 'premiere pro', 'vfx boy', 'editing tutorial',
-              'snake', 'meme', 'comedy'
+              'video editing tutorial', 'reels editing tutorial', 'kinemaster tutorial', 'capcut template',
+              'vn app tutorial', 'alight motion preset', 'premiere pro tutorial', 'preset xml link'
             ];
             const isJunk = junkKeywords.some(kw => textToInspect.includes(kw));
             if (isJunk) {
               continue;
             }
 
+            // If user explicitly picked a specific category filter, respect it
+            if (options.selectedCategory && detectedCategory !== options.selectedCategory) {
+              continue;
+            }
+
             seenLiveVideoIds.add(res.youtubeId);
-            const channelName = decodeHtmlEntities(res.channelTitle) || 'छठ पावन भक्ति';
+            const channelName = decodeHtmlEntities(res.channelTitle) || 'Trending Creator';
 
             items.push({
               id: `yt-live-reel-${res.youtubeId}`,
               creatorId: `channel-${res.channelTitle.replace(/\s+/g, '-').toLowerCase()}`,
               creatorName: channelName,
-              creatorUsername: `@${channelName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'chhath'}`,
+              creatorUsername: `@${channelName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'trending'}`,
               creatorAvatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(channelName)}`,
-              creatorCity: 'पटना / बिहार',
+              creatorCity: 'भारत • India',
               title: cleanTitle,
-              description: res.description || `${cleanTitle} • पावन छठ महापर्व रील्स #ChhathPuja #Shorts`,
-              category: 'Chhath Geet',
-              tags: ['#ChhathPuja', '#ChhathiMaiya', '#Shorts', '#Bhakti'],
+              description: res.description || `${cleanTitle} • ट्रेंडिंग रील्स #Trending #Shorts`,
+              category: detectedCategory,
+              tags: detectedTags,
               videoUrl: `https://www.youtube.com/watch?v=${res.youtubeId}`,
               youtubeVideoId: res.youtubeId,
               thumbnailUrl: res.thumbnailUrl,

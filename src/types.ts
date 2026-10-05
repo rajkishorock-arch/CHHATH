@@ -24,6 +24,10 @@ export interface FamilyTask {
 }
 
 export type ReelCategory =
+  | 'Trending'
+  | 'Entertainment'
+  | 'Comedy'
+  | 'Dance & Music'
   | 'Chhath Geet'
   | 'Puja Preparation'
   | 'Sandhya Arghya'

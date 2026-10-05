@@ -146,6 +146,9 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   };
 
   const handleVideoClick = () => {
+    if (isMuted) {
+      toggleMute();
+    }
     if (reel.youtubeVideoId) {
       setIsPlaying(prev => !prev);
       return;
@@ -315,7 +318,18 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         )}
 
         {/* Top Floating Controls */}
-        <div className="relative z-20 pt-3 sm:pt-4 px-3 sm:px-4 flex items-center justify-end pointer-events-auto">
+        <div className="relative z-20 pt-3 sm:pt-4 px-3 sm:px-4 flex items-center justify-between pointer-events-auto">
+          {/* Sound Pill Hint if Muted */}
+          {isMuted && isActive ? (
+            <button
+              onClick={e => { e.stopPropagation(); toggleMute(); }}
+              className="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-300 text-[11px] font-mukta font-bold flex items-center gap-1.5 shadow-lg animate-pulse"
+            >
+              <VolumeX className="w-3.5 h-3.5 text-amber-400" />
+              <span>साउंड ऑन करें</span>
+            </button>
+          ) : <div />}
+
           {/* Sound & More Buttons */}
           <div className="flex items-center gap-2">
             <button

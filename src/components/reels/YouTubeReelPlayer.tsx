@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Play } from 'lucide-react';
 
 interface YouTubeReelPlayerProps {
   videoId: string;
@@ -24,18 +23,18 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // Send direct command to YouTube HTML5 Player via postMessage (dual-format for universal WebView compatibility)
+  // Send direct command to YouTube HTML5 Player via postMessage
   const sendYtCommand = useCallback((func: string, args: any[] = []) => {
     try {
       const win = iframeRef.current?.contentWindow;
       if (win) {
-        win.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
-        win.postMessage(JSON.stringify({ event: 'command', func, args, id: 1 }), '*');
+        win.postMessage(JSON.stringify({ event: 'command', func, args: args || [] }), '*');
+        win.postMessage(JSON.stringify({ event: 'command', func, args: args || [], id: 1 }), '*');
       }
     } catch {}
   }, []);
 
-  // Cleanup on unmount: immediately stop playback to release GPU / audio pipeline
+  // Cleanup on unmount: immediately stop playback
   useEffect(() => {
     return () => {
       try {
@@ -51,26 +50,23 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   useEffect(() => {
     if (isActive) {
       if (isPlaying) {
-        // Instant start: rewind to 0 of the pre-buffered stream and unmute
-        sendYtCommand('seekTo', [0, true]);
-        sendYtCommand('playVideo');
+        sendYtCommand('playVideo', []);
         if (!isMuted) {
-          sendYtCommand('unMute');
+          sendYtCommand('unMute', []);
           sendYtCommand('setVolume', [100]);
         } else {
-          sendYtCommand('mute');
+          sendYtCommand('mute', []);
         }
       } else {
-        sendYtCommand('pauseVideo');
+        sendYtCommand('pauseVideo', []);
       }
     } else {
-      // Offscreen: immediately pause and mute so zero audio/bandwidth leaks
-      sendYtCommand('pauseVideo');
-      sendYtCommand('mute');
+      sendYtCommand('pauseVideo', []);
+      sendYtCommand('mute', []);
     }
   }, [isActive, isPlaying, isMuted, sendYtCommand]);
 
-  // Listen for YouTube postMessage events (e.g. onError)
+  // Listen for YouTube postMessage events (e.g. onError, playerState change)
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       try {
@@ -80,12 +76,17 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
             setHasError(true);
             onPlaybackError?.(videoId, Number(data.info) || 100);
           }
+          if (data.event === 'infoDelivery' && data.info) {
+            if (data.info.playerState === 1) { // 1 = PLAYING
+              onReady?.();
+            }
+          }
         }
       } catch {}
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [videoId, onPlaybackError]);
+  }, [videoId, onPlaybackError, onReady]);
 
   // When iframe loads, notify parent and initialize command connection
   const handleIframeLoad = () => {
@@ -97,33 +98,20 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
       );
     } catch {}
 
-    if (isActive) {
-      if (isPlaying) {
-        sendYtCommand('seekTo', [0, true]);
-        sendYtCommand('playVideo');
-        if (!isMuted) {
-          setTimeout(() => {
-            sendYtCommand('unMute');
-            sendYtCommand('setVolume', [100]);
-          }, 100);
-        }
+    if (isActive && isPlaying) {
+      sendYtCommand('playVideo', []);
+      if (!isMuted) {
+        setTimeout(() => {
+          sendYtCommand('unMute', []);
+          sendYtCommand('setVolume', [100]);
+        }, 150);
       }
-    } else {
-      // Background pre-warming: let video buffer initial DASH chunks for 1.2s, then hold at 0:00
-      setTimeout(() => {
-        if (!isActive) {
-          sendYtCommand('pauseVideo');
-          sendYtCommand('seekTo', [0, true]);
-          sendYtCommand('mute');
-        }
-      }, 1200);
     }
     onReady?.();
   };
 
-  // High-speed embed URL: ALWAYS starts with autoplay=1&mute=1 so YouTube eagerly buffers
-  // video stream chunks immediately without waiting for user action. No origin restriction to
-  // ensure postMessage works unconditionally in Android Capacitor WebViews.
+  // High-speed embed URL with controls=0, modestbranding=1, enablejsapi=1
+  // Autoplay=1 guarantees instant playback without stalling on black screen
   const embedUrl = useMemo(() => {
     return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
   }, [videoId]);
