@@ -80,10 +80,13 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
-  // Ensure isPlayerReady transitions swiftly when active
+  // Reset isPlayerReady when inactive; when active, keep poster until video plays or timeout
   useEffect(() => {
-    if (isActive) {
-      const t = setTimeout(() => setIsPlayerReady(true), 300);
+    if (!isActive) {
+      setIsPlayerReady(false);
+    } else {
+      // 2.5s fallback to fade out poster if event not received
+      const t = setTimeout(() => setIsPlayerReady(true), 2500);
       return () => clearTimeout(t);
     }
   }, [isActive]);
@@ -148,6 +151,8 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   const handleVideoClick = () => {
     if (isMuted) {
       toggleMute();
+      setIsPlaying(true);
+      return;
     }
     if (reel.youtubeVideoId) {
       setIsPlaying(prev => !prev);
@@ -218,7 +223,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         {/* Video / Media Viewport (YouTube Iframe, Instagram Iframe Fallback, or Native Video) */}
         {reel.youtubeVideoId ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {(isActive || isNearby) && (
+            {isActive && (
               <YouTubeReelPlayer
                 key={reel.youtubeVideoId}
                 videoId={reel.youtubeVideoId}

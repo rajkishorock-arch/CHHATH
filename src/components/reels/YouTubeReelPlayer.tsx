@@ -70,23 +70,51 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       try {
-        if (typeof e.data === 'string') {
-          const data = JSON.parse(e.data);
-          if (data.event === 'onError') {
-            setHasError(true);
-            onPlaybackError?.(videoId, Number(data.info) || 100);
+        let data = e.data;
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data);
+          } catch {
+            return;
           }
-          if (data.event === 'infoDelivery' && data.info) {
-            if (data.info.playerState === 1) { // 1 = PLAYING
-              onReady?.();
+        }
+        if (!data || typeof data !== 'object') return;
+
+        if (data.event === 'onError') {
+          setHasError(true);
+          onPlaybackError?.(videoId, Number(data.info) || 100);
+          return;
+        }
+
+        // When YouTube player is initialized and ready
+        if (data.event === 'onReady' || data.event === 'initialDelivery') {
+          setIsLoaded(true);
+          if (isActive && isPlaying) {
+            sendYtCommand('playVideo', []);
+            if (!isMuted) {
+              sendYtCommand('unMute', []);
+              sendYtCommand('setVolume', [100]);
+            }
+          }
+        }
+
+        // When YouTube video state changes (1 = PLAYING)
+        if (data.event === 'infoDelivery' && data.info) {
+          if (data.info.playerState === 1) {
+            setIsLoaded(true);
+            onReady?.();
+            if (!isMuted) {
+              sendYtCommand('unMute', []);
+              sendYtCommand('setVolume', [100]);
             }
           }
         }
       } catch {}
     };
+
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [videoId, onPlaybackError, onReady]);
+  }, [videoId, isActive, isPlaying, isMuted, onPlaybackError, onReady, sendYtCommand]);
 
   // When iframe loads, notify parent and initialize command connection
   const handleIframeLoad = () => {
@@ -96,24 +124,36 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
         JSON.stringify({ event: 'listening' }),
         '*'
       );
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'listening', id: 1 }),
+        '*'
+      );
     } catch {}
 
     if (isActive && isPlaying) {
       sendYtCommand('playVideo', []);
       if (!isMuted) {
+        sendYtCommand('unMute', []);
+        sendYtCommand('setVolume', [100]);
+        // Multi-stage unMute to guarantee audio turns on without 10s wait
         setTimeout(() => {
           sendYtCommand('unMute', []);
           sendYtCommand('setVolume', [100]);
-        }, 150);
+        }, 250);
+        setTimeout(() => {
+          sendYtCommand('unMute', []);
+          sendYtCommand('setVolume', [100]);
+        }, 600);
       }
     }
-    onReady?.();
   };
 
   // High-speed embed URL with controls=0, modestbranding=1, enablejsapi=1
-  // Autoplay=1 guarantees instant playback without stalling on black screen
+  // Initialized with mute=0 so audio plays instantly from second 0 without 10s delay
+  const initialMutedRef = useRef(isMuted);
   const embedUrl = useMemo(() => {
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
+    const initialMute = initialMutedRef.current ? 1 : 0;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMute}&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
   }, [videoId]);
 
   if (hasError) {
