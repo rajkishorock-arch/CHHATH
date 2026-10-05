@@ -78,6 +78,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   const liked = isLiked(reel.id);
   const saved = isSaved(reel.id);
@@ -206,7 +207,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         {/* Video / Media Viewport (YouTube Iframe, Instagram Iframe Fallback, or Native Video) */}
         {reel.youtubeVideoId ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {isActive && (
+            {(isActive || isNearby) && (
               <YouTubeReelPlayer
                 key={reel.youtubeVideoId}
                 videoId={reel.youtubeVideoId}
@@ -214,18 +215,17 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 isActive={isActive}
                 isPlaying={isPlaying}
                 isMuted={isMuted}
+                onReady={() => setIsPlayerReady(true)}
                 onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
               />
             )}
 
-            {!isActive && (
-              <img 
-                src={reel.thumbnailUrl} 
-                alt={reel.title} 
-                loading={isNearby ? 'eager' : 'lazy'}
-                className="w-full h-full object-cover absolute inset-0 z-0 pointer-events-none" 
-              />
-            )}
+            <img 
+              src={getImageUrl(reel.thumbnailUrl)} 
+              alt={reel.title} 
+              loading={isNearby ? 'eager' : 'lazy'}
+              className={`w-full h-full object-cover absolute inset-0 z-0 pointer-events-none transition-opacity duration-300 ${isActive && isPlayerReady ? 'opacity-0' : 'opacity-100'}`} 
+            />
 
             {/* Top & Bottom Readability Gradients */}
             <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
@@ -233,7 +233,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           </div>
         ) : (reel.sourceType === 'INSTAGRAM' && (!reel.videoUrl || reel.videoUrl.includes('instagram.com/reel') || reel.videoUrl.includes('instagram.com/p'))) ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {isActive ? (
+            {(isActive || isNearby) && (
               <InstagramReelPlayer
                 key={reel.instagramShortcode || reel.id}
                 shortcode={reel.instagramShortcode || reel.id}
@@ -241,16 +241,16 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 title={reel.title}
                 isActive={isActive}
                 isMuted={isMuted}
+                onReady={() => setIsPlayerReady(true)}
                 onPlaybackError={(shortcode, code) => onPlaybackError?.(reel.id, shortcode, code)}
               />
-            ) : (
-              <img 
-                src={reel.thumbnailUrl} 
-                alt={reel.title} 
-                loading={isNearby ? 'eager' : 'lazy'}
-                className="w-full h-full object-cover" 
-              />
             )}
+            <img 
+              src={getImageUrl(reel.thumbnailUrl)} 
+              alt={reel.title} 
+              loading={isNearby ? 'eager' : 'lazy'}
+              className={`w-full h-full object-cover absolute inset-0 z-0 pointer-events-none transition-opacity duration-300 ${isActive && isPlayerReady ? 'opacity-0' : 'opacity-100'}`} 
+            />
             <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
             <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none z-10" />
           </div>
@@ -260,15 +260,15 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               ref={videoRef}
               src={getVideoUrl(reel.videoUrl)}
               poster={getImageUrl(reel.thumbnailUrl)}
-              preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
+              preload={isActive || isNearby ? 'auto' : 'none'}
               playsInline
               loop={true}
               muted={isMuted}
               onTimeUpdate={handleTimeUpdate}
               onWaiting={() => setIsLoading(true)}
-              onPlaying={() => { setIsLoading(false); setIsPlaying(true); }}
-              onCanPlay={() => setIsLoading(false)}
-              onLoadedData={() => setIsLoading(false)}
+              onPlaying={() => { setIsLoading(false); setIsPlaying(true); setIsPlayerReady(true); }}
+              onCanPlay={() => { setIsLoading(false); setIsPlayerReady(true); }}
+              onLoadedData={() => { setIsLoading(false); setIsPlayerReady(true); }}
               onError={() => {
                 setIsLoading(false);
                 setIsPlaying(false);

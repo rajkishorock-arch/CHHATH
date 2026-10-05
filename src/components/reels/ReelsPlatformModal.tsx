@@ -114,7 +114,13 @@ export const ReelsPlatformModal: React.FC = () => {
     return () => window.removeEventListener('chhath-app-pull-refresh', handlePullRefresh);
   }, [reelsPlatformOpen, scrollToIndex]);
 
-  // Active Reel Detection via IntersectionObserver + Scroll sync
+  // Stable references to prevent IntersectionObserver teardown on every swipe
+  const activeIndexRef = useRef(activeReelIndex);
+  activeIndexRef.current = activeReelIndex;
+  const reelsRef = useRef(reels);
+  reelsRef.current = reels;
+
+  // Ultra-smooth 60fps Active Reel Detection via IntersectionObserver + ScrollEnd
   useEffect(() => {
     if (!reelsPlatformOpen) return;
     const container = feedContainerRef.current;
@@ -122,25 +128,22 @@ export const ReelsPlatformModal: React.FC = () => {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        for (const entry of entries) {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
             const idx = Number(entry.target.getAttribute('data-index'));
-            const reelId = entry.target.getAttribute('data-reel-id');
-            if (reelId) {
-              setActiveReelId(reelId);
-            }
-            if (!isNaN(idx)) {
+            if (!isNaN(idx) && idx !== activeIndexRef.current) {
+              activeIndexRef.current = idx;
               setActiveReelIndex(idx);
-              if (idx >= reels.length - 3) {
+              if (idx >= reelsRef.current.length - 3) {
                 loadMoreReels();
               }
             }
           }
-        });
+        }
       },
       {
         root: container,
-        threshold: 0.6
+        threshold: [0.5, 0.7]
       }
     );
 
@@ -148,35 +151,48 @@ export const ReelsPlatformModal: React.FC = () => {
       if (el) observer.observe(el);
     });
 
-    // Smooth settle sync without mid-swipe thrashing
-    let scrollTimeout: any = null;
-    const handleScroll = () => {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        const scrollTop = container.scrollTop;
-        const itemHeight = container.clientHeight;
-        if (itemHeight <= 0) return;
-        const calculatedIndex = Math.round(scrollTop / itemHeight);
-        if (calculatedIndex >= 0 && calculatedIndex < reels.length) {
-          if (reels[calculatedIndex] && reels[calculatedIndex].id !== activeReelId) {
-            setActiveReelId(reels[calculatedIndex].id);
-            setActiveReelIndex(calculatedIndex);
-            if (calculatedIndex >= reels.length - 3) {
-              loadMoreReels();
-            }
-          }
+    // Native scrollend or debounced fallback for precise settle
+    const handleScrollEnd = () => {
+      const scrollTop = container.scrollTop;
+      const itemHeight = container.clientHeight;
+      if (itemHeight <= 0) return;
+      const calculatedIndex = Math.round(scrollTop / itemHeight);
+      if (
+        calculatedIndex >= 0 &&
+        calculatedIndex < reelsRef.current.length &&
+        calculatedIndex !== activeIndexRef.current
+      ) {
+        activeIndexRef.current = calculatedIndex;
+        setActiveReelIndex(calculatedIndex);
+        if (calculatedIndex >= reelsRef.current.length - 3) {
+          loadMoreReels();
         }
-      }, 100);
+      }
     };
 
-    container.addEventListener('scroll', handleScroll, { passive: true });
+    let scrollDebounce: any = null;
+    const handleScrollFallback = () => {
+      if (scrollDebounce) clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(handleScrollEnd, 60);
+    };
+
+    const hasNativeScrollEnd = 'onscrollend' in window;
+    if (hasNativeScrollEnd) {
+      container.addEventListener('scrollend', handleScrollEnd, { passive: true });
+    } else {
+      container.addEventListener('scroll', handleScrollFallback, { passive: true });
+    }
 
     return () => {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (scrollDebounce) clearTimeout(scrollDebounce);
       observer.disconnect();
-      container.removeEventListener('scroll', handleScroll);
+      if (hasNativeScrollEnd) {
+        container.removeEventListener('scrollend', handleScrollEnd);
+      } else {
+        container.removeEventListener('scroll', handleScrollFallback);
+      }
     };
-  }, [reelsPlatformOpen, reels, activeReelId, loadMoreReels, setActiveReelIndex, setActiveReelId]);
+  }, [reelsPlatformOpen, reels.length, loadMoreReels, setActiveReelIndex]);
 
   // When jumping to a specific reel or initially opening:
   useEffect(() => {
@@ -322,11 +338,14 @@ export const ReelsPlatformModal: React.FC = () => {
             className="w-full h-full overflow-y-scroll overscroll-contain snap-y snap-mandatory scrollbar-none touch-pan-y"
             style={{ 
               scrollSnapType: 'y mandatory',
-              WebkitOverflowScrolling: 'touch'
+              WebkitOverflowScrolling: 'touch',
+              willChange: 'scroll-position',
+              transform: 'translateZ(0)'
             }}
           >
             {reels.map((reel, index) => {
-              const isCurrentActive = reel.id === (activeReelId || reels[activeReelIndex]?.id);
+              const isCurrentActive = index === activeReelIndex;
+              const isNearbyReel = Math.abs(index - activeReelIndex) <= 1;
               return (
                 <div
                   key={reel.id}
@@ -337,13 +356,15 @@ export const ReelsPlatformModal: React.FC = () => {
                   style={{ 
                     scrollSnapAlign: 'start', 
                     scrollSnapStop: 'always',
-                    height: '100%' 
+                    height: '100%',
+                    contain: 'strict',
+                    contentVisibility: Math.abs(index - activeReelIndex) <= 2 ? 'visible' : 'auto'
                   }}
                 >
                   <VerticalReelPlayer
                     reel={reel}
                     isActive={isCurrentActive}
-                    isNearby={Math.abs(index - activeReelIndex) <= 1}
+                    isNearby={isNearbyReel}
                     onOpenProfile={(u) => openProfileModal(u)}
                     onOpenAudio={(id) => setSelectedAudioId(id)}
                     onNext={() => scrollToIndex(index + 1)}

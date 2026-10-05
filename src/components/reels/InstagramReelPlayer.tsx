@@ -38,20 +38,18 @@ export const InstagramReelPlayer: React.FC<InstagramReelPlayerProps> = ({
 
   if (hasError) {
     return (
-      <div className="relative w-full h-full bg-stone-950 flex flex-col items-center justify-center text-amber-300">
-        <div className="w-10 h-10 border-2 border-amber-500/30 border-t-amber-400 rounded-full animate-spin mb-3" />
-        <p className="text-xs font-mukta opacity-75">पावन रील लोड हो रही है...</p>
+      <div className="relative w-full h-full bg-stone-950 flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
-      {/* Background devotional skeleton spinner while iframe loads */}
+      {/* Clean professional spinner while iframe loads */}
       {!isLoaded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-950 z-10">
-          <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mb-3" />
-          <span className="text-xs font-mukta text-amber-300/80">छठ पावन रील लोड हो रही है...</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-950 z-10">
+          <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin" />
         </div>
       )}
 
