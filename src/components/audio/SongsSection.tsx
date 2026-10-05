@@ -104,16 +104,13 @@ const YouTubeVideoCardComponent: React.FC<{
                 title={song.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
-                className={`w-full h-full border-0 transition-opacity duration-200 ${
-                  isThumbHovered ? 'pointer-events-auto' : 'pointer-events-none'
-                }`}
+                className="w-full h-full border-0 transition-opacity duration-200 pointer-events-auto"
               />
-              {/* When cursor moves outside the thumbnail, transparent overlay cleanly catches next hover/touch to re-engage */}
+              {/* On desktop mouse hover, transparent overlay catches when cursor leaves to hide controls */}
               {!isThumbHovered && (
                 <div 
-                  className="absolute inset-0 bg-transparent cursor-pointer pointer-events-auto"
+                  className="hidden sm:block absolute inset-0 bg-transparent cursor-pointer pointer-events-auto"
                   onMouseEnter={() => setIsThumbHovered(true)}
-                  onTouchStart={() => setIsThumbHovered(true)}
                 />
               )}
             </div>

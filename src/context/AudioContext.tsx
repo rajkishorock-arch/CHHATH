@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { Maximize2, Minimize2, ExternalLink, Play, Pause, X } from 'lucide-react';
+import { Maximize2, Minimize2, ExternalLink, Play, Pause, X, RotateCcw, RotateCw, ChevronDown } from 'lucide-react';
 import { Song } from '../types';
 import { useChhathData } from './ChhathDataContext';
+
+const formatTime = (secs: number): string => {
+  if (isNaN(secs) || secs < 0) return '0:00';
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
 
 interface PlaybackError {
   songId: string;
@@ -98,34 +105,112 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const overlayTimerRef = useRef<any>(null);
   const theaterVideoBoxRef = useRef<HTMLDivElement | null>(null);
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
+  const [isFullscreenMode, setIsFullscreenMode] = useState<boolean>(false);
+  const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
+  const seekFeedbackTimerRef = useRef<any>(null);
+  const lastTapRef = useRef<{ time: number; x: number }>({ time: 0, x: 0 });
+
+  // Sync with browser native fullscreen change events (ESC key, Android Back, gestures)
+  useEffect(() => {
+    const handleFsChange = () => {
+      const isFs = Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      setIsFullscreenMode(isFs);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
 
   const showVideoControlsTemporarily = useCallback(() => {
     setVideoOverlayVisible(true);
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
     overlayTimerRef.current = setTimeout(() => {
       setVideoOverlayVisible(false);
-    }, 3500);
+    }, 4000);
   }, []);
 
   const toggleNativeFullscreen = useCallback(() => {
     try {
       const el = theaterVideoBoxRef.current;
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        if (el.requestFullscreen) {
+      const isCurrentlyFs = Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement || isFullscreenMode);
+
+      if (!isCurrentlyFs) {
+        setIsFullscreenMode(true);
+        if (el?.requestFullscreen) {
           el.requestFullscreen().catch(() => {});
-        } else if ((el as any).webkitRequestFullscreen) {
+        } else if ((el as any)?.webkitRequestFullscreen) {
           (el as any).webkitRequestFullscreen();
+        } else if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
         }
+        try {
+          if ((screen.orientation as any)?.lock) {
+            (screen.orientation as any).lock('landscape').catch(() => {});
+          }
+        } catch {}
       } else {
+        setIsFullscreenMode(false);
         if (document.exitFullscreen) {
           document.exitFullscreen().catch(() => {});
+        } else if ((document as any).webkitExitFullscreen) {
+          (document as any).webkitExitFullscreen();
         }
+        try {
+          if (screen.orientation?.unlock) {
+            screen.orientation.unlock();
+          }
+        } catch {}
       }
     } catch (e) {
       console.warn('Native fullscreen toggle error:', e);
+      setIsFullscreenMode(prev => !prev);
     }
-  }, []);
+  }, [isFullscreenMode]);
+
+  const handleSeekRelative = useCallback((seconds: number) => {
+    const target = Math.max(0, Math.min(duration || 300, currentTime + seconds));
+    seekTo(target);
+    showVideoControlsTemporarily();
+
+    setSeekFeedback(seconds > 0 ? 'forward' : 'backward');
+    if (seekFeedbackTimerRef.current) clearTimeout(seekFeedbackTimerRef.current);
+    seekFeedbackTimerRef.current = setTimeout(() => {
+      setSeekFeedback(null);
+    }, 700);
+  }, [currentTime, duration, showVideoControlsTemporarily]);
+
+  // Touch and tap handler for the video backdrop (captures all taps on mobile and desktop)
+  const handleVideoBackdropTap = useCallback((clientX: number, targetRect: DOMRect) => {
+    const now = Date.now();
+    const timeDiff = now - lastTapRef.current.time;
+    const xRatio = (clientX - targetRect.left) / targetRect.width;
+
+    if (timeDiff < 320) {
+      // Double tap detected!
+      if (xRatio < 0.38) {
+        handleSeekRelative(-10);
+      } else if (xRatio > 0.62) {
+        handleSeekRelative(10);
+      } else {
+        togglePlay();
+        showVideoControlsTemporarily();
+      }
+      lastTapRef.current = { time: 0, x: 0 };
+    } else {
+      // Single tap -> toggle overlay visibility
+      lastTapRef.current = { time: now, x: clientX };
+      setVideoOverlayVisible(prev => {
+        const next = !prev;
+        if (next) {
+          showVideoControlsTemporarily();
+        }
+        return next;
+      });
+    }
+  }, [handleSeekRelative, showVideoControlsTemporarily]);
 
   // YouTube Player Ref & Pending Song Ref
   const ytPlayerRef = useRef<any>(null);
@@ -936,64 +1021,126 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         className={
           showVideo
             ? videoExpanded
-              ? "fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 transition-all animate-in fade-in"
-              : "fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4 w-72 sm:w-88 aspect-video rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all flex flex-col animate-in slide-in-from-bottom"
+              ? isFullscreenMode
+                ? "fixed inset-0 z-[1000] w-screen h-screen bg-black flex items-center justify-center p-0 transition-all"
+                : "fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 transition-all animate-in fade-in"
+              : "fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4 w-72 sm:w-88 aspect-video rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-500/60 bg-black transition-all flex flex-col animate-in slide-in-from-bottom"
             : "fixed bottom-0 right-0 w-16 h-9 pointer-events-none opacity-[0.01] z-[-1] overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
         <div
           ref={theaterVideoBoxRef}
-          onClick={showVideo && videoExpanded ? showVideoControlsTemporarily : undefined}
-          onMouseMove={showVideo && videoExpanded ? showVideoControlsTemporarily : undefined}
-          onTouchStart={showVideo && videoExpanded ? showVideoControlsTemporarily : undefined}
           className={
             !showVideo
               ? "w-full h-full pointer-events-none"
               : videoExpanded
-              ? "relative w-full max-w-5xl aspect-video bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center group pointer-events-auto"
-              : "relative w-full h-full bg-black group pointer-events-auto"
+              ? isFullscreenMode
+                ? "relative w-full h-full max-w-none bg-black rounded-none overflow-hidden flex items-center justify-center pointer-events-auto"
+                : "relative w-full max-w-5xl aspect-video bg-black rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center pointer-events-auto"
+              : "relative w-full h-full bg-black pointer-events-auto"
           }
         >
           {/* THE SINGLE PERSISTENT YOUTUBE PLAYER CONTAINER - NEVER UNMOUNTS */}
           <div id="global-yt-player-container" className="w-full h-full pointer-events-auto" />
 
-          {/* THEATER OVERLAY CONTROLS (Only visible in full theater cinema mode) */}
+          {/* TAP CAPTURE BACKDROP (Ensures mobile taps never get trapped in iframe) */}
           {showVideo && videoExpanded && (
             <div
-              className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-3 sm:p-5 ${
-                videoOverlayVisible || !isPlaying
-                  ? 'opacity-100 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-auto'
-                  : 'opacity-0 pointer-events-none'
+              className="absolute inset-0 z-10 cursor-pointer pointer-events-auto select-none"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                handleVideoBackdropTap(e.clientX, rect);
+              }}
+            />
+          )}
+
+          {/* DOUBLE-TAP RIPPLE ANIMATION (YouTube 10s feedback) */}
+          {seekFeedback && (
+            <div
+              className={`absolute top-1/2 -translate-y-1/2 z-15 pointer-events-none flex flex-col items-center justify-center p-4 rounded-full bg-black/75 text-white animate-in zoom-in-75 duration-200 border border-white/10 ${
+                seekFeedback === 'backward' ? 'left-8 sm:left-16' : 'right-8 sm:right-16'
               }`}
             >
-              {/* Top Row: Song Title & Close Button */}
+              {seekFeedback === 'backward' ? (
+                <>
+                  <RotateCcw className="w-8 h-8 animate-pulse text-amber-400" />
+                  <span className="text-xs font-bold mt-1 text-amber-300">-10s</span>
+                </>
+              ) : (
+                <>
+                  <RotateCw className="w-8 h-8 animate-pulse text-amber-400" />
+                  <span className="text-xs font-bold mt-1 text-amber-300">+10s</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* THEATER OVERLAY CONTROLS (Professional YouTube Mobile & Desktop Controls) */}
+          {showVideo && videoExpanded && (
+            <div
+              className={`absolute inset-0 z-20 transition-opacity duration-300 flex flex-col justify-between p-3 sm:p-5 pointer-events-none select-none ${
+                videoOverlayVisible || !isPlaying
+                  ? 'opacity-100 bg-gradient-to-t from-black/90 via-black/25 to-black/80'
+                  : 'opacity-0'
+              }`}
+            >
+              {/* Top Row: Pop-up minimize, Song Title & Close */}
               <div className="flex items-center justify-between w-full pointer-events-auto">
-                <div className="flex items-center gap-2 truncate max-w-[80%] drop-shadow">
-                  <span className="text-white text-xs sm:text-sm font-semibold truncate">
-                    {currentSong?.title}
-                  </span>
-                  {currentSong?.singer && (
-                    <span className="text-stone-300 text-xs truncate hidden sm:inline">
-                      • {currentSong.singer}
-                    </span>
-                  )}
+                <div className="flex items-center gap-2 min-w-0 max-w-[80%]">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setVideoExpanded(false);
+                    }}
+                    className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-colors cursor-pointer border border-white/10 shrink-0"
+                    title="पॉप-अप विंडो (छोटा करें)"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
+                  <div className="min-w-0 drop-shadow">
+                    <h3 className="text-white text-xs sm:text-sm font-semibold truncate leading-tight">
+                      {currentSong?.title}
+                    </h3>
+                    {currentSong?.singer && (
+                      <p className="text-stone-300 text-[11px] truncate">
+                        {currentSong.singer}
+                      </p>
+                    )}
+                  </div>
                 </div>
+
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowVideo(false);
                   }}
-                  className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-colors cursor-pointer pointer-events-auto shadow-md border border-white/10"
+                  className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-colors cursor-pointer shadow-md border border-white/10 shrink-0"
                   title="बंद करें"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Center: Large YouTube-Style Play/Pause Button for Phone & Desktop */}
-              <div className="flex items-center justify-center pointer-events-auto">
+              {/* Center Controls: Backward 10s, Big Play/Pause, Forward 10s */}
+              <div className="flex items-center justify-center gap-6 sm:gap-10 pointer-events-auto my-auto">
+                {/* 10s Backward */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSeekRelative(-10);
+                  }}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex flex-col items-center justify-center transition-transform active:scale-90 shadow-xl border border-white/15 cursor-pointer"
+                  title="10 सेकंड पीछे (Rewind 10s)"
+                >
+                  <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="text-[9px] font-bold mt-0.5 leading-none font-mono">10</span>
+                </button>
+
+                {/* Big Play / Pause */}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1001,67 +1148,138 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     togglePlay();
                     showVideoControlsTemporarily();
                   }}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black/65 hover:bg-black/85 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 shadow-2xl border border-white/20 cursor-pointer pointer-events-auto"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 shadow-2xl border-2 border-white/25 cursor-pointer"
                   title={isPlaying ? "रोकें (Pause)" : "चलाएं (Play)"}
                 >
                   {isPlaying ? (
-                    <Pause className="w-7 h-7 fill-white" />
+                    <Pause className="w-8 h-8 sm:w-9 sm:h-9 fill-white" />
                   ) : (
-                    <Play className="w-7 h-7 fill-white ml-1" />
+                    <Play className="w-8 h-8 sm:w-9 sm:h-9 fill-white ml-1" />
                   )}
+                </button>
+
+                {/* 10s Forward */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSeekRelative(10);
+                  }}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex flex-col items-center justify-center transition-transform active:scale-90 shadow-xl border border-white/15 cursor-pointer"
+                  title="10 सेकंड आगे (Forward 10s)"
+                >
+                  <RotateCw className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="text-[9px] font-bold mt-0.5 leading-none font-mono">10</span>
                 </button>
               </div>
 
-              {/* Bottom Right: YouTube-Style Toggles (Pop-up PIP & Fullscreen) with NO text */}
-              <div className="flex items-center justify-end gap-2.5 w-full pointer-events-auto">
-                {/* Pop-up / PIP Toggle */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setVideoExpanded(false);
-                  }}
-                  className="p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer pointer-events-auto border border-white/15 shadow-md"
-                  title="पॉप-अप विंडो (PIP मोड)"
-                >
-                  <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+              {/* Bottom Bar: Timeline Scrubber + Time Display + PIP & Fullscreen Toggles */}
+              <div className="w-full space-y-2 pointer-events-auto">
+                {/* Progress Bar (Scrubber) */}
+                <div className="relative flex items-center group/scrubber cursor-pointer">
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration || 100}
+                    value={currentTime}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      seekTo(Number(e.target.value));
+                      showVideoControlsTemporarily();
+                    }}
+                    className="w-full h-1.5 sm:h-2 bg-white/30 rounded-lg appearance-none cursor-pointer accent-red-600 transition-all focus:outline-none"
+                    style={{
+                      background: `linear-gradient(to right, #dc2626 0%, #dc2626 ${
+                        duration ? (currentTime / duration) * 100 : 0
+                      }%, rgba(255,255,255,0.3) ${
+                        duration ? (currentTime / duration) * 100 : 0
+                      }%, rgba(255,255,255,0.3) 100%)`
+                    }}
+                  />
+                </div>
 
-                {/* Fullscreen Toggle */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleNativeFullscreen();
-                  }}
-                  className="p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer pointer-events-auto border border-white/15 shadow-md"
-                  title="फुल स्क्रीन"
-                >
-                  <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+                {/* Time & Action Toggles */}
+                <div className="flex items-center justify-between text-xs text-white/90">
+                  <span className="font-mono text-[11px] sm:text-xs">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    {/* Pop-up PIP Toggle */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setVideoExpanded(false);
+                      }}
+                      className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer border border-white/15 shadow-md"
+                      title="पॉप-अप विंडो (PIP मोड)"
+                    >
+                      <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+
+                    {/* Fullscreen Toggle */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleNativeFullscreen();
+                      }}
+                      className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer border border-white/15 shadow-md"
+                      title={isFullscreenMode ? "फुलस्क्रीन से बाहर निकलें" : "फुलस्क्रीन"}
+                    >
+                      <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {/* PIP FLOATING MINI-PLAYER MODE QUICK CONTROLS */}
           {showVideo && !videoExpanded && (
-            <div className="absolute top-2 right-2 flex items-center gap-1.5 z-20 pointer-events-auto">
-              <button
-                type="button"
-                onClick={() => setVideoExpanded(true)}
-                className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-white backdrop-blur-xs transition-colors cursor-pointer border border-white/15 shadow"
-                title="बड़ा करें (थिएटर मोड)"
-              >
-                <Maximize2 className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowVideo(false)}
-                className="p-1.5 rounded-lg bg-black/75 hover:bg-rose-900/90 text-white backdrop-blur-xs transition-colors cursor-pointer border border-white/15 shadow"
-                title="छुपाएं"
-              >
-                <X className="w-4 h-4" />
-              </button>
+            <div 
+              onClick={() => setVideoExpanded(true)}
+              className="absolute inset-0 cursor-pointer group/pip pointer-events-auto"
+            >
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 z-20 pointer-events-auto">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setVideoExpanded(true);
+                  }}
+                  className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-white backdrop-blur-xs transition-colors cursor-pointer border border-white/15 shadow"
+                  title="बड़ा करें (थिएटर मोड)"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowVideo(false);
+                  }}
+                  className="p-1.5 rounded-lg bg-black/75 hover:bg-rose-900/90 text-white backdrop-blur-xs transition-colors cursor-pointer border border-white/15 shadow"
+                  title="बंद करें"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Center Quick Play/Pause on hover */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/pip:opacity-100 transition-opacity bg-black/40">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePlay();
+                  }}
+                  className="w-10 h-10 rounded-full bg-black/80 text-white flex items-center justify-center border border-white/20 shadow-lg"
+                >
+                  {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
+                </button>
+              </div>
             </div>
           )}
         </div>
