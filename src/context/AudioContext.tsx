@@ -98,6 +98,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const timeIntervalRef = useRef<any>(null);
   const userRequestedPauseRef = useRef<boolean>(false);
   const hasStartedPlaybackRef = useRef<boolean>(false);
+  const autoResumeTimerRef = useRef<any>(null);
 
   // Background audio & system media notification keepalive ref
   const bgAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -240,21 +241,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 setIsPlaying(false);
                 bgAudioRef.current?.pause();
               } else {
-                console.log('[YouTubePlayer] Involuntary background pause detected (screen lock / minimize). Auto-resuming...');
-                setIsPlaying(true);
-                startAudioKeepalive();
-                try {
-                  ytPlayerRef.current?.playVideo();
-                } catch (e) {
-                  console.warn('Auto-resume playVideo error:', e);
+                // If user didn't request pause (e.g. background switch), gently auto-resume once if still paused
+                if (!autoResumeTimerRef.current) {
+                  autoResumeTimerRef.current = setTimeout(() => {
+                    autoResumeTimerRef.current = null;
+                    if (!userRequestedPauseRef.current && ytPlayerRef.current) {
+                      try {
+                        const currState = ytPlayerRef.current.getPlayerState ? ytPlayerRef.current.getPlayerState() : -1;
+                        if (currState === 2) {
+                          ytPlayerRef.current.playVideo();
+                        }
+                      } catch (e) {}
+                    }
+                  }, 400);
                 }
-                setTimeout(() => {
-                  if (!userRequestedPauseRef.current && ytPlayerRef.current) {
-                    try {
-                      ytPlayerRef.current.playVideo();
-                    } catch (e) {}
-                  }
-                }, 200);
               }
             } else if (state === 0) {
               setIsPlaying(false);
@@ -818,51 +818,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [startAudioKeepalive]);
 
-  // Expose keepMusicPlaying globally so Android Java Foreground Service watchdog can wake and resume playback
-  useEffect(() => {
-    (window as any).keepMusicPlaying = () => {
-      if (!userRequestedPauseRef.current && currentSongRef.current && isPlaying) {
-        if (ytPlayerRef.current) {
-          try {
-            const state = typeof ytPlayerRef.current.getPlayerState === 'function' ? ytPlayerRef.current.getPlayerState() : -1;
-            if (state !== 1 && state !== 3) {
-              ytPlayerRef.current.playVideo();
-            }
-          } catch {
-            try { ytPlayerRef.current.playVideo(); } catch (e) {}
-          }
-        }
-        if (bgAudioRef.current && bgAudioRef.current.paused) {
-          bgAudioRef.current.play().catch(() => {});
-        }
-      }
-    };
-    return () => {
-      delete (window as any).keepMusicPlaying;
-    };
-  }, [isPlaying]);
 
-  // Periodic watchdog to ensure continuous background playback even under aggressive OS throttling
-  useEffect(() => {
-    const watchdog = setInterval(() => {
-      if (!userRequestedPauseRef.current && currentSongRef.current && isPlaying) {
-        if (ytPlayerRef.current && typeof ytPlayerRef.current.getPlayerState === 'function') {
-          try {
-            const state = ytPlayerRef.current.getPlayerState();
-            if (state === 2) {
-              console.log('[Watchdog] Resuming video in background');
-              ytPlayerRef.current.playVideo();
-            }
-          } catch (e) {}
-        }
-        if (bgAudioRef.current && bgAudioRef.current.paused) {
-          bgAudioRef.current.play().catch(() => {});
-        }
-      }
-    }, 1500);
-
-    return () => clearInterval(watchdog);
-  }, [isPlaying]);
 
   // Sync Position State in MediaSession (for progress bar in Notification Panel & Lock Screen)
   useEffect(() => {
@@ -926,14 +882,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {/* 
         Persistent Single Global YouTube Player Container
         - When showVideo is true: Floats at z-[90] (ABOVE ExpandedPlayerModal z-[80]) with a visible rounded frame.
-        - When showVideo is false: Placed with standard 16:9 dimensions (320x180) offscreen with micro opacity.
-        This prevents YouTube iframe API from categorizing the player as an illegal micro/hidden embed!
+        - When showVideo is false: Placed with 16:9 micro dimensions (w-16 h-9) inside viewport at bottom-0 right-0.
+        This ensures YouTube player remains intersecting viewport while invisible to user!
       */}
       <div
         className={
           showVideo
             ? "fixed z-[90] bottom-24 right-4 w-72 sm:w-84 h-44 sm:h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/50 bg-black transition-all"
-            : "fixed -bottom-[9999px] -right-[9999px] w-[320px] h-[180px] pointer-events-none opacity-[0.001] z-[-1] overflow-hidden"
+            : "fixed bottom-0 right-0 w-16 h-9 pointer-events-none opacity-[0.01] z-[-1] overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
