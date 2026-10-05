@@ -167,39 +167,46 @@ export const searchYouTubeVideos = async (
     // Ignore cache errors
   }
 
-  // 2. TIER 1: Native Serverless Function (/api/yt-search)
-  try {
-    const internalUrl = `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7000); // Generous timeout for serverless
+  // 2. TIER 1: Dedicated High-Speed Live Worker API + Native Serverless
+  const workerBase = getWorkerUrl().replace(/\/+$/, '');
+  const searchEndpoints = [
+    `${workerBase}/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
+    `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`
+  ];
 
-    const res = await fetch(internalUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
+  for (const endpointUrl of searchEndpoints) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6500);
 
-    if (res.ok) {
-      const data = await res.json();
-      const rawList = data.results || data.items || [];
-      const normalized = rawList.map(normalizeItem).filter((x: YouTubeSearchSong | null): x is YouTubeSearchSong => x !== null);
+      const res = await fetch(endpointUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
 
-      if (normalized.length > 0) {
-        const responseData: YouTubeSearchResponse = {
-          results: normalized,
-          nextPageToken: data.nextPageToken || null,
-          totalResults: data.totalResults || normalized.length,
-          isLiveApi: true
-        };
+      if (res.ok) {
+        const data = await res.json();
+        const rawList = data.results || data.items || [];
+        const normalized = rawList.map(normalizeItem).filter((x: YouTubeSearchSong | null): x is YouTubeSearchSong => x !== null);
 
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: responseData }));
-        } catch {
-          // Ignore quota error
+        if (normalized.length > 0) {
+          const responseData: YouTubeSearchResponse = {
+            results: normalized,
+            nextPageToken: data.nextPageToken || null,
+            totalResults: data.totalResults || normalized.length,
+            isLiveApi: true
+          };
+
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: responseData }));
+          } catch {
+            // Ignore quota error
+          }
+
+          return responseData;
         }
-
-        return responseData;
       }
+    } catch {
+      // Try next endpoint
     }
-  } catch {
-    // Move to next tier
   }
 
   // 3. TIER 2: Direct Client-Side YouTube InnerTube Request (if running static / GitHub Pages)
@@ -281,7 +288,8 @@ export const searchYouTubeVideos = async (
 
   // 4. TIER 3: Public Invidious Mirror Search
   try {
-    const invidiousEndpoint = `https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(trimmed + ' chhath geet')}&type=video`;
+    const invidiousQuery = type === 'shorts' ? `${trimmed} shorts` : (trimmed.toLowerCase().includes('chhath') ? trimmed : `${trimmed} geet`);
+    const invidiousEndpoint = `https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(invidiousQuery)}&type=video`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
 

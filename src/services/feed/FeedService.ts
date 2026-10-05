@@ -110,17 +110,24 @@ export const FeedService = {
       igItems = igResult.items.filter(r => !r.videoUrl?.includes('/videos/chhath_reel_') && !r.videoUrl?.includes('/videos/sample'));
     }
 
-    // Blend: Place Trending Instagram Reels and Authentic Video Reels side-by-side
-    // Alternating between Instagram Reels and high-energy Chhath Shorts
+    // Prioritize Live Real-time Reels (100% live authentic trending stream)
     const combined: DynamicReel[] = [];
-    const igQueue = [...igItems];
-    const ytQueue = [...ytItems];
-    const fpQueue = [...fpResult.items];
-
-    while (igQueue.length > 0 || ytQueue.length > 0 || fpQueue.length > 0) {
-      if (igQueue.length > 0) combined.push(igQueue.shift()!);
-      if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
-      if (fpQueue.length > 0) combined.push(fpQueue.shift()!);
+    if (ytItems.length > 0) {
+      const ytQueue = [...ytItems];
+      const fpQueue = [...fpResult.items];
+      while (ytQueue.length > 0 || fpQueue.length > 0) {
+        if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
+        if (ytQueue.length > 0) combined.push(ytQueue.shift()!);
+        if (fpQueue.length > 0) combined.push(fpQueue.shift()!);
+      }
+    } else {
+      // Offline fallback: Use cached/curated items only if live stream is unavailable
+      const igQueue = [...igItems];
+      const fpQueue = [...fpResult.items];
+      while (igQueue.length > 0 || fpQueue.length > 0) {
+        if (igQueue.length > 0) combined.push(igQueue.shift()!);
+        if (fpQueue.length > 0) combined.push(fpQueue.shift()!);
+      }
     }
     let batchItems: DynamicReel[] = combined.length > 0 ? combined : [...ytItems];
 

@@ -11,32 +11,46 @@ export interface YouTubeFilterOptions {
 }
 
 // Rotating list of authentic Trending Instagram-style Reels & Shorts queries
+// Rotating list of authentic Trending Instagram-style Reels & Shorts queries
 const LIVE_TRENDING_REELS_QUERIES = [
-  // 1. Trending Reels & Viral Shorts
-  'trending reels',
-  'instagram trending reels',
-  'viral shorts trending india',
-  'trending dance reels',
-  'explore reels viral',
-  // 2. Bhojpuri & Regional Viral Songs
-  'bhojpuri viral reels',
-  'pawan singh new reels',
-  'khesari lal trending reels',
-  'bhojpuri dance reels',
-  // 3. Bollywood & Hindi Songs
-  'bollywood trending reels',
-  'hindi songs viral shorts',
-  'romantic status reels',
-  // 4. Comedy & Entertainment
+  // 1. Trending & Viral Instagram Reels
+  'trending reels india',
+  'instagram viral reels',
+  'trending shorts explore',
+  'viral reels 2026',
+  'top trending reels',
+
+  // 2. Comedy & Funny Entertainment
   'comedy reels viral hindi',
   'funny shorts trending',
   'desi funny comedy reels',
-  // 5. Chhath & Cultural Traditions
-  'chhath puja shorts',
-  'छठ पूजा रील्स',
-  'chhath geet shorts',
-  'patna ghat status shorts',
-  'bihar viral reels'
+  'relatable comedy memes shorts',
+  'stand up comedy reels',
+
+  // 3. Dance & Choreography
+  'trending dance reels',
+  'viral dance performance shorts',
+  'bhojpuri dance reels',
+  'bollywood dance choreography reels',
+  'hook step trending reels',
+
+  // 4. Hit Music, Songs & Status
+  'trending songs reels',
+  'bollywood viral songs shorts',
+  'bhojpuri viral hits reels',
+  'punjabi trending reels',
+  'romantic status video reels',
+  'new trending audio reels',
+
+  // 5. Lifestyle, Food & Fun
+  'street food viral reels',
+  'amazing talent shorts',
+  'funny moments viral reels',
+
+  // 6. Cultural & Regional Traditions
+  'bihar viral reels',
+  'chhath puja special reels',
+  'patna ghat status shorts'
 ];
 
 let liveQueryIndex = Math.floor(Math.random() * LIVE_TRENDING_REELS_QUERIES.length);
@@ -209,9 +223,7 @@ export const YouTubeProvider = {
         
         if (ytRes.results && ytRes.results.length > 0) {
           liveNextPageToken = ytRes.nextPageToken || null;
-          if (!liveNextPageToken) {
-            liveQueryIndex++;
-          }
+          let itemsFromThisQuery = 0;
 
           for (const res of ytRes.results) {
             if (items.length >= count) break;
@@ -234,18 +246,18 @@ export const YouTubeProvider = {
             let detectedTags = ['#Trending', '#Viral', '#Reels', '#InstaReels'];
 
             const chhathKeywords = ['chhath', 'chhat', 'छठ', 'छठी', 'arghya', 'aragh', 'अर्घ्य', 'thekua', 'ठेकुआ', 'daura', 'दउरा', 'ghat', 'घाट', 'soop', 'सूप', 'suruj', 'surya', 'सुरुज', 'सूरज', 'सूर्य', 'dinanath', 'दीनानाथ', 'nahay', 'नहाय', 'kharna', 'खरना', 'sharda', 'शारदा'];
-            const comedyKeywords = ['comedy', 'funny', 'hasna', 'joke', 'meme', 'roast', 'fun', 'मजाक', 'कॉमेडी'];
-            const musicKeywords = ['dance', 'song', 'geet', 'music', 'bhojpuri', 'pawan', 'khesari', 'dance cover', 'gana', 'गाना', 'गीत', 'नाच', 'dj'];
+            const comedyKeywords = ['comedy', 'funny', 'hasna', 'joke', 'meme', 'roast', 'fun', 'मजाक', 'कॉमेडी', 'हंसी'];
+            const musicKeywords = ['dance', 'song', 'geet', 'music', 'bhojpuri', 'khesari', 'dance cover', 'gana', 'गाना', 'गीत', 'नाच', 'dj', 'choreography'];
 
-            if (chhathKeywords.some(kw => textToInspect.includes(kw))) {
-              detectedCategory = 'Chhath Geet';
-              detectedTags = ['#ChhathPuja', '#ChhathiMaiya', '#Bhakti', '#Shorts'];
-            } else if (comedyKeywords.some(kw => textToInspect.includes(kw))) {
+            if (comedyKeywords.some(kw => textToInspect.includes(kw))) {
               detectedCategory = 'Comedy';
               detectedTags = ['#Comedy', '#Funny', '#DesiComedy', '#Entertainment'];
             } else if (musicKeywords.some(kw => textToInspect.includes(kw))) {
               detectedCategory = 'Dance & Music';
               detectedTags = ['#Dance', '#Music', '#Bhojpuri', '#Bollywood', '#ViralSong'];
+            } else if (chhathKeywords.some(kw => textToInspect.includes(kw))) {
+              detectedCategory = 'Chhath Geet';
+              detectedTags = ['#ChhathPuja', '#ChhathiMaiya', '#Bhakti', '#Shorts'];
             } else {
               detectedCategory = 'Entertainment';
               detectedTags = ['#Trending', '#Viral', '#InstagramReels', '#Shorts'];
@@ -296,7 +308,17 @@ export const YouTubeProvider = {
               sourceType: 'YOUTUBE',
               isEmbeddable: true
             });
+
+            itemsFromThisQuery++;
+            // Rotate to next genre after 2-3 items from this query to keep feed rich and varied
+            if (itemsFromThisQuery >= 3) {
+              break;
+            }
           }
+
+          // Advance query to next genre for maximum variety
+          liveQueryIndex++;
+          liveNextPageToken = null;
         } else {
           liveQueryIndex++;
           liveNextPageToken = null;
