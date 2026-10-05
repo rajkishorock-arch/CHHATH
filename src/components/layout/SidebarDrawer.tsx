@@ -11,6 +11,7 @@ import {
   Flame, 
   FileText, 
   Music, 
+  Disc3,
   Film, 
   Compass, 
   Sliders, 
@@ -301,7 +302,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'भक्ति संगीत, रील्स व घाट',
         subtitle: 'Media, Reels & Ghats',
         items: [
-          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'अमृतमयी भक्ति स्वर व भजन', icon: Music, badge: 'संगीत', highlight: true },
+          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'यूट्यूब अमृतमयी भक्ति स्वर व भजन', icon: Music, badge: 'यूट्यूब' },
+          { id: 'spotify', label: 'छठ Spotify इन-ऐप हब', sub: '100% इन-ऐप प्लेयर (स्क्रीन-ऑफ सपोर्ट)', icon: Disc3, badge: 'Spotify', highlight: true },
           { id: 'reels', label: 'छठ रील्स व शॉर्ट वीडियो', sub: '9:16 पूर्ण स्क्रीन फीड', icon: Film, badge: 'नया', highlight: true },
           { id: 'ghats', label: 'पावन घाट व सुरक्षा निर्देशिका', sub: 'पटना, वाराणसी, हरिद्वार', icon: Compass },
           { 
@@ -390,7 +392,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'Devotional Music & Reels',
         subtitle: 'Media, Reels & Ghats',
         items: [
-          { id: 'music', label: 'Chhath Music Studio', sub: 'Soulful devotional songs & bhajans', icon: Music, badge: 'Music', highlight: true },
+          { id: 'music', label: 'Chhath Music Studio', sub: 'YouTube devotional songs & bhajans', icon: Music, badge: 'YouTube' },
+          { id: 'spotify', label: 'Chhath Spotify Hub', sub: '100% In-app player (screen-off audio)', icon: Disc3, badge: 'Spotify', highlight: true },
           { id: 'reels', label: 'Chhath Reels & Short Videos', sub: '9:16 full-screen feed', icon: Film, badge: 'New', highlight: true },
           { id: 'ghats', label: 'Sacred Ghats & Safety Guide', sub: 'Patna, Varanasi, Haridwar', icon: Compass },
           { 
@@ -479,7 +482,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'भक्ति संगीत, रील्स आ घाट',
         subtitle: 'Media, Reels & Ghats',
         items: [
-          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'अमृतमयी स्वर आ भजन', icon: Music, badge: 'गीत', highlight: true },
+          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'यूट्यूब अमृतमयी स्वर आ भजन', icon: Music, badge: 'यूट्यूब' },
+          { id: 'spotify', label: 'छठ Spotify इन-ऐप हब', sub: '100% इन-ऐप प्लेयर (स्क्रीन-ऑफ सपोर्ट)', icon: Disc3, badge: 'Spotify', highlight: true },
           { id: 'reels', label: 'छठ रील्स आ छोट वीडियो', sub: '9:16 पूरा स्क्रीन', icon: Film, badge: 'नया', highlight: true },
           { id: 'ghats', label: 'पावन घाट निर्देशिका', sub: 'पटना, बनारस, हरिद्वार', icon: Compass },
           { 
@@ -568,7 +572,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'भक्ति संगीत, रील्स ओ घाट',
         subtitle: 'Media, Reels & Ghats',
         items: [
-          { id: 'music', label: 'छठि भक्ति गीत स्टूडियो', sub: 'अमृतमयी स्वर ओ भजन', icon: Music, badge: 'गीत', highlight: true },
+          { id: 'music', label: 'छठि भक्ति गीत स्टूडियो', sub: 'यूट्यूब अमृतमयी स्वर ओ भजन', icon: Music, badge: 'यूट्यूब' },
+          { id: 'spotify', label: 'छठि Spotify इन-ऐप हब', sub: '100% इन-ऐप प्लेयर (स्क्रीन-ऑफ सपोर्ट)', icon: Disc3, badge: 'Spotify', highlight: true },
           { id: 'reels', label: 'छठि रील्स ओ वीडियो', sub: '9:16 पूर्ण स्क्रीन', icon: Film, badge: 'नव', highlight: true },
           { id: 'ghats', label: 'पावन घाट निर्देशिका', sub: 'पटना, दरभंगा, हरिद्वार', icon: Compass },
           { 
@@ -657,7 +662,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'भक्ति संगीत, रील्स आ घाट',
         subtitle: 'Media, Reels & Ghats',
         items: [
-          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'अमृतमयी स्वर आ भजन', icon: Music, badge: 'गीत', highlight: true },
+          { id: 'music', label: 'छठ भक्ति गीत स्टूडियो', sub: 'यूट्यूब अमृतमयी स्वर आ भजन', icon: Music, badge: 'यूट्यूब' },
+          { id: 'spotify', label: 'छठ Spotify इन-ऐप हब', sub: '100% इन-ऐप प्लेयर (स्क्रीन-ऑफ सपोर्ट)', icon: Disc3, badge: 'Spotify', highlight: true },
           { id: 'reels', label: 'छठ रील्स व शॉर्ट वीडियो', sub: '9:16 पूर्ण स्क्रीन फीड', icon: Film, badge: 'नया', highlight: true },
           { id: 'ghats', label: 'पावन घाट व निर्देशिका', sub: 'पटना, गया, हरिद्वार', icon: Compass },
           { 

@@ -19,13 +19,18 @@ import {
   Music
 } from 'lucide-react';
 
+const YouTubeIcon = ({ className = "w-4 h-4 text-red-600" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
+
 import { SongLyricsModal } from './SongLyricsModal';
 import { 
   searchYouTubeVideos, 
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
-import { getSpotifySongUrl, CHHATH_SPOTIFY_PLAYLISTS } from '../../utils/spotifyUtils';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -152,27 +157,11 @@ const YouTubeVideoCardComponent: React.FC<{
             <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
           </div>
 
-          {/* Category & Tags + Spotify Button */}
-          <div className="flex items-center justify-between gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 mt-1">
-            <div className="flex items-center gap-1 truncate">
-              <span>{song.category || 'भक्ति'}</span>
-              <span>•</span>
-              <span>{song.language || 'भोजपुरी'}</span>
-            </div>
-
-            <a
-              href={getSpotifySongUrl(song)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1DB954]/15 hover:bg-[#1DB954]/25 text-[#1DB954] text-[10px] font-bold shrink-0 transition-colors"
-              title="Spotify पर सुनें (बैकग्राउंड व स्क्रीन ऑफ सपोर्ट)"
-            >
-              <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.303c-.216.353-.674.467-1.027.25-2.815-1.72-6.358-2.108-10.533-1.155-.403.092-.806-.16-.898-.563-.092-.403.16-.806.563-.898 4.568-1.043 8.49-.607 11.645 1.339.353.217.467.674.25 1.027zm1.467-3.26c-.272.443-.847.585-1.29.313-3.224-1.982-8.14-2.556-11.954-1.398-.498.151-1.028-.135-1.18-.633-.151-.498.135-1.028.633-1.18 4.364-1.324 9.778-.684 13.478 1.598.443.272.585.847.313 1.3zm.126-3.41C15.226 8.35 8.847 8.14 5.15 9.262c-.59.18-1.218-.16-1.398-.75-.18-.59.16-1.218.75-1.398 4.24-1.288 11.285-1.045 15.748 1.604.53.315.703 1.002.388 1.533-.315.53-1.002.703-1.533.388z"/>
-              </svg>
-              <span>Spotify</span>
-            </a>
+          {/* Category & Tags */}
+          <div className="flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400 mt-1">
+            <span className="truncate">{song.category || 'भक्ति'}</span>
+            <span>•</span>
+            <span className="truncate">{song.language || 'भोजपुरी'}</span>
           </div>
         </div>
       </div>
@@ -184,9 +173,10 @@ const YouTubeVideoCard = React.memo(YouTubeVideoCardComponent);
 
 export interface SongsSectionProps {
   initialQuery?: string;
+  onNavigate?: (tab: string) => void;
 }
 
-export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
+export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery, onNavigate }) => {
   const { 
     currentSong, 
     isPlaying, 
@@ -709,6 +699,27 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       <div className="max-w-6xl mx-auto space-y-3.5">
         
         {/* ========================================================
+            AUDIO PLATFORM SWITCHER: YouTube (Active) vs Spotify Hub
+           ======================================================== */}
+        <div className="flex items-center justify-between gap-2 p-2 rounded-2xl bg-stone-100 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800">
+          <div className="flex items-center gap-2 pl-2">
+            <YouTubeIcon className="w-4 h-4 text-red-600" />
+            <span className="text-xs font-bold text-stone-800 dark:text-stone-200">यूट्यूब लाइव छठ संगीत</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onNavigate?.('spotify')}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#1DB954]/15 hover:bg-[#1DB954]/25 text-[#1DB954] text-xs font-bold transition-all border border-[#1DB954]/30 active:scale-95 cursor-pointer shadow-xs"
+          >
+            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.303c-.216.353-.674.467-1.027.25-2.815-1.72-6.358-2.108-10.533-1.155-.403.092-.806-.16-.898-.563-.092-.403.16-.806.563-.898 4.568-1.043 8.49-.607 11.645 1.339.353.217.467.674.25 1.027zm1.467-3.26c-.272.443-.847.585-1.29.313-3.224-1.982-8.14-2.556-11.954-1.398-.498.151-1.028-.135-1.18-.633-.151-.498.135-1.028.633-1.18 4.364-1.324 9.778-.684 13.478 1.598.443.272.585.847.313 1.3zm.126-3.41C15.226 8.35 8.847 8.14 5.15 9.262c-.59.18-1.218-.16-1.398-.75-.18-.59.16-1.218.75-1.398 4.24-1.288 11.285-1.045 15.748 1.604.53.315.703 1.002.388 1.533-.315.53-1.002.703-1.533.388z"/>
+            </svg>
+            <span>Spotify हब (इन-ऐप) &rarr;</span>
+          </button>
+        </div>
+
+        {/* ========================================================
             YOUTUBE-STYLE CLEAN TOP SEARCH BAR (RIGHT AT VERY TOP!)
            ======================================================== */}
         <form onSubmit={handleSearchSubmit} className="relative flex items-center">
@@ -860,61 +871,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
            ======================================================== */}
         {searchStatus === 'idle' && (
           <div className="space-y-4 pt-1">
-            {/* ========================================================
-                CHHATH SPOTIFY HUB (100% BACKGROUND & SCREEN-OFF AUDIO)
-               ======================================================== */}
-            <div className="p-4 rounded-3xl bg-gradient-to-br from-stone-900 via-stone-950 to-black border border-[#1DB954]/30 shadow-xl space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#1DB954] flex items-center justify-center text-black shadow-lg shrink-0">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.303c-.216.353-.674.467-1.027.25-2.815-1.72-6.358-2.108-10.533-1.155-.403.092-.806-.16-.898-.563-.092-.403.16-.806.563-.898 4.568-1.043 8.49-.607 11.645 1.339.353.217.467.674.25 1.027zm1.467-3.26c-.272.443-.847.585-1.29.313-3.224-1.982-8.14-2.556-11.954-1.398-.498.151-1.028-.135-1.18-.633-.151-.498.135-1.028.633-1.18 4.364-1.324 9.778-.684 13.478 1.598.443.272.585.847.313 1.3zm.126-3.41C15.226 8.35 8.847 8.14 5.15 9.262c-.59.18-1.218-.16-1.398-.75-.18-.59.16-1.218.75-1.398 4.24-1.288 11.285-1.045 15.748 1.604.53.315.703 1.002.388 1.533-.315.53-1.002.703-1.533.388z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-white text-sm sm:text-base font-bold flex items-center gap-1.5">
-                      <span>छठ महापर्व Spotify हब</span>
-                      <span className="px-2 py-0.5 rounded-full bg-[#1DB954]/20 text-[#1DB954] text-[10px] font-bold">
-                        बैकग्राउंड प्ले
-                      </span>
-                    </h3>
-                    <p className="text-stone-400 text-[11px]">
-                      स्क्रीन लॉक होने पर व ऐप बंद करने पर भी निरंतर एचडी भक्ति भजन
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Horizontal / Grid Spotify Playlists Bento */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                {CHHATH_SPOTIFY_PLAYLISTS.map((pl) => (
-                  <a
-                    key={pl.id}
-                    href={pl.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#1DB954]/50 transition-all flex items-center gap-3 group"
-                  >
-                    <img
-                      src={pl.coverImage}
-                      alt={pl.title}
-                      className="w-12 h-12 rounded-xl object-cover shrink-0 shadow-md group-hover:scale-105 transition-transform"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-white text-xs font-bold truncate group-hover:text-[#1DB954] transition-colors">
-                        {pl.title}
-                      </h4>
-                      <p className="text-stone-400 text-[10px] truncate">{pl.subtitle}</p>
-                      <div className="flex items-center gap-1 mt-1 text-[10px] text-[#1DB954] font-semibold">
-                        <span>{pl.trackCountText}</span>
-                        <span>•</span>
-                        <span>Spotify खोलें &rarr;</span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
             {/* Initial Loading Skeletons */}
             {isLiveInitialLoading && (
               <div className="space-y-4 pt-2">
