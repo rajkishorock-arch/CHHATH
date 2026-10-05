@@ -49,9 +49,9 @@ export const convertToSongModel = (ytSong: YouTubeSearchSong): Song => {
 export const getWorkerUrl = (): string => {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem('chhath_yt_worker_url');
-    if (saved && saved.trim()) return saved.trim();
+    if (saved && saved.trim() && !saved.includes('rajkishorock.workers.dev')) return saved.trim();
   }
-  return (import.meta.env.VITE_YOUTUBE_WORKER_URL as string) || 'https://chhath-yt-search.rajkishorock.workers.dev';
+  return (import.meta.env.VITE_YOUTUBE_WORKER_URL as string) || 'https://chhathvibes.vercel.app';
 };
 
 const PHONETIC_MAP: Record<string, string[]> = {
@@ -133,8 +133,12 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
     });
   });
 
-  const finalPool = matched.length > 0 ? matched : allSongs;
-  const randomizedFinal = [...finalPool].sort(() => Math.random() - 0.5);
+  // If user searched for specific non-Chhath tokens (e.g. "pw", "news"), never inject unrelated songs!
+  if (matched.length === 0) {
+    return [];
+  }
+
+  const randomizedFinal = [...matched].sort(() => Math.random() - 0.5);
   return randomizedFinal.map(s => ({
     youtubeId: s.youtubeId || '',
     title: s.title,
@@ -173,18 +177,18 @@ export const searchYouTubeVideos = async (
     }
   }
 
-  // 2. TIER 1: Dedicated High-Speed Live Worker API + Native Serverless
+  // 2. TIER 1: Dedicated High-Speed Live API (Local Vercel Serverless First -> Vercel Production -> Worker)
   const workerBase = getWorkerUrl().replace(/\/+$/, '');
   const searchEndpoints = [
+    `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
     `${workerBase}/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
-    `${workerBase}/?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
-    `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`
+    `https://chhathvibes.vercel.app/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`
   ];
 
   for (const endpointUrl of searchEndpoints) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6500);
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
 
       const res = await fetch(endpointUrl, { signal: controller.signal });
       clearTimeout(timeoutId);

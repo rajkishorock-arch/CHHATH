@@ -713,16 +713,25 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
     // 2. If token exhausted or null, branch to related search facets so scrolling NEVER stops!
     searchFacetIndexRef.current += 1;
-    const facets = [
-      `${baseQuery} songs`,
-      `${baseQuery} full video`,
-      `${baseQuery} superhit`,
-      `${baseQuery} live`,
-      `${baseQuery} hits`,
-      `${baseQuery} jukebox`,
-      `${baseQuery} remix`,
-      `${baseQuery} collection`
-    ];
+    const isSongIntent = /song|geet|gana|गाना|गीत|भजन|bhajan|music|audio/i.test(baseQuery);
+    const facets = isSongIntent
+      ? [
+          `${baseQuery} songs`,
+          `${baseQuery} full video`,
+          `${baseQuery} superhit`,
+          `${baseQuery} live`,
+          `${baseQuery} hits`,
+          `${baseQuery} jukebox`,
+          `${baseQuery} remix`
+        ]
+      : [
+          `${baseQuery} video`,
+          `${baseQuery} latest`,
+          `${baseQuery} full video`,
+          `${baseQuery} trending`,
+          `${baseQuery} official`,
+          `${baseQuery} 2026`
+        ];
     const nextFacetQuery = facets[searchFacetIndexRef.current % facets.length];
     await handleExecuteSearch(nextFacetQuery, '', true);
   }, [isLoadingMore, searchStatus, nextPageToken, searchQuery]);

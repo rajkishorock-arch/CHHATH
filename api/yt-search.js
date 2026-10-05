@@ -122,6 +122,10 @@ export default async function handler(req, res) {
         bodyPayload.continuation = pageToken;
       } else {
         bodyPayload.query = q;
+        if (type === 'video') {
+          // Strictly filter for Video type in YouTube to exclude channel cards and get full video results
+          bodyPayload.params = 'EgIQAQ%3D%3D';
+        }
       }
 
       const innerRes = await fetch('https://www.youtube.com/youtubei/v1/search', {
@@ -247,15 +251,31 @@ export default async function handler(req, res) {
 
     // Tier 3: Verified Fallback (Safe fallback if network completely offline)
     const lowerQ = q.toLowerCase();
-    const matched = FALLBACK_CHHATH_SONGS.filter((s) => {
-      return (
-        s.title.toLowerCase().includes(lowerQ) ||
-        s.channelTitle.toLowerCase().includes(lowerQ) ||
-        (s.description && s.description.toLowerCase().includes(lowerQ))
-      );
-    });
+    const isChhathIntent = !q || 
+      lowerQ.includes('chhath') || 
+      lowerQ.includes('छठ') || 
+      lowerQ.includes('शारदा') || 
+      lowerQ.includes('पवन') || 
+      lowerQ.includes('खेसारी') || 
+      lowerQ.includes('मैथिली') || 
+      lowerQ.includes('गीत') || 
+      lowerQ.includes('भजन') || 
+      lowerQ.includes('पूजा') || 
+      lowerQ.includes('अर्घ्य') || 
+      lowerQ.includes('सूरज');
 
-    const fallbackResults = matched.length > 0 ? matched : FALLBACK_CHHATH_SONGS;
+    let fallbackResults = [];
+    if (isChhathIntent) {
+      const matched = FALLBACK_CHHATH_SONGS.filter((s) => {
+        return (
+          s.title.toLowerCase().includes(lowerQ) ||
+          s.channelTitle.toLowerCase().includes(lowerQ) ||
+          (s.description && s.description.toLowerCase().includes(lowerQ))
+        );
+      });
+      fallbackResults = matched.length > 0 ? matched : (!q ? FALLBACK_CHHATH_SONGS : []);
+    }
+
     res.setHeader('Content-Type', 'application/json');
     res.statusCode = 200;
     res.end(
@@ -272,9 +292,10 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.end(
       JSON.stringify({
-        results: FALLBACK_CHHATH_SONGS,
-        items: FALLBACK_CHHATH_SONGS,
+        results: [],
+        items: [],
         nextPageToken: null,
+        totalResults: 0,
         isLiveApi: false,
         error: err.message
       })
@@ -284,43 +305,51 @@ export default async function handler(req, res) {
 
 // Helper to extract videos from InnerTube item renderers
 function processInnerTubeItem(item, extractedItems, type) {
-  // 1. Regular video renderer
-  if (item.videoRenderer) {
-    const v = item.videoRenderer;
-    if (v.videoId) {
-      const title = v.title?.runs?.map(r => r.text).join('') || v.title?.simpleText || '';
-      const channel = v.ownerText?.runs?.[0]?.text || 'छठ भक्ति';
-      const duration = v.lengthText?.simpleText || '';
-      const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel') || (!duration && !v.lengthText);
+  // 1. Regular video renderer (videoRenderer / compactVideoRenderer)
+  const v = item.videoRenderer || item.compactVideoRenderer;
+  if (v && v.videoId) {
+    const title = v.title?.runs?.map(r => r.text).join('') || v.title?.simpleText || '';
+    const channel = v.ownerText?.runs?.[0]?.text || v.shortBylineText?.runs?.[0]?.text || 'YouTube Video';
+    const duration = v.lengthText?.simpleText || '';
+    const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel') || (!duration && !v.lengthText);
 
-      // If looking for songs (type === 'video'), STRICTLY EXCLUDE shorts/reels!
-      if (type === 'video') {
-        if (isShort) return;
-        // Require valid duration and non-empty title
-        if (!title.trim()) return;
-      }
+    // If looking for songs (type === 'video'), STRICTLY EXCLUDE shorts/reels!
+    if (type === 'video') {
+      if (isShort) return;
+      if (!title.trim()) return;
+    }
 
-      // If looking for shorts (type === 'shorts'), only include shorts
-      if (type === 'shorts' && !isShort) {
-        return;
-      }
+    // If looking for shorts (type === 'shorts'), only include shorts
+    if (type === 'shorts' && !isShort) {
+      return;
+    }
 
-      const thumb = `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`;
-      extractedItems.push({
-        youtubeId: v.videoId,
-        id: v.videoId,
-        title,
-        channelTitle: channel,
-        singer: channel,
-        duration: duration || '5:00',
-        thumbnailUrl: thumb,
-        thumbnail: thumb,
-        description: v.detailedMetadataSnippets?.[0]?.snippetText?.runs?.map(r => r.text).join('') || `${title} - ${channel}`
-      });
+    const thumb = `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`;
+    extractedItems.push({
+      youtubeId: v.videoId,
+      id: v.videoId,
+      title,
+      channelTitle: channel,
+      singer: channel,
+      duration: duration || '5:00',
+      thumbnailUrl: thumb,
+      thumbnail: thumb,
+      description: v.detailedMetadataSnippets?.[0]?.snippetText?.runs?.map(r => r.text).join('') || `${title} - ${channel}`
+    });
+    return;
+  }
+
+  // 2. Shelf renderer (e.g. grouped video sections, related shelves)
+  if (item.shelfRenderer?.content) {
+    const shelfItems = item.shelfRenderer.content.verticalListRenderer?.items ||
+                       item.shelfRenderer.content.expandedShelfContentsRenderer?.items ||
+                       [];
+    for (const sub of shelfItems) {
+      processInnerTubeItem(sub, extractedItems, type);
     }
   }
 
-  // 2. Shorts shelf (gridShelfViewModel) for type === 'shorts'
+  // 3. Shorts shelf (gridShelfViewModel) for type === 'shorts'
   if (type === 'shorts' && item.gridShelfViewModel?.contents) {
     for (const sub of item.gridShelfViewModel.contents) {
       const sl = sub.shortsLockupViewModel;
