@@ -121,7 +121,9 @@ export default async function handler(req, res) {
       if (pageToken) {
         bodyPayload.continuation = pageToken;
       } else {
-        bodyPayload.query = q;
+        bodyPayload.query = (type === 'shorts' && !q.toLowerCase().includes('short') && !q.toLowerCase().includes('reel'))
+          ? `${q} #shorts`
+          : q;
         if (type === 'video') {
           // Strictly filter for Video type in YouTube to exclude channel cards and get full video results
           bodyPayload.params = 'EgIQAQ%3D%3D';
@@ -349,21 +351,63 @@ function processInnerTubeItem(item, extractedItems, type) {
     }
   }
 
+  // 2b. Modern YouTube Shorts reelShelfRenderer
+  if (type === 'shorts' && item.reelShelfRenderer?.items) {
+    for (const sub of item.reelShelfRenderer.items) {
+      const r = sub.reelItemRenderer;
+      if (r && r.videoId) {
+        const title = r.headline?.simpleText || r.headline?.runs?.map(x => x.text).join('') || 'Trending Reel';
+        const channel = r.ownerText?.runs?.[0]?.text || 'YouTube Creator';
+        const thumb = `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`;
+        extractedItems.push({
+          youtubeId: r.videoId,
+          id: r.videoId,
+          title,
+          channelTitle: channel,
+          singer: channel,
+          duration: '0:45',
+          thumbnailUrl: thumb,
+          thumbnail: thumb,
+          description: title
+        });
+      }
+    }
+  }
+
   // 3. Shorts shelf (gridShelfViewModel) for type === 'shorts'
   if (type === 'shorts' && item.gridShelfViewModel?.contents) {
     for (const sub of item.gridShelfViewModel.contents) {
       const sl = sub.shortsLockupViewModel;
       if (sl) {
-        const vId = sl.entityId?.replace('shorts-shelf-item-', '') || sl.onTap?.innertubeCommand?.reelWatchEndpoint?.videoId;
-        const title = sl.overlayMetadata?.primaryText?.content || sl.accessibilityText?.split(',')?.[0] || 'छठ महापर्व रील';
+        let vId = sl.onTap?.innertubeCommand?.reelWatchEndpoint?.videoId;
+        if (!vId && sl.entityId) {
+          vId = sl.entityId.replace('shorts-shelf-item-', '');
+        }
+        if (!vId && sl.inlinePopStateEntityKey) {
+          const match = sl.inlinePopStateEntityKey.match(/shorts-shelf-item-([A-Za-z0-9_-]+)/);
+          if (match) vId = match[1];
+        }
+        const title = sl.overlayMetadata?.primaryText?.content || sl.accessibilityText?.split(',')?.[0] || 'Trending Reel';
+        let channel = 'YouTube Creator';
+        if (sl.accessibilityText) {
+          const atMatch = sl.accessibilityText.match(/@([a-zA-Z0-9_.-]+)/);
+          if (atMatch) {
+            channel = `@${atMatch[1]}`;
+          } else {
+            const parts = sl.accessibilityText.split(',');
+            if (parts.length > 1 && !parts[1].includes('व्यू')) {
+              channel = parts[1].trim();
+            }
+          }
+        }
         if (vId) {
           const thumb = `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`;
           extractedItems.push({
             youtubeId: vId,
             id: vId,
             title,
-            channelTitle: 'छठ रील',
-            singer: 'छठ रील',
+            channelTitle: channel,
+            singer: channel,
             duration: '0:45',
             thumbnailUrl: thumb,
             thumbnail: thumb,

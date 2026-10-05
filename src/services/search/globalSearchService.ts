@@ -29,30 +29,7 @@ export class GlobalSearchService {
     const analysis = QueryEngine.analyze(rawQuery, options.userLanguage);
     const { cleanQuery, intent, isUsernameQuery, targetUsername, isChhathRelevant, expandedQueries } = analysis;
 
-    // 1. If query is not Chhath-relevant (e.g. "football", "iphone"), do NOT force external Chhath search (#12)
-    if (!isChhathRelevant) {
-      return {
-        query: cleanQuery,
-        analysis,
-        isChhathRelevant: false,
-        message: 'No relevant Chhath content found.',
-        results: [],
-        categorized: {
-          top: [],
-          people: [],
-          reels: [],
-          songs: [],
-          videos: [],
-          hashtags: [],
-          articles: []
-        },
-        availableTabs: [],
-        exactUser: null,
-        exactUserReels: []
-      };
-    }
-
-    // 2. Perform Internal Search first across all database collections (#2)
+    // 1. Perform Internal Search first across all database collections
     let internalOutcome = InternalSearchProvider.search(analysis, options.userCity, options.userLanguage);
 
     // 3. Exact Username Handling (#3 & #4)
@@ -78,12 +55,11 @@ export class GlobalSearchService {
     let nextPageToken: string | undefined = undefined;
 
     const shouldSearchExternal = 
-      isChhathRelevant && 
       (!exactUser || intent === 'SONG' || intent === 'VIDEO' || intent === 'GENERAL' || internalOutcome.results.length < 4);
 
     if (shouldSearchExternal) {
       // Pick best expanded search query for YouTube (#8)
-      const externalSearchQuery = expandedQueries[0] || `${cleanQuery} Chhath Puja`;
+      const externalSearchQuery = isChhathRelevant ? (expandedQueries[0] || `${cleanQuery} Chhath Puja`) : cleanQuery;
 
       try {
         const fetchUrl = `/api/search?q=${encodeURIComponent(externalSearchQuery)}${

@@ -487,7 +487,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           {/* ------------------------------------------------------------- */}
           {/* NON-RELEVANT QUERY EXPERIENCE ("football" - Requirement #12) */}
           {/* ------------------------------------------------------------- */}
-          {!isLoading && searchResponse && !searchResponse.isChhathRelevant && (
+          {!isLoading && searchResponse && !searchResponse.isChhathRelevant && searchResponse.results.length === 0 && (
             <div className="space-y-6 text-center animate-fadeIn py-6">
               <div className="p-6 rounded-3xl bg-stone-900/60 border border-stone-800 space-y-3">
                 <span className="text-4xl block">🪔</span>
