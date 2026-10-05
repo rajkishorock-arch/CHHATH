@@ -24,8 +24,6 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const initialActiveRef = useRef(isActive);
-  const initialMutedRef = useRef(isMuted);
   const durationRef = useRef<number>(0);
 
   // Send direct command to YouTube HTML5 Player via postMessage
@@ -134,8 +132,8 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
             const pct = Math.min(100, Math.max(0, (currentTime / durationRef.current) * 100));
             onProgress?.(pct, currentTime, durationRef.current);
 
-            // Pre-emptively trigger instant loop before browser video frame freezes
-            if (currentTime >= durationRef.current - 0.2) {
+            // Seamless loop right at completion without cutting video short
+            if (durationRef.current > 2 && currentTime >= durationRef.current - 0.08) {
               sendYtCommand('seekTo', [0, true]);
               sendYtCommand('playVideo', []);
               onProgress?.(0, 0, durationRef.current);
@@ -201,22 +199,24 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
       sendYtCommand('pauseVideo', []);
       sendYtCommand('mute', []);
     }
+
+    // Call onReady fallback after brief delay to guarantee poster unveiling
+    setTimeout(() => {
+      onReady?.();
+    }, 600);
   };
 
-  // High-speed embed URL with controls=0, modestbranding=1, enablejsapi=1
-  // Notice: loop=1&playlist=${videoId} is intentionally NOT used because it triggers YouTube's
-  // playlist engine which cuts the video 2-3s short and forces a full network reload (2-3s spinner).
-  // Instant loop is now handled via postMessage seekTo(0, true) + playVideo() with 0ms delay!
+  // High-speed embed URL with autoplay=1, controls=0, modestbranding=1, enablejsapi=1
   const embedUrl = useMemo(() => {
-    const initialAutoplay = initialActiveRef.current ? 1 : 0;
-    const initialMute = initialActiveRef.current ? (initialMutedRef.current ? 1 : 0) : 1;
-    return `https://www.youtube.com/embed/${videoId}?autoplay=${initialAutoplay}&mute=${initialMute}&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
-  }, [videoId]);
+    const initialMute = isMuted ? 1 : 0;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMute}&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
+  }, [videoId, isMuted]);
 
   if (hasError) {
     return (
-      <div className="relative w-full h-full bg-stone-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin" />
+      <div className="relative w-full h-full bg-stone-950 flex flex-col items-center justify-center gap-2 text-center p-4">
+        <p className="text-amber-400 font-mukta text-sm">यह रील अनुपलब्ध है</p>
+        <span className="text-xs text-stone-500">अगली रील लोड हो रही है...</span>
       </div>
     );
   }

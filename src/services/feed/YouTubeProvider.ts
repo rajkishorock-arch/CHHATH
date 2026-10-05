@@ -331,6 +331,17 @@ export const YouTubeProvider = {
       fetchAttempts++;
     }
 
+    // Guaranteed Backfill: If live search returned fewer items, fill remaining quota from candidate pool
+    if (items.length < count) {
+      const pool = this.getCandidatePool(options);
+      for (const candidate of pool) {
+        if (items.length >= count) break;
+        if (!items.some(it => it.id === candidate.id || (it.youtubeVideoId && it.youtubeVideoId === candidate.youtubeVideoId))) {
+          items.push(candidate);
+        }
+      }
+    }
+
     // Always maintain hasMore = true so reel scrolling NEVER ends!
     return {
       items,

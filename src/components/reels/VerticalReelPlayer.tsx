@@ -224,7 +224,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         {/* Video / Media Viewport (YouTube Iframe, Instagram Iframe Fallback, or Native Video) */}
         {reel.youtubeVideoId ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {(isActive || isNearby) && (
+            {isActive && (
               <YouTubeReelPlayer
                 key={reel.youtubeVideoId}
                 videoId={reel.youtubeVideoId}
@@ -234,7 +234,10 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 isMuted={isMuted}
                 onReady={() => setIsPlayerReady(true)}
                 onProgress={(pct) => setProgress(pct)}
-                onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
+                onPlaybackError={(vId, code) => {
+                  onPlaybackError?.(reel.id, vId, code);
+                  setTimeout(() => onNext?.(), 600);
+                }}
               />
             )}
 
@@ -247,7 +250,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
           </div>
         ) : (reel.sourceType === 'INSTAGRAM' && (!reel.videoUrl || reel.videoUrl.includes('instagram.com/reel') || reel.videoUrl.includes('instagram.com/p'))) ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
-            {(isActive || isNearby) && (
+            {isActive && (
               <InstagramReelPlayer
                 key={reel.instagramShortcode || reel.id}
                 shortcode={reel.instagramShortcode || reel.id}
@@ -256,7 +259,10 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 isActive={isActive}
                 isMuted={isMuted}
                 onReady={() => setIsPlayerReady(true)}
-                onPlaybackError={(shortcode, code) => onPlaybackError?.(reel.id, shortcode, code)}
+                onPlaybackError={(shortcode, code) => {
+                  onPlaybackError?.(reel.id, shortcode, code);
+                  setTimeout(() => onNext?.(), 600);
+                }}
               />
             )}
             <img 

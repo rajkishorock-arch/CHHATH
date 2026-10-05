@@ -259,7 +259,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => {
       isMounted = false;
     };
-  }, [feedType, selectedCategory, selectedHashtag, selectedUsername, currentUser, suppressionTick]);
+  }, [feedType, selectedCategory, selectedHashtag, selectedUsername, currentUser]);
 
   // Load next batch via cursor pagination with strict duplicate protection
   const loadMoreReels = useCallback(() => {
@@ -324,7 +324,7 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       channelTitle,
       timestamp: Date.now()
     });
-    setSuppressionTick(prev => prev + 1);
+    setFeedItems(prev => prev.filter(r => r.id !== reelId));
     setFeedbackToast('यह वीडियो हटा दिया गया है। आपकी पसंद के अनुसार रील्स दिखाई जाएंगी।');
     setTimeout(() => {
       setFeedbackToast(null);
