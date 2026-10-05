@@ -303,6 +303,7 @@ export interface Song {
   isPlaylist?: boolean;
   trackCount?: number;
   previewAudioUrl?: string;
+  spotifyUrl?: string;
 }
 
 export interface Ghat {

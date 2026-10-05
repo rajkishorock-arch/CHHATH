@@ -113,25 +113,34 @@ public class MainActivity extends BridgeActivity {
                                     return;
                                 }
 
-                                // User is on Home page: double-tap to exit
+                                // User is on Home page: double-tap back handling
                                 long now = System.currentTimeMillis();
                                 if (now - lastBackPressTime < 2000) {
-                                    if (!sIsPlayingState) {
+                                    if (sIsPlayingState) {
+                                        // If song is playing, minimize to background instead of destroying webview
+                                        moveTaskToBack(true);
+                                        Toast.makeText(MainActivity.this, "छठ भजन बैकग्राउंड में बज रहा है", Toast.LENGTH_SHORT).show();
+                                    } else {
                                         hideMediaNotification();
+                                        finish();
                                     }
-                                    finish();
                                 } else {
                                     lastBackPressTime = now;
-                                    Toast.makeText(MainActivity.this, "बाहर निकलने के लिए दोबारा बैक दबाएं", Toast.LENGTH_SHORT).show();
+                                    String tip = sIsPlayingState
+                                        ? "बैकग्राउंड में चलाने के लिए दोबारा बैक दबाएं"
+                                        : "बाहर निकलने के लिए दोबारा बैक दबाएं";
+                                    Toast.makeText(MainActivity.this, tip, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
                     );
                 } else {
-                    if (!sIsPlayingState) {
+                    if (sIsPlayingState) {
+                        moveTaskToBack(true);
+                    } else {
                         hideMediaNotification();
+                        finish();
                     }
-                    finish();
                 }
             }
         });
