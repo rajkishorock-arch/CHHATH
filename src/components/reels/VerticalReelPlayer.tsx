@@ -84,6 +84,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   useEffect(() => {
     if (!isActive) {
       setIsPlayerReady(false);
+      setProgress(0);
     } else {
       // 2.5s fallback to fade out poster if event not received
       const t = setTimeout(() => setIsPlayerReady(true), 2500);
@@ -232,6 +233,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 isPlaying={isPlaying}
                 isMuted={isMuted}
                 onReady={() => setIsPlayerReady(true)}
+                onProgress={(pct) => setProgress(pct)}
                 onPlaybackError={(vId, code) => onPlaybackError?.(reel.id, vId, code)}
               />
             )}
