@@ -357,8 +357,7 @@ export const ReelsPlatformModal: React.FC = () => {
                     scrollSnapAlign: 'start', 
                     scrollSnapStop: 'always',
                     height: '100%',
-                    contain: 'strict',
-                    contentVisibility: Math.abs(index - activeReelIndex) <= 2 ? 'visible' : 'auto'
+                    width: '100%'
                   }}
                 >
                   <VerticalReelPlayer

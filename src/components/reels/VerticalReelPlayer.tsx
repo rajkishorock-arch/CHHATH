@@ -80,6 +80,14 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
+  // Ensure isPlayerReady transitions swiftly when active
+  useEffect(() => {
+    if (isActive) {
+      const t = setTimeout(() => setIsPlayerReady(true), 300);
+      return () => clearTimeout(t);
+    }
+  }, [isActive]);
+
   const liked = isLiked(reel.id);
   const saved = isSaved(reel.id);
   const following = isFollowing(reel.creatorId);

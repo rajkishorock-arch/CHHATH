@@ -24,17 +24,13 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // Record whether player was mounted for active reel or preloading
-  const wasActiveOnMount = useRef(isActive);
-
-  // Send direct command to YouTube HTML5 Player via postMessage
+  // Send direct command to YouTube HTML5 Player via postMessage (dual-format for universal WebView compatibility)
   const sendYtCommand = useCallback((func: string, args: any[] = []) => {
     try {
-      if (iframeRef.current && iframeRef.current.contentWindow) {
-        iframeRef.current.contentWindow.postMessage(
-          JSON.stringify({ event: 'command', func, args }),
-          '*'
-        );
+      const win = iframeRef.current?.contentWindow;
+      if (win) {
+        win.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
+        win.postMessage(JSON.stringify({ event: 'command', func, args, id: 1 }), '*');
       }
     } catch {}
   }, []);
@@ -43,11 +39,9 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   useEffect(() => {
     return () => {
       try {
-        if (iframeRef.current && iframeRef.current.contentWindow) {
-          iframeRef.current.contentWindow.postMessage(
-            JSON.stringify({ event: 'command', func: 'stopVideo', args: [] }),
-            '*'
-          );
+        const win = iframeRef.current?.contentWindow;
+        if (win) {
+          win.postMessage(JSON.stringify({ event: 'command', func: 'stopVideo', args: [] }), '*');
         }
       } catch {}
     };
@@ -55,20 +49,26 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
 
   // Sync Play / Pause and Mute state immediately when active status changes
   useEffect(() => {
-    if (!isLoaded) return;
-    if (isActive && isPlaying) {
-      sendYtCommand('playVideo');
-      if (!isMuted) {
-        sendYtCommand('unMute');
-        sendYtCommand('setVolume', [100]);
+    if (isActive) {
+      if (isPlaying) {
+        // Instant start: rewind to 0 of the pre-buffered stream and unmute
+        sendYtCommand('seekTo', [0, true]);
+        sendYtCommand('playVideo');
+        if (!isMuted) {
+          sendYtCommand('unMute');
+          sendYtCommand('setVolume', [100]);
+        } else {
+          sendYtCommand('mute');
+        }
       } else {
-        sendYtCommand('mute');
+        sendYtCommand('pauseVideo');
       }
     } else {
+      // Offscreen: immediately pause and mute so zero audio/bandwidth leaks
       sendYtCommand('pauseVideo');
       sendYtCommand('mute');
     }
-  }, [isActive, isPlaying, isMuted, isLoaded, sendYtCommand]);
+  }, [isActive, isPlaying, isMuted, sendYtCommand]);
 
   // Listen for YouTube postMessage events (e.g. onError)
   useEffect(() => {
@@ -97,31 +97,35 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
       );
     } catch {}
 
-    if (isActive && isPlaying) {
-      sendYtCommand('playVideo');
-      if (!isMuted) {
-        setTimeout(() => {
-          sendYtCommand('unMute');
-          sendYtCommand('setVolume', [100]);
-        }, 150);
+    if (isActive) {
+      if (isPlaying) {
+        sendYtCommand('seekTo', [0, true]);
+        sendYtCommand('playVideo');
+        if (!isMuted) {
+          setTimeout(() => {
+            sendYtCommand('unMute');
+            sendYtCommand('setVolume', [100]);
+          }, 100);
+        }
       }
     } else {
-      sendYtCommand('pauseVideo');
-      sendYtCommand('mute');
+      // Background pre-warming: let video buffer initial DASH chunks for 1.2s, then hold at 0:00
+      setTimeout(() => {
+        if (!isActive) {
+          sendYtCommand('pauseVideo');
+          sendYtCommand('seekTo', [0, true]);
+          sendYtCommand('mute');
+        }
+      }, 1200);
     }
     onReady?.();
   };
 
-  // High-speed embed URL with stable query parameters:
-  // - If active at mount time, starts with autoplay=1 for immediate start
-  // - If preloaded in background, starts with autoplay=0&mute=1 so it prepares quietly
-  // - embedUrl remains strictly stable across active state changes so the iframe never reloads
+  // High-speed embed URL: ALWAYS starts with autoplay=1&mute=1 so YouTube eagerly buffers
+  // video stream chunks immediately without waiting for user action. No origin restriction to
+  // ensure postMessage works unconditionally in Android Capacitor WebViews.
   const embedUrl = useMemo(() => {
-    const ap = wasActiveOnMount.current ? 1 : 0;
-    const originParam = typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http')
-      ? `&origin=${encodeURIComponent(window.location.origin)}`
-      : '';
-    return `https://www.youtube.com/embed/${videoId}?autoplay=${ap}&mute=1&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0${originParam}`;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&playlist=${videoId}&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
   }, [videoId]);
 
   if (hasError) {
