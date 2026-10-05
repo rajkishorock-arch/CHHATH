@@ -174,10 +174,6 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
         onLoad={handleIframeLoad}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         className="w-full h-full border-0 pointer-events-none select-none"
-        style={{
-          transform: 'scale(1.35)',
-          transformOrigin: 'center center'
-        }}
       />
     </div>
   );

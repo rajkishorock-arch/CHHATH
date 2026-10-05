@@ -58,7 +58,7 @@ export const InstagramReelPlayer: React.FC<InstagramReelPlayerProps> = ({
         key={shortcode}
         src={embedSrc}
         title={title || 'Instagram Chhath Reel'}
-        className="w-full h-full border-0 object-cover scale-[1.02] pointer-events-auto"
+        className="w-full h-full border-0 pointer-events-auto"
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
         allowFullScreen
         loading="lazy"

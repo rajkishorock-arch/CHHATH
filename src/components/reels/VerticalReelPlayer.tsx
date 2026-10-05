@@ -208,7 +208,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
 
       {/* Main Centered Phone Player (Desktop & Mobile Full-bleed) */}
       <div 
-        className="relative w-full h-full sm:max-w-[430px] sm:h-[calc(100%-16px)] sm:max-h-[840px] bg-black sm:rounded-3xl overflow-hidden sm:border border-amber-500/30 sm:shadow-2xl shadow-black/80 flex flex-col justify-between select-none"
+        className="relative w-full h-full sm:aspect-[9/16] sm:w-auto sm:max-w-[480px] sm:h-[calc(100vh-24px)] sm:max-h-[860px] bg-black sm:rounded-3xl overflow-hidden sm:border border-amber-500/30 sm:shadow-2xl shadow-black/80 flex flex-col justify-between select-none"
         onDoubleClick={handleDoubleTap}
       >
         {/* Transparent Native Touch & Gesture Pass-Through Overlay for 60fps Swiping & Play/Pause */}
@@ -242,10 +242,6 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               loading={isNearby ? 'eager' : 'lazy'}
               className={`w-full h-full object-cover absolute inset-0 z-0 pointer-events-none transition-opacity duration-300 ${isActive && isPlayerReady ? 'opacity-0' : 'opacity-100'}`} 
             />
-
-            {/* Top & Bottom Readability Gradients */}
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
-            <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none z-10" />
           </div>
         ) : (reel.sourceType === 'INSTAGRAM' && (!reel.videoUrl || reel.videoUrl.includes('instagram.com/reel') || reel.videoUrl.includes('instagram.com/p'))) ? (
           <div className="absolute inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
@@ -267,8 +263,6 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               loading={isNearby ? 'eager' : 'lazy'}
               className={`w-full h-full object-cover absolute inset-0 z-0 pointer-events-none transition-opacity duration-300 ${isActive && isPlayerReady ? 'opacity-0' : 'opacity-100'}`} 
             />
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
-            <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none z-10" />
           </div>
         ) : (
           <div className="absolute inset-0 z-0 bg-black cursor-pointer" onClick={handleVideoClick}>
@@ -292,10 +286,6 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               }}
               className="w-full h-full object-cover"
             />
-
-            {/* Top & Bottom Shadow Gradients for UI readability */}
-            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none" />
 
             {/* Buffer / Loading Spinner */}
             {isLoading && (
@@ -530,24 +520,24 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               onClick={() => onOpenProfile(reel.creatorUsername)}
               className="flex items-center gap-1.5 hover:underline text-left group flex-wrap"
             >
-              <span className="font-bold text-amber-300 text-xs sm:text-sm drop-shadow">
+              <span className="font-bold text-amber-300 text-xs sm:text-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                 {reel.creatorName}
               </span>
-              <span className="text-[11px] text-stone-300 font-mono opacity-80">
+              <span className="text-[11px] text-stone-200 font-mono drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
                 {reel.creatorUsername}
               </span>
             </button>
           </div>
 
           {/* Clean Caption (1-2 lines max) */}
-          <p className="font-mukta text-xs sm:text-[13px] text-white line-clamp-2 leading-snug drop-shadow-md">
+          <p className="font-mukta text-xs sm:text-[13px] text-white line-clamp-2 leading-snug drop-shadow-[0_1px_4px_rgba(0,0,0,0.98)] font-medium">
             {reel.title || reel.description}
           </p>
 
           {/* Audio Ticker (Instagram Style) */}
           <div 
             onClick={() => reel.audioId && onOpenAudio(reel.audioId)}
-            className="flex items-center gap-1.5 text-[11px] text-amber-300/90 font-mukta cursor-pointer hover:underline pt-0.5"
+            className="flex items-center gap-1.5 text-[11px] text-amber-300/95 font-mukta cursor-pointer hover:underline pt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
           >
             <Music className="w-3 h-3 text-amber-400 shrink-0 animate-pulse" />
             <span className="truncate max-w-[200px] sm:max-w-[280px]">

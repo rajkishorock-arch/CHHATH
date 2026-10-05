@@ -208,7 +208,7 @@ export const ReelsPlatformModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[1000] bg-black text-stone-100 overflow-hidden select-none animate-fadeIn">
       {/* 1. TOP FLOATING MINIMAL HEADER (Desktop only - completely hidden on mobile per user request) */}
-      <header className="hidden sm:flex absolute top-0 inset-x-0 z-30 px-3 sm:px-6 py-3 bg-gradient-to-b from-black/85 via-black/40 to-transparent items-center justify-between pointer-events-none">
+      <header className="hidden sm:flex absolute top-0 inset-x-0 z-30 px-3 sm:px-6 py-3 items-center justify-between pointer-events-none">
         
         {/* Left: Brand Logo */}
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -380,7 +380,7 @@ export const ReelsPlatformModal: React.FC = () => {
       </main>
 
       {/* 3. MOBILE FLOATING BOTTOM NAVIGATION BAR */}
-      <footer className="lg:hidden absolute bottom-0 inset-x-0 z-30 px-4 py-2 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex items-center justify-around pointer-events-auto border-t border-white/5">
+      <footer className="lg:hidden absolute bottom-0 inset-x-0 z-30 px-4 py-2 bg-black/60 backdrop-blur-md flex items-center justify-around pointer-events-auto border-t border-white/10">
         <button
           onClick={closeReelsPlatform}
           className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-white transition-colors"
