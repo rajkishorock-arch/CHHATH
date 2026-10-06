@@ -236,6 +236,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // YouTube Player Ref & Pending Song Ref
   const ytPlayerRef = useRef<any>(null);
   const pendingSongRef = useRef<Song | null>(null);
+  const currentlyLoadedYtIdRef = useRef<string | null>(null);
   const [ytPlayerReady, setYtPlayerReady] = useState<boolean>(false);
   const timeIntervalRef = useRef<any>(null);
   const userRequestedPauseRef = useRef<boolean>(false);
@@ -297,10 +298,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (songs.length > 0 && queue.length === 0) {
       setQueueState(songs);
       queueRef.current = songs;
-      setCurrentSong(songs[0]);
-      currentSongRef.current = songs[0];
-      setCurrentIndex(0);
-      currentIndexRef.current = 0;
+      // Do not auto-set currentSong to songs[0] so no built-in song plays unexpectedly
     }
   }, [songs]);
 
@@ -321,7 +319,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     console.log('[YouTubePlayer] Initializing global YT.Player on container');
 
     try {
-      const initialVideoId = pendingSongRef.current?.youtubeId || currentSongRef.current?.youtubeId || 'BsAFCc901MM';
+      const initialVideoId = pendingSongRef.current?.youtubeId || currentSongRef.current?.youtubeId || null;
+      if (!initialVideoId) {
+        console.log('[YouTubePlayer] No song to load yet, deferring player initialization');
+        return;
+      }
+      currentlyLoadedYtIdRef.current = initialVideoId;
       const shouldAutoPlay = !!pendingSongRef.current;
 
       ytPlayerRef.current = new (window as any).YT.Player('global-yt-player-container', {
@@ -351,6 +354,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               const toPlay = pendingSongRef.current.youtubeId;
               const startSec = (pendingSongRef.current as any)?._startSeconds || 0;
               pendingSongRef.current = null;
+              currentlyLoadedYtIdRef.current = toPlay;
               try {
                 if (startSec > 0) {
                   event.target.loadVideoById({ videoId: toPlay, startSeconds: startSec });
@@ -517,14 +521,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const prevSong = currentSongRef.current;
 
-    // Fast-path: If the SAME song is already active in player, switch mode seamlessly with ZERO reloading!
+    // Fast-path: If the SAME song is already active in player AND actually loaded, switch mode seamlessly with ZERO reloading!
     const isSameSong = Boolean(
       prevSong &&
       ((prevSong.youtubeId && song.youtubeId && prevSong.youtubeId === song.youtubeId) ||
        (prevSong.id && song.id && prevSong.id === song.id))
     );
 
-    if (isSameSong && ytPlayerRef.current) {
+    const isLoadedInYtPlayer = Boolean(
+      ytPlayerRef.current &&
+      currentlyLoadedYtIdRef.current &&
+      currentlyLoadedYtIdRef.current === song.youtubeId
+    );
+
+    if (isSameSong && isLoadedInYtPlayer) {
       console.log('[MusicPlayer] Same song mode switch/resume - continuous stream with ZERO delay!');
       userRequestedPauseRef.current = false;
       hasStartedPlaybackRef.current = true;
@@ -598,6 +608,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (ytPlayerRef.current && ytPlayerRef.current.loadVideoById) {
       try {
         console.log('[YouTubePlayer] Executing loadVideoById:', song.youtubeId, 'startSeconds:', startSeconds);
+        currentlyLoadedYtIdRef.current = song.youtubeId;
         // Explicitly unMute and set volume before and with load
         if (ytPlayerRef.current.unMute) {
           ytPlayerRef.current.unMute();
@@ -659,10 +670,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [playSong]);
 
   const togglePlay = () => {
-    if (!currentSong && queueRef.current.length > 0) {
-      playSong(queueRef.current[0]);
-      return;
-    }
+    if (!currentSong) return;
 
     if (isPlaying) {
       pauseSong();
@@ -670,7 +678,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       userRequestedPauseRef.current = false;
       setIsPlaying(true);
       startAudioKeepalive();
-      if (ytPlayerRef.current && ytPlayerRef.current.playVideo) {
+      if (
+        ytPlayerRef.current && 
+        currentlyLoadedYtIdRef.current === currentSong.youtubeId && 
+        ytPlayerRef.current.playVideo
+      ) {
         try {
           if (ytPlayerRef.current.unMute) ytPlayerRef.current.unMute();
           if (ytPlayerRef.current.setVolume) ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
@@ -678,7 +690,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch (e) {
           console.warn('YouTube playVideo error:', e);
         }
-      } else if (currentSong) {
+      } else {
         playSong(currentSong);
       }
     }
@@ -689,35 +701,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsPlaying(false);
       return;
     }
-
-    // 1. Pause background global YouTube player to prevent duplicate audio echo
-    try {
-      if (ytPlayerRef.current?.pauseVideo) {
-        ytPlayerRef.current.pauseVideo();
-      }
-      bgAudioRef.current?.pause();
-    } catch {}
-
-    // 2. Set active song & playing state in AudioContext
-    currentSongRef.current = song;
-    setCurrentSong(song);
-    hasStartedPlaybackRef.current = true;
-    userRequestedPauseRef.current = false;
-    setIsPlaying(true);
-    setShowVideo(false);
-    if (typeof startSeconds === 'number' && startSeconds > 0) {
-      setCurrentTime(startSeconds);
-    }
-
-    // 3. Ensure song is in queue
-    setQueueState(prev => {
-      const exists = prev.some(s => (s.youtubeId && song.youtubeId && s.youtubeId === song.youtubeId) || s.id === song.id);
-      if (!exists) return [...prev, song];
-      return prev;
-    });
-
-    // 4. Track recently played
-    setRecentlyPlayed(prev => [song.id, ...prev.filter(id => id !== song.id)].slice(0, 20));
+    playSong(song, undefined, startSeconds);
   }, []);
 
   const pauseSong = () => {
