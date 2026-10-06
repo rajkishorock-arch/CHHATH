@@ -150,12 +150,33 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  const showVideoControlsTemporarily = useCallback(() => {
+  const showVideoControlsTemporarily = useCallback((durationMs = 2500) => {
     setVideoOverlayVisible(true);
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
     overlayTimerRef.current = setTimeout(() => {
       setVideoOverlayVisible(false);
-    }, 4000);
+    }, durationMs);
+  }, []);
+
+  const handleVideoMouseMove = useCallback(() => {
+    setVideoOverlayVisible(true);
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    overlayTimerRef.current = setTimeout(() => {
+      setVideoOverlayVisible(false);
+    }, 2500);
+  }, []);
+
+  const handleVideoMouseEnter = useCallback(() => {
+    setVideoOverlayVisible(true);
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    overlayTimerRef.current = setTimeout(() => {
+      setVideoOverlayVisible(false);
+    }, 2500);
+  }, []);
+
+  const handleVideoMouseLeave = useCallback(() => {
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    setVideoOverlayVisible(false);
   }, []);
 
   const toggleNativeFullscreen = useCallback(() => {
@@ -208,35 +229,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, 700);
   }, [currentTime, duration, showVideoControlsTemporarily]);
 
-  // Touch and tap handler for the video backdrop (captures all taps on mobile and desktop)
-  const handleVideoBackdropTap = useCallback((clientX: number, targetRect: DOMRect) => {
-    const now = Date.now();
-    const timeDiff = now - lastTapRef.current.time;
-    const xRatio = (clientX - targetRect.left) / targetRect.width;
-
-    if (timeDiff < 320) {
-      // Double tap detected!
-      if (xRatio < 0.38) {
-        handleSeekRelative(-10);
-      } else if (xRatio > 0.62) {
-        handleSeekRelative(10);
-      } else {
-        togglePlay();
-        showVideoControlsTemporarily();
-      }
-      lastTapRef.current = { time: 0, x: 0 };
-    } else {
-      // Single tap -> toggle overlay visibility
-      lastTapRef.current = { time: now, x: clientX };
-      setVideoOverlayVisible(prev => {
-        const next = !prev;
-        if (next) {
-          showVideoControlsTemporarily();
-        }
-        return next;
-      });
-    }
-  }, [handleSeekRelative, showVideoControlsTemporarily]);
 
   // YouTube Player Ref & Pending Song Ref
   const ytPlayerRef = useRef<any>(null);
@@ -662,8 +654,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsVideoBuffering(true);
     setShowVideo(true);
     setVideoExpanded(true);
+    showVideoControlsTemporarily(2500);
     playSong(song, contextQueue, startSeconds);
-  }, [playSong]);
+  }, [playSong, showVideoControlsTemporarily]);
 
   const togglePlay = () => {
     if (!currentSong) return;
@@ -691,6 +684,38 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
   };
+
+  // Touch and tap handler for the video backdrop (captures all taps on mobile and desktop)
+  const handleVideoBackdropTap = useCallback((clientX: number, targetRect: DOMRect) => {
+    const now = Date.now();
+    const timeDiff = now - lastTapRef.current.time;
+    const xRatio = (clientX - targetRect.left) / targetRect.width;
+
+    if (timeDiff < 320) {
+      // Double tap detected!
+      if (xRatio < 0.38) {
+        handleSeekRelative(-10);
+      } else if (xRatio > 0.62) {
+        handleSeekRelative(10);
+      } else {
+        togglePlay();
+        showVideoControlsTemporarily(2500);
+      }
+      lastTapRef.current = { time: 0, x: 0 };
+    } else {
+      // Single tap on mobile/touch screen -> toggle overlay visibility
+      lastTapRef.current = { time: now, x: clientX };
+      setVideoOverlayVisible(prev => {
+        const next = !prev;
+        if (next) {
+          showVideoControlsTemporarily(3000);
+        } else {
+          if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+        }
+        return next;
+      });
+    }
+  }, [handleSeekRelative, togglePlay, showVideoControlsTemporarily]);
 
   const syncInlineVideoSong = useCallback((song: Song | null) => {
     if (!song) {
@@ -1164,6 +1189,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       >
         <div
           ref={theaterVideoBoxRef}
+          onMouseEnter={handleVideoMouseEnter}
+          onMouseMove={handleVideoMouseMove}
+          onMouseLeave={handleVideoMouseLeave}
           style={
             showVideo && videoExpanded && isFullscreenMode && isPortrait
               ? {
@@ -1244,10 +1272,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           {/* THEATER OVERLAY CONTROLS (Professional YouTube Mobile & Desktop Controls) */}
           {showVideo && videoExpanded && (
             <div
-              className={`absolute inset-0 z-20 transition-opacity duration-300 flex flex-col justify-between p-3 sm:p-5 pointer-events-none select-none ${
-                videoOverlayVisible || !isPlaying
-                  ? 'opacity-100 bg-gradient-to-t from-black/90 via-black/25 to-black/80'
-                  : 'opacity-0'
+              onMouseMove={handleVideoMouseMove}
+              className={`absolute inset-0 z-20 transition-opacity duration-300 flex flex-col justify-between p-3 sm:p-5 select-none ${
+                videoOverlayVisible
+                  ? 'opacity-100 bg-gradient-to-t from-black/90 via-black/25 to-black/80 pointer-events-auto'
+                  : 'opacity-0 pointer-events-none'
               }`}
             >
               {/* Top Row: Pop-up minimize, Song Title & Close */}

@@ -151,15 +151,6 @@ const YouTubeVideoCardComponent: React.FC<{
                 </div>
               )}
 
-              {/* Close Inline Video Button */}
-              <button
-                type="button"
-                onClick={handleStopInline}
-                className="absolute top-2 right-2 z-30 p-1.5 rounded-full bg-black/80 hover:bg-black text-white/90 hover:text-white shadow-lg border border-white/20 transition-all cursor-pointer"
-                title="वीडियो बंद करें"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
           ) : (
             <>
