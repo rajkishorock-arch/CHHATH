@@ -139,6 +139,20 @@ export const FeedService = {
       !r.id.startsWith('demo-')
     );
 
+    // Guaranteed non-empty fallback: Unconditionally backfill from verified seed catalog
+    if (batchItems.length === 0) {
+      const fallbackPool = [
+        ...ReelsStorage.getReels(),
+        ...ReelsStorage.getExternalCatalog()
+      ].filter(r => 
+        !r.videoUrl?.includes('/videos/sample') &&
+        !r.videoUrl?.includes('/videos/chhath_reel_') &&
+        !r.videoUrl?.includes('mixkit.co') &&
+        !r.id.startsWith('demo-')
+      );
+      batchItems = fallbackPool;
+    }
+
     // 4. Deduplication: Ensure each reel in this batch has a unique ID and unique video
     const seenIds = new Set<string>();
     const seenVideos = new Set<string>();

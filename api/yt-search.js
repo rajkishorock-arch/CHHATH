@@ -73,6 +73,58 @@ const FALLBACK_CHHATH_SONGS = [
   }
 ];
 
+const FALLBACK_CHHATH_SHORTS = [
+  {
+    youtubeId: "u0nOfHGb5FQ",
+    title: "दीनानाथ तोहार महिमा अपार 🌅 — पटना गंगा तट अलौकिक दृश्य #shorts #chhath",
+    channelTitle: "पटना छठ डायरीज",
+    thumbnailUrl: "https://i.ytimg.com/vi/u0nOfHGb5FQ/hqdefault.jpg",
+    description: "जय छठी मईया! पटना गंगा घाट संध्या अर्घ्य।"
+  },
+  {
+    youtubeId: "s256QAoPt4I",
+    title: "मारबो रे सुगवा धनुषा से 🌾 — पारंपरिक सूप व दौरा की पावन तैयारी #shorts",
+    channelTitle: "मनीषा शर्मा संगीत",
+    thumbnailUrl: "https://i.ytimg.com/vi/s256QAoPt4I/hqdefault.jpg",
+    description: "छठ पूजा की पवित्रता और दौरा सजावट।"
+  },
+  {
+    youtubeId: "dZr4KPbBjNo",
+    title: "अस्ताचलगामी सूर्य को अर्घ्य — पटना गंगा तट संध्या अर्घ्य 🌅 #shorts",
+    channelTitle: "छठ महापर्व संध्या अर्घ्य लाइव",
+    thumbnailUrl: "https://i.ytimg.com/vi/dZr4KPbBjNo/hqdefault.jpg",
+    description: "लाखों व्रतियों द्वारा भगवान भास्कर को संध्या अर्घ्य।"
+  },
+  {
+    youtubeId: "qFwoGr1ex_g",
+    title: "जल बीच खड़ा होई दर्शन दीं सुरुज देव 🌊 — पावन अर्घ्य बेला #shorts",
+    channelTitle: "सूर्य मंदिर घाट दर्शन",
+    thumbnailUrl: "https://i.ytimg.com/vi/qFwoGr1ex_g/hqdefault.jpg",
+    description: "तांबे के लोटे और पीतल के सूप से भगवान भास्कर को सात्विक अर्घ्य।"
+  },
+  {
+    youtubeId: "pe8IZ2DlwNI",
+    title: "उदित नारायण पावन छठ गीत — कांच ही बांस के बहंगिया #shorts #reels",
+    channelTitle: "उदित नारायण भक्ति",
+    thumbnailUrl: "https://i.ytimg.com/vi/pe8IZ2DlwNI/hqdefault.jpg",
+    description: "छठी मईया की पावन धुन।"
+  },
+  {
+    youtubeId: "GaU5JxThjHY",
+    title: "गन्ने के मंडप और दीपों के संग पावन कोशी भराई अनुष्ठान 🎋 #shorts",
+    channelTitle: "मिथिला छठ आस्था",
+    thumbnailUrl: "https://i.ytimg.com/vi/GaU5JxThjHY/hqdefault.jpg",
+    description: "कोशी भरे चलली छठी मईया के दुआर।"
+  },
+  {
+    youtubeId: "GYAFUlc6b54",
+    title: "खरना की पावन शाम — मिट्टी के चूल्हे पर बनी गुड़ की खीर #shorts",
+    channelTitle: "छठ व्रती परंपरा",
+    thumbnailUrl: "https://i.ytimg.com/vi/GYAFUlc6b54/hqdefault.jpg",
+    description: "छठ महापर्व का दूसरा पावन दिन खरना।"
+  }
+];
+
 export default async function handler(req, res) {
   // Set open CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -253,21 +305,18 @@ export default async function handler(req, res) {
 
     // Tier 3: Verified Fallback (Safe fallback if network completely offline)
     const lowerQ = q.toLowerCase();
-    const isChhathIntent = !q || 
-      lowerQ.includes('chhath') || 
-      lowerQ.includes('छठ') || 
-      lowerQ.includes('शारदा') || 
-      lowerQ.includes('पवन') || 
-      lowerQ.includes('खेसारी') || 
-      lowerQ.includes('मैथिली') || 
-      lowerQ.includes('गीत') || 
-      lowerQ.includes('भजन') || 
-      lowerQ.includes('पूजा') || 
-      lowerQ.includes('अर्घ्य') || 
-      lowerQ.includes('सूरज');
-
     let fallbackResults = [];
-    if (isChhathIntent) {
+
+    if (type === 'shorts') {
+      const matched = FALLBACK_CHHATH_SHORTS.filter((s) => {
+        return (
+          s.title.toLowerCase().includes(lowerQ) ||
+          s.channelTitle.toLowerCase().includes(lowerQ) ||
+          (s.description && s.description.toLowerCase().includes(lowerQ))
+        );
+      });
+      fallbackResults = matched.length > 0 ? matched : FALLBACK_CHHATH_SHORTS;
+    } else {
       const matched = FALLBACK_CHHATH_SONGS.filter((s) => {
         return (
           s.title.toLowerCase().includes(lowerQ) ||
@@ -275,7 +324,7 @@ export default async function handler(req, res) {
           (s.description && s.description.toLowerCase().includes(lowerQ))
         );
       });
-      fallbackResults = matched.length > 0 ? matched : (!q ? FALLBACK_CHHATH_SONGS : []);
+      fallbackResults = matched.length > 0 ? matched : FALLBACK_CHHATH_SONGS;
     }
 
     res.setHeader('Content-Type', 'application/json');
@@ -313,17 +362,19 @@ function processInnerTubeItem(item, extractedItems, type) {
     const title = v.title?.runs?.map(r => r.text).join('') || v.title?.simpleText || '';
     const channel = v.ownerText?.runs?.[0]?.text || v.shortBylineText?.runs?.[0]?.text || 'YouTube Video';
     const duration = v.lengthText?.simpleText || '';
-    const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel') || (!duration && !v.lengthText);
+    const isExplicitShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel') || title.toLowerCase().includes('short') || title.toLowerCase().includes('reel');
+    const parts = (duration || '').split(':');
+    const isLongVideo = parts.length > 2 || (parts.length === 2 && parseInt(parts[0], 10) > 2);
 
     // If looking for songs (type === 'video'), STRICTLY EXCLUDE shorts/reels!
     if (type === 'video') {
-      if (isShort) return;
+      if (isExplicitShort) return;
       if (!title.trim()) return;
     }
 
-    // If looking for shorts (type === 'shorts'), only include shorts
-    if (type === 'shorts' && !isShort) {
-      return;
+    // If looking for shorts (type === 'shorts'), only exclude long landscape videos
+    if (type === 'shorts') {
+      if (isLongVideo && !isExplicitShort) return;
     }
 
     const thumb = `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`;

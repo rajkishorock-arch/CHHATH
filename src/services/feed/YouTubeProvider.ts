@@ -153,7 +153,10 @@ export const YouTubeProvider = {
   getCandidatePool(options: YouTubeFilterOptions): DynamicReel[] {
     const { currentUser, selectedCategory, selectedHashtag } = options;
     const userId = currentUser?.id || 'guest';
-    const catalog = ReelsStorage.getExternalCatalog();
+    const catalog = [
+      ...ReelsStorage.getExternalCatalog(),
+      ...ReelsStorage.getReels()
+    ];
 
     const filtered = catalog.filter(reel => {
       if (!reel.youtubeVideoId) return false;
@@ -177,6 +180,8 @@ export const YouTubeProvider = {
       return true;
     });
 
+    const pool = filtered.length > 0 ? filtered : catalog;
+
     // Helper: Fisher-Yates array shuffle for non-static, non-repetitive feed
     const shuffle = <T>(array: T[]): T[] => {
       const arr = [...array];
@@ -189,15 +194,13 @@ export const YouTubeProvider = {
 
     // Partition by watched vs unseen: New/unseen reels ALWAYS come first!
     const watchedIds = ReelsStorage.getWatchedReelIds(userId);
-    const unseen = filtered.filter(r => !watchedIds.has(r.id) && !watchedIds.has(r.youtubeVideoId || ''));
-    const seen = filtered.filter(r => watchedIds.has(r.id) || watchedIds.has(r.youtubeVideoId || ''));
+    const unseen = pool.filter(r => !watchedIds.has(r.id) && !watchedIds.has(r.youtubeVideoId || ''));
+    const seen = pool.filter(r => watchedIds.has(r.id) || watchedIds.has(r.youtubeVideoId || ''));
 
-    // STRICT ANTI-REPETITION:
-    // If unseen items exist, return ONLY unseen items!
     if (unseen.length > 0) {
       return shuffle(unseen);
     }
-    return shuffle(seen);
+    return shuffle(seen.length > 0 ? seen : catalog);
   },
 
   /**
@@ -231,9 +234,13 @@ export const YouTubeProvider = {
               !res.youtubeId ||
               res.youtubeId.length < 5 ||
               ReelsStorage.isBlockedVideo(res.youtubeId) ||
-              seenLiveVideoIds.has(res.youtubeId) ||
-              watchedIds.has(res.youtubeId)
+              seenLiveVideoIds.has(res.youtubeId)
             ) {
+              continue;
+            }
+
+            // Only skip previously watched if we already have some items
+            if (items.length > 0 && watchedIds.has(res.youtubeId)) {
               continue;
             }
 

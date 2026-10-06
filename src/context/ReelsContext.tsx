@@ -10,7 +10,7 @@ import {
   ReelUser,
   ContentSourceType
 } from '../types';
-import { ReelsStorage, storeMediaBlob, getMediaBlobUrl } from '../services/reelsStorage';
+import { ReelsStorage, storeMediaBlob, getMediaBlobUrl, EXTERNAL_CHHATH_SEED_CATALOG } from '../services/reelsStorage';
 import { FeedService } from '../services/feed/FeedService';
 import { useAuth } from './AuthContext';
 
@@ -193,8 +193,19 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
   const [suppressionTick, setSuppressionTick] = useState(0);
 
-  // Dynamic / Infinite Feed State via FeedService
-  const [feedItems, setFeedItems] = useState<DynamicReel[]>([]);
+  // Dynamic / Infinite Feed State via FeedService - Pre-populated with verified seed catalog
+  const [feedItems, setFeedItems] = useState<DynamicReel[]>(() => {
+    try {
+      const saved = ReelsStorage.getReels().filter(r => 
+        !r.videoUrl?.includes('/videos/sample') &&
+        !r.videoUrl?.includes('/videos/chhath_reel_') &&
+        !r.videoUrl?.includes('mixkit.co') &&
+        !r.id.startsWith('demo-')
+      );
+      if (saved.length > 0) return saved;
+    } catch {}
+    return EXTERNAL_CHHATH_SEED_CATALOG;
+  });
   const [feedCursor, setFeedCursor] = useState<string | null>(null);
   const [isLoadingBatch, setIsLoadingBatch] = useState(false);
   const [hasMoreReels, setHasMoreReels] = useState(true);
@@ -702,7 +713,21 @@ export const ReelsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCustomFeedList(null);
     setFeedType(initialFeed);
 
-    const targetList = feedItems;
+    const safeDefault = () => {
+      const saved = ReelsStorage.getReels().filter(r => 
+        !r.videoUrl?.includes('/videos/sample') &&
+        !r.videoUrl?.includes('/videos/chhath_reel_') &&
+        !r.videoUrl?.includes('mixkit.co') &&
+        !r.id.startsWith('demo-')
+      );
+      return saved.length > 0 ? saved : EXTERNAL_CHHATH_SEED_CATALOG;
+    };
+
+    if (feedItems.length === 0) {
+      setFeedItems(safeDefault());
+    }
+
+    const targetList = feedItems.length > 0 ? feedItems : safeDefault();
     const watched = ReelsStorage.getWatchedReelIds(userId);
 
     if (specificReelId) {

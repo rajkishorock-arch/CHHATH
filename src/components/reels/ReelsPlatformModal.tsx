@@ -34,7 +34,9 @@ export const ReelsPlatformModal: React.FC = () => {
     feedType,
     setFeedType,
     selectedHashtag,
+    setSelectedHashtag,
     selectedCategory,
+    setSelectedCategory,
     reels,
     activeReelIndex,
     setActiveReelIndex,
@@ -55,6 +57,7 @@ export const ReelsPlatformModal: React.FC = () => {
     feedbackToast,
     clearFeedbackToast,
     loadMoreReels,
+    isLoadingBatch,
     handleVideoError
   } = useReels();
 
@@ -313,25 +316,44 @@ export const ReelsPlatformModal: React.FC = () => {
       {/* 2. MAIN PLAYER VIEWPORT - Full Screen Vertical Snap Scroll Feed */}
       <main className="absolute inset-0 w-full h-full overflow-hidden bg-black">
         {reels.length === 0 ? (
-          /* Empty State (#47) */
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-sm mx-auto animate-fadeIn">
-            <span className="text-6xl block animate-bounce">🪔</span>
-            <h3 className="font-rozha text-2xl font-bold text-amber-300">
-              अभी इस घाट पर कोई Reel नहीं पहुँची है 🪔
-            </h3>
-            <p className="font-mukta text-xs sm:text-sm text-stone-300 leading-relaxed">
-              {feedType === 'following'
-                ? 'जिन भक्तों को आप फॉलो करते हैं, उन्होंने अभी तक कोई रील साझा नहीं की है।'
-                : 'इस पावन श्रेणी में पहली रील बनाएं और लाखों श्रद्धालुओं तक अपना अनुभव पहुंचाएं।'}
-            </p>
-            <button
-              onClick={openCreateModal}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-stone-950 font-bold text-sm shadow-xl shadow-amber-500/30 flex items-center gap-2 mx-auto"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>पहली Reel बनाएं</span>
-            </button>
-          </div>
+          isLoadingBatch ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-sm mx-auto">
+              <div className="w-12 h-12 border-3 border-amber-500/20 border-t-amber-400 rounded-full animate-spin" />
+              <p className="font-mukta text-sm text-stone-300 animate-pulse">पावन छठ रील्स लोड हो रही हैं...</p>
+            </div>
+          ) : (
+            /* Empty State (#47) */
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-sm mx-auto animate-fadeIn">
+              <span className="text-6xl block animate-bounce">🪔</span>
+              <h3 className="font-rozha text-2xl font-bold text-amber-300">
+                अभी इस घाट पर कोई Reel नहीं पहुँची है 🪔
+              </h3>
+              <p className="font-mukta text-xs sm:text-sm text-stone-300 leading-relaxed">
+                {feedType === 'following'
+                  ? 'जिन भक्तों को आप फॉलो करते हैं, उन्होंने अभी तक कोई रील साझा नहीं की है।'
+                  : 'सभी रील्स देखने के लिए नीचे दिए गए बटन पर टैप करें।'}
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setFeedType('foryou');
+                    setSelectedCategory?.(null);
+                    setSelectedHashtag?.(null);
+                  }}
+                  className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-stone-950 font-bold text-xs sm:text-sm shadow-xl shadow-amber-500/30 flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>सभी रील्स देखें (All Reels)</span>
+                </button>
+                <button
+                  onClick={openCreateModal}
+                  className="px-5 py-2.5 rounded-2xl bg-stone-900 border border-amber-500/40 text-amber-300 font-bold text-xs sm:text-sm"
+                >
+                  <span>पहली Reel बनाएं</span>
+                </button>
+              </div>
+            </div>
+          )
         ) : (
           /* Dedicated Vertical Snap Scroll Feed Container (Mobile Touch & Desktop Wheel/Trackpad) */
           <div 
