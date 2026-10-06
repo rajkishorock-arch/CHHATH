@@ -221,6 +221,10 @@ const MainContent: React.FC = () => {
     setIsQueueOpen, 
     showVideo, 
     setShowVideo, 
+    videoExpanded,
+    setVideoExpanded,
+    isFullscreenMode,
+    toggleNativeFullscreen,
     lyricsSong, 
     setLyricsSong 
   } = useAudio();
@@ -404,11 +408,29 @@ const MainContent: React.FC = () => {
   const [exitToastVisible, setExitToastVisible] = useState<boolean>(false);
 
   const handleBackLogic = React.useCallback((): string => {
-    // 1. Close any active overlay/modal first
+    // 1. If video is in fullscreen landscape mode, exit fullscreen first
+    if (isFullscreenMode) {
+      toggleNativeFullscreen();
+      return 'handled';
+    }
+
+    // 2. If video theater/pip is open, close video
+    if (showVideo) {
+      setShowVideo(false);
+      setVideoExpanded(false);
+      return 'handled';
+    }
+
+    // 3. If an inline thumbnail video is playing, close inline video
+    if ((window as any).__hasInlineVideoOpen) {
+      window.dispatchEvent(new CustomEvent('close_inline_video'));
+      return 'handled';
+    }
+
+    // 4. Close any active overlay/modal
     if (isExpandedOpen) { setIsExpandedOpen(false); return 'handled'; }
     if (isQueueOpen) { setIsQueueOpen(false); return 'handled'; }
     if (lyricsSong) { setLyricsSong(null); return 'handled'; }
-    if (showVideo) { setShowVideo(false); return 'handled'; }
     if (searchModalOpen) { setSearchModalOpen(false); return 'handled'; }
     if (reelsPlatformOpen) { closeReelsPlatform(); return 'handled'; }
     if (createModalOpen) { closeCreateModal(); return 'handled'; }
@@ -421,28 +443,27 @@ const MainContent: React.FC = () => {
     if (adminModalOpen) { setAdminModalOpen(false); return 'handled'; }
     if (locationModalOpen) { setLocationModalOpen(false); return 'handled'; }
 
-    // 2. Navigation: If user is on any other tab/page, return to previous or home!
+    // 5. Navigation: If user is on any other tab/page (explore, vidhi, etc.), return to home!
     if (activeTab !== 'home') {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        handleNavigate('home');
-      }
+      handleNavigate('home');
       return 'handled';
     }
 
-    // 3. User is on Home page
+    // 6. User is on Home page and no modals are open -> allow Android to show double-tap exit toast
     return 'unhandled';
   }, [
     activeTab,
+    isFullscreenMode,
+    toggleNativeFullscreen,
+    showVideo,
+    setShowVideo,
+    setVideoExpanded,
     isExpandedOpen,
     setIsExpandedOpen,
     isQueueOpen,
     setIsQueueOpen,
     lyricsSong,
     setLyricsSong,
-    showVideo,
-    setShowVideo,
     searchModalOpen,
     reelsPlatformOpen,
     closeReelsPlatform,
@@ -462,13 +483,24 @@ const MainContent: React.FC = () => {
     locationModalOpen
   ]);
 
+  const handleBackLogicRef = React.useRef(handleBackLogic);
+
+  React.useEffect(() => {
+    handleBackLogicRef.current = handleBackLogic;
+  }, [handleBackLogic]);
+
   // Expose directly to window for Native Android Java evaluateJavascript
   React.useEffect(() => {
-    (window as any).handleAndroidBack = handleBackLogic;
+    (window as any).handleAndroidBack = () => {
+      if (handleBackLogicRef.current) {
+        return handleBackLogicRef.current();
+      }
+      return 'unhandled';
+    };
     return () => {
       delete (window as any).handleAndroidBack;
     };
-  }, [handleBackLogic]);
+  }, []);
 
   React.useEffect(() => {
     let removeListener: (() => void) | undefined;
@@ -476,7 +508,7 @@ const MainContent: React.FC = () => {
     const setupBackButton = async () => {
       try {
         const listener = await CapApp.addListener('backButton', () => {
-          const res = handleBackLogic();
+          const res = handleBackLogicRef.current ? handleBackLogicRef.current() : 'unhandled';
           if (res === 'handled') return;
 
           // Double tap back to exit on home page
@@ -505,7 +537,7 @@ const MainContent: React.FC = () => {
     return () => {
       if (removeListener) removeListener();
     };
-  }, [handleBackLogic]);
+  }, []);
 
   return (
     <PullToRefresh>

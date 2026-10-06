@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { Maximize2, Minimize2, ExternalLink, Play, Pause, X, RotateCcw, RotateCw, ChevronDown } from 'lucide-react';
+import { Maximize2, Minimize2, ExternalLink, Play, Pause, X, RotateCcw, RotateCw, ChevronDown, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { Song } from '../types';
 import { useChhathData } from './ChhathDataContext';
 
@@ -34,12 +34,15 @@ interface AudioContextType {
   showVideo: boolean;
   videoExpanded: boolean;
   setVideoExpanded: (expanded: boolean) => void;
+  isFullscreenMode: boolean;
+  setIsFullscreenMode: (fs: boolean) => void;
+  toggleNativeFullscreen: () => void;
   lyricsSong: Song | null;
   ytPlayerReady: boolean;
   playbackError: PlaybackError | null;
 
-  playSong: (song: Song, contextQueue?: Song[]) => void;
-  playVideo: (song: Song, contextQueue?: Song[]) => void;
+  playSong: (song: Song, contextQueue?: Song[], startSeconds?: number) => void;
+  playVideo: (song: Song, contextQueue?: Song[], startSeconds?: number) => void;
   pauseSong: () => void;
   togglePlay: () => void;
   playNext: () => void;
@@ -121,6 +124,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => {
       document.removeEventListener('fullscreenchange', handleFsChange);
       document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
+
+  const [isPortrait, setIsPortrait] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerHeight >= window.innerWidth;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerHeight >= window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
     };
   }, []);
 
@@ -328,9 +348,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
             if (pendingSongRef.current && pendingSongRef.current.youtubeId) {
               const toPlay = pendingSongRef.current.youtubeId;
+              const startSec = (pendingSongRef.current as any)?._startSeconds || 0;
               pendingSongRef.current = null;
               try {
-                event.target.loadVideoById(toPlay);
+                if (startSec > 0) {
+                  event.target.loadVideoById({ videoId: toPlay, startSeconds: startSec });
+                  setCurrentTime(startSec);
+                } else {
+                  event.target.loadVideoById(toPlay);
+                }
                 event.target.playVideo();
                 setIsPlaying(true);
               } catch (e) {
@@ -482,7 +508,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Authoritative Play Song Implementation
-  const playSong = (song: Song, contextQueue?: Song[]) => {
+  const playSong = (song: Song, contextQueue?: Song[], startSeconds?: number) => {
     if (!song || !song.youtubeId) {
       console.warn('[MusicPlayer] Cannot play song without valid youtubeId:', song);
       return;
@@ -529,13 +555,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       next: { youtubeId: song.youtubeId, title: song.title },
       currentIndex: targetIndex,
       queueLength: finalQueue.length,
-      loadingYoutubeId: song.youtubeId
+      loadingYoutubeId: song.youtubeId,
+      startSeconds
     });
 
     // 6. YOUTUBE PLAYER LOAD
     if (ytPlayerRef.current && ytPlayerRef.current.loadVideoById) {
       try {
-        console.log('[YouTubePlayer] Executing loadVideoById:', song.youtubeId);
+        console.log('[YouTubePlayer] Executing loadVideoById:', song.youtubeId, 'startSeconds:', startSeconds);
         // Explicitly unMute and set volume before and with load
         if (ytPlayerRef.current.unMute) {
           ytPlayerRef.current.unMute();
@@ -543,7 +570,18 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (ytPlayerRef.current.setVolume) {
           ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
         }
-        ytPlayerRef.current.loadVideoById(song.youtubeId);
+
+        const seekSec = typeof startSeconds === 'number' && startSeconds > 0 ? Math.floor(startSeconds) : 0;
+        if (seekSec > 0) {
+          ytPlayerRef.current.loadVideoById({
+            videoId: song.youtubeId,
+            startSeconds: seekSec
+          });
+          setCurrentTime(seekSec);
+        } else {
+          ytPlayerRef.current.loadVideoById(song.youtubeId);
+        }
+
         if (ytPlayerRef.current.playVideo) {
           ytPlayerRef.current.playVideo();
         }
@@ -573,15 +611,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     } else {
       console.log('[YouTubePlayer] Player not ready yet. Queuing pending song and creating player:', song.youtubeId);
+      (song as any)._startSeconds = startSeconds;
       pendingSongRef.current = song;
       createGlobalYtPlayer();
     }
   };
 
-  const playVideo = useCallback((song: Song, contextQueue?: Song[]) => {
+  const playVideo = useCallback((song: Song, contextQueue?: Song[], startSeconds?: number) => {
     setShowVideo(true);
     setVideoExpanded(true);
-    playSong(song, contextQueue);
+    playSong(song, contextQueue, startSeconds);
   }, [playSong]);
 
   const togglePlay = () => {
@@ -1006,7 +1045,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setShowVideo,
         setLyricsSong,
         clearPlaybackError,
-        ringBell
+        ringBell,
+        isFullscreenMode,
+        setIsFullscreenMode,
+        toggleNativeFullscreen
       }}
     >
       {children}
@@ -1032,6 +1074,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       >
         <div
           ref={theaterVideoBoxRef}
+          style={
+            showVideo && videoExpanded && isFullscreenMode && isPortrait
+              ? {
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  width: '100vh',
+                  height: '100vw',
+                  transform: 'translate(-50%, -50%) rotate(90deg)',
+                  transformOrigin: 'center center',
+                  zIndex: 999999,
+                  maxWidth: 'none',
+                  maxHeight: 'none',
+                  borderRadius: 0
+                }
+              : undefined
+          }
           className={
             !showVideo
               ? "w-full h-full pointer-events-none"
@@ -1125,8 +1184,22 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 </button>
               </div>
 
-              {/* Center Controls: Backward 10s, Big Play/Pause, Forward 10s */}
-              <div className="flex items-center justify-center gap-6 sm:gap-10 pointer-events-auto my-auto">
+              {/* Center Controls: Prev Song, Backward 10s, Big Play/Pause, Forward 10s, Next Song */}
+              <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8 pointer-events-auto my-auto">
+                {/* Previous Song */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playPrevious();
+                    showVideoControlsTemporarily();
+                  }}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/75 backdrop-blur-md text-white/90 hover:text-white flex items-center justify-center transition-transform active:scale-90 shadow-lg border border-white/10 cursor-pointer"
+                  title="पिछला गीत (Previous Song)"
+                >
+                  <SkipBack className="w-5 h-5 sm:w-6 sm:h-6 fill-white/80" />
+                </button>
+
                 {/* 10s Backward */}
                 <button
                   type="button"
@@ -1149,7 +1222,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     togglePlay();
                     showVideoControlsTemporarily();
                   }}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 shadow-2xl border-2 border-white/25 cursor-pointer"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/75 hover:bg-black/95 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 shadow-2xl border-2 border-white/25 cursor-pointer"
                   title={isPlaying ? "रोकें (Pause)" : "चलाएं (Play)"}
                 >
                   {isPlaying ? (
@@ -1171,6 +1244,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 >
                   <RotateCw className="w-5 h-5 sm:w-6 sm:h-6" />
                   <span className="text-[9px] font-bold mt-0.5 leading-none font-mono">10</span>
+                </button>
+
+                {/* Next Song */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playNext();
+                    showVideoControlsTemporarily();
+                  }}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/75 backdrop-blur-md text-white/90 hover:text-white flex items-center justify-center transition-transform active:scale-90 shadow-lg border border-white/10 cursor-pointer"
+                  title="अगला गीत (Next Song)"
+                >
+                  <SkipForward className="w-5 h-5 sm:w-6 sm:h-6 fill-white/80" />
                 </button>
               </div>
 
@@ -1206,6 +1293,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   </span>
 
                   <div className="flex items-center gap-2">
+                    {/* Volume Mute Toggle */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setVolume(volume > 0 ? 0 : 1);
+                        showVideoControlsTemporarily();
+                      }}
+                      className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-transform active:scale-95 cursor-pointer border border-white/15 shadow-md"
+                      title={volume === 0 ? "आवाज चालू करें" : "आवाज बंद करें"}
+                    >
+                      {volume === 0 ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    </button>
+
                     {/* Pop-up PIP Toggle */}
                     <button
                       type="button"

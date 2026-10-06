@@ -118,7 +118,12 @@ public class MainActivity extends BridgeActivity {
                         new ValueCallback<String>() {
                             @Override
                             public void onReceiveValue(String value) {
-                                if (value != null && (value.contains("handled") || "\"handled\"".equals(value))) {
+                                boolean isHandled = value != null && (
+                                    "\"handled\"".equals(value) || 
+                                    "handled".equals(value) || 
+                                    (value.contains("handled") && !value.contains("unhandled"))
+                                );
+                                if (isHandled) {
                                     return;
                                 }
 
