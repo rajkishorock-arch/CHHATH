@@ -696,12 +696,37 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const syncInlineVideoSong = useCallback((song: Song | null, startSeconds?: number) => {
+  const syncInlineVideoSong = useCallback((song: Song | null) => {
     if (!song) {
       setIsPlaying(false);
       return;
     }
-    playSong(song, undefined, startSeconds);
+
+    // 1. Pause background global YouTube player to prevent duplicate audio echo
+    try {
+      if (ytPlayerRef.current?.pauseVideo) {
+        ytPlayerRef.current.pauseVideo();
+      }
+      bgAudioRef.current?.pause();
+    } catch {}
+
+    // 2. Set currentSong and playing state in AudioContext
+    currentSongRef.current = song;
+    setCurrentSong(song);
+    hasStartedPlaybackRef.current = true;
+    userRequestedPauseRef.current = false;
+    setIsPlaying(true);
+    setShowVideo(false);
+
+    // 3. Ensure song is in queue
+    setQueueState(prev => {
+      const exists = prev.some(s => (s.youtubeId && song.youtubeId && s.youtubeId === song.youtubeId) || s.id === song.id);
+      if (!exists) return [...prev, song];
+      return prev;
+    });
+
+    // 4. Track recently played
+    setRecentlyPlayed(prev => [song.id, ...prev.filter(id => id !== song.id)].slice(0, 20));
   }, []);
 
   const pauseSong = () => {
