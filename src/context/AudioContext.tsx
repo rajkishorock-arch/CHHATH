@@ -48,6 +48,7 @@ interface AudioContextType {
   playNext: () => void;
   playPrevious: () => void;
   seekTo: (seconds: number) => void;
+  setCurrentTime: (time: number) => void;
   setVolume: (vol: number) => void;
   toggleFavorite: (songId: string) => void;
   toggleShuffle: () => void;
@@ -696,19 +697,35 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const syncInlineVideoSong = useCallback((song: Song | null) => {
+  const syncInlineVideoSong = useCallback((song: Song | null, startSeconds?: number) => {
     if (!song) {
       setIsPlaying(false);
       return;
     }
 
-    // 1. Pause background global YouTube player to prevent duplicate audio echo
+    const startSec = typeof startSeconds === 'number' && startSeconds > 0 ? Math.floor(startSeconds) : 0;
+    setCurrentTime(startSec);
+
+    // 1. Pre-warm / cue background global YouTube player with this video ID at startSeconds
+    // so when user clicks "वीडियो", it is ALREADY buffered and plays in 0ms without restarting!
     try {
-      if (ytPlayerRef.current?.pauseVideo) {
-        ytPlayerRef.current.pauseVideo();
+      if (song.youtubeId) {
+        currentlyLoadedYtIdRef.current = song.youtubeId;
+        if (ytPlayerRef.current && ytPlayerRef.current.cueVideoById) {
+          if (startSec > 0) {
+            ytPlayerRef.current.cueVideoById({
+              videoId: song.youtubeId,
+              startSeconds: startSec
+            });
+          } else {
+            ytPlayerRef.current.cueVideoById(song.youtubeId);
+          }
+        }
       }
       bgAudioRef.current?.pause();
-    } catch {}
+    } catch (e) {
+      console.warn('syncInlineVideoSong pre-cue warning:', e);
+    }
 
     // 2. Set currentSong and playing state in AudioContext
     currentSongRef.current = song;
@@ -1113,6 +1130,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         playNext,
         playPrevious,
         seekTo,
+        setCurrentTime,
         setVolume,
         toggleFavorite,
         toggleShuffle,

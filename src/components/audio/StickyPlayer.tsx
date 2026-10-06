@@ -23,7 +23,9 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
   const {
     currentSong,
     isPlaying,
+    currentTime,
     pauseSong,
+    playVideo,
     togglePlay,
     playNext,
     playPrevious,
@@ -159,6 +161,9 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
                 if (!showVideo) {
                   setVideoExpanded(true);
                   setShowVideo(true);
+                  if (currentSong) {
+                    playVideo(currentSong, undefined, currentTime);
+                  }
                 } else {
                   setShowVideo(false);
                 }
