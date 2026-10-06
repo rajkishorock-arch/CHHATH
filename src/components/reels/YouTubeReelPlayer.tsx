@@ -219,7 +219,8 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
 
   // High-speed embed URL with autoplay=1, controls=0, modestbranding=1, enablejsapi=1, and native loop playlist
   const embedUrl = useMemo(() => {
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMuteRef.current}&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=${videoId}`;
+    const originParam = typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : '';
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMuteRef.current}&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=${videoId}${originParam}`;
   }, [videoId]);
 
   if (hasError) {

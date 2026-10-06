@@ -1002,7 +1002,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
               {/* Player Frame */}
               <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-stone-800">
                 <iframe
-                  src={`https://www.youtube.com/embed/${activeVideo.videoId}?autoplay=1&enablejsapi=1&rel=0`}
+                  src={`https://www.youtube.com/embed/${activeVideo.videoId}?autoplay=1&enablejsapi=1&rel=0${typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : ''}`}
                   title={activeVideo.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

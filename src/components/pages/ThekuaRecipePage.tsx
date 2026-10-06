@@ -208,7 +208,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
               <iframe
                 key={activeVideo.id}
                 className="w-full h-full border-0"
-                src={`https://www.youtube.com/embed/${activeVideo.id}?rel=0&enablejsapi=1`}
+                src={`https://www.youtube.com/embed/${activeVideo.id}?rel=0&enablejsapi=1${typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : ''}`}
                 title={activeVideo.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen

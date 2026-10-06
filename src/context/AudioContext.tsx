@@ -313,7 +313,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           controls: 1,
           modestbranding: 1,
           rel: 0,
-          enablejsapi: 1
+          enablejsapi: 1,
+          origin: typeof window !== 'undefined' ? window.location.origin : undefined
         },
         events: {
           onReady: (event: any) => {

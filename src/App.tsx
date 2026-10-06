@@ -353,8 +353,8 @@ const MainContent: React.FC = () => {
       setMusicInitialQuery(query);
     }
 
-    // Save scroll position before leaving home
-    if (activeTab === 'home') {
+    // Save scroll position before leaving home/explore
+    if (activeTab === 'home' || activeTab === 'explore') {
       const currentY = window.scrollY || document.documentElement.scrollTop || 0;
       try {
         sessionStorage.setItem('home_scroll_y', currentY.toString());
@@ -366,8 +366,8 @@ const MainContent: React.FC = () => {
       sessionStorage.setItem('chhath_active_tab', targetTab);
     } catch (e) {}
 
-    // When navigating to home, restore saved scroll position; otherwise go to top
-    if (targetTab === 'home') {
+    // When navigating to home/explore, restore saved scroll position; otherwise go to top
+    if (targetTab === 'home' || targetTab === 'explore') {
       if (!restoreHomeScroll()) {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       }
@@ -532,7 +532,16 @@ const MainContent: React.FC = () => {
       <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           {activeTab === 'home' && (
-            <PublicHomeView onNavigate={handleNavigate} />
+            <>
+              {/* On Mobile/Phone: Show SongsSection as requested by user */}
+              <div className="lg:hidden container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
+                <SongsSection initialQuery={musicInitialQuery} />
+              </div>
+              {/* On Desktop: Show original PublicHomeView */}
+              <div className="hidden lg:block">
+                <PublicHomeView onNavigate={handleNavigate} />
+              </div>
+            </>
           )}
 
           {activeTab === 'chhath-puja-vidhi' && (
@@ -615,9 +624,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'explore' && (
-            <Suspense fallback={<ComponentLoader />}>
-              <ExploreView />
-            </Suspense>
+            <PublicHomeView onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'settings' && (
@@ -635,9 +642,11 @@ const MainContent: React.FC = () => {
       <ExpandedPlayerModal />
       <PlaybackQueueModal />
 
-      {/* Footer Component - Only visible on the Home Page */}
-      {activeTab === 'home' && (
-        <Footer onNavigate={handleNavigate} />
+      {/* Footer Component - Visible on Desktop Home and on Explore */}
+      {(activeTab === 'home' || activeTab === 'explore') && (
+        <div className={activeTab === 'home' ? 'hidden lg:block' : ''}>
+          <Footer onNavigate={handleNavigate} />
+        </div>
       )}
 
       {/* Mobile Bottom Navigation */}

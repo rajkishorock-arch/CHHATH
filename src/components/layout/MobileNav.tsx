@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Film, Sun, Music, User } from 'lucide-react';
+import { Home, Film, Sun, Compass, User } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -16,17 +16,17 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const { language } = useLanguage();
 
   const mobileNavLabels = {
-    hi: { home: 'होम', reels: 'रील्स', music: 'संगीत', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
-    en: { home: 'Home', reels: 'Reels', music: 'Music', arghya: 'Arghya', myChhath: 'My Chhath', navAria: 'Mobile Primary Navigation' },
-    bho: { home: 'होम', reels: 'रील्स', music: 'गीत', arghya: 'अरघ', myChhath: 'हमार छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
-    mai: { home: 'होम', reels: 'रील्स', music: 'गीत', arghya: 'अर्घ्य', myChhath: 'हमर छठि', navAria: 'मोबाइल मुख्य नेविगेशन' },
-    mag: { home: 'होम', reels: 'रील्स', music: 'गीत', arghya: 'अर्घ्य', myChhath: 'हमर छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
-  }[language] || { home: 'होम', reels: 'रील्स', music: 'संगीत', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' };
+    hi: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
+    en: { home: 'Home', reels: 'Reels', explore: 'Explore', arghya: 'Arghya', myChhath: 'My Chhath', navAria: 'Mobile Primary Navigation' },
+    bho: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अरघ', myChhath: 'हमार छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
+    mai: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'हमर छठि', navAria: 'मोबाइल मुख्य नेविगेशन' },
+    mag: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'हमर छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
+  }[language] || { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' };
 
   const items = [
     { id: 'home', label: mobileNavLabels.home, icon: Home, href: '#home' },
     { id: 'reels', label: mobileNavLabels.reels, icon: Film, href: '#reels' },
-    { id: 'music', label: mobileNavLabels.music, icon: Music, href: '#music' },
+    { id: 'explore', label: mobileNavLabels.explore, icon: Compass, href: '#explore' },
     { id: 'arghya', label: mobileNavLabels.arghya, icon: Sun, href: '#arghya' },
     { id: 'my-chhath', label: mobileNavLabels.myChhath, icon: User, href: '#my-chhath' }
   ];

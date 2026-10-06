@@ -241,7 +241,7 @@ export const AuthService = {
 
   async getSession(): Promise<{ user: ReelUser; settings: UserSettings } | null> {
     const token = this.getToken();
-    if (!token) {
+    if (!token || token.startsWith('demo_token_') || token.startsWith('local_')) {
       const local = ReelsStorage.getSession();
       return local ? { user: local, settings: getDefaultSettings(local) } : null;
     }

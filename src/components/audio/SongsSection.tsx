@@ -25,6 +25,7 @@ import {
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
+import { chhathSongs } from '../../data/songs';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -99,7 +100,7 @@ const YouTubeVideoCardComponent: React.FC<{
           {isInlinePlaying && song.youtubeId ? (
             <div className="relative w-full h-full">
               <iframe
-                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0&controls=1&autohide=1&modestbranding=1&iv_load_policy=3`}
+                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0&controls=1&autohide=1&modestbranding=1&iv_load_policy=3${typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : ''}`}
                 title={song.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -347,9 +348,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     }
   }, []);
 
-  // Real-time Live YouTube Songs Stream State
-  const [liveSongs, setLiveSongs] = useState<Song[]>([]);
-  const [isLiveInitialLoading, setIsLiveInitialLoading] = useState<boolean>(true);
+  // Real-time Live YouTube Songs Stream State (Pre-populated for instant 0ms mount!)
+  const [liveSongs, setLiveSongs] = useState<Song[]>(() => chhathSongs || []);
+  const [isLiveInitialLoading, setIsLiveInitialLoading] = useState<boolean>(false);
   const [liveNextPageToken, setLiveNextPageToken] = useState<string | null>(null);
   const [isLoadingMoreLive, setIsLoadingMoreLive] = useState<boolean>(false);
   const liveTopicIndexRef = useRef<number>(0);
