@@ -242,7 +242,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const timeIntervalRef = useRef<any>(null);
   const userRequestedPauseRef = useRef<boolean>(false);
   const hasStartedPlaybackRef = useRef<boolean>(false);
-  const autoResumeTimerRef = useRef<any>(null);
 
   // Background audio & system media notification keepalive ref
   const bgAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -320,7 +319,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     console.log('[YouTubePlayer] Initializing global YT.Player on container');
 
     try {
-      const initialVideoId = pendingSongRef.current?.youtubeId || currentSongRef.current?.youtubeId || null;
+      const initialVideoId = pendingSongRef.current?.youtubeId || null;
       if (!initialVideoId) {
         console.log('[YouTubePlayer] No song to load yet, deferring player initialization');
         return;
@@ -391,25 +390,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 // Catch cross-origin duration/data check
               }
             } else if (state === 2) {
-              if (userRequestedPauseRef.current) {
-                setIsPlaying(false);
-                bgAudioRef.current?.pause();
-              } else {
-                // If user didn't request pause (e.g. background switch), gently auto-resume once if still paused
-                if (!autoResumeTimerRef.current) {
-                  autoResumeTimerRef.current = setTimeout(() => {
-                    autoResumeTimerRef.current = null;
-                    if (!userRequestedPauseRef.current && ytPlayerRef.current) {
-                      try {
-                        const currState = ytPlayerRef.current.getPlayerState ? ytPlayerRef.current.getPlayerState() : -1;
-                        if (currState === 2) {
-                          ytPlayerRef.current.playVideo();
-                        }
-                      } catch (e) {}
-                    }
-                  }, 400);
-                }
-              }
+              setIsPlaying(false);
+              bgAudioRef.current?.pause();
             } else if (state === 0) {
               setIsPlaying(false);
               handleSongEnded();
@@ -703,22 +685,28 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
-    // 1. Pause background global player so it NEVER competes with the inline video for bandwidth or audio!
+    userRequestedPauseRef.current = true;
+
+    // 1. Stop background global player so it NEVER competes with the inline video for audio focus or bandwidth!
     try {
-      if (ytPlayerRef.current?.pauseVideo) {
+      if (ytPlayerRef.current?.stopVideo) {
+        ytPlayerRef.current.stopVideo();
+      } else if (ytPlayerRef.current?.pauseVideo) {
         ytPlayerRef.current.pauseVideo();
       }
-      bgAudioRef.current?.pause();
+      if (bgAudioRef.current) {
+        bgAudioRef.current.pause();
+        bgAudioRef.current.currentTime = 0;
+      }
     } catch (e) {
       console.warn('syncInlineVideoSong pause warning:', e);
     }
 
-    // 2. Set currentSong and playing state in AudioContext
+    // 2. Set currentSong without activating background isPlaying
     currentSongRef.current = song;
     setCurrentSong(song);
     hasStartedPlaybackRef.current = true;
-    userRequestedPauseRef.current = false;
-    setIsPlaying(true);
+    setIsPlaying(false);
     setShowVideo(false);
 
     // 3. Ensure song is in queue

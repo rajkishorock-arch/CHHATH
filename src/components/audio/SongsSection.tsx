@@ -75,10 +75,7 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const iframeSrc = `https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0&controls=1${
-    origin ? `&origin=${encodeURIComponent(origin)}` : ''
-  }`;
+  const iframeSrc = `https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&rel=0&controls=1&modestbranding=1`;
 
   return (
     <div
@@ -121,6 +118,7 @@ const YouTubeVideoCardComponent: React.FC<{
             <iframe
               src={iframeSrc}
               title={song.title}
+              loading="eager"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="absolute inset-0 w-full h-full border-0 z-10 bg-transparent"
@@ -1050,6 +1048,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         setInlineVideoSongId(null);
                         syncInlineVideoSong(null);
                       } else {
+                        pauseSong();
                         setInlineVideoSongId(ytSong.youtubeId);
                         syncInlineVideoSong(songObj);
                       }
@@ -1134,6 +1133,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                           setInlineVideoSongId(null);
                           syncInlineVideoSong(null);
                         } else {
+                          pauseSong();
                           setInlineVideoSongId(ytId);
                           syncInlineVideoSong(song);
                         }
