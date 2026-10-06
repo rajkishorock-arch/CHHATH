@@ -3,6 +3,25 @@ import { Home, Film, Sun, Compass, User } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
 import { useLanguage } from '../../context/LanguageContext';
 
+// Professional Modern Reels Icon (Clapperboard with central play)
+const ReelsIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect width="18" height="18" x="3" y="3" rx="4" />
+    <path d="M3 9h18" />
+    <path d="m8.5 3 2.5 6" />
+    <path d="m14.5 3 2.5 6" />
+    <polygon points="10.5 12 15 15 10.5 18 10.5 12" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 interface MobileNavProps {
   activeTab?: string;
   onNavigate?: (tab: string) => void;
@@ -25,7 +44,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
   const items = [
     { id: 'home', label: mobileNavLabels.home, icon: Home, href: '#home' },
-    { id: 'reels', label: mobileNavLabels.reels, icon: Film, href: '#reels' },
+    { id: 'reels', label: mobileNavLabels.reels, icon: ReelsIcon, href: '#reels' },
     { id: 'explore', label: mobileNavLabels.explore, icon: Compass, href: '#explore' },
     { id: 'arghya', label: mobileNavLabels.arghya, icon: Sun, href: '#arghya' },
     { id: 'my-chhath', label: mobileNavLabels.myChhath, icon: User, href: '#my-chhath' }
@@ -69,12 +88,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             >
               <div className="relative">
                 <Icon className={`w-5 h-5 transition-transform ${isActive ? 'stroke-[2.5] scale-105' : 'stroke-2'}`} />
-                {isReels && (
-                  <span className="absolute -top-1 -right-1.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-orange-500 to-rose-500" />
-                  </span>
-                )}
               </div>
               <span className={`text-[11px] font-mukta font-bold mt-0.5 leading-none ${isActive ? 'text-amber-700 dark:text-amber-300' : ''}`}>
                 {item.label}

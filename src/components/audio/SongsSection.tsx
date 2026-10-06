@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Music,
   Video,
+  Headphones,
   Share2,
   ListMusic,
   ChevronDown,
@@ -47,6 +48,7 @@ const YouTubeVideoCardComponent: React.FC<{
   inQueue?: boolean;
   isFav?: boolean;
   onPlay: () => void;
+  onPlayVideo: () => void;
   onToggleQueue?: () => void;
   onToggleFav?: () => void;
   onShareSong?: () => void;
@@ -58,6 +60,7 @@ const YouTubeVideoCardComponent: React.FC<{
   inQueue,
   isFav,
   onPlay,
+  onPlayVideo,
   onToggleQueue,
   onToggleFav,
   onShareSong,
@@ -194,13 +197,11 @@ const YouTubeVideoCardComponent: React.FC<{
         </div>
 
         {/* Video Details Row (YouTube App Layout) */}
-        <div 
-          onClick={!isInlineActive ? handleStartInline : undefined}
-          className="p-3 flex items-start gap-2.5 cursor-pointer"
-        >
+        <div className="p-3 flex items-start gap-2.5">
           {/* Channel / Artist Avatar Circle */}
           <div 
-            className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5"
+            onClick={!isInlineActive ? handleStartInline : undefined}
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5 cursor-pointer"
           >
             {singerInitial}
           </div>
@@ -208,106 +209,99 @@ const YouTubeVideoCardComponent: React.FC<{
           {/* Title & Metadata */}
           <div className="min-w-0 flex-1">
             <h4 
-              className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug transition-colors ${
-                isCurrent || isInlineActive ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
+              onClick={!isInlineActive ? handleStartInline : undefined}
+              className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug transition-colors cursor-pointer ${
+                isCurrent || isInlineActive ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 hover:text-amber-600 dark:hover:text-amber-200'
               }`}
               title={song.title}
             >
               {song.title}
             </h4>
 
-            {/* Singer Name & Verified Badge */}
-            <div className="flex items-center gap-1 mt-1 text-xs text-stone-600 dark:text-stone-400 truncate">
-              <span className="truncate">{song.singer}</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
+            {/* Singer Name on Left & Action Signs on Right */}
+            <div className="flex items-center justify-between gap-1.5 mt-2">
+              {/* Singer / Channel Name */}
+              <div className="flex items-center gap-1 text-xs text-stone-600 dark:text-stone-400 truncate min-w-0 flex-1">
+                <span className="truncate">{song.singer}</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
+              </div>
+
+              {/* Action Signs (Icons ONLY): Video (New View), Audio, Share, Fav */}
+              <div className="flex items-center gap-0.5 shrink-0">
+                {/* Video Sign -> Plays in New View (Theater) */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStopInline();
+                    onPlayVideo();
+                  }}
+                  className="p-1.5 rounded-lg text-red-600 hover:bg-red-500/15 dark:text-red-400 transition-all cursor-pointer hover:scale-110 active:scale-95"
+                  title="वीडियो नई विंडो में देखें (New View)"
+                  aria-label="वीडियो नई विंडो में देखें"
+                >
+                  <Video className="w-4 h-4" />
+                </button>
+
+                {/* Audio Sign -> Plays in Audio Player */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStopInline();
+                    onPlay();
+                  }}
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer hover:scale-110 active:scale-95 ${
+                    isPlayingThis && !isInlineActive
+                      ? 'text-amber-600 dark:text-amber-400 bg-amber-500/15'
+                      : 'text-stone-600 dark:text-stone-300 hover:bg-amber-500/15 hover:text-amber-600 dark:hover:text-amber-400'
+                  }`}
+                  title={isPlayingThis && !isInlineActive ? "ऑडियो रोकें" : "ऑडियो सुनें"}
+                  aria-label="ऑडियो सुनें"
+                >
+                  {isPlayingThis && !isInlineActive ? (
+                    <Pause className="w-4 h-4 fill-current" />
+                  ) : (
+                    <Headphones className="w-4 h-4" />
+                  )}
+                </button>
+
+                {/* Share Sign */}
+                {onShareSong && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onShareSong();
+                    }}
+                    className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-all cursor-pointer hover:scale-110 active:scale-95"
+                    title="गीत शेयर करें"
+                    aria-label="शेयर करें"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Favorite Sign */}
+                {onToggleFav && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleFav();
+                    }}
+                    className={`p-1.5 rounded-lg transition-all cursor-pointer hover:scale-110 active:scale-95 ${
+                      isFav ? 'text-red-500' : 'text-stone-400 hover:text-red-500 hover:bg-stone-100 dark:hover:bg-stone-800'
+                    }`}
+                    title={isFav ? "पसंदीदा से हटाएं" : "पसंदीदा में जोड़ें"}
+                    aria-label="पसंदीदा"
+                  >
+                    <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Action Footer: Video vs Audio buttons + Quick controls */}
-      <div className="px-3 pb-3 pt-0 flex items-center justify-between gap-1.5 border-t border-stone-100 dark:border-stone-800/80 mt-1">
-        <div className="flex items-center gap-1.5 pt-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isInlineActive) {
-                handleStopInline();
-              } else {
-                handleStartInline();
-              }
-            }}
-            className={`px-2.5 py-1 rounded-lg font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer ${
-              isInlineActive
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400'
-            }`}
-            title="थंबनेल में वीडियो चलाएं"
-          >
-            <Video className="w-3.5 h-3.5" />
-            <span>{isInlineActive ? 'चल रहा है' : 'वीडियो'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleStopInline();
-              onPlay();
-            }}
-            className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-            title="ऑडियो सुनें"
-          >
-            {isPlayingThis && !isInlineActive ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
-            <span>{isPlayingThis && !isInlineActive ? 'रोकें' : 'ऑडियो'}</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1 pt-2">
-          {onShareSong && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onShareSong();
-              }}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-              title="गीत शेयर करें (WhatsApp / Share)"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-          {onToggleFav && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFav();
-              }}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                isFav ? 'text-red-500' : 'text-stone-400 hover:text-red-500 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-              title={isFav ? "पसंदीदा से हटाएं" : "पसंदीदा में जोड़ें"}
-            >
-              <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
-            </button>
-          )}
-          {onToggleQueue && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleQueue();
-              }}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                inQueue ? 'text-amber-500' : 'text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-              title={inQueue ? "कतार में जोड़ा गया" : "कतार में जोड़ें"}
-            >
-              {inQueue ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-            </button>
-          )}
         </div>
       </div>
     </div>
@@ -316,16 +310,6 @@ const YouTubeVideoCardComponent: React.FC<{
 
 const YouTubeVideoCard = React.memo(YouTubeVideoCardComponent);
 
-// YouTube-Style Category Filter Chips (Pills)
-const FILTER_PILLS = [
-  { id: 'all', label: 'सभी' },
-  { id: 'sharda', label: 'शारदा सिन्हा' },
-  { id: 'pawan', label: 'पवन सिंह' },
-  { id: 'khesari', label: 'खेसारी लाल' },
-  { id: 'anuradha', label: 'अनुराधा पौडवाल' },
-  { id: 'maithili', label: 'मैथिली ठाकुर' },
-  { id: 'arghya', label: 'अर्घ्य व पारम्परिक' }
-];
 
 export interface SongsSectionProps {
   initialQuery?: string;
@@ -1027,28 +1011,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           </button>
         </form>
 
-        {/* ========================================================
-            YOUTUBE-STYLE CATEGORY FILTER CHIPS (ALL, MIXES, SINGERS)
-           ======================================================== */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1 select-none">
-          {FILTER_PILLS.map((pill) => {
-            const isActive = activeFilter === pill.id;
-            return (
-              <button
-                key={pill.id}
-                type="button"
-                onClick={() => handleFilterSelect(pill.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 shadow-xs ${
-                  isActive
-                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-sm scale-102'
-                    : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200/80 dark:border-stone-700/60'
-                }`}
-              >
-                {pill.label}
-              </button>
-            );
-          })}
-        </div>
 
 
         {voiceNotice && (
@@ -1139,6 +1101,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         playSong(songObj, ytSearchResults.map(convertToSongModel));
                       }
                     }}
+                    onPlayVideo={() => {
+                      playVideo(songObj, ytSearchResults.map(convertToSongModel));
+                    }}
                     onToggleQueue={() => {
                       if (!inQueue) addToQueue(songObj);
                     }}
@@ -1205,6 +1170,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         } else {
                           playSong(song, liveSongs);
                         }
+                      }}
+                      onPlayVideo={() => {
+                        playVideo(song, liveSongs);
                       }}
                       onToggleQueue={() => {
                         if (!inQueue) addToQueue(song);
