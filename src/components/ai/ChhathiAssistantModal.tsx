@@ -453,7 +453,7 @@ export const ChhathiAssistantModal: React.FC<{ isOpen: boolean; onClose: () => v
                       // 1. Songs Result Card
                       if (tr.toolName === 'search_songs' && tr.data?.songs?.length > 0) {
                         const song = tr.data.songs[0];
-                        const fullSong = chhathSongs.find(s => s.id === song.id) || chhathSongs[0];
+                        const fullSong = chhathSongs.find(s => s.id === song.id) || song;
                         return (
                           <div key={idx} className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2.5 min-w-0">

@@ -697,34 +697,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const syncInlineVideoSong = useCallback((song: Song | null, startSeconds?: number) => {
+  const syncInlineVideoSong = useCallback((song: Song | null) => {
     if (!song) {
       setIsPlaying(false);
       return;
     }
 
-    const startSec = typeof startSeconds === 'number' && startSeconds > 0 ? Math.floor(startSeconds) : 0;
-    setCurrentTime(startSec);
-
-    // 1. Pre-warm / cue background global YouTube player with this video ID at startSeconds
-    // so when user clicks "वीडियो", it is ALREADY buffered and plays in 0ms without restarting!
+    // 1. Pause background global player so it NEVER competes with the inline video for bandwidth or audio!
     try {
-      if (song.youtubeId) {
-        currentlyLoadedYtIdRef.current = song.youtubeId;
-        if (ytPlayerRef.current && ytPlayerRef.current.cueVideoById) {
-          if (startSec > 0) {
-            ytPlayerRef.current.cueVideoById({
-              videoId: song.youtubeId,
-              startSeconds: startSec
-            });
-          } else {
-            ytPlayerRef.current.cueVideoById(song.youtubeId);
-          }
-        }
+      if (ytPlayerRef.current?.pauseVideo) {
+        ytPlayerRef.current.pauseVideo();
       }
       bgAudioRef.current?.pause();
     } catch (e) {
-      console.warn('syncInlineVideoSong pre-cue warning:', e);
+      console.warn('syncInlineVideoSong pause warning:', e);
     }
 
     // 2. Set currentSong and playing state in AudioContext

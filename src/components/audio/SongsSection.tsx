@@ -25,7 +25,6 @@ import {
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
-import { chhathSongs } from '../../data/songs';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -42,7 +41,6 @@ const YouTubeVideoCardComponent: React.FC<{
   isCurrent: boolean;
   isPlayingThis: boolean;
   isInlinePlaying: boolean;
-  startSeconds?: number;
   inQueue?: boolean;
   isFav?: boolean;
   onPlay: () => void;
@@ -57,7 +55,6 @@ const YouTubeVideoCardComponent: React.FC<{
   isCurrent,
   isPlayingThis,
   isInlinePlaying,
-  startSeconds,
   inQueue,
   isFav,
   onPlay,
@@ -79,10 +76,9 @@ const YouTubeVideoCardComponent: React.FC<{
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const startParam = typeof startSeconds === 'number' && startSeconds > 0 ? `&start=${Math.floor(startSeconds)}` : '';
   const iframeSrc = `https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0&controls=1${
     origin ? `&origin=${encodeURIComponent(origin)}` : ''
-  }${startParam}`;
+  }`;
 
   return (
     <div
@@ -284,10 +280,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const { 
     currentSong, 
     isPlaying, 
-    currentTime,
-    setCurrentTime,
     playSong, 
-    playVideo,
+    playVideo, 
     pauseSong,
     setShowVideo,
     togglePlay, 
@@ -302,52 +296,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [inlineVideoSongId, setInlineVideoSongId] = useState<string | null>(null);
-
-  // Exact continuous playback position memory per YouTube video
-  const inlineTimeMapRef = useRef<{ [ytId: string]: number }>({});
-  const activeInlineStartRef = useRef<{ id: string; baseSec: number; startTs: number } | null>(null);
-
-  // Poll inline video elapsed time every 500ms and sync with AudioContext
-  useEffect(() => {
-    if (!inlineVideoSongId) {
-      activeInlineStartRef.current = null;
-      return;
-    }
-
-    const interval = setInterval(() => {
-      if (activeInlineStartRef.current && activeInlineStartRef.current.id === inlineVideoSongId) {
-        const elapsedSec = Math.floor((Date.now() - activeInlineStartRef.current.startTs) / 1000);
-        const currentSec = activeInlineStartRef.current.baseSec + elapsedSec;
-        inlineTimeMapRef.current[inlineVideoSongId] = currentSec;
-        setCurrentTime(currentSec);
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [inlineVideoSongId, setCurrentTime]);
-
-  // Listen for YouTube iframe postMessage infoDelivery to get exact whole-second time from YouTube player
-  useEffect(() => {
-    const handlePostMessage = (event: MessageEvent) => {
-      try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        if (data && data.event === 'infoDelivery' && data.info && inlineVideoSongId) {
-          if (typeof data.info.currentTime === 'number') {
-            const ytTime = Math.floor(data.info.currentTime);
-            inlineTimeMapRef.current[inlineVideoSongId] = ytTime;
-            if (activeInlineStartRef.current && activeInlineStartRef.current.id === inlineVideoSongId) {
-              activeInlineStartRef.current.baseSec = ytTime;
-              activeInlineStartRef.current.startTs = Date.now();
-            }
-            setCurrentTime(ytTime);
-          }
-        }
-      } catch {}
-    };
-
-    window.addEventListener('message', handlePostMessage);
-    return () => window.removeEventListener('message', handlePostMessage);
-  }, [inlineVideoSongId, setCurrentTime]);
 
   // Sync inline video state with global back button & pause events
   useEffect(() => {
@@ -412,9 +360,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     }
   }, []);
 
-  // Real-time Live YouTube Songs Stream State (Pre-populated for instant 0ms mount!)
-  const [liveSongs, setLiveSongs] = useState<Song[]>(() => chhathSongs || []);
-  const [isLiveInitialLoading, setIsLiveInitialLoading] = useState<boolean>(false);
+  // Real-time Live YouTube Songs Stream State (Dynamic: static dataset removed)
+  const [liveSongs, setLiveSongs] = useState<Song[]>([]);
+  const [isLiveInitialLoading, setIsLiveInitialLoading] = useState<boolean>(true);
   const [liveNextPageToken, setLiveNextPageToken] = useState<string | null>(null);
   const [isLoadingMoreLive, setIsLoadingMoreLive] = useState<boolean>(false);
   const liveTopicIndexRef = useRef<number>(0);
@@ -1087,8 +1035,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 const inQueue = queue.some(q => (q.youtubeId && q.youtubeId === ytSong.youtubeId) || q.id === songObj.id);
                 const isFav = favorites.includes(songObj.id);
 
-                const currentSec = inlineTimeMapRef.current[ytSong.youtubeId] || (isCurrent ? currentTime : 0);
-
                 return (
                   <YouTubeVideoCard
                     key={ytSong.youtubeId}
@@ -1096,37 +1042,30 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     isCurrent={isCurrent}
                     isPlayingThis={isPlayingThis}
                     isInlinePlaying={inlineVideoSongId === ytSong.youtubeId}
-                    startSeconds={currentSec}
                     inQueue={inQueue}
                     isFav={isFav}
                     onThumbnailClick={() => {
-                      const isThisSongActive = (currentSong?.youtubeId && currentSong.youtubeId === ytSong.youtubeId) || currentSong?.id === songObj.id;
-                      const startAt = isThisSongActive && currentTime > 0 ? currentTime : (inlineTimeMapRef.current[ytSong.youtubeId] || 0);
-
-                      activeInlineStartRef.current = {
-                        id: ytSong.youtubeId,
-                        baseSec: startAt,
-                        startTs: Date.now()
-                      };
-                      inlineTimeMapRef.current[ytSong.youtubeId] = startAt;
-
-                      setInlineVideoSongId(ytSong.youtubeId || null);
-                      syncInlineVideoSong(songObj, startAt);
+                      if (!ytSong.youtubeId) return;
+                      if (inlineVideoSongId === ytSong.youtubeId) {
+                        setInlineVideoSongId(null);
+                        syncInlineVideoSong(null);
+                      } else {
+                        setInlineVideoSongId(ytSong.youtubeId);
+                        syncInlineVideoSong(songObj);
+                      }
                     }}
                     onPlay={() => {
-                      const sec = inlineTimeMapRef.current[ytSong.youtubeId] || (isCurrent ? currentTime : 0);
                       setInlineVideoSongId(null);
                       setShowVideo(false);
                       if (isCurrent && isPlaying) {
                         togglePlay();
                       } else {
-                        playSong(songObj, ytSearchResults.map(convertToSongModel), sec);
+                        playSong(songObj, ytSearchResults.map(convertToSongModel));
                       }
                     }}
                     onPlayVideo={() => {
-                      const sec = inlineTimeMapRef.current[ytSong.youtubeId] || (isCurrent ? currentTime : 0);
                       setInlineVideoSongId(null);
-                      playVideo(songObj, ytSearchResults.map(convertToSongModel), sec);
+                      playVideo(songObj, ytSearchResults.map(convertToSongModel));
                     }}
                     onToggleQueue={() => {
                       if (!inQueue) addToQueue(songObj);
@@ -1180,8 +1119,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                   const inQueue = queue.some(q => (q.youtubeId && song.youtubeId && q.youtubeId === song.youtubeId) || q.id === song.id);
                   const isFav = favorites.includes(song.id);
 
-                  const currentSec = (ytId ? inlineTimeMapRef.current[ytId] : 0) || (isCurrent ? currentTime : 0);
-
                   return (
                     <YouTubeVideoCard
                       key={cardKey}
@@ -1189,38 +1126,30 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       isCurrent={isCurrent}
                       isPlayingThis={isPlayingThis}
                       isInlinePlaying={Boolean(ytId && inlineVideoSongId === ytId)}
-                      startSeconds={currentSec}
                       inQueue={inQueue}
                       isFav={isFav}
                       onThumbnailClick={() => {
                         if (!ytId) return;
-                        const isThisSongActive = (currentSong?.youtubeId && currentSong.youtubeId === ytId) || currentSong?.id === song.id;
-                        const startAt = isThisSongActive && currentTime > 0 ? currentTime : (inlineTimeMapRef.current[ytId] || 0);
-
-                        activeInlineStartRef.current = {
-                          id: ytId,
-                          baseSec: startAt,
-                          startTs: Date.now()
-                        };
-                        inlineTimeMapRef.current[ytId] = startAt;
-
-                        setInlineVideoSongId(ytId);
-                        syncInlineVideoSong(song, startAt);
+                        if (inlineVideoSongId === ytId) {
+                          setInlineVideoSongId(null);
+                          syncInlineVideoSong(null);
+                        } else {
+                          setInlineVideoSongId(ytId);
+                          syncInlineVideoSong(song);
+                        }
                       }}
                       onPlay={() => {
-                        const sec = (ytId ? inlineTimeMapRef.current[ytId] : 0) || (isCurrent ? currentTime : 0);
                         setInlineVideoSongId(null);
                         setShowVideo(false);
                         if (isCurrent && isPlaying) {
                           togglePlay();
                         } else {
-                          playSong(song, liveSongs, sec);
+                          playSong(song, liveSongs);
                         }
                       }}
                       onPlayVideo={() => {
-                        const sec = (ytId ? inlineTimeMapRef.current[ytId] : 0) || (isCurrent ? currentTime : 0);
                         setInlineVideoSongId(null);
-                        playVideo(song, liveSongs, sec);
+                        playVideo(song, liveSongs);
                       }}
                       onToggleQueue={() => {
                         if (!inQueue) addToQueue(song);

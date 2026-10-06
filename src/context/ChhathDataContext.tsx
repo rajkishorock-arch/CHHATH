@@ -79,6 +79,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     try {
       const obsoleteKeys = [
+        'chhath_custom_songs_v8',
         'chhath_custom_songs_v7',
         'chhath_custom_songs_v6',
         'chhath_custom_songs_v5',
@@ -95,23 +96,8 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, []);
 
-  // 1. Songs with localStorage persistence (verified real playable YouTube songs v8)
-  const [songs, setSongs] = useState<Song[]>(() => {
-    try {
-      const saved = localStorage.getItem('chhath_custom_songs_v8');
-      if (saved) {
-        const parsed: Song[] = JSON.parse(saved);
-        // Ensure all cached songs have legitimate playable YouTube IDs and valid thumbnails
-        if (Array.isArray(parsed) && parsed.length >= 25) {
-          const hasInvalid = parsed.some(s => !s.youtubeId || s.youtubeId.length < 5 || !s.thumbnail || s.thumbnail.includes('undefined'));
-          if (!hasInvalid) return parsed;
-        }
-      }
-      return defaultSongs;
-    } catch {
-      return defaultSongs;
-    }
-  });
+  // 1. Songs: Dynamic live feed (Static dataset removed)
+  const [songs, setSongs] = useState<Song[]>([]);
 
   // 2. Ghats
   const [ghats, setGhats] = useState<Ghat[]>(() => {
@@ -159,11 +145,11 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const saved = localStorage.getItem('chhath_favorite_songs') || localStorage.getItem('chhath_music_favorites');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter(id => !id.startsWith('song-'));
       }
-      return ['song-1', 'song-2'];
+      return [];
     } catch {
-      return ['song-1', 'song-2'];
+      return [];
     }
   });
 
@@ -220,10 +206,6 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   });
 
   // Sync to localStorage
-  useEffect(() => {
-    localStorage.setItem('chhath_custom_songs_v8', JSON.stringify(songs));
-  }, [songs]);
-
   useEffect(() => {
     localStorage.setItem('chhath_custom_ghats', JSON.stringify(ghats));
   }, [ghats]);
