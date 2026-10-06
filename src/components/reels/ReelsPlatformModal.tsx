@@ -11,7 +11,8 @@ import {
   ShieldCheck, 
   Home, 
   Film,
-  Sparkles
+  Sparkles,
+  Compass
 } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
 import { useAuth } from '../../context/AuthContext';
@@ -207,15 +208,45 @@ export const ReelsPlatformModal: React.FC = () => {
     }
   }, [reelsPlatformOpen]);
 
+  const handleExploreClick = () => {
+    closeReelsPlatform();
+    try {
+      window.location.hash = '#explore';
+      window.dispatchEvent(new Event('hashchange'));
+    } catch (e) {
+      console.warn('Explore navigation error:', e);
+    }
+  };
+
   if (!reelsPlatformOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black text-stone-100 overflow-hidden select-none animate-fadeIn">
+      {/* Mobile Top-Left Floating Search Button */}
+      <button
+        type="button"
+        onClick={() => setSearchOpen(true)}
+        className="sm:hidden absolute top-3.5 left-3.5 z-40 p-2.5 rounded-full bg-black/60 hover:bg-black/85 text-white/90 hover:text-amber-400 border border-white/20 backdrop-blur-md shadow-xl transition-all active:scale-90 flex items-center justify-center cursor-pointer pointer-events-auto"
+        title="रील्स खोजें (Search Reels)"
+        aria-label="रील्स खोजें"
+      >
+        <Search className="w-5 h-5" />
+      </button>
+
       {/* 1. TOP FLOATING MINIMAL HEADER (Desktop only - completely hidden on mobile per user request) */}
       <header className="hidden sm:flex absolute top-0 inset-x-0 z-30 px-3 sm:px-6 py-3 items-center justify-between pointer-events-none">
         
-        {/* Left: Brand Logo */}
-        <div className="flex items-center gap-2 pointer-events-auto">
+        {/* Left: Top-Left Search Trigger & Brand Logo */}
+        <div className="flex items-center gap-2.5 pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="p-2 sm:p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-stone-200 hover:text-amber-400 border border-white/10 backdrop-blur-md transition-all shadow-md cursor-pointer flex items-center justify-center"
+            title="रील्स खोजें (Search Reels)"
+            aria-label="रील्स खोजें"
+          >
+            <Search className="w-4 h-4" />
+          </button>
           <div className="w-8 h-8 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
             <span className="text-base">🌅</span>
           </div>
@@ -224,17 +255,9 @@ export const ReelsPlatformModal: React.FC = () => {
           </span>
         </div>
 
-        {/* Right: Actions (Search, Create, Studio, Admin, User, Close) */}
+        {/* Right: Actions (Create, Studio, Admin, User, Close) */}
         <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
-          
-          {/* Search Trigger */}
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="p-2 sm:p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-stone-200 hover:text-amber-400 border border-white/10 backdrop-blur-md transition-all shadow-md"
-            title="सर्च करें (Search people, hashtags, reels)"
-          >
-            <Search className="w-4 h-4" />
-          </button>
+
 
           {/* Create Reel Button */}
           <button
@@ -442,11 +465,14 @@ export const ReelsPlatformModal: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setSearchOpen(true)}
-          className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-white transition-colors"
+          type="button"
+          onClick={handleExploreClick}
+          className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-amber-400 transition-colors cursor-pointer"
+          title="एक्सप्लोर (Explore)"
+          aria-label="एक्सप्लोर"
         >
-          <Search className="w-5 h-5" />
-          <span className="text-[10px] font-mukta">सर्च</span>
+          <Compass className="w-5 h-5" />
+          <span className="text-[10px] font-mukta font-bold">एक्सप्लोर</span>
         </button>
 
         <button
