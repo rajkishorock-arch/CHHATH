@@ -29,7 +29,6 @@ import {
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
-import { fetchLivePlaylists, DynamicChhathPlaylist } from '../../services/youtubePlaylistService';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -48,7 +47,6 @@ const YouTubeVideoCardComponent: React.FC<{
   inQueue?: boolean;
   isFav?: boolean;
   onPlay: () => void;
-  onPlayVideo: () => void;
   onToggleQueue?: () => void;
   onToggleFav?: () => void;
   onShareSong?: () => void;
@@ -60,36 +58,58 @@ const YouTubeVideoCardComponent: React.FC<{
   inQueue,
   isFav,
   onPlay,
-  onPlayVideo,
   onToggleQueue,
   onToggleFav,
   onShareSong,
 }) => {
+  const { activeInlineVideoId, setActiveInlineVideoId, syncInlineVideoSong } = useAudio();
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
+  const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     const nextThumb = song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
     setThumbSrc(nextThumb);
   }, [song.thumbnail, song.youtubeId]);
 
+  const isInlineActive = Boolean(song.youtubeId && activeInlineVideoId === song.youtubeId);
+
+  useEffect(() => {
+    if (!isInlineActive) {
+      setIframeLoaded(false);
+    }
+  }, [isInlineActive]);
+
+  const handleStartInline = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!song.youtubeId) return;
+    syncInlineVideoSong(song);
+    setActiveInlineVideoId(song.youtubeId);
+  };
+
+  const handleStopInline = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setActiveInlineVideoId(null);
+  };
+
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
   return (
     <div
       className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
-        isCurrent
+        isCurrent || isInlineActive
           ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
           : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
       }`}
     >
       <div>
-        {/* 16:9 YouTube Thumbnail Container - 100% Reliable Clicks on Phone & Desktop */}
+        {/* 16:9 YouTube Thumbnail Container - Inline Video Plays Right Here! */}
         <div 
-          onClick={onPlayVideo}
+          onClick={!isInlineActive ? handleStartInline : undefined}
           className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none cursor-pointer group/thumb"
         >
+          {/* Base Thumbnail Image Layer */}
           <img
             src={thumbSrc}
             alt={song.title}
@@ -107,39 +127,77 @@ const YouTubeVideoCardComponent: React.FC<{
             }}
           />
 
-          {/* Active / Hover Play Overlay on Thumbnail */}
-          <div
-            className={`absolute inset-0 transition-opacity flex items-center justify-center ${
-              isPlayingThis
-                ? 'bg-black/40 opacity-100'
-                : 'bg-black/30 opacity-0 group-hover:opacity-100'
-            }`}
-          >
-            <div
-              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
-                isPlayingThis
-                  ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
-                  : 'bg-stone-950/80 text-white group-hover:scale-110'
-              }`}
-            >
-              {isPlayingThis ? (
-                <Pause className="w-5 h-5 fill-current" />
-              ) : (
-                <Play className="w-5 h-5 fill-current ml-0.5" />
-              )}
-            </div>
-          </div>
+          {/* ACTIVE INLINE VIDEO IFRAME (Plays directly in thumbnail) */}
+          {isInlineActive ? (
+            <div className="absolute inset-0 z-20 bg-black">
+              <iframe
+                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&enablejsapi=1&rel=0&modestbranding=1`}
+                title={song.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                onLoad={() => setIframeLoaded(true)}
+                className={`w-full h-full border-0 transition-opacity duration-300 ${
+                  iframeLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
 
-          {/* Video Duration Badge */}
-          {song.duration && (
-            <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
-              {formatDuration(song.duration)}
+              {/* Spinner while loading over thumbnail poster */}
+              {!iframeLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs pointer-events-none">
+                  <div className="w-10 h-10 rounded-full border-3 border-amber-500/30 border-t-amber-500 animate-spin" />
+                </div>
+              )}
+
+              {/* Close Inline Video Button */}
+              <button
+                type="button"
+                onClick={handleStopInline}
+                className="absolute top-2 right-2 z-30 p-1.5 rounded-full bg-black/80 hover:bg-black text-white/90 hover:text-white shadow-lg border border-white/20 transition-all cursor-pointer"
+                title="वीडियो बंद करें"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
+          ) : (
+            <>
+              {/* Idle Play Overlay on Thumbnail */}
+              <div
+                className={`absolute inset-0 transition-opacity flex items-center justify-center ${
+                  isPlayingThis
+                    ? 'bg-black/40 opacity-100'
+                    : 'bg-black/30 opacity-0 group-hover:opacity-100'
+                }`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
+                    isPlayingThis
+                      ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
+                      : 'bg-stone-950/80 text-white group-hover:scale-110'
+                  }`}
+                >
+                  {isPlayingThis ? (
+                    <Pause className="w-5 h-5 fill-current" />
+                  ) : (
+                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                  )}
+                </div>
+              </div>
+
+              {/* Video Duration Badge */}
+              {song.duration && (
+                <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
+                  {formatDuration(song.duration)}
+                </div>
+              )}
+            </>
           )}
         </div>
 
         {/* Video Details Row (YouTube App Layout) */}
-        <div className="p-3 flex items-start gap-2.5">
+        <div 
+          onClick={!isInlineActive ? handleStartInline : undefined}
+          className="p-3 flex items-start gap-2.5 cursor-pointer"
+        >
           {/* Channel / Artist Avatar Circle */}
           <div 
             className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5"
@@ -151,7 +209,7 @@ const YouTubeVideoCardComponent: React.FC<{
           <div className="min-w-0 flex-1">
             <h4 
               className={`font-semibold text-xs sm:text-sm line-clamp-2 leading-snug transition-colors ${
-                isCurrent ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
+                isCurrent || isInlineActive ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200'
               }`}
               title={song.title}
             >
@@ -167,33 +225,42 @@ const YouTubeVideoCardComponent: React.FC<{
         </div>
       </div>
 
-      {/* Action Footer: Dedicated Video vs Audio buttons + Quick controls */}
+      {/* Action Footer: Video vs Audio buttons + Quick controls */}
       <div className="px-3 pb-3 pt-0 flex items-center justify-between gap-1.5 border-t border-stone-100 dark:border-stone-800/80 mt-1">
         <div className="flex items-center gap-1.5 pt-2">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onPlayVideo();
+              if (isInlineActive) {
+                handleStopInline();
+              } else {
+                handleStartInline();
+              }
             }}
-            className="px-2.5 py-1 rounded-lg bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-            title="थिएटर मोड में वीडियो देखें"
+            className={`px-2.5 py-1 rounded-lg font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer ${
+              isInlineActive
+                ? 'bg-red-600 text-white shadow-sm'
+                : 'bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400'
+            }`}
+            title="थंबनेल में वीडियो चलाएं"
           >
             <Video className="w-3.5 h-3.5" />
-            <span>वीडियो</span>
+            <span>{isInlineActive ? 'चल रहा है' : 'वीडियो'}</span>
           </button>
 
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
+              handleStopInline();
               onPlay();
             }}
             className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
             title="ऑडियो सुनें"
           >
-            {isPlayingThis ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
-            <span>{isPlayingThis ? 'रोकें' : 'ऑडियो'}</span>
+            {isPlayingThis && !isInlineActive ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
+            <span>{isPlayingThis && !isInlineActive ? 'रोकें' : 'ऑडियो'}</span>
           </button>
         </div>
 
@@ -249,185 +316,9 @@ const YouTubeVideoCardComponent: React.FC<{
 
 const YouTubeVideoCard = React.memo(YouTubeVideoCardComponent);
 
-// YouTube-Style Mix & Playlist Card Component (Stacked deck look, mix badge, track list)
-const YouTubePlaylistCardComponent: React.FC<{
-  playlist: DynamicChhathPlaylist;
-  isCurrent: boolean;
-  onPlayPlaylist: () => void;
-  onPlayVideo: () => void;
-  onPlayTrack: (track: Song, queue: Song[]) => void;
-}> = ({
-  playlist,
-  isCurrent,
-  onPlayPlaylist,
-  onPlayVideo,
-  onPlayTrack
-}) => {
-  const [showTracks, setShowTracks] = useState(false);
-  const [thumbSrc, setThumbSrc] = useState(playlist.thumbnail);
-
-  return (
-    <div
-      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
-        isCurrent
-          ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
-          : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
-      }`}
-    >
-      <div>
-        {/* Layered Stacked Deck Visual Effect on Thumbnail (Like YouTube Mix cards) */}
-        <div className="relative pt-2 px-2 bg-gradient-to-b from-amber-500/10 to-transparent">
-          {/* Deck layers */}
-          <div className="absolute top-0.5 left-4 right-4 h-1.5 rounded-t-lg bg-stone-300 dark:bg-stone-700 opacity-60" />
-          <div className="absolute top-1 left-3 right-3 h-1.5 rounded-t-lg bg-stone-400 dark:bg-stone-600 opacity-80" />
-
-          <div
-            onClick={onPlayPlaylist}
-            className="relative aspect-video w-full rounded-xl bg-stone-950 overflow-hidden cursor-pointer group/thumb shadow-sm"
-          >
-            <img
-              src={thumbSrc}
-              alt={playlist.title}
-              loading="lazy"
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
-              onError={() => {
-                if (playlist.youtubeId) {
-                  setThumbSrc(`https://img.youtube.com/vi/${playlist.youtubeId}/hqdefault.jpg`);
-                }
-              }}
-            />
-
-            {/* Signature YouTube Playlist Right-Side Panel */}
-            <div className="absolute inset-y-0 right-0 w-24 sm:w-28 bg-stone-950/80 backdrop-blur-xs flex flex-col items-center justify-center gap-1 text-white border-l border-white/10 group-hover/thumb:bg-stone-950/90 transition-colors">
-              <ListMusic className="w-5 h-5 text-amber-400" />
-              <span className="text-xs font-bold font-mono tracking-tight">{playlist.trackCount}+ गीत</span>
-              <div className="mt-0.5 px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold flex items-center gap-1">
-                <Play className="w-2.5 h-2.5 fill-current" />
-                <span>Play All</span>
-              </div>
-            </div>
-
-            {/* Play Overlay */}
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white pointer-events-none">
-              <div className="w-12 h-12 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xl ring-4 ring-amber-500/30">
-                <Play className="w-5 h-5 fill-current ml-0.5" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Playlist Metadata */}
-        <div className="p-3 flex items-start gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-            <ListMusic className="w-4 h-4 text-stone-950" />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <h4
-              className="font-semibold text-xs sm:text-sm line-clamp-2 leading-snug text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200 transition-colors"
-              title={playlist.title}
-            >
-              {playlist.title}
-            </h4>
-            <div className="flex items-center gap-1 mt-1 text-xs text-stone-600 dark:text-stone-400 truncate">
-              <span className="truncate">{playlist.subtitle}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Footer */}
-      <div className="px-3 pb-3 pt-0 flex flex-col gap-2 border-t border-stone-100 dark:border-stone-800/80 mt-1">
-        <div className="flex items-center justify-between gap-1.5 pt-2">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onPlayPlaylist();
-              }}
-              className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-              title="पूरी प्लेलिस्ट चलाएं"
-            >
-              <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
-              <span>प्लेलिस्ट सुनें</span>
-            </button>
-
-            {onPlayVideo && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPlayVideo();
-                }}
-                className="px-2.5 py-1 rounded-lg bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                title="वीडियो जूकबॉक्स देखें"
-              >
-                <Video className="w-3.5 h-3.5" />
-                <span>वीडियो</span>
-              </button>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowTracks(!showTracks);
-            }}
-            className="px-2 py-1 rounded-lg text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800"
-            title={showTracks ? "सूची छुपाएं" : "गीतों की सूची देखें"}
-          >
-            <span>{showTracks ? "छुपाएं" : `${playlist.trackCount} गीत`}</span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showTracks ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-
-        {/* Expandable Tracklist Drawer */}
-        {showTracks && (
-          <div className="mt-1 pt-2 border-t border-stone-200 dark:border-stone-800/80 space-y-1.5 max-h-52 overflow-y-auto pr-1">
-            {playlist.tracks.map((t, idx) => (
-              <div
-                key={t.id || idx}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPlayTrack(t, playlist.tracks);
-                }}
-                className="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-amber-500/10 transition-colors cursor-pointer text-xs"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-mono text-[11px] text-stone-400 w-4 text-center shrink-0">
-                    {idx + 1}
-                  </span>
-                  <div className="min-w-0 truncate">
-                    <p className="font-medium text-stone-800 dark:text-stone-200 truncate leading-tight">
-                      {t.title}
-                    </p>
-                    <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
-                      {t.singer}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0 text-stone-400">
-                  <span className="font-mono text-[10px]">{t.duration || '5:00'}</span>
-                  <Play className="w-3 h-3 text-amber-500 fill-current" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const YouTubePlaylistCard = React.memo(YouTubePlaylistCardComponent);
-
 // YouTube-Style Category Filter Chips (Pills)
 const FILTER_PILLS = [
   { id: 'all', label: 'सभी' },
-  { id: 'playlists', label: '🎶 मिक्स व प्लेलिस्ट' },
   { id: 'sharda', label: 'शारदा सिन्हा' },
   { id: 'pawan', label: 'पवन सिंह' },
   { id: 'khesari', label: 'खेसारी लाल' },
@@ -459,29 +350,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
-
-  // Real-time Dynamic Playlists fetched over the internet from YouTube
-  const [dynamicPlaylists, setDynamicPlaylists] = useState<DynamicChhathPlaylist[]>([]);
-  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState<boolean>(false);
-
-  useEffect(() => {
-    let isMounted = true;
-    setIsLoadingPlaylists(true);
-    fetchLivePlaylists(activeFilter)
-      .then((pls) => {
-        if (isMounted) {
-          setDynamicPlaylists(pls);
-          setIsLoadingPlaylists(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setIsLoadingPlaylists(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [activeFilter]);
 
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'success' | 'no_results' | 'error'>('idle');
   const [ytSearchResults, setYtSearchResults] = useState<YouTubeSearchSong[]>([]);
@@ -950,7 +818,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
   const handleFilterSelect = (filterId: string) => {
     setActiveFilter(filterId);
-    if (filterId === 'all' || filterId === 'playlists') {
+    if (filterId === 'all') {
       searchSeenIdsRef.current.clear();
       currentSearchTermRef.current = '';
       searchFacetIndexRef.current = 0;
@@ -1078,7 +946,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         if (entries[0]?.isIntersecting) {
           if (searchStatus === 'success' && !isLoadingMore) {
             loadMoreSearchResults();
-          } else if (searchStatus === 'idle' && activeFilter !== 'playlists' && !isLoadingMoreLive && !isLiveInitialLoading) {
+          } else if (searchStatus === 'idle' && !isLoadingMoreLive && !isLiveInitialLoading) {
             loadMoreLiveSongs();
           }
         }
@@ -1271,9 +1139,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         playSong(songObj, ytSearchResults.map(convertToSongModel));
                       }
                     }}
-                    onPlayVideo={() => {
-                      playVideo(songObj, ytSearchResults.map(convertToSongModel));
-                    }}
                     onToggleQueue={() => {
                       if (!inQueue) addToQueue(songObj);
                     }}
@@ -1288,49 +1153,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* ========================================================
-            DEDICATED FULL PLAYLISTS & MIXES VIEW (DYNAMIC YOUTUBE DATA)
-           ======================================================== */}
-        {searchStatus === 'idle' && activeFilter === 'playlists' && (
-          <div className="space-y-3 pt-1">
-            {isLoadingPlaylists && dynamicPlaylists.length === 0 ? (
-              <div className="flex items-center justify-center py-10">
-                <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                {dynamicPlaylists.map((pl) => (
-                  <YouTubePlaylistCard
-                    key={pl.id}
-                    playlist={pl}
-                    isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
-                    onPlayPlaylist={() => {
-                      playSong(pl.tracks[0], pl.tracks);
-                    }}
-                    onPlayVideo={() => {
-                      const masterSong: Song = {
-                        id: pl.id,
-                        title: pl.title,
-                        singer: pl.subtitle,
-                        youtubeId: pl.youtubeId,
-                        thumbnail: pl.thumbnail,
-                        duration: pl.durationText
-                      };
-                      playVideo(masterSong, pl.tracks);
-                    }}
-                    onPlayTrack={(track, queueList) => {
-                      playSong(track, queueList);
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ========================================================
             REAL-TIME LIVE YOUTUBE CHHATH SONGS FEED (IDLE STATE)
            ======================================================== */}
-        {searchStatus === 'idle' && activeFilter !== 'playlists' && (
+        {searchStatus === 'idle' && (
           <div className="space-y-4 pt-1">
 
             {/* Initial Loading Skeletons */}
@@ -1381,9 +1206,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                           playSong(song, liveSongs);
                         }
                       }}
-                      onPlayVideo={() => {
-                        playVideo(song, liveSongs);
-                      }}
                       onToggleQueue={() => {
                         if (!inQueue) addToQueue(song);
                       }}
@@ -1413,15 +1235,13 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
-        {activeFilter !== 'playlists' && (
-          <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex items-center justify-center">
+        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex items-center justify-center">
             {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) && (
               <div className="p-3 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
                 <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
               </div>
             )}
           </div>
-        )}
 
         {/* Floating Share Feedback Toast */}
         {shareFeedback && (

@@ -64,6 +64,8 @@ interface AudioContextType {
   clearPlaybackError: () => void;
   ringBell: () => void;
   syncInlineVideoSong: (song: Song | null, startSeconds?: number) => void;
+  activeInlineVideoId: string | null;
+  setActiveInlineVideoId: (id: string | null) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -112,6 +114,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
   const [isFullscreenMode, setIsFullscreenMode] = useState<boolean>(false);
   const [isVideoBuffering, setIsVideoBuffering] = useState<boolean>(false);
+  const [activeInlineVideoId, setActiveInlineVideoId] = useState<string | null>(null);
   const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
   const seekFeedbackTimerRef = useRef<any>(null);
   const lastTapRef = useRef<{ time: number; x: number }>({ time: 0, x: 0 });
@@ -566,6 +569,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     // 3. SYNCHRONOUS REF UPDATES (Prevents stale closure races)
+    setActiveInlineVideoId(null);
     queueRef.current = finalQueue;
     currentIndexRef.current = targetIndex;
     currentSongRef.current = song;
@@ -717,6 +721,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     hasStartedPlaybackRef.current = true;
     setIsPlaying(false);
     setShowVideo(false);
+    setActiveInlineVideoId(song ? song.youtubeId || null : null);
 
     // 3. Ensure song is in queue
     setQueueState(prev => {
@@ -1131,7 +1136,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isFullscreenMode,
         setIsFullscreenMode,
         toggleNativeFullscreen,
-        syncInlineVideoSong
+        syncInlineVideoSong,
+        activeInlineVideoId,
+        setActiveInlineVideoId
       }}
     >
       {children}
