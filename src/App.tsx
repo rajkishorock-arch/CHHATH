@@ -408,6 +408,12 @@ const MainContent: React.FC = () => {
   const [exitToastVisible, setExitToastVisible] = useState<boolean>(false);
 
   const handleBackLogic = React.useCallback((): string => {
+    // 0. If inline video is playing inside song card thumbnail, close inline video
+    if ((window as any).__hasInlineVideoOpen) {
+      window.dispatchEvent(new CustomEvent('close_inline_video'));
+      return 'handled';
+    }
+
     // 1. If video is in fullscreen landscape mode, exit fullscreen first
     if (isFullscreenMode) {
       toggleNativeFullscreen();

@@ -62,6 +62,7 @@ interface AudioContextType {
   setLyricsSong: (song: Song | null) => void;
   clearPlaybackError: () => void;
   ringBell: () => void;
+  syncInlineVideoSong: (song: Song | null, startSeconds?: number) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -683,10 +684,47 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const syncInlineVideoSong = useCallback((song: Song | null, startSeconds?: number) => {
+    if (!song) {
+      setIsPlaying(false);
+      return;
+    }
+
+    // 1. Pause background global YouTube player to prevent duplicate audio echo
+    try {
+      if (ytPlayerRef.current?.pauseVideo) {
+        ytPlayerRef.current.pauseVideo();
+      }
+      bgAudioRef.current?.pause();
+    } catch {}
+
+    // 2. Set active song & playing state in AudioContext
+    currentSongRef.current = song;
+    setCurrentSong(song);
+    hasStartedPlaybackRef.current = true;
+    userRequestedPauseRef.current = false;
+    setIsPlaying(true);
+    setShowVideo(false);
+    if (typeof startSeconds === 'number' && startSeconds > 0) {
+      setCurrentTime(startSeconds);
+    }
+
+    // 3. Ensure song is in queue
+    setQueueState(prev => {
+      const exists = prev.some(s => (s.youtubeId && song.youtubeId && s.youtubeId === song.youtubeId) || s.id === song.id);
+      if (!exists) return [...prev, song];
+      return prev;
+    });
+
+    // 4. Track recently played
+    setRecentlyPlayed(prev => [song.id, ...prev.filter(id => id !== song.id)].slice(0, 20));
+  }, []);
+
   const pauseSong = () => {
     userRequestedPauseRef.current = true;
     setIsPlaying(false);
     bgAudioRef.current?.pause();
+    window.dispatchEvent(new CustomEvent('pause_inline_video'));
     if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
       try {
         ytPlayerRef.current.pauseVideo();
@@ -1082,7 +1120,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ringBell,
         isFullscreenMode,
         setIsFullscreenMode,
-        toggleNativeFullscreen
+        toggleNativeFullscreen,
+        syncInlineVideoSong
       }}
     >
       {children}
