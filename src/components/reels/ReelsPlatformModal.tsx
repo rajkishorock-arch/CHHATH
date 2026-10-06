@@ -24,6 +24,7 @@ import { CreatorStudioModal } from './CreatorStudioModal';
 import { ReelsModerationModal } from './ReelsModerationModal';
 import { AudioPageModal } from './AudioPageModal';
 import { AuthModal } from './AuthModal';
+import { getImageUrl } from '../../utils/imageUtils';
 
 export const ReelsPlatformModal: React.FC = () => {
   const {
@@ -338,9 +339,7 @@ export const ReelsPlatformModal: React.FC = () => {
             className="w-full h-full overflow-y-scroll overscroll-contain snap-y snap-mandatory scrollbar-none touch-pan-y"
             style={{ 
               scrollSnapType: 'y mandatory',
-              WebkitOverflowScrolling: 'touch',
-              willChange: 'scroll-position',
-              transform: 'translateZ(0)'
+              WebkitOverflowScrolling: 'touch'
             }}
           >
             {reels.map((reel, index) => {
@@ -357,21 +356,34 @@ export const ReelsPlatformModal: React.FC = () => {
                     scrollSnapAlign: 'start', 
                     scrollSnapStop: 'always',
                     height: '100%',
-                    width: '100%'
+                    width: '100%',
+                    contain: 'strict'
                   }}
                 >
-                  <VerticalReelPlayer
-                    reel={reel}
-                    isActive={isCurrentActive}
-                    isNearby={isNearbyReel}
-                    onOpenProfile={(u) => openProfileModal(u)}
-                    onOpenAudio={(id) => setSelectedAudioId(id)}
-                    onNext={() => scrollToIndex(index + 1)}
-                    onPrev={() => scrollToIndex(index - 1)}
-                    onPlaybackError={(reelId, videoId, errorCode) => {
-                      handleVideoError(reelId, videoId, errorCode);
-                    }}
-                  />
+                  {isNearbyReel ? (
+                    <VerticalReelPlayer
+                      reel={reel}
+                      isActive={isCurrentActive}
+                      isNearby={isNearbyReel}
+                      onOpenProfile={(u) => openProfileModal(u)}
+                      onOpenAudio={(id) => setSelectedAudioId(id)}
+                      onNext={() => scrollToIndex(index + 1)}
+                      onPrev={() => scrollToIndex(index - 1)}
+                      onPlaybackError={(reelId, videoId, errorCode) => {
+                        handleVideoError(reelId, videoId, errorCode);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-black flex items-center justify-center relative select-none">
+                      <img 
+                        src={getImageUrl(reel.thumbnailUrl)} 
+                        alt={reel.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover opacity-50 pointer-events-none"
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}

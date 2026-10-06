@@ -25,6 +25,8 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const durationRef = useRef<number>(0);
+  const lastPctRef = useRef<number>(-1);
+  const initialMuteRef = useRef(isMuted ? 1 : 0);
 
   // Send direct command to YouTube HTML5 Player via postMessage
   const sendYtCommand = useCallback((func: string, args: any[] = []) => {
@@ -100,6 +102,11 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
         ) {
           sendYtCommand('seekTo', [0, true]);
           sendYtCommand('playVideo', []);
+          setTimeout(() => {
+            sendYtCommand('seekTo', [0, true]);
+            sendYtCommand('playVideo', []);
+          }, 50);
+          lastPctRef.current = 0;
           onProgress?.(0, 0, durationRef.current);
           return;
         }
@@ -130,12 +137,16 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
 
           if (typeof currentTime === 'number' && durationRef.current > 0) {
             const pct = Math.min(100, Math.max(0, (currentTime / durationRef.current) * 100));
-            onProgress?.(pct, currentTime, durationRef.current);
+            if (Math.abs(pct - lastPctRef.current) >= 0.8 || pct === 0) {
+              lastPctRef.current = pct;
+              onProgress?.(pct, currentTime, durationRef.current);
+            }
 
-            // Seamless loop right at completion without cutting video short
-            if (durationRef.current > 2 && currentTime >= durationRef.current - 0.08) {
+            // Seamless loop right at completion (within last 350ms)
+            if (durationRef.current > 2 && currentTime >= durationRef.current - 0.35) {
               sendYtCommand('seekTo', [0, true]);
               sendYtCommand('playVideo', []);
+              lastPctRef.current = 0;
               onProgress?.(0, 0, durationRef.current);
               return;
             }
@@ -160,13 +171,13 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
     return () => window.removeEventListener('message', handleMessage);
   }, [videoId, isActive, isPlaying, isMuted, onPlaybackError, onReady, onProgress, sendYtCommand]);
 
-  // Periodic polling for 60fps smooth progress bar updates
+  // Periodic polling for smooth progress bar updates and loop checking
   useEffect(() => {
     if (!isActive || !isPlaying) return;
     const interval = setInterval(() => {
       sendYtCommand('getCurrentTime', []);
       sendYtCommand('getDuration', []);
-    }, 250);
+    }, 150);
     return () => clearInterval(interval);
   }, [isActive, isPlaying, sendYtCommand]);
 
@@ -185,15 +196,15 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
       if (!isMuted) {
         sendYtCommand('unMute', []);
         sendYtCommand('setVolume', [100]);
-        // Multi-stage unMute to guarantee audio turns on without 10s wait
+        // Multi-stage unMute to guarantee audio turns on without delay
         setTimeout(() => {
           sendYtCommand('unMute', []);
           sendYtCommand('setVolume', [100]);
-        }, 250);
+        }, 200);
         setTimeout(() => {
           sendYtCommand('unMute', []);
           sendYtCommand('setVolume', [100]);
-        }, 600);
+        }, 500);
       }
     } else {
       sendYtCommand('pauseVideo', []);
@@ -203,14 +214,13 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
     // Call onReady fallback after brief delay to guarantee poster unveiling
     setTimeout(() => {
       onReady?.();
-    }, 600);
+    }, 500);
   };
 
-  // High-speed embed URL with autoplay=1, controls=0, modestbranding=1, enablejsapi=1
+  // High-speed embed URL with autoplay=1, controls=0, modestbranding=1, enablejsapi=1, and native loop playlist
   const embedUrl = useMemo(() => {
-    const initialMute = isMuted ? 1 : 0;
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMute}&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0`;
-  }, [videoId, isMuted]);
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${initialMuteRef.current}&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=${videoId}`;
+  }, [videoId]);
 
   if (hasError) {
     return (
@@ -228,6 +238,7 @@ export const YouTubeReelPlayer: React.FC<YouTubeReelPlayerProps> = ({
         src={embedUrl}
         title={title}
         referrerPolicy="strict-origin-when-cross-origin"
+        loading="eager"
         onLoad={handleIframeLoad}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         className="w-full h-full border-0 pointer-events-none select-none"

@@ -287,6 +287,12 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
               onPlaying={() => { setIsLoading(false); setIsPlaying(true); setIsPlayerReady(true); }}
               onCanPlay={() => { setIsLoading(false); setIsPlayerReady(true); }}
               onLoadedData={() => { setIsLoading(false); setIsPlayerReady(true); }}
+              onEnded={() => {
+                if (videoRef.current) {
+                  videoRef.current.currentTime = 0;
+                  videoRef.current.play().catch(() => {});
+                }
+              }}
               onError={() => {
                 setIsLoading(false);
                 setIsPlaying(false);
@@ -560,19 +566,23 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
       </div>
 
       {/* Threaded Comments Drawer */}
-      <CommentsDrawer
-        isOpen={commentsOpen}
-        onClose={() => setCommentsOpen(false)}
-        reelId={reel.id}
-      />
+      {commentsOpen && (
+        <CommentsDrawer
+          isOpen={commentsOpen}
+          onClose={() => setCommentsOpen(false)}
+          reelId={reel.id}
+        />
+      )}
 
       {/* Report Modal */}
-      <ReportModal
-        isOpen={reportOpen}
-        onClose={() => setReportOpen(false)}
-        reelId={reel.id}
-        reelTitle={reel.title}
-      />
+      {reportOpen && (
+        <ReportModal
+          isOpen={reportOpen}
+          onClose={() => setReportOpen(false)}
+          reelId={reel.id}
+          reelTitle={reel.title}
+        />
+      )}
 
     </div>
   );
