@@ -69,7 +69,14 @@ const YouTubeVideoCardComponent: React.FC<{
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
+  const [isInlinePaused, setIsInlinePaused] = useState<boolean>(false);
+  const [mobileControlsVisible, setMobileControlsVisible] = useState<boolean>(false);
+  const [videoCurrentTime, setVideoCurrentTime] = useState<number>(0);
+  const [videoTotalDuration, setVideoTotalDuration] = useState<number>(0);
+  const videoCurrentTimeRef = useRef<number>(0);
+  const mobileTimerRef = useRef<any>(null);
 
   useEffect(() => {
     const nextThumb = song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
@@ -81,8 +88,141 @@ const YouTubeVideoCardComponent: React.FC<{
   useEffect(() => {
     if (!isInlineActive) {
       setIframeLoaded(false);
+      setIsInlinePaused(false);
+      setMobileControlsVisible(false);
+      setVideoCurrentTime(0);
+      setVideoTotalDuration(0);
+      videoCurrentTimeRef.current = 0;
+      if (mobileTimerRef.current) {
+        clearTimeout(mobileTimerRef.current);
+        mobileTimerRef.current = null;
+      }
     }
   }, [isInlineActive]);
+
+  // Command sender via postMessage to YouTube Iframe
+  const sendIframeCommand = useCallback((func: string, args: any = '') => {
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(
+          JSON.stringify({
+            event: 'command',
+            func: func,
+            args: Array.isArray(args) ? args : (args !== '' ? [args] : [])
+          }),
+          '*'
+        );
+      }
+    } catch (err) {
+      console.warn('[InlineVideo] sendIframeCommand error:', err);
+    }
+  }, []);
+
+  // Sync state and time from YouTube iframe messages
+  useEffect(() => {
+    if (!isInlineActive) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        if (!data) return;
+
+        if (data.event === 'infoDelivery' && data.info) {
+          if (typeof data.info.currentTime === 'number') {
+            videoCurrentTimeRef.current = data.info.currentTime;
+            setVideoCurrentTime(data.info.currentTime);
+          }
+          if (typeof data.info.duration === 'number' && data.info.duration > 0) {
+            setVideoTotalDuration(data.info.duration);
+          }
+          if (typeof data.info.playerState === 'number') {
+            const state = data.info.playerState;
+            if (state === 1) { // Playing
+              setIsInlinePaused(false);
+            } else if (state === 2 || state === 0) { // Paused or Ended
+              setIsInlinePaused(true);
+            }
+          }
+        } else if (data.event === 'onStateChange') {
+          const state = typeof data.info === 'number' ? data.info : data.info?.playerState;
+          if (state === 1) setIsInlinePaused(false);
+          else if (state === 2 || state === 0) setIsInlinePaused(true);
+        }
+      } catch {
+        // ignore non-json messages
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [isInlineActive]);
+
+  // Mobile controls auto-dismiss timer
+  const resetMobileControlsTimer = useCallback(() => {
+    if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
+    mobileTimerRef.current = setTimeout(() => {
+      setMobileControlsVisible(false);
+    }, 3500);
+  }, []);
+
+  const handleMobileOverlayTap = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (mobileControlsVisible) {
+      // If already visible, tapping anywhere dismisses immediately to leave screen 100% clean
+      setMobileControlsVisible(false);
+      if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
+    } else {
+      // Tap to show controls with 3.5s timer
+      setMobileControlsVisible(true);
+      resetMobileControlsTimer();
+    }
+  };
+
+  const handleToggleInlinePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInlinePaused) {
+      sendIframeCommand('playVideo');
+      setIsInlinePaused(false);
+      resetMobileControlsTimer();
+    } else {
+      sendIframeCommand('pauseVideo');
+      setIsInlinePaused(true);
+      // Keep controls visible while paused so user can easily unpause
+      if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
+    }
+  };
+
+  const handleSeekInline = (delta: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const nextTime = Math.max(0, videoCurrentTimeRef.current + delta);
+    sendIframeCommand('seekTo', [nextTime, true]);
+    videoCurrentTimeRef.current = nextTime;
+    setVideoCurrentTime(nextTime);
+    resetMobileControlsTimer();
+  };
+
+  const handleRestartInline = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    sendIframeCommand('seekTo', [0, true]);
+    sendIframeCommand('playVideo');
+    setIsInlinePaused(false);
+    videoCurrentTimeRef.current = 0;
+    setVideoCurrentTime(0);
+    resetMobileControlsTimer();
+  };
+
+  const handleOpenNewView = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleStopInline();
+    onPlayVideo();
+  };
+
+  const handleStopVideo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleStopInline();
+  };
 
   const handleStartInline = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -130,15 +270,26 @@ const YouTubeVideoCardComponent: React.FC<{
             }}
           />
 
-          {/* ACTIVE INLINE VIDEO IFRAME (Plays directly in thumbnail - Native Controls as in Photo 2) */}
+          {/* ACTIVE INLINE VIDEO IFRAME (Plays directly in thumbnail) */}
           {isInlineActive ? (
             <div className="absolute inset-0 z-20 bg-black">
               <iframe
+                ref={iframeRef}
                 src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0&modestbranding=1`}
                 title={song.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
-                onLoad={() => setIframeLoaded(true)}
+                onLoad={() => {
+                  setIframeLoaded(true);
+                  try {
+                    if (iframeRef.current?.contentWindow) {
+                      iframeRef.current.contentWindow.postMessage(
+                        JSON.stringify({ event: 'listening', id: song.youtubeId }),
+                        '*'
+                      );
+                    }
+                  } catch (e) {}
+                }}
                 className={`w-full h-full border-0 transition-opacity duration-300 ${
                   iframeLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
@@ -150,6 +301,149 @@ const YouTubeVideoCardComponent: React.FC<{
                   <div className="w-10 h-10 rounded-full border-3 border-amber-500/30 border-t-amber-500 animate-spin" />
                 </div>
               )}
+
+              {/* MOBILE TOUCH CONTROL OVERLAY (Phone screen only - md:hidden) */}
+              {/* On Desktop (md:), this overlay is completely hidden, so desktop cursor hover controls remain 100% untouched */}
+              <div 
+                onClick={handleMobileOverlayTap}
+                className={`absolute inset-0 z-30 md:hidden transition-all duration-300 select-none flex flex-col justify-between ${
+                  mobileControlsVisible 
+                    ? 'bg-black/60 backdrop-blur-[1px] opacity-100 pointer-events-auto' 
+                    : 'bg-transparent opacity-0 pointer-events-auto'
+                }`}
+              >
+                {/* When controls are hidden on phone screen, this layer is 100% transparent.
+                    Tapping anywhere on it reveals the control panel immediately! */}
+                {mobileControlsVisible && (
+                  <>
+                    {/* Top Header Bar */}
+                    <div className="flex items-center justify-between p-2.5 bg-gradient-to-b from-black/85 via-black/40 to-transparent">
+                      <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${isInlinePaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'}`} />
+                        <p className="text-white text-xs font-semibold truncate drop-shadow-md">
+                          {song.title}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleStopVideo}
+                        className="w-7 h-7 rounded-full bg-black/65 hover:bg-black/90 active:scale-95 text-white/90 hover:text-white flex items-center justify-center shrink-0 border border-white/15 transition-transform"
+                        title="वीडियो बंद करें"
+                        aria-label="वीडियो बंद करें"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Center Action Controls */}
+                    <div 
+                      className="flex items-center justify-center gap-5 px-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Rewind -10s */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleSeekInline(-10, e)}
+                        className="w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex flex-col items-center justify-center border border-white/15 shadow-md transition-transform"
+                        title="10 सेकंड पीछे"
+                        aria-label="10 सेकंड पीछे"
+                      >
+                        <span className="text-[10px] font-bold font-mono leading-none">-10s</span>
+                      </button>
+
+                      {/* Main Play / Pause Button */}
+                      <button
+                        type="button"
+                        onClick={handleToggleInlinePlay}
+                        className="w-13 h-13 rounded-full bg-amber-500 hover:bg-amber-400 active:scale-90 text-stone-950 flex items-center justify-center shadow-xl ring-4 ring-amber-500/35 transition-transform cursor-pointer"
+                        title={isInlinePaused ? "चलाएं (Play)" : "रोकें (Pause)"}
+                        aria-label={isInlinePaused ? "चलाएं" : "रोकें"}
+                      >
+                        {isInlinePaused ? (
+                          <Play className="w-6 h-6 fill-current ml-0.5" />
+                        ) : (
+                          <Pause className="w-6 h-6 fill-current" />
+                        )}
+                      </button>
+
+                      {/* Forward +10s */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleSeekInline(10, e)}
+                        className="w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex flex-col items-center justify-center border border-white/15 shadow-md transition-transform"
+                        title="10 सेकंड आगे"
+                        aria-label="10 सेकंड आगे"
+                      >
+                        <span className="text-[10px] font-bold font-mono leading-none">+10s</span>
+                      </button>
+                    </div>
+
+                    {/* Bottom Control Bar */}
+                    <div 
+                      className="p-2.5 bg-gradient-to-t from-black/85 via-black/45 to-transparent flex flex-col gap-1.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Interactive Progress Bar */}
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const clickX = e.clientX - rect.left;
+                          const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+                          const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
+                          const targetTime = ratio * total;
+                          sendIframeCommand('seekTo', [targetTime, true]);
+                          videoCurrentTimeRef.current = targetTime;
+                          setVideoCurrentTime(targetTime);
+                          resetMobileControlsTimer();
+                        }}
+                        className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden cursor-pointer relative"
+                      >
+                        <div 
+                          className="bg-amber-500 h-full rounded-full transition-all duration-150"
+                          style={{
+                            width: `${videoTotalDuration > 0 ? Math.min(100, (videoCurrentTime / videoTotalDuration) * 100) : 0}%`
+                          }}
+                        />
+                      </div>
+
+                      {/* Time & Quick Actions */}
+                      <div className="flex items-center justify-between text-white/90">
+                        <div className="text-[11px] font-mono font-medium tracking-tight">
+                          <span>{formatDuration(videoCurrentTime)}</span>
+                          <span className="mx-1 text-white/50">/</span>
+                          <span className="text-white/70">{formatDuration(videoTotalDuration || song.duration)}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          {/* Restart Button */}
+                          <button
+                            type="button"
+                            onClick={handleRestartInline}
+                            className="p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white active:scale-95 transition-transform"
+                            title="शुरू से चलाएं"
+                            aria-label="शुरू से चलाएं"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Fullscreen / New View */}
+                          <button
+                            type="button"
+                            onClick={handleOpenNewView}
+                            className="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 active:scale-95 text-[11px] font-medium flex items-center gap-1 border border-amber-500/30 transition-transform"
+                            title="बड़ी स्क्रीन में देखें"
+                            aria-label="बड़ी स्क्रीन में देखें"
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>बड़ा देखें</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           ) : (
             <>
