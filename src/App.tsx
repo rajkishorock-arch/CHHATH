@@ -421,12 +421,6 @@ const MainContent: React.FC = () => {
       return 'handled';
     }
 
-    // 3. If an inline thumbnail video is playing, close inline video
-    if ((window as any).__hasInlineVideoOpen) {
-      window.dispatchEvent(new CustomEvent('close_inline_video'));
-      return 'handled';
-    }
-
     // 4. Close any active overlay/modal
     if (isExpandedOpen) { setIsExpandedOpen(false); return 'handled'; }
     if (isQueueOpen) { setIsQueueOpen(false); return 'handled'; }

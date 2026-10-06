@@ -91,7 +91,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Global Player States
   const [queue, setQueueState] = useState<Song[]>(() => songs);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [currentSong, setCurrentSong] = useState<Song | null>(() => songs[0] || null);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -515,6 +515,40 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     const prevSong = currentSongRef.current;
+
+    // Fast-path: If the SAME song is already active in player, switch mode seamlessly with ZERO reloading!
+    const isSameSong = Boolean(
+      prevSong &&
+      ((prevSong.youtubeId && song.youtubeId && prevSong.youtubeId === song.youtubeId) ||
+       (prevSong.id && song.id && prevSong.id === song.id))
+    );
+
+    if (isSameSong && ytPlayerRef.current) {
+      console.log('[MusicPlayer] Same song mode switch/resume - continuous stream with ZERO delay!');
+      userRequestedPauseRef.current = false;
+      hasStartedPlaybackRef.current = true;
+      setPlaybackError(null);
+      setIsPlaying(true);
+      startAudioKeepalive();
+
+      try {
+        if (ytPlayerRef.current.unMute) ytPlayerRef.current.unMute();
+        if (ytPlayerRef.current.setVolume) ytPlayerRef.current.setVolume(Math.round(volume * 100) || 100);
+
+        if (typeof startSeconds === 'number' && startSeconds > 0 && Math.abs(currentTime - startSeconds) > 3) {
+          if (ytPlayerRef.current.seekTo) {
+            ytPlayerRef.current.seekTo(startSeconds, true);
+          }
+        }
+
+        if (ytPlayerRef.current.playVideo) {
+          ytPlayerRef.current.playVideo();
+        }
+      } catch (e) {
+        console.warn('Same song play error:', e);
+      }
+      return;
+    }
 
     // 1. Determine active queue
     const targetQueue = (contextQueue && contextQueue.length > 0) ? contextQueue : queueRef.current;

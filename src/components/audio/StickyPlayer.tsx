@@ -10,7 +10,8 @@ import {
   VideoOff,
   ChevronUp,
   ExternalLink,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 
@@ -22,6 +23,7 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
   const {
     currentSong,
     isPlaying,
+    pauseSong,
     togglePlay,
     playNext,
     playPrevious,
@@ -34,7 +36,8 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
     clearPlaybackError
   } = useAudio();
 
-  if (!currentSong) return null;
+  // If no song selected, or neither audio nor video is playing, automatically hide to keep screen completely clean!
+  if (!currentSong || (!isPlaying && !showVideo)) return null;
 
   const isErrorForCurrent = playbackError && (playbackError.songId === currentSong.id || playbackError.youtubeId === currentSong.youtubeId);
 
@@ -176,6 +179,17 @@ export const StickyPlayer: React.FC<StickyPlayerProps> = ({ onOpenMixer }) => {
               title="कतार देखें (Queue)"
             >
               <ListMusic className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => {
+                pauseSong();
+                setShowVideo(false);
+              }}
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-900 transition-colors cursor-pointer"
+              title="प्लेयर बंद करें (Close)"
+            >
+              <X className="w-4 h-4" />
             </button>
 
           </div>
