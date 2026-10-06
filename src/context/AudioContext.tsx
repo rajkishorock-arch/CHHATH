@@ -111,6 +111,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const theaterVideoBoxRef = useRef<HTMLDivElement | null>(null);
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
   const [isFullscreenMode, setIsFullscreenMode] = useState<boolean>(false);
+  const [isVideoBuffering, setIsVideoBuffering] = useState<boolean>(false);
   const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
   const seekFeedbackTimerRef = useRef<any>(null);
   const lastTapRef = useRef<{ time: number; x: number }>({ time: 0, x: 0 });
@@ -375,6 +376,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
             if (state === 1) {
               setIsPlaying(true);
+              setIsVideoBuffering(false);
               setPlaybackError(null);
               try {
                 if (ytPlayerRef.current?.unMute) {
@@ -389,11 +391,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               } catch {
                 // Catch cross-origin duration/data check
               }
+            } else if (state === 3) {
+              // Buffering state
+              setIsVideoBuffering(true);
             } else if (state === 2) {
               setIsPlaying(false);
               bgAudioRef.current?.pause();
             } else if (state === 0) {
               setIsPlaying(false);
+              setIsVideoBuffering(false);
               handleSongEnded();
             }
           },
@@ -601,6 +607,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         const seekSec = typeof startSeconds === 'number' && startSeconds > 0 ? Math.floor(startSeconds) : 0;
+        setIsVideoBuffering(true);
         if (seekSec > 0) {
           ytPlayerRef.current.loadVideoById({
             videoId: song.youtubeId,
@@ -641,12 +648,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       console.log('[YouTubePlayer] Player not ready yet. Queuing pending song and creating player:', song.youtubeId);
       (song as any)._startSeconds = startSeconds;
+      setIsVideoBuffering(true);
       pendingSongRef.current = song;
       createGlobalYtPlayer();
     }
   };
 
   const playVideo = useCallback((song: Song, contextQueue?: Song[], startSeconds?: number) => {
+    setIsVideoBuffering(true);
     setShowVideo(true);
     setVideoExpanded(true);
     playSong(song, contextQueue, startSeconds);
@@ -1177,6 +1186,21 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         >
           {/* THE SINGLE PERSISTENT YOUTUBE PLAYER CONTAINER - NEVER UNMOUNTS */}
           <div id="global-yt-player-container" className="w-full h-full pointer-events-auto" />
+
+          {/* ZERO BLACK SCREEN: Display crisp song thumbnail poster with YouTube spinner while video loads/buffers */}
+          {showVideo && (isVideoBuffering || !isPlaying) && currentSong && (
+            <div className="absolute inset-0 z-5 bg-black flex items-center justify-center pointer-events-none transition-opacity duration-300">
+              <img
+                src={currentSong.thumbnail || (currentSong.youtubeId ? `https://i.ytimg.com/vi/${currentSong.youtubeId}/hqdefault.jpg` : '')}
+                alt={currentSong.title}
+                className="w-full h-full object-contain filter brightness-95"
+              />
+              <div className="absolute inset-0 bg-black/35 flex flex-col items-center justify-center gap-3">
+                <div className="w-12 h-12 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin" />
+                <span className="text-white text-xs font-semibold drop-shadow tracking-wide">लोड हो रहा है...</span>
+              </div>
+            </div>
+          )}
 
           {/* TAP CAPTURE BACKDROP (Ensures mobile taps never get trapped in iframe) */}
           {showVideo && videoExpanded && (

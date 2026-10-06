@@ -298,17 +298,21 @@ const YouTubePlaylistCardComponent: React.FC<{
               }}
             />
 
-            {/* Play Overlay */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
-              <div className="w-12 h-12 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xl ring-4 ring-amber-500/30">
-                <Play className="w-5 h-5 fill-current ml-0.5" />
+            {/* Signature YouTube Playlist Right-Side Panel */}
+            <div className="absolute inset-y-0 right-0 w-24 sm:w-28 bg-stone-950/80 backdrop-blur-xs flex flex-col items-center justify-center gap-1 text-white border-l border-white/10 group-hover/thumb:bg-stone-950/90 transition-colors">
+              <ListMusic className="w-5 h-5 text-amber-400" />
+              <span className="text-xs font-bold font-mono tracking-tight">{playlist.trackCount}+ गीत</span>
+              <div className="mt-0.5 px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold flex items-center gap-1">
+                <Play className="w-2.5 h-2.5 fill-current" />
+                <span>Play All</span>
               </div>
             </div>
 
-            {/* Bottom-Right YouTube Mix Badge (▶ Mix • 8+ गीत) */}
-            <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/85 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5 border border-white/10 shadow-lg">
-              <ListMusic className="w-3.5 h-3.5 text-amber-400" />
-              <span>Mix • {playlist.trackCount} गीत</span>
+            {/* Play Overlay */}
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white pointer-events-none">
+              <div className="w-12 h-12 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xl ring-4 ring-amber-500/30">
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              </div>
             </div>
           </div>
         </div>
@@ -1178,24 +1182,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           })}
         </div>
 
-        {/* Mobile Active Search Indicator Pill */}
-        {searchQuery && (
-          <div className="flex md:hidden items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs animate-in fade-in">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <Search className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span className="text-stone-700 dark:text-stone-300 truncate">
-                खोज: <strong className="text-amber-600 dark:text-amber-400">&ldquo;{searchQuery}&rdquo;</strong>
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              className="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold hover:bg-stone-300 transition-colors text-[11px] shrink-0"
-            >
-              साफ़ करें
-            </button>
-          </div>
-        )}
 
         {voiceNotice && (
           <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs text-center font-bold animate-in fade-in">
@@ -1261,38 +1247,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {/* SEARCH RESULTS */}
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
-            {/* If an artist or category filter is active and has a matching dynamic playlist, display it on top */}
-            {activeFilter !== 'all' && activeFilter !== 'playlists' && dynamicPlaylists.length > 0 && (
-              <div className="mb-2">
-                {dynamicPlaylists
-                  .filter((pl) => pl.category === activeFilter)
-                  .map((pl) => (
-                    <div key={pl.id} className="mb-3">
-                      <YouTubePlaylistCard
-                        playlist={pl}
-                        isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
-                        onPlayPlaylist={() => {
-                          playSong(pl.tracks[0], pl.tracks);
-                        }}
-                        onPlayVideo={() => {
-                          const masterSong: Song = {
-                            id: pl.id,
-                            title: pl.title,
-                            singer: pl.subtitle,
-                            youtubeId: pl.youtubeId,
-                            thumbnail: pl.thumbnail,
-                            duration: pl.durationText
-                          };
-                          playVideo(masterSong, pl.tracks);
-                        }}
-                        onPlayTrack={(track, queueList) => {
-                          playSong(track, queueList);
-                        }}
-                      />
-                    </div>
-                  ))}
-              </div>
-            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {ytSearchResults.map((ytSong) => {
@@ -1338,18 +1292,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
            ======================================================== */}
         {searchStatus === 'idle' && activeFilter === 'playlists' && (
           <div className="space-y-3 pt-1">
-            <div className="flex items-center justify-between pb-1">
-              <div className="flex items-center gap-2">
-                <ListMusic className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
-                  छठ महापर्व लाइव प्लेलिस्ट्स व मिक्स संग्रह
-                </h3>
-              </div>
-              <span className="text-xs text-stone-500 font-medium">
-                {dynamicPlaylists.length} प्लेलिस्ट्स (लाइव)
-              </span>
-            </div>
-
             {isLoadingPlaylists && dynamicPlaylists.length === 0 ? (
               <div className="flex items-center justify-center py-10">
                 <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
@@ -1390,64 +1332,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
            ======================================================== */}
         {searchStatus === 'idle' && activeFilter !== 'playlists' && (
           <div className="space-y-4 pt-1">
-            {/* Top Dynamic Playlists Section (In 'All' Feed) */}
-            {activeFilter === 'all' && dynamicPlaylists.length > 0 && (
-              <div className="space-y-2.5 pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
-                      छठ महापर्व लाइव मिक्स व प्लेलिस्ट्स
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveFilter('playlists')}
-                    className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>सभी {dynamicPlaylists.length} देखें</span>
-                    <span>→</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {dynamicPlaylists.slice(0, 3).map((pl) => (
-                    <YouTubePlaylistCard
-                      key={pl.id}
-                      playlist={pl}
-                      isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
-                      onPlayPlaylist={() => {
-                        playSong(pl.tracks[0], pl.tracks);
-                      }}
-                      onPlayVideo={() => {
-                        const masterSong: Song = {
-                          id: pl.id,
-                          title: pl.title,
-                          singer: pl.subtitle,
-                          youtubeId: pl.youtubeId,
-                          thumbnail: pl.thumbnail,
-                          duration: pl.durationText
-                        };
-                        playVideo(masterSong, pl.tracks);
-                      }}
-                      onPlayTrack={(track, queueList) => {
-                        playSong(track, queueList);
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Live Songs Header */}
-            {activeFilter === 'all' && (
-              <div className="flex items-center gap-2 pt-1 pb-0.5">
-                <Music className="w-4 h-4 text-amber-500" />
-                <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
-                  लोकप्रिय एवं लाइव छठ गीत
-                </h3>
-              </div>
-            )}
 
             {/* Initial Loading Skeletons */}
             {isLiveInitialLoading && (
