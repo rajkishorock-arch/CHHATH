@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ChhathDataProvider } from './context/ChhathDataContext';
@@ -243,6 +243,16 @@ const MainContent: React.FC = () => {
   const [showCinematicIntro, setShowCinematicIntro] = useState<boolean>(() => {
     return !localStorage.getItem('chhath_intro_seen');
   });
+
+  const [isMobileScreen, setIsMobileScreen] = useState<boolean>(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
+  });
+
+  useEffect(() => {
+    const handleScreenResize = () => setIsMobileScreen(window.innerWidth < 1024);
+    window.addEventListener('resize', handleScreenResize);
+    return () => window.removeEventListener('resize', handleScreenResize);
+  }, []);
 
   // Do NOT interrupt user with an immediate location popup on first arrival
   const [locationModalOpen, setLocationModalOpen] = useState<boolean>(false);
@@ -564,16 +574,13 @@ const MainContent: React.FC = () => {
       <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           {activeTab === 'home' && (
-            <>
-              {/* On Mobile/Phone: Show SongsSection as requested by user */}
-              <div className="lg:hidden container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
+            isMobileScreen ? (
+              <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
                 <SongsSection initialQuery={musicInitialQuery} />
               </div>
-              {/* On Desktop: Show original PublicHomeView */}
-              <div className="hidden lg:block">
-                <PublicHomeView onNavigate={handleNavigate} />
-              </div>
-            </>
+            ) : (
+              <PublicHomeView onNavigate={handleNavigate} />
+            )
           )}
 
           {activeTab === 'chhath-puja-vidhi' && (

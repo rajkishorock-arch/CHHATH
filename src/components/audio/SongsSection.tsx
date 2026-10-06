@@ -29,7 +29,7 @@ import {
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
-import { chhathPlaylists, ChhathPlaylist } from '../../data/playlists';
+import { fetchLivePlaylists, DynamicChhathPlaylist } from '../../services/youtubePlaylistService';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -40,17 +40,15 @@ const formatDuration = (val?: string | number) => {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 };
 
-// YouTube-Style Video Card Component (Landscape 16:9 for songs & videos)
+// YouTube-Style Video Card Component (Landscape 16:9 for songs & videos - Single Unified Media Flow)
 const YouTubeVideoCardComponent: React.FC<{
   song: Song;
   isCurrent: boolean;
   isPlayingThis: boolean;
-  isInlinePlaying: boolean;
   inQueue?: boolean;
   isFav?: boolean;
   onPlay: () => void;
-  onPlayVideo?: () => void;
-  onThumbnailClick: () => void;
+  onPlayVideo: () => void;
   onToggleQueue?: () => void;
   onToggleFav?: () => void;
   onShareSong?: () => void;
@@ -59,12 +57,10 @@ const YouTubeVideoCardComponent: React.FC<{
   song,
   isCurrent,
   isPlayingThis,
-  isInlinePlaying,
   inQueue,
   isFav,
   onPlay,
   onPlayVideo,
-  onThumbnailClick,
   onToggleQueue,
   onToggleFav,
   onShareSong,
@@ -80,8 +76,6 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
-  const iframeSrc = `https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&rel=0&controls=1&modestbranding=1`;
-
   return (
     <div
       className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
@@ -91,16 +85,11 @@ const YouTubeVideoCardComponent: React.FC<{
       }`}
     >
       <div>
-        {/* 16:9 YouTube Thumbnail Container with Instant Inline Video Playback */}
+        {/* 16:9 YouTube Thumbnail Container - 100% Reliable Clicks on Phone & Desktop */}
         <div 
-          onClick={() => {
-            if (!isInlinePlaying) {
-              onThumbnailClick();
-            }
-          }}
+          onClick={onPlayVideo}
           className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none cursor-pointer group/thumb"
         >
-          {/* Always Keep High-Res Thumbnail Image in DOM - ZERO black screen */}
           <img
             src={thumbSrc}
             alt={song.title}
@@ -118,48 +107,34 @@ const YouTubeVideoCardComponent: React.FC<{
             }}
           />
 
-          {/* When inline video is active: Mount iframe immediately and visibly on top - NO spinner, NO close button */}
-          {isInlinePlaying && song.youtubeId ? (
-            <iframe
-              src={iframeSrc}
-              title={song.title}
-              loading="eager"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full border-0 z-10 bg-transparent"
-            />
-          ) : (
-            <>
-              {/* Active / Hover Play Overlay on Thumbnail */}
-              <div
-                className={`absolute inset-0 transition-opacity flex items-center justify-center ${
-                  isPlayingThis
-                    ? 'bg-black/40 opacity-100'
-                    : 'bg-black/30 opacity-0 group-hover:opacity-100'
-                }`}
-              >
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
-                    isPlayingThis
-                      ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
-                      : 'bg-stone-950/80 text-white group-hover:scale-110'
-                  }`}
-                >
-                  {isPlayingThis ? (
-                    <Pause className="w-5 h-5 fill-current" />
-                  ) : (
-                    <Play className="w-5 h-5 fill-current ml-0.5" />
-                  )}
-                </div>
-              </div>
-
-              {/* Video Duration Badge */}
-              {song.duration && (
-                <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
-                  {formatDuration(song.duration)}
-                </div>
+          {/* Active / Hover Play Overlay on Thumbnail */}
+          <div
+            className={`absolute inset-0 transition-opacity flex items-center justify-center ${
+              isPlayingThis
+                ? 'bg-black/40 opacity-100'
+                : 'bg-black/30 opacity-0 group-hover:opacity-100'
+            }`}
+          >
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
+                isPlayingThis
+                  ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
+                  : 'bg-stone-950/80 text-white group-hover:scale-110'
+              }`}
+            >
+              {isPlayingThis ? (
+                <Pause className="w-5 h-5 fill-current" />
+              ) : (
+                <Play className="w-5 h-5 fill-current ml-0.5" />
               )}
-            </>
+            </div>
+          </div>
+
+          {/* Video Duration Badge */}
+          {song.duration && (
+            <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
+              {formatDuration(song.duration)}
+            </div>
           )}
         </div>
 
@@ -195,20 +170,19 @@ const YouTubeVideoCardComponent: React.FC<{
       {/* Action Footer: Dedicated Video vs Audio buttons + Quick controls */}
       <div className="px-3 pb-3 pt-0 flex items-center justify-between gap-1.5 border-t border-stone-100 dark:border-stone-800/80 mt-1">
         <div className="flex items-center gap-1.5 pt-2">
-          {onPlayVideo && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onPlayVideo();
-              }}
-              className="px-2.5 py-1 rounded-lg bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-              title="थिएटर मोड में वीडियो देखें"
-            >
-              <Video className="w-3.5 h-3.5" />
-              <span>वीडियो</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlayVideo();
+            }}
+            className="px-2.5 py-1 rounded-lg bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+            title="थिएटर मोड में वीडियो देखें"
+          >
+            <Video className="w-3.5 h-3.5" />
+            <span>वीडियो</span>
+          </button>
+
           <button
             type="button"
             onClick={(e) => {
@@ -277,7 +251,7 @@ const YouTubeVideoCard = React.memo(YouTubeVideoCardComponent);
 
 // YouTube-Style Mix & Playlist Card Component (Stacked deck look, mix badge, track list)
 const YouTubePlaylistCardComponent: React.FC<{
-  playlist: ChhathPlaylist;
+  playlist: DynamicChhathPlaylist;
   isCurrent: boolean;
   onPlayPlaylist: () => void;
   onPlayVideo: () => void;
@@ -476,31 +450,34 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     lyricsSong, 
     setLyricsSong,
     queue, 
-    addToQueue,
-    syncInlineVideoSong
+    addToQueue
   } = useAudio();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [inlineVideoSongId, setInlineVideoSongId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
-  // Sync inline video state with global back button & pause events
-  useEffect(() => {
-    (window as any).__hasInlineVideoOpen = Boolean(inlineVideoSongId);
-    return () => {
-      (window as any).__hasInlineVideoOpen = false;
-    };
-  }, [inlineVideoSongId]);
+  // Real-time Dynamic Playlists fetched over the internet from YouTube
+  const [dynamicPlaylists, setDynamicPlaylists] = useState<DynamicChhathPlaylist[]>([]);
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleClose = () => setInlineVideoSongId(null);
-    window.addEventListener('close_inline_video', handleClose);
-    window.addEventListener('pause_inline_video', handleClose);
+    let isMounted = true;
+    setIsLoadingPlaylists(true);
+    fetchLivePlaylists(activeFilter)
+      .then((pls) => {
+        if (isMounted) {
+          setDynamicPlaylists(pls);
+          setIsLoadingPlaylists(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setIsLoadingPlaylists(false);
+      });
+
     return () => {
-      window.removeEventListener('close_inline_video', handleClose);
-      window.removeEventListener('pause_inline_video', handleClose);
+      isMounted = false;
     };
-  }, []);
+  }, [activeFilter]);
 
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'success' | 'no_results' | 'error'>('idle');
   const [ytSearchResults, setYtSearchResults] = useState<YouTubeSearchSong[]>([]);
@@ -1284,10 +1261,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {/* SEARCH RESULTS */}
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
-            {/* If an artist or category filter is active and has a matching playlist, display it on top */}
-            {activeFilter !== 'all' && activeFilter !== 'playlists' && (
+            {/* If an artist or category filter is active and has a matching dynamic playlist, display it on top */}
+            {activeFilter !== 'all' && activeFilter !== 'playlists' && dynamicPlaylists.length > 0 && (
               <div className="mb-2">
-                {chhathPlaylists
+                {dynamicPlaylists
                   .filter((pl) => pl.category === activeFilter)
                   .map((pl) => (
                     <div key={pl.id} className="mb-3">
@@ -1295,12 +1272,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         playlist={pl}
                         isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
                         onPlayPlaylist={() => {
-                          setInlineVideoSongId(null);
-                          setShowVideo(false);
                           playSong(pl.tracks[0], pl.tracks);
                         }}
                         onPlayVideo={() => {
-                          setInlineVideoSongId(null);
                           const masterSong: Song = {
                             id: pl.id,
                             title: pl.title,
@@ -1312,8 +1286,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                           playVideo(masterSong, pl.tracks);
                         }}
                         onPlayTrack={(track, queueList) => {
-                          setInlineVideoSongId(null);
-                          setShowVideo(false);
                           playSong(track, queueList);
                         }}
                       />
@@ -1336,23 +1308,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     song={songObj}
                     isCurrent={isCurrent}
                     isPlayingThis={isPlayingThis}
-                    isInlinePlaying={inlineVideoSongId === ytSong.youtubeId}
                     inQueue={inQueue}
                     isFav={isFav}
-                    onThumbnailClick={() => {
-                      if (!ytSong.youtubeId) return;
-                      if (inlineVideoSongId === ytSong.youtubeId) {
-                        setInlineVideoSongId(null);
-                        syncInlineVideoSong(null);
-                      } else {
-                        pauseSong();
-                        setInlineVideoSongId(ytSong.youtubeId);
-                        syncInlineVideoSong(songObj);
-                      }
-                    }}
                     onPlay={() => {
-                      setInlineVideoSongId(null);
-                      setShowVideo(false);
                       if (isCurrent && isPlaying) {
                         togglePlay();
                       } else {
@@ -1360,7 +1318,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       }
                     }}
                     onPlayVideo={() => {
-                      setInlineVideoSongId(null);
                       playVideo(songObj, ytSearchResults.map(convertToSongModel));
                     }}
                     onToggleQueue={() => {
@@ -1377,7 +1334,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* ========================================================
-            DEDICATED FULL PLAYLISTS & MIXES VIEW (WHEN SELECTED)
+            DEDICATED FULL PLAYLISTS & MIXES VIEW (DYNAMIC YOUTUBE DATA)
            ======================================================== */}
         {searchStatus === 'idle' && activeFilter === 'playlists' && (
           <div className="space-y-3 pt-1">
@@ -1385,45 +1342,46 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
               <div className="flex items-center gap-2">
                 <ListMusic className="w-5 h-5 text-amber-500" />
                 <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
-                  छठ महापर्व सम्पूर्ण प्लेलिस्ट्स व मिक्स संग्रह
+                  छठ महापर्व लाइव प्लेलिस्ट्स व मिक्स संग्रह
                 </h3>
               </div>
               <span className="text-xs text-stone-500 font-medium">
-                {chhathPlaylists.length} प्लेलिस्ट्स
+                {dynamicPlaylists.length} प्लेलिस्ट्स (लाइव)
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {chhathPlaylists.map((pl) => (
-                <YouTubePlaylistCard
-                  key={pl.id}
-                  playlist={pl}
-                  isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
-                  onPlayPlaylist={() => {
-                    setInlineVideoSongId(null);
-                    setShowVideo(false);
-                    playSong(pl.tracks[0], pl.tracks);
-                  }}
-                  onPlayVideo={() => {
-                    setInlineVideoSongId(null);
-                    const masterSong: Song = {
-                      id: pl.id,
-                      title: pl.title,
-                      singer: pl.subtitle,
-                      youtubeId: pl.youtubeId,
-                      thumbnail: pl.thumbnail,
-                      duration: pl.durationText
-                    };
-                    playVideo(masterSong, pl.tracks);
-                  }}
-                  onPlayTrack={(track, queueList) => {
-                    setInlineVideoSongId(null);
-                    setShowVideo(false);
-                    playSong(track, queueList);
-                  }}
-                />
-              ))}
-            </div>
+            {isLoadingPlaylists && dynamicPlaylists.length === 0 ? (
+              <div className="flex items-center justify-center py-10">
+                <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {dynamicPlaylists.map((pl) => (
+                  <YouTubePlaylistCard
+                    key={pl.id}
+                    playlist={pl}
+                    isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
+                    onPlayPlaylist={() => {
+                      playSong(pl.tracks[0], pl.tracks);
+                    }}
+                    onPlayVideo={() => {
+                      const masterSong: Song = {
+                        id: pl.id,
+                        title: pl.title,
+                        singer: pl.subtitle,
+                        youtubeId: pl.youtubeId,
+                        thumbnail: pl.thumbnail,
+                        duration: pl.durationText
+                      };
+                      playVideo(masterSong, pl.tracks);
+                    }}
+                    onPlayTrack={(track, queueList) => {
+                      playSong(track, queueList);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1432,14 +1390,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
            ======================================================== */}
         {searchStatus === 'idle' && activeFilter !== 'playlists' && (
           <div className="space-y-4 pt-1">
-            {/* Top Playlists Section (In 'All' Feed) */}
-            {activeFilter === 'all' && (
+            {/* Top Dynamic Playlists Section (In 'All' Feed) */}
+            {activeFilter === 'all' && dynamicPlaylists.length > 0 && (
               <div className="space-y-2.5 pb-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-amber-500" />
                     <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
-                      छठ महापर्व स्पेशल मिक्स व प्लेलिस्ट्स
+                      छठ महापर्व लाइव मिक्स व प्लेलिस्ट्स
                     </h3>
                   </div>
                   <button
@@ -1447,24 +1405,21 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     onClick={() => setActiveFilter('playlists')}
                     className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <span>सभी {chhathPlaylists.length} देखें</span>
+                    <span>सभी {dynamicPlaylists.length} देखें</span>
                     <span>→</span>
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {chhathPlaylists.slice(0, 3).map((pl) => (
+                  {dynamicPlaylists.slice(0, 3).map((pl) => (
                     <YouTubePlaylistCard
                       key={pl.id}
                       playlist={pl}
                       isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
                       onPlayPlaylist={() => {
-                        setInlineVideoSongId(null);
-                        setShowVideo(false);
                         playSong(pl.tracks[0], pl.tracks);
                       }}
                       onPlayVideo={() => {
-                        setInlineVideoSongId(null);
                         const masterSong: Song = {
                           id: pl.id,
                           title: pl.title,
@@ -1476,8 +1431,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         playVideo(masterSong, pl.tracks);
                       }}
                       onPlayTrack={(track, queueList) => {
-                        setInlineVideoSongId(null);
-                        setShowVideo(false);
                         playSong(track, queueList);
                       }}
                     />
@@ -1524,7 +1477,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {liveSongs.map((song) => {
                   const cardKey = song.youtubeId || song.id;
-                  const ytId = song.youtubeId || '';
                   const isCurrent = (currentSong?.youtubeId && song.youtubeId && currentSong.youtubeId === song.youtubeId) || currentSong?.id === song.id;
                   const isPlayingThis = isCurrent && isPlaying;
                   const inQueue = queue.some(q => (q.youtubeId && song.youtubeId && q.youtubeId === song.youtubeId) || q.id === song.id);
@@ -1536,23 +1488,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       song={song}
                       isCurrent={isCurrent}
                       isPlayingThis={isPlayingThis}
-                      isInlinePlaying={Boolean(ytId && inlineVideoSongId === ytId)}
                       inQueue={inQueue}
                       isFav={isFav}
-                      onThumbnailClick={() => {
-                        if (!ytId) return;
-                        if (inlineVideoSongId === ytId) {
-                          setInlineVideoSongId(null);
-                          syncInlineVideoSong(null);
-                        } else {
-                          pauseSong();
-                          setInlineVideoSongId(ytId);
-                          syncInlineVideoSong(song);
-                        }
-                      }}
                       onPlay={() => {
-                        setInlineVideoSongId(null);
-                        setShowVideo(false);
                         if (isCurrent && isPlaying) {
                           togglePlay();
                         } else {
@@ -1560,7 +1498,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         }
                       }}
                       onPlayVideo={() => {
-                        setInlineVideoSongId(null);
                         playVideo(song, liveSongs);
                       }}
                       onToggleQueue={() => {

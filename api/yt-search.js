@@ -179,6 +179,9 @@ export default async function handler(req, res) {
         if (type === 'video') {
           // Strictly filter for Video type in YouTube to exclude channel cards and get full video results
           bodyPayload.params = 'EgIQAQ%3D%3D';
+        } else if (type === 'playlist') {
+          // Strictly filter for Playlist type in YouTube
+          bodyPayload.params = 'EgIQAw%3D%3D';
         }
       }
 
@@ -467,5 +470,32 @@ function processInnerTubeItem(item, extractedItems, type) {
         }
       }
     }
+  }
+
+  // 4. Playlist / Mix item renderer (playlistRenderer / compactPlaylistRenderer)
+  const pl = item.playlistRenderer || item.compactPlaylistRenderer;
+  if (pl) {
+    const plId = pl.playlistId || pl.navigationEndpoint?.watchEndpoint?.playlistId;
+    const vId = pl.navigationEndpoint?.watchEndpoint?.videoId || '';
+    const title = pl.title?.runs?.map(r => r.text).join('') || pl.title?.simpleText || '';
+    const channel = pl.shortBylineText?.runs?.[0]?.text || pl.ownerText?.runs?.[0]?.text || 'YouTube Creator';
+    const videoCount = pl.videoCount || pl.videoCountText?.runs?.[0]?.text || pl.videoCountText?.simpleText || '10+';
+    const thumb = pl.thumbnails?.[0]?.thumbnails?.[0]?.url || (vId ? `https://i.ytimg.com/vi/${vId}/hqdefault.jpg` : '');
+
+    extractedItems.push({
+      playlistId: plId,
+      youtubeId: vId || plId,
+      id: plId || vId,
+      title,
+      channelTitle: channel,
+      singer: channel,
+      isPlaylist: true,
+      trackCount: parseInt(videoCount, 10) || 10,
+      duration: `${videoCount} गीत`,
+      thumbnailUrl: thumb,
+      thumbnail: thumb,
+      description: `प्लेलिस्ट: ${title} (${videoCount} गीत)`
+    });
+    return;
   }
 }

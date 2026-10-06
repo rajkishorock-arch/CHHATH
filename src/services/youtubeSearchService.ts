@@ -152,7 +152,7 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
 export const searchYouTubeVideos = async (
   query: string,
   pageToken: string = '',
-  type: 'video' | 'shorts' = 'video',
+  type: 'video' | 'shorts' | 'playlist' = 'video',
   bypassCache: boolean = false
 ): Promise<YouTubeSearchResponse> => {
   const trimmed = query.trim();
