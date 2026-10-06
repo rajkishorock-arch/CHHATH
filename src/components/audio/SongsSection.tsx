@@ -41,7 +41,6 @@ const YouTubeVideoCardComponent: React.FC<{
   song: Song;
   isCurrent: boolean;
   isPlayingThis: boolean;
-  isInlinePlaying: boolean;
   inQueue?: boolean;
   isFav?: boolean;
   onPlay: () => void;
@@ -55,7 +54,6 @@ const YouTubeVideoCardComponent: React.FC<{
   song,
   isCurrent,
   isPlayingThis,
-  isInlinePlaying,
   inQueue,
   isFav,
   onPlay,
@@ -68,18 +66,11 @@ const YouTubeVideoCardComponent: React.FC<{
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
-  const [isIframeLoaded, setIsIframeLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     const nextThumb = song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
     setThumbSrc(nextThumb);
   }, [song.thumbnail, song.youtubeId]);
-
-  useEffect(() => {
-    if (!isInlinePlaying) {
-      setIsIframeLoaded(false);
-    }
-  }, [isInlinePlaying]);
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -92,16 +83,12 @@ const YouTubeVideoCardComponent: React.FC<{
       }`}
     >
       <div>
-        {/* 16:9 YouTube Thumbnail Container with Inline Video Support */}
+        {/* 16:9 YouTube Thumbnail Container with Instant 0ms Playback */}
         <div 
-          onClick={() => {
-            if (!isInlinePlaying) {
-              onThumbnailClick();
-            }
-          }}
+          onClick={onThumbnailClick}
           className="relative aspect-video w-full bg-stone-950 overflow-hidden select-none cursor-pointer group/thumb"
         >
-          {/* Always Keep High-Res Thumbnail Image in DOM to completely eliminate black screen */}
+          {/* Always Keep High-Res Thumbnail Image in DOM - ZERO loading spinner, ZERO black screen */}
           <img
             src={thumbSrc}
             alt={song.title}
@@ -119,61 +106,34 @@ const YouTubeVideoCardComponent: React.FC<{
             }}
           />
 
-          {/* When inline video is active: reveal iframe smoothly after loading, NO black screen, NO close button */}
-          {isInlinePlaying && song.youtubeId ? (
-            <div className="absolute inset-0 w-full h-full z-10 bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1&playsinline=1&rel=0&controls=1&autohide=1&modestbranding=1&iv_load_policy=3`}
-                title={song.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                onLoad={() => setIsIframeLoaded(true)}
-                className={`w-full h-full border-0 transition-opacity duration-300 pointer-events-auto ${
-                  isIframeLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-
-              {/* Smooth loading spinner over image until video starts playing (Prevents any black screen) */}
-              {!isIframeLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-xs pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-stone-950/80 border border-amber-500/40 flex items-center justify-center shadow-xl">
-                    <RefreshCw className="w-6 h-6 text-amber-500 animate-spin" />
-                  </div>
-                </div>
+          {/* Active / Hover Play Overlay on Thumbnail */}
+          <div
+            className={`absolute inset-0 transition-opacity flex items-center justify-center ${
+              isPlayingThis
+                ? 'bg-black/40 opacity-100'
+                : 'bg-black/30 opacity-0 group-hover:opacity-100'
+            }`}
+          >
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
+                isPlayingThis
+                  ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
+                  : 'bg-stone-950/80 text-white group-hover:scale-110'
+              }`}
+            >
+              {isPlayingThis ? (
+                <Pause className="w-5 h-5 fill-current" />
+              ) : (
+                <Play className="w-5 h-5 fill-current ml-0.5" />
               )}
             </div>
-          ) : (
-            <>
-              {/* Hover / Play Overlay on Thumbnail */}
-              <div
-                className={`absolute inset-0 transition-opacity flex items-center justify-center ${
-                  isPlayingThis
-                    ? 'bg-black/40 opacity-100'
-                    : 'bg-black/30 opacity-0 group-hover:opacity-100'
-                }`}
-              >
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform transition-all ${
-                    isPlayingThis
-                      ? 'bg-amber-500 text-stone-950 scale-100 ring-4 ring-amber-500/30'
-                      : 'bg-stone-950/80 text-white group-hover:scale-110'
-                  }`}
-                >
-                  {isPlayingThis ? (
-                    <Pause className="w-5 h-5 fill-current" />
-                  ) : (
-                    <Play className="w-5 h-5 fill-current ml-0.5" />
-                  )}
-                </div>
-              </div>
+          </div>
 
-              {/* Video Duration Badge */}
-              {song.duration && (
-                <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
-                  {formatDuration(song.duration)}
-                </div>
-              )}
-            </>
+          {/* Video Duration Badge */}
+          {song.duration && (
+            <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-white text-[10px] font-mono font-bold tracking-wider">
+              {formatDuration(song.duration)}
+            </div>
           )}
         </div>
 
@@ -308,30 +268,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     lyricsSong, 
     setLyricsSong,
     queue, 
-    addToQueue,
-    syncInlineVideoSong
+    addToQueue
   } = useAudio();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [inlineVideoSongId, setInlineVideoSongId] = useState<string | null>(null);
-
-  // Sync inline video state with global back button & pause events
-  useEffect(() => {
-    (window as any).__hasInlineVideoOpen = Boolean(inlineVideoSongId);
-    return () => {
-      (window as any).__hasInlineVideoOpen = false;
-    };
-  }, [inlineVideoSongId]);
-
-  useEffect(() => {
-    const handleClose = () => setInlineVideoSongId(null);
-    window.addEventListener('close_inline_video', handleClose);
-    window.addEventListener('pause_inline_video', handleClose);
-    return () => {
-      window.removeEventListener('close_inline_video', handleClose);
-      window.removeEventListener('pause_inline_video', handleClose);
-    };
-  }, []);
 
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'success' | 'no_results' | 'error'>('idle');
   const [ytSearchResults, setYtSearchResults] = useState<YouTubeSearchSong[]>([]);
@@ -1059,29 +999,25 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     song={songObj}
                     isCurrent={isCurrent}
                     isPlayingThis={isPlayingThis}
-                    isInlinePlaying={inlineVideoSongId === ytSong.youtubeId}
                     inQueue={inQueue}
                     isFav={isFav}
                     onThumbnailClick={() => {
-                      if (inlineVideoSongId === ytSong.youtubeId) {
-                        setInlineVideoSongId(null);
-                        pauseSong();
-                        return;
+                      setShowVideo(false);
+                      if (isCurrent) {
+                        togglePlay();
+                      } else {
+                        playSong(songObj, ytSearchResults.map(convertToSongModel));
                       }
-                      setInlineVideoSongId(ytSong.youtubeId || null);
-                      syncInlineVideoSong(songObj);
                     }}
                     onPlay={() => {
-                      setInlineVideoSongId(null);
                       setShowVideo(false);
-                      if (isCurrent && isPlaying) {
+                      if (isCurrent) {
                         togglePlay();
                       } else {
                         playSong(songObj, ytSearchResults.map(convertToSongModel));
                       }
                     }}
                     onPlayVideo={() => {
-                      setInlineVideoSongId(null);
                       playVideo(songObj, ytSearchResults.map(convertToSongModel));
                     }}
                     onToggleQueue={() => {
@@ -1141,29 +1077,25 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       song={song}
                       isCurrent={isCurrent}
                       isPlayingThis={isPlayingThis}
-                      isInlinePlaying={inlineVideoSongId === song.youtubeId}
                       inQueue={inQueue}
                       isFav={isFav}
                       onThumbnailClick={() => {
-                        if (inlineVideoSongId === song.youtubeId) {
-                          setInlineVideoSongId(null);
-                          pauseSong();
-                          return;
+                        setShowVideo(false);
+                        if (isCurrent) {
+                          togglePlay();
+                        } else {
+                          playSong(song, liveSongs);
                         }
-                        setInlineVideoSongId(song.youtubeId || null);
-                        syncInlineVideoSong(song);
                       }}
                       onPlay={() => {
-                        setInlineVideoSongId(null);
                         setShowVideo(false);
-                        if (isCurrent && isPlaying) {
+                        if (isCurrent) {
                           togglePlay();
                         } else {
                           playSong(song, liveSongs);
                         }
                       }}
                       onPlayVideo={() => {
-                        setInlineVideoSongId(null);
                         playVideo(song, liveSongs);
                       }}
                       onToggleQueue={() => {
