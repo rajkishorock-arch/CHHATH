@@ -214,8 +214,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   // Global listener to open sidebar drawer from any feature or button
   React.useEffect(() => {
     const handleOpenDrawer = () => setSidebarDrawerOpen(true);
+    const handleOpenMobileSearch = () => setMobileSearchOpen(true);
     window.addEventListener('open_sidebar_drawer', handleOpenDrawer);
-    return () => window.removeEventListener('open_sidebar_drawer', handleOpenDrawer);
+    window.addEventListener('open_mobile_search', handleOpenMobileSearch);
+    return () => {
+      window.removeEventListener('open_sidebar_drawer', handleOpenDrawer);
+      window.removeEventListener('open_mobile_search', handleOpenMobileSearch);
+    };
   }, []);
 
   React.useEffect(() => {

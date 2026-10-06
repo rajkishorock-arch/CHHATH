@@ -18,13 +18,18 @@ import {
   CheckCircle2,
   Music,
   Video,
-  Share2
+  Share2,
+  ListMusic,
+  ChevronDown,
+  Sparkles,
+  Layers
 } from 'lucide-react';
 import { 
   searchYouTubeVideos, 
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
+import { chhathPlaylists, ChhathPlaylist } from '../../data/playlists';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -270,6 +275,189 @@ const YouTubeVideoCardComponent: React.FC<{
 
 const YouTubeVideoCard = React.memo(YouTubeVideoCardComponent);
 
+// YouTube-Style Mix & Playlist Card Component (Stacked deck look, mix badge, track list)
+const YouTubePlaylistCardComponent: React.FC<{
+  playlist: ChhathPlaylist;
+  isCurrent: boolean;
+  onPlayPlaylist: () => void;
+  onPlayVideo: () => void;
+  onPlayTrack: (track: Song, queue: Song[]) => void;
+}> = ({
+  playlist,
+  isCurrent,
+  onPlayPlaylist,
+  onPlayVideo,
+  onPlayTrack
+}) => {
+  const [showTracks, setShowTracks] = useState(false);
+  const [thumbSrc, setThumbSrc] = useState(playlist.thumbnail);
+
+  return (
+    <div
+      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
+        isCurrent
+          ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
+          : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
+      }`}
+    >
+      <div>
+        {/* Layered Stacked Deck Visual Effect on Thumbnail (Like YouTube Mix cards) */}
+        <div className="relative pt-2 px-2 bg-gradient-to-b from-amber-500/10 to-transparent">
+          {/* Deck layers */}
+          <div className="absolute top-0.5 left-4 right-4 h-1.5 rounded-t-lg bg-stone-300 dark:bg-stone-700 opacity-60" />
+          <div className="absolute top-1 left-3 right-3 h-1.5 rounded-t-lg bg-stone-400 dark:bg-stone-600 opacity-80" />
+
+          <div
+            onClick={onPlayPlaylist}
+            className="relative aspect-video w-full rounded-xl bg-stone-950 overflow-hidden cursor-pointer group/thumb shadow-sm"
+          >
+            <img
+              src={thumbSrc}
+              alt={playlist.title}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
+              onError={() => {
+                if (playlist.youtubeId) {
+                  setThumbSrc(`https://img.youtube.com/vi/${playlist.youtubeId}/hqdefault.jpg`);
+                }
+              }}
+            />
+
+            {/* Play Overlay */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
+              <div className="w-12 h-12 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xl ring-4 ring-amber-500/30">
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              </div>
+            </div>
+
+            {/* Bottom-Right YouTube Mix Badge (▶ Mix • 8+ गीत) */}
+            <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/85 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5 border border-white/10 shadow-lg">
+              <ListMusic className="w-3.5 h-3.5 text-amber-400" />
+              <span>Mix • {playlist.trackCount} गीत</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Playlist Metadata */}
+        <div className="p-3 flex items-start gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 border border-amber-400/40 text-stone-950 font-bold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+            <ListMusic className="w-4 h-4 text-stone-950" />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h4
+              className="font-semibold text-xs sm:text-sm line-clamp-2 leading-snug text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-200 transition-colors"
+              title={playlist.title}
+            >
+              {playlist.title}
+            </h4>
+            <div className="flex items-center gap-1 mt-1 text-xs text-stone-600 dark:text-stone-400 truncate">
+              <span className="truncate">{playlist.subtitle}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Footer */}
+      <div className="px-3 pb-3 pt-0 flex flex-col gap-2 border-t border-stone-100 dark:border-stone-800/80 mt-1">
+        <div className="flex items-center justify-between gap-1.5 pt-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlayPlaylist();
+              }}
+              className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+              title="पूरी प्लेलिस्ट चलाएं"
+            >
+              <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+              <span>प्लेलिस्ट सुनें</span>
+            </button>
+
+            {onPlayVideo && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPlayVideo();
+                }}
+                className="px-2.5 py-1 rounded-lg bg-red-600/15 hover:bg-red-600/25 text-red-600 dark:text-red-400 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                title="वीडियो जूकबॉक्स देखें"
+              >
+                <Video className="w-3.5 h-3.5" />
+                <span>वीडियो</span>
+              </button>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowTracks(!showTracks);
+            }}
+            className="px-2 py-1 rounded-lg text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800"
+            title={showTracks ? "सूची छुपाएं" : "गीतों की सूची देखें"}
+          >
+            <span>{showTracks ? "छुपाएं" : `${playlist.trackCount} गीत`}</span>
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showTracks ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
+        {/* Expandable Tracklist Drawer */}
+        {showTracks && (
+          <div className="mt-1 pt-2 border-t border-stone-200 dark:border-stone-800/80 space-y-1.5 max-h-52 overflow-y-auto pr-1">
+            {playlist.tracks.map((t, idx) => (
+              <div
+                key={t.id || idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPlayTrack(t, playlist.tracks);
+                }}
+                className="flex items-center justify-between gap-2 p-1.5 rounded-lg hover:bg-amber-500/10 transition-colors cursor-pointer text-xs"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-[11px] text-stone-400 w-4 text-center shrink-0">
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0 truncate">
+                    <p className="font-medium text-stone-800 dark:text-stone-200 truncate leading-tight">
+                      {t.title}
+                    </p>
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
+                      {t.singer}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0 text-stone-400">
+                  <span className="font-mono text-[10px]">{t.duration || '5:00'}</span>
+                  <Play className="w-3 h-3 text-amber-500 fill-current" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const YouTubePlaylistCard = React.memo(YouTubePlaylistCardComponent);
+
+// YouTube-Style Category Filter Chips (Pills)
+const FILTER_PILLS = [
+  { id: 'all', label: 'सभी' },
+  { id: 'playlists', label: '🎶 मिक्स व प्लेलिस्ट' },
+  { id: 'sharda', label: 'शारदा सिन्हा' },
+  { id: 'pawan', label: 'पवन सिंह' },
+  { id: 'khesari', label: 'खेसारी लाल' },
+  { id: 'anuradha', label: 'अनुराधा पौडवाल' },
+  { id: 'maithili', label: 'मैथिली ठाकुर' },
+  { id: 'arghya', label: 'अर्घ्य व पारम्परिक' }
+];
+
 export interface SongsSectionProps {
   initialQuery?: string;
 }
@@ -294,6 +482,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [inlineVideoSongId, setInlineVideoSongId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   // Sync inline video state with global back button & pause events
   useEffect(() => {
@@ -775,6 +964,33 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     setYtSearchResults([]);
     setNextPageToken(null);
     setErrorMessage(null);
+    setActiveFilter('all');
+  };
+
+  const handleFilterSelect = (filterId: string) => {
+    setActiveFilter(filterId);
+    if (filterId === 'all' || filterId === 'playlists') {
+      searchSeenIdsRef.current.clear();
+      currentSearchTermRef.current = '';
+      searchFacetIndexRef.current = 0;
+      setSearchQuery('');
+      setSearchStatus('idle');
+      setYtSearchResults([]);
+      setNextPageToken(null);
+      setErrorMessage(null);
+    } else {
+      const queryMap: Record<string, string> = {
+        sharda: 'शारदा सिन्हा छठ गीत',
+        pawan: 'पवन सिंह छठ गीत',
+        khesari: 'खेसारी लाल यादव छठ गीत',
+        anuradha: 'अनुराधा पौडवाल छठ पूजा',
+        maithili: 'मैथिली ठाकुर छठ गीत',
+        arghya: 'छठ पूजा अर्घ्य पारम्परिक'
+      };
+      const q = queryMap[filterId] || filterId;
+      setSearchQuery(q);
+      handleExecuteSearch(q);
+    }
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -881,7 +1097,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         if (entries[0]?.isIntersecting) {
           if (searchStatus === 'success' && !isLoadingMore) {
             loadMoreSearchResults();
-          } else if (searchStatus === 'idle' && !isLoadingMoreLive && !isLiveInitialLoading) {
+          } else if (searchStatus === 'idle' && activeFilter !== 'playlists' && !isLoadingMoreLive && !isLiveInitialLoading) {
             loadMoreLiveSongs();
           }
         }
@@ -891,7 +1107,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [searchStatus, isLoadingMore, loadMoreSearchResults, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
+  }, [searchStatus, activeFilter, isLoadingMore, loadMoreSearchResults, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
 
   // Handle in-app pull to refresh without destructive full page reload
   useEffect(() => {
@@ -911,9 +1127,10 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       <div className="max-w-6xl mx-auto space-y-3.5">
         
         {/* ========================================================
-            YOUTUBE-STYLE CLEAN TOP SEARCH BAR (RIGHT AT VERY TOP!)
+            DESKTOP-ONLY SEARCH BAR (HIDDEN ON PHONE LAYOUT FOR CLEAN SCREEN)
+            ON MOBILE: SEARCH IS ACCESSED VIA THE TOP HEADER SEARCH ICON
            ======================================================== */}
-        <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+        <form onSubmit={handleSearchSubmit} className="relative hidden md:flex items-center">
           <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/40 rounded-full transition-all shadow-xs">
             <div className="pl-3.5 pr-2 text-stone-500 dark:text-stone-400 flex items-center pointer-events-none">
               <Search className="w-4 h-4" />
@@ -957,9 +1174,51 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             className="ml-2 px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-stone-950 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0 active:scale-95 cursor-pointer"
           >
             {searchStatus === 'loading' ? <RefreshCw className="w-4 h-4 animate-spin text-stone-950" /> : <Search className="w-4 h-4 text-stone-950" />}
-            <span className="hidden sm:inline">खोजें</span>
+            <span>खोजें</span>
           </button>
         </form>
+
+        {/* ========================================================
+            YOUTUBE-STYLE CATEGORY FILTER CHIPS (ALL, MIXES, SINGERS)
+           ======================================================== */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1 select-none">
+          {FILTER_PILLS.map((pill) => {
+            const isActive = activeFilter === pill.id;
+            return (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={() => handleFilterSelect(pill.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 shadow-xs ${
+                  isActive
+                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-sm scale-102'
+                    : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200/80 dark:border-stone-700/60'
+                }`}
+              >
+                {pill.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Mobile Active Search Indicator Pill */}
+        {searchQuery && (
+          <div className="flex md:hidden items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs animate-in fade-in">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Search className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span className="text-stone-700 dark:text-stone-300 truncate">
+                खोज: <strong className="text-amber-600 dark:text-amber-400">&ldquo;{searchQuery}&rdquo;</strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold hover:bg-stone-300 transition-colors text-[11px] shrink-0"
+            >
+              साफ़ करें
+            </button>
+          </div>
+        )}
 
         {voiceNotice && (
           <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs text-center font-bold animate-in fade-in">
@@ -1025,6 +1284,44 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {/* SEARCH RESULTS */}
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
+            {/* If an artist or category filter is active and has a matching playlist, display it on top */}
+            {activeFilter !== 'all' && activeFilter !== 'playlists' && (
+              <div className="mb-2">
+                {chhathPlaylists
+                  .filter((pl) => pl.category === activeFilter)
+                  .map((pl) => (
+                    <div key={pl.id} className="mb-3">
+                      <YouTubePlaylistCard
+                        playlist={pl}
+                        isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
+                        onPlayPlaylist={() => {
+                          setInlineVideoSongId(null);
+                          setShowVideo(false);
+                          playSong(pl.tracks[0], pl.tracks);
+                        }}
+                        onPlayVideo={() => {
+                          setInlineVideoSongId(null);
+                          const masterSong: Song = {
+                            id: pl.id,
+                            title: pl.title,
+                            singer: pl.subtitle,
+                            youtubeId: pl.youtubeId,
+                            thumbnail: pl.thumbnail,
+                            duration: pl.durationText
+                          };
+                          playVideo(masterSong, pl.tracks);
+                        }}
+                        onPlayTrack={(track, queueList) => {
+                          setInlineVideoSongId(null);
+                          setShowVideo(false);
+                          playSong(track, queueList);
+                        }}
+                      />
+                    </div>
+                  ))}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {ytSearchResults.map((ytSong) => {
                 const songObj = convertToSongModel(ytSong);
@@ -1080,10 +1377,125 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* ========================================================
+            DEDICATED FULL PLAYLISTS & MIXES VIEW (WHEN SELECTED)
+           ======================================================== */}
+        {searchStatus === 'idle' && activeFilter === 'playlists' && (
+          <div className="space-y-3 pt-1">
+            <div className="flex items-center justify-between pb-1">
+              <div className="flex items-center gap-2">
+                <ListMusic className="w-5 h-5 text-amber-500" />
+                <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                  छठ महापर्व सम्पूर्ण प्लेलिस्ट्स व मिक्स संग्रह
+                </h3>
+              </div>
+              <span className="text-xs text-stone-500 font-medium">
+                {chhathPlaylists.length} प्लेलिस्ट्स
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {chhathPlaylists.map((pl) => (
+                <YouTubePlaylistCard
+                  key={pl.id}
+                  playlist={pl}
+                  isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
+                  onPlayPlaylist={() => {
+                    setInlineVideoSongId(null);
+                    setShowVideo(false);
+                    playSong(pl.tracks[0], pl.tracks);
+                  }}
+                  onPlayVideo={() => {
+                    setInlineVideoSongId(null);
+                    const masterSong: Song = {
+                      id: pl.id,
+                      title: pl.title,
+                      singer: pl.subtitle,
+                      youtubeId: pl.youtubeId,
+                      thumbnail: pl.thumbnail,
+                      duration: pl.durationText
+                    };
+                    playVideo(masterSong, pl.tracks);
+                  }}
+                  onPlayTrack={(track, queueList) => {
+                    setInlineVideoSongId(null);
+                    setShowVideo(false);
+                    playSong(track, queueList);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
             REAL-TIME LIVE YOUTUBE CHHATH SONGS FEED (IDLE STATE)
            ======================================================== */}
-        {searchStatus === 'idle' && (
+        {searchStatus === 'idle' && activeFilter !== 'playlists' && (
           <div className="space-y-4 pt-1">
+            {/* Top Playlists Section (In 'All' Feed) */}
+            {activeFilter === 'all' && (
+              <div className="space-y-2.5 pb-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
+                      छठ महापर्व स्पेशल मिक्स व प्लेलिस्ट्स
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('playlists')}
+                    className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>सभी {chhathPlaylists.length} देखें</span>
+                    <span>→</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {chhathPlaylists.slice(0, 3).map((pl) => (
+                    <YouTubePlaylistCard
+                      key={pl.id}
+                      playlist={pl}
+                      isCurrent={Boolean(currentSong && pl.tracks.some(t => t.youtubeId === currentSong.youtubeId))}
+                      onPlayPlaylist={() => {
+                        setInlineVideoSongId(null);
+                        setShowVideo(false);
+                        playSong(pl.tracks[0], pl.tracks);
+                      }}
+                      onPlayVideo={() => {
+                        setInlineVideoSongId(null);
+                        const masterSong: Song = {
+                          id: pl.id,
+                          title: pl.title,
+                          singer: pl.subtitle,
+                          youtubeId: pl.youtubeId,
+                          thumbnail: pl.thumbnail,
+                          duration: pl.durationText
+                        };
+                        playVideo(masterSong, pl.tracks);
+                      }}
+                      onPlayTrack={(track, queueList) => {
+                        setInlineVideoSongId(null);
+                        setShowVideo(false);
+                        playSong(track, queueList);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Live Songs Header */}
+            {activeFilter === 'all' && (
+              <div className="flex items-center gap-2 pt-1 pb-0.5">
+                <Music className="w-4 h-4 text-amber-500" />
+                <h3 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
+                  लोकप्रिय एवं लाइव छठ गीत
+                </h3>
+              </div>
+            )}
+
             {/* Initial Loading Skeletons */}
             {isLiveInitialLoading && (
               <div className="space-y-4 pt-2">
@@ -1180,13 +1592,15 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
-        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex items-center justify-center">
-          {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) && (
-            <div className="p-3 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
-              <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
-            </div>
-          )}
-        </div>
+        {activeFilter !== 'playlists' && (
+          <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex items-center justify-center">
+            {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) && (
+              <div className="p-3 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
+                <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Floating Share Feedback Toast */}
         {shareFeedback && (

@@ -115,8 +115,8 @@ export class InternalSearchProvider {
       const title = s.title.toLowerCase();
       const singer = s.singer.toLowerCase();
       const lyrics = (s.lyricsSnippet || '').toLowerCase();
-      const cat = s.category.toLowerCase();
-      const lang = s.language.toLowerCase();
+      const cat = (s.category || '').toLowerCase();
+      const lang = (s.language || '').toLowerCase();
 
       let match = false;
       let score = 0;

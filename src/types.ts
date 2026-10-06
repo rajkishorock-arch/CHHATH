@@ -294,10 +294,10 @@ export interface Song {
   id: string;
   title: string;
   singer: string;
-  language: string;
-  category: string;
-  duration: string;
-  audioUrl: string;
+  language?: string;
+  category?: string;
+  duration?: string;
+  audioUrl?: string;
   thumbnail: string;
   lyricsSnippet?: string;
   lyrics?: string;

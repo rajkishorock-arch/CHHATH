@@ -575,7 +575,7 @@ export class AgentToolExecutor {
             s.title.toLowerCase().includes(q) ||
             s.singer.toLowerCase().includes(q) ||
             s.lyricsSnippet?.toLowerCase().includes(q) ||
-            s.language.toLowerCase().includes(q)
+            s.language?.toLowerCase().includes(q)
           );
 
           return {
