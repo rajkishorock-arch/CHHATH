@@ -213,12 +213,6 @@ const YouTubeVideoCardComponent: React.FC<{
     resetMobileControlsTimer();
   };
 
-  const handleOpenNewView = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    handleStopInline();
-    onPlayVideo();
-  };
-
   const handleStopVideo = (e: React.MouseEvent) => {
     e.stopPropagation();
     handleStopInline();
@@ -425,18 +419,6 @@ const YouTubeVideoCardComponent: React.FC<{
                             aria-label="शुरू से चलाएं"
                           >
                             <RefreshCw className="w-3.5 h-3.5" />
-                          </button>
-
-                          {/* Fullscreen / New View */}
-                          <button
-                            type="button"
-                            onClick={handleOpenNewView}
-                            className="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 active:scale-95 text-[11px] font-medium flex items-center gap-1 border border-amber-500/30 transition-transform"
-                            title="बड़ी स्क्रीन में देखें"
-                            aria-label="बड़ी स्क्रीन में देखें"
-                          >
-                            <Video className="w-3.5 h-3.5" />
-                            <span>बड़ा देखें</span>
                           </button>
                         </div>
                       </div>
