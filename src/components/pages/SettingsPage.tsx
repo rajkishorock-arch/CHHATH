@@ -159,8 +159,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-24 pt-3 sm:pt-6 font-mukta transition-colors">
-      <div className="max-w-2xl mx-auto px-3 sm:px-5">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-24 pt-2 sm:pt-6 font-mukta transition-colors">
+      <div className="max-w-2xl mx-auto px-1.5 sm:px-4">
 
         {/* Toast Alert */}
         {toastMessage && (

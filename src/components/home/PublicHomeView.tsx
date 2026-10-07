@@ -114,7 +114,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
 
       {/* Quick Services & Experiences Hub */}
       {onOpenFeatureModal && onOpenAssistant && onOpenChat && (
-        <section className="container-custom max-w-5xl mx-auto px-4 -mt-4 sm:-mt-6">
+        <section className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4 -mt-4 sm:-mt-6">
           <QuickServicesHub
             onNavigate={onNavigate}
             onOpenFeatureModal={onOpenFeatureModal}
@@ -125,12 +125,12 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       )}
 
       {/* 2. Chhath Mahaparv 2026 Command Center */}
-      <section className="container-custom max-w-5xl mx-auto px-4">
+      <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">
         <ChhathCommandCenter onNavigate={onNavigate} />
       </section>
 
       {/* 3. Six Primary Utility Cards */}
-      <section className="container-custom max-w-5xl mx-auto px-4">
+      <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">
         <div className="text-center space-y-2 mb-8">
           <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-amber-100">
             छठ पूजा 2026: मुख्य सेवाएं एवं गाइड
@@ -190,7 +190,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       </section>
 
       {/* 4. Dedicated SEO Guides Section */}
-      <section className="container-custom max-w-5xl mx-auto px-4">
+      <section className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4">
         <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/30 space-y-6 shadow-sm">
           <div className="text-center space-y-2">
             <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
@@ -362,22 +362,22 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       </section>
 
       {/* Today's Arghya Details */}
-      <section id="arghya" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+      <section id="arghya" className="container-custom max-w-5xl mx-auto px-1 sm:px-4 scroll-mt-24">
         <ArghyaTimeCalc />
       </section>
 
       {/* 4 Days Timeline */}
-      <section id="guide" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+      <section id="guide" className="container-custom max-w-5xl mx-auto px-1 sm:px-4 scroll-mt-24">
         <FourDaysTimeline />
       </section>
 
       {/* "पहली बार छठ?" Beginner Mode Section */}
-      <section className="container-custom max-w-5xl mx-auto px-4">
+      <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">
         <MyFirstChhath />
       </section>
 
       {/* Puja Samagri Compact Intro Card */}
-      <section id="samagri" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+      <section id="samagri" className="container-custom max-w-5xl mx-auto px-1 sm:px-4 scroll-mt-24">
         <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 flex-1">
@@ -425,12 +425,12 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       </section>
 
       {/* Nearby Ghats */}
-      <section id="ghats" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+      <section id="ghats" className="container-custom max-w-5xl mx-auto px-1 sm:px-4 scroll-mt-24">
         <GhatFinder />
       </section>
 
       {/* Pakwan & Prasad Compact Intro Card */}
-      <section id="prasad" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+      <section id="prasad" className="container-custom max-w-5xl mx-auto px-1 sm:px-4 scroll-mt-24">
         <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 flex-1">
@@ -497,7 +497,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       </section>
 
       {/* Mantra & Aarti Compact Intro Card */}
-      <section id="aarti" className="container-custom max-w-5xl mx-auto px-4 scroll-mt-24">
+      <section id="aarti" className="container-custom max-w-5xl mx-auto px-1 sm:px-4 scroll-mt-24">
         <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 flex-1">
@@ -568,12 +568,12 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       </section>
 
       {/* Dedicated Chhath Music Studio */}
-      <section id="music" className="container-custom max-w-6xl mx-auto px-4 scroll-mt-24 space-y-8">
+      <section id="music" className="w-full max-w-6xl mx-auto px-0 sm:px-4 scroll-mt-24 space-y-6">
         <SongsSection />
       </section>
 
       {/* Trust & Safety Section */}
-      <section className="container-custom max-w-5xl mx-auto px-4">
+      <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">
         <GhatSafetySection />
 
         {/* Data Source & Last Updated Box */}
@@ -591,7 +591,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       </section>
 
       {/* Community Preview */}
-      <section className="container-custom max-w-5xl mx-auto px-4">
+      <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">
         <div className="p-6 rounded-3xl bg-amber-500/5 border border-amber-500/20 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">

@@ -132,7 +132,7 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
         jsonLd={jsonLd}
       />
 
-      <div className="container-custom max-w-4xl mx-auto px-4 pt-4 space-y-8">
+      <div className="container-custom max-w-4xl mx-auto px-1.5 sm:px-4 pt-2 sm:pt-4 space-y-4 sm:space-y-8">
         
         {/* Top Back to Home Button & Breadcrumb */}
         <div className="flex items-center justify-between gap-3 flex-wrap">

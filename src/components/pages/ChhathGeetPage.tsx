@@ -107,13 +107,13 @@ export const ChhathGeetPage: React.FC<PageProps> = ({ onNavigate }) => {
         jsonLd={jsonLd}
       />
 
-      <div className="container-custom max-w-5xl mx-auto px-4 pt-4 space-y-8">
+      <div className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4 pt-2 sm:pt-4 space-y-4 sm:space-y-8">
         
         {/* 1. Breadcrumb */}
         <Breadcrumbs items={breadcrumbs} onNavigate={onNavigate} />
 
         {/* 2. Hero Section */}
-        <header className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 text-center space-y-5 shadow-sm">
+        <header className="p-4 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 text-center space-y-3 sm:space-y-5 shadow-sm">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 font-mukta font-bold text-xs uppercase tracking-wider">
             <Music className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <span>पावन लोक संगीत एवं भक्ति संग्रह • 2026</span>

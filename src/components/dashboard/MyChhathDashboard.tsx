@@ -211,21 +211,21 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
   const userInitial = currentUser?.name ? currentUser.name.trim().charAt(0).toUpperCase() : '👤';
 
   return (
-    <section id="my-chhath" className="min-h-screen bg-stone-50 text-stone-900 pb-20 pt-3 sm:pt-6 font-mukta">
-      <div className="max-w-2xl mx-auto px-3 sm:px-5">
+    <section id="my-chhath" className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-20 pt-2 sm:pt-6 font-mukta transition-colors">
+      <div className="max-w-2xl mx-auto px-1.5 sm:px-4">
 
         {/* Toast Alert */}
         {toastMessage && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-stone-900/90 backdrop-blur-md text-white px-4 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-semibold flex items-center gap-2 animate-in fade-in zoom-in duration-200">
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-stone-900/90 dark:bg-white/90 backdrop-blur-md text-white dark:text-stone-950 px-4 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-semibold flex items-center gap-2 animate-in fade-in zoom-in duration-200">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <span>{toastMessage}</span>
           </div>
         )}
 
         {/* 1. Instagram-Style Top Bar Header */}
-        <div className="flex items-center justify-between py-2 mb-3 border-b border-stone-200/80">
+        <div className="flex items-center justify-between py-2 mb-3 border-b border-stone-200/80 dark:border-stone-800">
           <div className="flex items-center gap-1.5">
-            <h1 className="text-base sm:text-lg font-bold font-sans tracking-tight text-stone-900">
+            <h1 className="text-base sm:text-lg font-bold font-sans tracking-tight text-stone-900 dark:text-stone-100">
               {currentUser?.username || '@devotee_chhath'}
             </h1>
             <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-bold" title="सत्यापित खाता">
@@ -236,14 +236,14 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
           <div className="flex items-center gap-2">
             <button
               onClick={handleShareProfile}
-              className="p-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+              className="p-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               title="प्रोफ़ाइल शेयर करें"
             >
               <Share2 className="w-5 h-5" />
             </button>
             <button
               onClick={goToSettings}
-              className="p-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+              className="p-2 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               title="सेटिंग्स"
             >
               <Settings className="w-5 h-5" />
@@ -251,7 +251,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             {currentUser && (
               <button
                 onClick={() => logout()}
-                className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                 title="लॉग आउट"
               >
                 <LogOut className="w-5 h-5" />
@@ -262,7 +262,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
 
         {/* 2. Instagram Profile Card */}
         {currentUser ? (
-          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-stone-200 shadow-xs mb-5">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-xs mb-5">
             {/* Top row: Avatar + 3 Stats */}
             <div className="flex items-center justify-between gap-4 mb-4">
               {/* Avatar with Camera badge */}
@@ -272,7 +272,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                 title="प्रोफ़ाइल फ़ोटो बदलें"
               >
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-[2.5px] bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-300 shadow-sm transition-transform active:scale-95">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-amber-50 flex items-center justify-center border-2 border-white">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-amber-50 dark:bg-stone-800 flex items-center justify-center border-2 border-white dark:border-stone-900">
                     {currentUser.avatarUrl ? (
                       <img 
                         src={currentUser.avatarUrl} 
@@ -280,13 +280,13 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                         className="w-full h-full object-cover" 
                       />
                     ) : (
-                      <span className="text-2xl sm:text-3xl font-extrabold text-amber-900 font-sans">
+                      <span className="text-2xl sm:text-3xl font-extrabold text-amber-900 dark:text-amber-200 font-sans">
                         {userInitial}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-amber-500 text-stone-950 border-2 border-white shadow-sm group-hover:scale-110 transition-transform">
+                <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-amber-500 text-stone-950 border-2 border-white dark:border-stone-900 shadow-sm group-hover:scale-110 transition-transform">
                   <Camera className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -297,10 +297,10 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   onClick={() => setActiveTab('vows')}
                   className="cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <div className="text-base sm:text-lg font-extrabold text-stone-900 font-sans">
+                  <div className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 font-sans">
                     {vows.length}
                   </div>
-                  <div className="text-[11px] sm:text-xs text-stone-500 font-medium">
+                  <div className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
                     संकल्प
                   </div>
                 </div>
@@ -309,10 +309,10 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   onClick={() => setActiveTab('songs')}
                   className="cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <div className="text-base sm:text-lg font-extrabold text-stone-900 font-sans">
+                  <div className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 font-sans">
                     {favoriteSongs.length + favoriteGhats.length}
                   </div>
-                  <div className="text-[11px] sm:text-xs text-stone-500 font-medium">
+                  <div className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
                     पसंदीदा
                   </div>
                 </div>
@@ -321,10 +321,10 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   onClick={() => setActiveTab('credentials')}
                   className="cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <div className="text-base sm:text-lg font-extrabold text-amber-600 font-sans">
+                  <div className="text-base sm:text-lg font-extrabold text-amber-600 dark:text-amber-400 font-sans">
                     2026
                   </div>
-                  <div className="text-[11px] sm:text-xs text-stone-500 font-medium">
+                  <div className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
                     छठ महापर्व
                   </div>
                 </div>
@@ -334,30 +334,30 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             {/* User Bio & Details */}
             <div className="space-y-1 mb-4">
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-extrabold text-stone-900 leading-tight">
+                <h2 className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 leading-tight">
                   {currentUser.name}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
                   छठ व्रती
                 </span>
               </div>
 
               {currentUser.email && (
-                <div className="flex items-center gap-1.5 text-xs text-stone-500 font-sans">
+                <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-sans">
                   <Mail className="w-3.5 h-3.5 text-stone-400" />
                   <span>{currentUser.email}</span>
-                  <span className="text-emerald-600 text-[10px] font-bold bg-emerald-50 px-1.5 py-0.2 rounded-md">
+                  <span className="text-emerald-600 dark:text-emerald-400 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.2 rounded-md">
                     सत्यापित
                   </span>
                 </div>
               )}
 
-              <div className="flex items-center gap-1 text-xs text-amber-800 font-semibold pt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <div className="flex items-center gap-1 text-xs text-amber-800 dark:text-amber-400 font-semibold pt-0.5">
+                <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>{currentUser.city || userLocation.city}, {currentUser.state || userLocation.state}</span>
               </div>
 
-              <p className="text-xs sm:text-sm text-stone-700 leading-relaxed pt-1">
+              <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed pt-1">
                 {currentUser.bio || 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।'}
               </p>
             </div>
@@ -366,7 +366,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             <div className="grid grid-cols-2 gap-2 pt-1">
               <button
                 onClick={() => setEditModalOpen(true)}
-                className="py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-98 transition-all cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-900 dark:text-stone-100 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-98 transition-all cursor-pointer"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>प्रोफ़ाइल संपादित करें</span>
@@ -374,7 +374,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
 
               <button
                 onClick={handleShareProfile}
-                className="py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-98 transition-all cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-900 dark:text-stone-100 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-98 transition-all cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 <span>प्रोफ़ाइल शेयर करें</span>
@@ -383,14 +383,14 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
           </div>
         ) : (
           /* Guest Profile Prompt */
-          <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm text-center mb-5">
-            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-3">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 border border-stone-200 dark:border-stone-800 shadow-sm text-center mb-5">
+            <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-3">
               <User className="w-8 h-8" />
             </div>
-            <h2 className="text-lg font-bold text-stone-900 mb-1">
+            <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-1">
               छठ महापर्व डिजिटल प्रोफ़ाइल
             </h2>
-            <p className="text-xs text-stone-500 mb-4 max-w-sm mx-auto">
+            <p className="text-xs text-stone-500 dark:text-stone-400 mb-4 max-w-sm mx-auto">
               लॉग इन करके अपनी छठ डायरी, संकल्प, पसंदीदा गीत और निजी अर्घ्य मुहूर्त सुरक्षित रखें।
             </p>
             <button
@@ -403,13 +403,13 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
         )}
 
         {/* 3. Instagram-Style Tabs Switcher */}
-        <div className="flex border-b border-stone-200 mb-4 bg-white rounded-2xl shadow-2xs overflow-hidden">
+        <div className="flex border-b border-stone-200 dark:border-stone-800 mb-4 bg-white dark:bg-stone-900 rounded-2xl shadow-2xs overflow-hidden">
           <button
             onClick={() => setActiveTab('vows')}
             className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${
               activeTab === 'vows'
-                ? 'border-amber-500 text-amber-700 bg-amber-50/40'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-50/40 dark:bg-amber-950/30'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <Bookmark className="w-4 h-4" />
@@ -420,8 +420,8 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             onClick={() => setActiveTab('songs')}
             className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${
               activeTab === 'songs'
-                ? 'border-amber-500 text-amber-700 bg-amber-50/40'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-50/40 dark:bg-amber-950/30'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <Music className="w-4 h-4" />
@@ -432,8 +432,8 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             onClick={() => setActiveTab('ghats')}
             className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${
               activeTab === 'ghats'
-                ? 'border-amber-500 text-amber-700 bg-amber-50/40'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-50/40 dark:bg-amber-950/30'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <MapPin className="w-4 h-4" />
@@ -444,8 +444,8 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             onClick={() => setActiveTab('credentials')}
             className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border-b-2 ${
               activeTab === 'credentials'
-                ? 'border-amber-500 text-amber-700 bg-amber-50/40'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-50/40 dark:bg-amber-950/30'
+                : 'border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -465,7 +465,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                 value={newVowText}
                 onChange={(e) => setNewVowText(e.target.value)}
                 placeholder="नया संकल्प या निजी व्रत नियम जोड़ें..."
-                className="flex-1 px-4 py-2.5 rounded-2xl bg-white border border-stone-200 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs"
+                className="flex-1 px-4 py-2.5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs"
               />
               <button
                 type="submit"
@@ -481,10 +481,10 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
               {vows.map((vow) => (
                 <div
                   key={vow.id}
-                  className={`p-3.5 rounded-2xl bg-white border transition-all flex items-start justify-between gap-3 ${
+                  className={`p-3.5 rounded-2xl border transition-all flex items-start justify-between gap-3 ${
                     vow.completed 
-                      ? 'border-emerald-200 bg-emerald-50/30 text-stone-500' 
-                      : 'border-stone-200 text-stone-800'
+                      ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-500 dark:text-stone-400' 
+                      : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200'
                   }`}
                 >
                   <button
@@ -494,18 +494,18 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                     <div className={`w-5 h-5 rounded-lg border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
                       vow.completed 
                         ? 'bg-emerald-500 border-emerald-500 text-white' 
-                        : 'border-stone-300 hover:border-amber-500'
+                        : 'border-stone-300 dark:border-stone-700 hover:border-amber-500'
                     }`}>
                       {vow.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </div>
-                    <span className={`text-xs sm:text-sm font-medium leading-relaxed ${vow.completed ? 'line-through text-stone-400' : ''}`}>
+                    <span className={`text-xs sm:text-sm font-medium leading-relaxed ${vow.completed ? 'line-through text-stone-400 dark:text-stone-500' : ''}`}>
                       {vow.text}
                     </span>
                   </button>
 
                   <button
                     onClick={() => handleDeleteVow(vow.id)}
-                    className="p-1.5 text-stone-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition-colors"
+                    className="p-1.5 text-stone-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                     title="हटाएं"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -523,7 +523,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
               myFavoriteSongsList.map((song) => (
                 <div
                   key={song.id}
-                  className="p-3 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-2xs hover:border-amber-300 transition-all"
+                  className="p-3 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 flex items-center justify-between gap-3 shadow-2xs hover:border-amber-300 dark:hover:border-amber-500/50 transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <button
@@ -533,29 +533,29 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                       <Play className="w-4 h-4 fill-current ml-0.5" />
                     </button>
                     <div className="truncate">
-                      <h4 className="text-xs sm:text-sm font-bold text-stone-900 truncate">
+                      <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
                         {song.title}
                       </h4>
-                      <p className="text-[11px] text-stone-500 truncate">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
                         {song.singer} • {song.language}
                       </p>
                     </div>
                   </div>
 
-                  <span className="text-[11px] text-stone-400 font-mono shrink-0">
+                  <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono shrink-0">
                     {song.duration}
                   </span>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center bg-white rounded-2xl border border-stone-200">
-                <Music className="w-10 h-10 text-stone-300 mx-auto mb-2" />
-                <p className="text-xs sm:text-sm text-stone-600 font-medium">
+              <div className="p-8 text-center bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
+                <Music className="w-10 h-10 text-stone-300 dark:text-stone-700 mx-auto mb-2" />
+                <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-medium">
                   आपने अभी कोई गीत पसंदीदा नहीं बनाया है।
                 </p>
                 <button
                   onClick={() => onNavigate ? onNavigate('songs') : (window.location.hash = '#songs')}
-                  className="mt-3 px-4 py-2 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs"
+                  className="mt-3 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs cursor-pointer"
                 >
                   छठ गीत सुनें →
                 </button>
@@ -571,17 +571,17 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
               myFavoriteGhatsList.map((ghat) => (
                 <div
                   key={ghat.id}
-                  className="p-3.5 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-2xs"
+                  className="p-3.5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 flex items-center justify-between gap-3 shadow-2xs"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-stone-900">
+                      <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
                         {ghat.name}
                       </h4>
-                      <p className="text-[11px] text-stone-500">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400">
                         {ghat.city}, {ghat.state} • {ghat.river}
                       </p>
                     </div>
@@ -589,21 +589,21 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
 
                   <button
                     onClick={() => onNavigate ? onNavigate('ghats') : (window.location.hash = '#ghats')}
-                    className="p-2 text-stone-400 hover:text-amber-600 rounded-lg hover:bg-stone-50"
+                    className="p-2 text-stone-400 hover:text-amber-600 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 cursor-pointer"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center bg-white rounded-2xl border border-stone-200">
-                <MapPin className="w-10 h-10 text-stone-300 mx-auto mb-2" />
-                <p className="text-xs sm:text-sm text-stone-600 font-medium">
+              <div className="p-8 text-center bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
+                <MapPin className="w-10 h-10 text-stone-300 dark:text-stone-700 mx-auto mb-2" />
+                <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-medium">
                   कोई पसंदीदा घाट सहेजा नहीं गया है।
                 </p>
                 <button
                   onClick={() => onNavigate ? onNavigate('ghats') : (window.location.hash = '#ghats')}
-                  className="mt-3 px-4 py-2 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs"
+                  className="mt-3 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs cursor-pointer"
                 >
                   घाट डायरेक्टरी देखें →
                 </button>
@@ -614,28 +614,28 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
 
         {/* TAB 4: खाता व क्रेडेंशियल (Credentials & Security) */}
         {activeTab === 'credentials' && (
-          <div className="bg-white rounded-3xl p-5 border border-stone-200 space-y-4">
-            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-5 border border-stone-200 dark:border-stone-800 space-y-4">
+            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>प्रमाणीकरण व क्रेडेंशियल जानकारी</span>
             </h3>
 
             {currentUser ? (
               <div className="space-y-3 text-xs">
-                <div className="p-3 rounded-2xl bg-stone-50 border border-stone-200 space-y-1.5">
+                <div className="p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700/80 space-y-1.5">
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-medium">यूज़र आईडी (UID):</span>
-                    <span className="font-mono font-bold text-stone-800 truncate max-w-[180px]">
+                    <span className="text-stone-500 dark:text-stone-400 font-medium">यूज़र आईडी (UID):</span>
+                    <span className="font-mono font-bold text-stone-800 dark:text-stone-200 truncate max-w-[180px]">
                       {currentUser.id}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-medium">पंजीकृत ईमेल:</span>
-                    <span className="font-semibold text-stone-900">{currentUser.email || 'उपलब्ध नहीं'}</span>
+                    <span className="text-stone-500 dark:text-stone-400 font-medium">पंजीकृत ईमेल:</span>
+                    <span className="font-semibold text-stone-900 dark:text-stone-100">{currentUser.email || 'उपलब्ध नहीं'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-medium">खाता सुरक्षा:</span>
-                    <span className="text-emerald-700 font-bold">Firebase Authentication 🔒</span>
+                    <span className="text-stone-500 dark:text-stone-400 font-medium">खाता सुरक्षा:</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">Firebase Authentication 🔒</span>
                   </div>
                 </div>
 
@@ -643,7 +643,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   <div className="pt-1">
                     <button
                       onClick={handleSendResetPassword}
-                      className="w-full py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition-all cursor-pointer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-800 dark:text-stone-200 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition-all cursor-pointer"
                     >
                       <Lock className="w-3.5 h-3.5" />
                       <span>{resetSent ? 'रीसेट लिंक भेजा जा चुका है' : 'पासवर्ड रीसेट लिंक ईमेल पर भेजें'}</span>
@@ -651,10 +651,10 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-stone-100">
+                <div className="pt-2 border-t border-stone-100 dark:border-stone-800">
                   <button
                     onClick={() => logout()}
-                    className="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition-all cursor-pointer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-bold text-xs flex items-center justify-center gap-2 active:scale-98 transition-all cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>इस डिवाइस से लॉग आउट करें</span>
@@ -663,10 +663,10 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-xs text-stone-500 mb-3">वर्तमान में आप अतिथि सत्र में हैं।</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">वर्तमान में आप अतिथि सत्र में हैं।</p>
                 <button
                   onClick={() => openAuthModal('login')}
-                  className="px-5 py-2 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs"
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs cursor-pointer"
                 >
                   लॉग इन करें
                 </button>
@@ -683,17 +683,17 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
           onClick={() => setEditModalOpen(false)}
         >
           <div 
-            className="relative w-full max-w-md bg-white text-stone-900 rounded-3xl p-5 sm:p-6 shadow-2xl border border-stone-200 overflow-hidden my-auto"
+            className="relative w-full max-w-md bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl p-5 sm:p-6 shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-stone-100">
-              <h3 className="text-base font-bold text-stone-900">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-stone-100 dark:border-stone-800">
+              <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
                 प्रोफ़ाइल संपादित करें
               </h3>
               <button
                 onClick={() => setEditModalOpen(false)}
-                className="p-1.5 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-100"
+                className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -702,7 +702,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             {/* Change Profile Photo Section */}
             <div className="flex flex-col items-center mb-5 text-center">
               <div className="relative w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-orange-500 shadow-md mb-2.5">
-                <div className="w-full h-full rounded-full overflow-hidden bg-amber-50 flex items-center justify-center border-2 border-white">
+                <div className="w-full h-full rounded-full overflow-hidden bg-amber-50 dark:bg-stone-800 flex items-center justify-center border-2 border-white dark:border-stone-900">
                   {avatarPreview ? (
                     <img 
                       src={avatarPreview} 
@@ -710,7 +710,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                       className="w-full h-full object-cover" 
                     />
                   ) : (
-                    <span className="text-3xl font-extrabold text-amber-900 font-sans">
+                    <span className="text-3xl font-extrabold text-amber-900 dark:text-amber-200 font-sans">
                       {nameInput ? nameInput.trim().charAt(0).toUpperCase() : '👤'}
                     </span>
                   )}
@@ -743,7 +743,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                       setAvatarPreview('');
                       showToast('फ़ोटो हटा दी गई');
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>हटाएं</span>
@@ -753,7 +753,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
 
               {/* Spiritual Emoji Avatars */}
               <div className="flex items-center gap-1.5 mt-3">
-                <span className="text-[11px] text-stone-400 font-medium">अवतार:</span>
+                <span className="text-[11px] text-stone-400 dark:text-stone-500 font-medium">अवतार:</span>
                 {['☀️', '🪔', '🙏', '🌸', '🌅', '🚩'].map((emoji) => (
                   <button
                     key={emoji}
@@ -762,7 +762,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                       setAvatarPreview(emoji);
                       showToast(`अवतार ${emoji} चुना गया`);
                     }}
-                    className="w-7 h-7 rounded-lg bg-stone-100 hover:bg-amber-100 flex items-center justify-center text-sm transition-transform active:scale-90"
+                    className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-amber-950/60 flex items-center justify-center text-sm transition-transform active:scale-90 cursor-pointer"
                   >
                     {emoji}
                   </button>
@@ -773,7 +773,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             {/* Profile Fields Form */}
             <form onSubmit={handleSaveProfile} className="space-y-3 font-mukta">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
                   पूरा नाम (Full Name) *
                 </label>
                 <input
@@ -782,12 +782,12 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   onChange={(e) => setNameInput(e.target.value)}
                   placeholder="अपना नाम दर्ज करें"
                   required
-                  className="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900"
+                  className="w-full px-3.5 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 dark:text-stone-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
                   यूज़रनेम (Username)
                 </label>
                 <input
@@ -795,12 +795,12 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
                   placeholder="@your_username"
-                  className="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 font-mono"
+                  className="w-full px-3.5 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 dark:text-stone-100 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
+                <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
                   बायो (Bio / संदेश)
                 </label>
                 <textarea
@@ -809,16 +809,16 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                   rows={2}
                   maxLength={150}
                   placeholder="छठी मईया की जय! अपने भाव लिखें..."
-                  className="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 resize-none"
+                  className="w-full px-3.5 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 dark:text-stone-100 resize-none"
                 />
-                <span className="block text-right text-[10px] text-stone-400">
+                <span className="block text-right text-[10px] text-stone-400 dark:text-stone-500">
                   {bioInput.length}/150
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
                     शहर (City)
                   </label>
                   <input
@@ -826,11 +826,11 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                     value={cityInput}
                     onChange={(e) => setCityInput(e.target.value)}
                     placeholder="उदा. पटना"
-                    className="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900"
+                    className="w-full px-3.5 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 dark:text-stone-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                  <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
                     राज्य (State)
                   </label>
                   <input
@@ -838,7 +838,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                     value={stateInput}
                     onChange={(e) => setStateInput(e.target.value)}
                     placeholder="उदा. बिहार"
-                    className="w-full px-3.5 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900"
+                    className="w-full px-3.5 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 dark:text-stone-100"
                   />
                 </div>
               </div>

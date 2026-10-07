@@ -356,7 +356,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           isVisible ? 'translate-y-0' : '-translate-y-full pointer-events-none'
         }`}
       >
-      <div className="container-custom flex items-center justify-between h-16 sm:h-20 max-w-full px-2 sm:px-4 md:px-6">
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-14 sm:h-20 px-2 sm:px-4 md:px-6">
         
         {/* Left: Sidebar Drawer Trigger + Brand Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">

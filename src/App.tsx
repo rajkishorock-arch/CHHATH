@@ -577,13 +577,15 @@ const MainContent: React.FC = () => {
           {/* Persistent Home Screen (Kept in DOM to eliminate white flash, prevent reloads, and preserve 60fps instant transitions) */}
           <div className={activeTab === 'home' ? 'block' : 'hidden'}>
             {isMobileScreen ? (
-              <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4">
-                <QuickServicesHub
-                  onNavigate={handleNavigate}
-                  onOpenFeatureModal={setFeatureModal}
-                  onOpenAssistant={() => setAssistantModalOpen(true)}
-                  onOpenChat={() => openConnect()}
-                />
+              <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
+                <div className="px-2 sm:px-0 pt-1 sm:pt-0">
+                  <QuickServicesHub
+                    onNavigate={handleNavigate}
+                    onOpenFeatureModal={setFeatureModal}
+                    onOpenAssistant={() => setAssistantModalOpen(true)}
+                    onOpenChat={() => openConnect()}
+                  />
+                </div>
                 <SongsSection initialQuery={musicInitialQuery} />
               </div>
             ) : (
@@ -633,7 +635,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'guide' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
+            <div className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4 py-3 sm:py-8 space-y-4 sm:space-y-8">
               <Breadcrumbs 
                 items={[{ label: 'छठ पूजा विधि व संपूर्ण मार्गदर्शिका', url: '#guide' }]} 
                 onNavigate={handleNavigate} 
@@ -645,7 +647,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'ghats' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
+            <div className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4 py-3 sm:py-8 space-y-4 sm:space-y-8">
               <Breadcrumbs 
                 items={[{ label: 'घाट एवं सुरक्षा निर्देश', url: '#ghats' }]} 
                 onNavigate={handleNavigate} 
@@ -656,7 +658,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'aarti' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
+            <div className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4 py-3 sm:py-8 space-y-4 sm:space-y-8">
               <Breadcrumbs 
                 items={[{ label: 'सूर्य देव आरती व वैदिक मंत्र', url: '#aarti' }]} 
                 onNavigate={handleNavigate} 
@@ -666,7 +668,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'music' && (
-            <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4">
+            <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-3">
               <SongsSection initialQuery={musicInitialQuery} />
             </div>
           )}

@@ -145,7 +145,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
   ];
 
   return (
-    <div className="w-full bg-white/70 dark:bg-stone-900/60 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-amber-500/20 shadow-sm">
+    <div className="w-full bg-white/70 dark:bg-stone-900/60 backdrop-blur-md rounded-2xl sm:rounded-3xl p-2 sm:p-4 border border-amber-500/20 shadow-sm">
       <div className="flex items-center justify-between px-1 mb-2.5">
         <div className="flex items-center gap-1.5 font-rozha text-sm sm:text-base font-bold text-stone-900 dark:text-amber-100">
           <span className="text-amber-500">✨</span>

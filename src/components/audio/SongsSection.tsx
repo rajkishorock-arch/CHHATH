@@ -234,10 +234,10 @@ const YouTubeVideoCardComponent: React.FC<{
 
   return (
     <div
-      className={`group rounded-2xl bg-white dark:bg-stone-900 border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
+      className={`group rounded-none sm:rounded-2xl bg-white dark:bg-stone-900 border-y sm:border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
         isCurrent || isInlineActive
           ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
-          : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
+          : 'border-stone-200 dark:border-stone-800/80 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
       }`}
     >
       <div>
@@ -1222,8 +1222,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   }, [searchStatus, searchQuery, fetchInitialLiveSongs, handleExecuteSearch]);
 
   return (
-    <section id="songs" className="py-2 sm:py-6 px-1 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta">
-      <div className="max-w-6xl mx-auto space-y-3.5">
+    <section id="songs" className="py-0 sm:py-6 px-0 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta w-full">
+      <div className="w-full max-w-6xl mx-auto space-y-2 sm:space-y-4">
         
         {/* ========================================================
             DESKTOP-ONLY SEARCH BAR (HIDDEN ON PHONE LAYOUT FOR CLEAN SCREEN)
@@ -1344,7 +1344,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
               {ytSearchResults.map((ytSong) => {
                 const songObj = convertToSongModel(ytSong);
                 const isCurrent = (currentSong?.youtubeId && currentSong.youtubeId === ytSong.youtubeId) || currentSong?.id === songObj.id;
@@ -1395,9 +1395,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                 <div className="flex items-center justify-center py-2">
                   <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="rounded-2xl bg-white dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800/80 animate-pulse overflow-hidden">
+                    <div key={i} className="rounded-none sm:rounded-2xl bg-white dark:bg-stone-900/60 border-y sm:border border-stone-200 dark:border-stone-800/80 animate-pulse overflow-hidden">
                       <div className="aspect-video bg-stone-200 dark:bg-stone-800" />
                       <div className="p-3 flex items-start gap-2.5">
                         <div className="w-9 h-9 rounded-full bg-stone-200 dark:bg-stone-800 shrink-0" />
@@ -1414,7 +1414,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
             {/* Live Real-Time YouTube Songs Grid */}
             {!isLiveInitialLoading && liveSongs.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
                 {liveSongs.map((song) => {
                   const cardKey = song.youtubeId || song.id;
                   const isCurrent = (currentSong?.youtubeId && song.youtubeId && currentSong.youtubeId === song.youtubeId) || currentSong?.id === song.id;
