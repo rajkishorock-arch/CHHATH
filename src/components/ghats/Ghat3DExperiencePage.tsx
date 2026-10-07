@@ -1,234 +1,370 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import * as THREE from 'three';
-import { 
-  ArrowLeft, 
-  Sun, 
-  Sunset, 
-  Moon, 
-  Volume2, 
-  VolumeX, 
-  Compass, 
-  Maximize, 
-  Minimize, 
-  Play, 
-  Pause, 
-  RotateCw, 
-  Sparkles, 
-  X, 
-  Heart, 
-  Share2, 
-  Check, 
-  Flame, 
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  ArrowLeft,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  Flame,
   Droplets,
+  Share2,
+  Heart,
+  Search,
+  X,
+  ExternalLink,
+  Film,
+  Camera,
+  Tv,
   Layers,
+  Sun,
+  Sunset,
+  Moon,
+  Maximize2,
   ChevronRight,
-  Info
+  Info,
+  Check,
+  RotateCcw,
+  Eye,
+  MapPin,
+  Clock,
+  Compass
 } from 'lucide-react';
 import { sacredAudio } from '../../utils/sacredAudioEngine';
+import { searchYouTubeVideos, YouTubeSearchSong } from '../../services/youtubeSearchService';
 
 interface Ghat3DExperiencePageProps {
   onNavigate?: (tab: string) => void;
 }
 
-type LightingMode = 'morning' | 'sunset' | 'night';
+export type VideoCategory =
+  | 'all'
+  | 'rituals'
+  | 'ghats'
+  | 'thekua'
+  | 'kosi'
+  | 'drone'
+  | 'songs';
 
-interface GhatSpotInfo {
+export interface VisualChhathVideo {
   id: string;
-  name: string;
-  hindiName: string;
-  category: string;
-  desc: string;
-  significance: string;
-  mantra?: string;
-  position: [number, number, number];
-}
-
-interface HolyGhatData {
-  id: string;
-  name: string;
-  city: string;
+  youtubeId: string;
+  title: string;
+  subtitle: string;
+  category: VideoCategory;
+  categoryLabel: string;
+  duration: string;
+  quality: '4K ULTRA HD' | '1080p HD';
+  location: string;
   state: string;
-  tagline: string;
   description: string;
-  waterColor: {
-    morning: string;
-    sunset: string;
-    night: string;
-  };
+  culturalInsight: string;
+  badge?: string;
+  featured?: boolean;
 }
 
-const HOLY_GHATS: HolyGhatData[] = [
+// ============================================================================
+// CURATED REAL HD / 4K CHHATH PUJA VISUAL ARCHIVE
+// Real footage: No animations, no synthetic 3D dots. Authentic reality of Chhath.
+// ============================================================================
+const REAL_CHHATH_ARCHIVE: VisualChhathVideo[] = [
+  // --- 1. FEATURED / REAL GHAT SPECTACLE ---
   {
-    id: 'patna-collectorate',
-    name: 'कलेक्ट्रेट घाट (Collectorate Ghat)',
-    city: 'पटना',
+    id: 'patna-sandhya-4k',
+    youtubeId: 'u0nOfHGb5FQ',
+    title: 'पटना गंगा घाट संध्या अर्घ्य 4K विहंगम दृश्य',
+    subtitle: 'लाखों दीपों व गंगा जल में खड़े व्रतियों का महासंगम',
+    category: 'ghats',
+    categoryLabel: 'पावन घाट दर्शन',
+    duration: '0:35',
+    quality: '4K ULTRA HD',
+    location: 'कलेक्ट्रेट व मरीन ड्राइव घाट, पटना',
     state: 'बिहार',
-    tagline: 'हजारों छठ व्रतियों का महासंगम व भव्य गंगा तट',
-    description: 'पटना का ऐतिहासिक एवं सबसे विशाल छठ घाट, जहाँ षष्ठी व सप्तमी को लाखों श्रद्धालु अस्ताचलगामी व उदीयमान सूर्य को अर्घ्य अर्पित करते हैं।',
-    waterColor: {
-      morning: '#38bdf8',
-      sunset: '#f97316',
-      night: '#0c4a6e'
-    }
+    description: 'गंगा के पावन तट पर लाखों व्रती कमर तक जल में खड़े होकर अस्ताचलगामी भगवान सूर्य को अर्घ्य अर्पित करते हैं। पूरे घाट पर दीपों की अविरल माला जगमगाती है।',
+    culturalInsight: 'षष्ठी के दिन डूबते सूर्य को प्रथम अर्घ्य दिया जाता है, जो यह संदेश देता है कि कृतज्ञ समाज ढलते सूर्य को भी नमन करता है।',
+    badge: 'मुख्य आकर्षण • 4K',
+    featured: true
   },
   {
-    id: 'patna-digha',
-    name: 'दीघा घाट (Digha Ghat)',
-    city: 'पटना',
+    id: 'patna-digha-ghat-4k',
+    youtubeId: 'dZr4KPbBjNo',
+    title: 'दीघा पाटीपुल घाट संध्या अर्घ्य लाइव दृश्य',
+    subtitle: 'विशाल रेतीले तट पर ईख के मंडप और अखंड दीप',
+    category: 'ghats',
+    categoryLabel: 'पावन घाट दर्शन',
+    duration: '0:35',
+    quality: '1080p HD',
+    location: 'दीघा घाट 93, पटना',
     state: 'बिहार',
-    tagline: 'विशाल रेतीला तट और असीम गंगा विस्तार',
-    description: 'गंगा सेतु के निकट स्थित दीघा घाट पर खुला विस्तृत रेत का मैदान छठ पूजा के पवित्र ईख के मंडप और अखंड दीपों से जगमगा उठता है।',
-    waterColor: {
-      morning: '#0ea5e9',
-      sunset: '#fb923c',
-      night: '#075985'
-    }
+    description: 'गंगा सेतु के निकट फैले विशाल रेतीले तट पर हजारों परिवार अपने-अपने ईख के मंडप सजाकर सूर्य देव के आगमन व विदाई की साक्षी बनते हैं।',
+    culturalInsight: 'दीघा का रेतीला मैदान प्रकृति के खुले आंगन में स्वच्छता और श्रद्धा का अनुपम उदाहरण प्रस्तुत करता है।',
+    badge: 'पटना विशाल घाट'
   },
   {
-    id: 'varanasi-assi',
-    name: 'अस्सी घाट (Assi Ghat)',
-    city: 'वाराणसी',
+    id: 'varanasi-assi-ghat-hd',
+    youtubeId: 'w9AiKa0gGMs',
+    title: 'काशी अस्सी घाट पर छठ महापर्व व संध्या आरती',
+    subtitle: 'प्राचीन अर्धचंद्राकार पाषाण सीढ़ियों पर दीपदान',
+    category: 'ghats',
+    categoryLabel: 'पावन घाट दर्शन',
+    duration: '0:42',
+    quality: '1080p HD',
+    location: 'अस्सी व दशाश्वमेध घाट, वाराणसी',
     state: 'उत्तर प्रदेश',
-    tagline: 'प्राचीन अर्धचंद्राकार गंगा तट व दीपदान संगम',
-    description: 'असि और गंगा के पावन संगम पर स्थित अस्सी घाट पर छठ महापर्व की संध्या गंगा आरती और अर्घ्य का अलौकिक दृश्य प्रस्तुत करती है।',
-    waterColor: {
-      morning: '#0284c7',
-      sunset: '#ea580c',
-      night: '#1e1b4b'
-    }
+    description: 'भगवान शिव की नगरी काशी में गंगा किनारे छठ पूजा के दौरान संध्या अर्घ्य और वैदिक गंगा आरती का अद्भुत संगम देखने को मिलता है।',
+    culturalInsight: 'काशी के घाटों पर छठ महापर्व का दृश्य सनातन संस्कृति की अखंड परंपरा को दर्शाता है।',
+    badge: 'काशी महाआरती संगम'
   },
   {
-    id: 'haridwar-harki',
-    name: 'हर की पौड़ी (Har Ki Pauri)',
-    city: 'हरिद्वार',
-    state: 'उत्तराखंड',
-    tagline: 'पावन ब्रह्मकुंड व हिमालयी निर्मल जलधारा',
-    description: 'माँ गंगा की तीव्र व पावन धारा के बीच ब्रह्मकुंड पर सूर्य देव को संध्या व उषा अर्घ्य अर्पित करना महापुण्यदायी माना जाता है।',
-    waterColor: {
-      morning: '#06b6d4',
-      sunset: '#f59e0b',
-      night: '#083344'
-    }
+    id: 'surya-mandir-aurangabad',
+    youtubeId: 'qFwoGr1ex_g',
+    title: 'देव सूर्य मंदिर व पवित्र सूर्य कुंड दर्शन',
+    subtitle: 'पश्चिमाभिमुख प्राचीन सूर्य मंदिर में अर्घ्य अनुष्ठान',
+    category: 'ghats',
+    categoryLabel: 'पावन घाट दर्शन',
+    duration: '0:42',
+    quality: '1080p HD',
+    location: 'देव सूर्य मंदिर, औरंगाबाद',
+    state: 'बिहार',
+    description: 'त्रेतायुगीन पश्चिमाभिमुख सूर्य मंदिर के पावन कुंड में लाखों श्रद्धालु मनोकामना पूर्ति हेतु अर्घ्य अर्पित करते हैं।',
+    culturalInsight: 'देव का सूर्य मंदिर विश्व का एकमात्र पश्चिमाभिमुख सूर्य मंदिर है जहां छठ पूजा का फल सहस्र गुना माना जाता है।',
+    badge: 'प्राचीन ऐतिहासिक तीर्थ'
+  },
+
+  // --- 2. 4-DAY REAL RITUALS (चारों दिन की साक्षात पूजा विधि) ---
+  {
+    id: 'day1-nahay-khay-real',
+    youtubeId: 's256QAoPt4I',
+    title: 'पहला दिन: नहाय-खाय पवित्र गंगा स्नान व कद्दू-भात',
+    subtitle: 'पवित्रता का संकल्प और सात्विक प्रसाद निर्माण',
+    category: 'rituals',
+    categoryLabel: '4-दिवसीय विधि',
+    duration: '0:40',
+    quality: '1080p HD',
+    location: 'समस्तीपुर व पटना',
+    state: 'बिहार',
+    description: 'छठ का पहला पावन दिन नहाय-खाय। प्रातः गंगा नदी में पवित्र स्नान के पश्चात मिट्टी के चूल्हे पर शुद्ध घी व सेंधा नमक से चने की दाल और कद्दू-भात बनता है।',
+    culturalInsight: 'कद्दू जल तत्व का प्रतीक है जो शरीर को शीतलता और 36 घंटे के निर्जला उपवास के लिए आवश्यक ऊर्जा प्रदान करता है।',
+    badge: 'दिवस 1 • नहाय-खाय'
+  },
+  {
+    id: 'day2-kharna-real',
+    youtubeId: 'GYAFUlc6b54',
+    title: 'दूसरा दिन: खरना — मिट्टी के चूल्हे पर रसियाव खीर व रोटी',
+    subtitle: 'शांत एकांत में नैवेद्य अर्पण व 36 घंटे अखंड निर्जला व्रत आरंभ',
+    category: 'rituals',
+    categoryLabel: '4-दिवसीय विधि',
+    duration: '0:32',
+    quality: '1080p HD',
+    location: 'गया व दरभंगा',
+    state: 'बिहार',
+    description: 'कार्तिक शुक्ल पंचमी की शाम व्रती दिनभर उपवास के बाद मिट्टी के नए चूल्हे पर आम की लकड़ी से गुड़ व गाय के दूध की खीर (रसियाव) और घी चुपड़ी रोटी बनाते हैं।',
+    culturalInsight: 'खरना का अर्थ है शुद्धिकरण। इस प्रसाद को ग्रहण करने के बाद व्रती का 36 घंटे का अखंड निर्जला व्रत प्रारंभ होता है।',
+    badge: 'दिवस 2 • खरना'
+  },
+  {
+    id: 'day3-sandhya-arghya-real',
+    youtubeId: 'TN7j4Fojlqo',
+    title: 'तीसरा दिन: संध्या अर्घ्य — अस्ताचलगामी सूर्य को प्रथम अर्घ्य',
+    subtitle: 'दउरा व सूप लेकर गंगा जल में खड़े व्रतियों की साधना',
+    category: 'rituals',
+    categoryLabel: '4-दिवसीय विधि',
+    duration: '0:36',
+    quality: '4K ULTRA HD',
+    location: 'पटना गंगा रिवरफ्रंट',
+    state: 'बिहार',
+    description: 'कार्तिक शुक्ल षष्ठी की संध्या। समस्त परिवार सिर पर दउरा लेकर बाजे-गाजे के साथ घाट पहुंचते हैं। सूप में ठेकुआ, मौसमी फल और दीप रखकर ढलते सूर्य को अर्घ्य दिया जाता है।',
+    culturalInsight: 'दुनिया उगते को सलाम करती है, किंतु छठ महापर्व सर्वप्रथम ढलते सूर्य को प्रणाम कर कृतज्ञता का पाठ पढ़ाता है।',
+    badge: 'दिवस 3 • संध्या अर्घ्य'
+  },
+  {
+    id: 'day4-usha-arghya-real',
+    youtubeId: '3XQDVtg2aIA',
+    title: 'चौथा दिन: उषा अर्घ्य व पारण — उदीयमान सूर्य को प्रातः अर्घ्य',
+    subtitle: 'शीतल जल में भोर की प्रतीक्षा और महाव्रत का पूर्ण समापन',
+    category: 'rituals',
+    categoryLabel: '4-दिवसीय विधि',
+    duration: '0:45',
+    quality: '4K ULTRA HD',
+    location: 'मुजफ्फरपुर व पटना घाट',
+    state: 'बिहार',
+    description: 'सप्तमी की ब्रह्मबेला (प्रातः 4 बजे) में व्रती शीतल जल में उतरते हैं। जैसे ही पूर्व दिशा में लालिमा फूटती है, कच्चे दूध व गंगाजल से उदीयमान सूर्य को अर्घ्य दिया जाता है।',
+    culturalInsight: 'उषा अर्घ्य के बाद व्रती अदरक, गुड़ और कच्चे चने से व्रत का पारण करते हैं और सभी को महाप्रसाद बांटते हैं।',
+    badge: 'दिवस 4 • उषा अर्घ्य'
+  },
+
+  // --- 3. THEKUA & MAHAPRASAD (ठेकुआ निर्माण व महाप्रसाद) ---
+  {
+    id: 'thekua-making-village',
+    youtubeId: 'Jegu3rAfrHY',
+    title: 'काठ के पारंपरिक सांचे पर शुद्ध ठेकुआ महाप्रसाद निर्माण',
+    subtitle: 'गेहूं का आटा, देसी घी, गुड़ व मिट्टी का चूल्हा',
+    category: 'thekua',
+    categoryLabel: 'ठेकुआ व महाप्रसाद',
+    duration: '0:30',
+    quality: '1080p HD',
+    location: 'ग्रामीण बिहार रसोई',
+    state: 'बिहार',
+    description: 'लकड़ी के नक्काशीदार सांचे पर हाथ से दबाकर बने ठेकुआ। आम की सूखी लकड़ी और गाय के शुद्ध घी में तले जाने वाला छठ का सर्वोपरि प्रसाद।',
+    culturalInsight: 'ठेकुआ बनाते समय पूरी शुचिता और पवित्रता का पालन होता है; इसे बनाने वाले भी स्नान कर नए वस्त्र धारण करते हैं।',
+    badge: 'पारंपरिक ठेकुआ'
+  },
+  {
+    id: 'daura-sup-sajawat',
+    youtubeId: 'SsQEyUz8l2E',
+    title: 'बांस के दउरा व पीतल सूप की सात्विक सजावट',
+    subtitle: 'ठेकुआ, केला, नारियल, सुथनी, मूली व हल्दी गांठ का श्रृंगार',
+    category: 'thekua',
+    categoryLabel: 'ठेकुआ व महाप्रसाद',
+    duration: '0:42',
+    quality: '1080p HD',
+    location: 'वाराणसी व छपरा',
+    state: 'बिहार/यूपी',
+    description: 'कांच ही बांस के बहंगिया और दउरा में प्रकृति की समस्त उपजों को सलीके से सजाया जाता है। इसमें कोई भी कृत्रिम वस्तु नहीं होती।',
+    culturalInsight: 'दउरा में वही फल और अन्न रखे जाते हैं जो किसान की मेहनत और प्रकृति के साक्षात वरदान होते हैं।',
+    badge: 'दउरा व सूप'
+  },
+
+  // --- 4. KOSI BHARAI & TRADITIONS (कोसी भराई व परंपराएं) ---
+  {
+    id: 'kosi-bharai-night-vigil',
+    youtubeId: 'GaU5JxThjHY',
+    title: 'पावन कोसी भराई अनुष्ठान — रातभर दीपों का जागरण',
+    subtitle: '5 गन्ने का मंडप, 24 मिट्टी के दीप और पारंपरिक कोसी गीत',
+    category: 'kosi',
+    categoryLabel: 'कोसी व परंपराएं',
+    duration: '0:38',
+    quality: '1080p HD',
+    location: 'दरभंगा व मधुबनी',
+    state: 'बिहार',
+    description: 'मनोकामना पूर्ण होने पर आंगन या घाट पर मिट्टी के हाथी व कलश के चारों ओर पांच गन्नों का मंडप बनाकर 24 दीप जलाए जाते हैं और रातभर महिलाएं गीत गाती हैं।',
+    culturalInsight: 'कोसी भराई संतान सुख, आरोग्य और कठिन विपदा टलने पर देवी षष्ठी के प्रति सर्वोच्च कृतज्ञता का अनुष्ठान है।',
+    badge: 'कोसी भराई'
+  },
+  {
+    id: 'daura-on-head-barefoot',
+    youtubeId: 'pe8IZ2DlwNI',
+    title: 'सिर पर दउरा उठाकर नंगे पांव घाट यात्रा व घर वापसी',
+    subtitle: 'श्रद्धा और समर्पण का वह दृश्य जो आंखें नम कर दे',
+    category: 'kosi',
+    categoryLabel: 'कोसी व परंपराएं',
+    duration: '0:48',
+    quality: '1080p HD',
+    location: 'पटना व बक्सर',
+    state: 'बिहार',
+    description: 'परिवार के मुखिया या युवा सिर पर भारी दउरा उठाए नंगे पांव मीलों चलकर गंगा घाट पहुंचते हैं। रास्ते भर लोग उनके चरण स्पर्श कर आशीर्वाद लेते हैं।',
+    culturalInsight: 'छठ पूजा में कोई छोटा या बड़ा नहीं होता; हर वर्ग का व्यक्ति सिर पर दउरा उठाकर प्रकृति के प्रति नतमस्तक होता है।',
+    badge: 'छठ समर्पण'
+  },
+
+  // --- 5. DRONE AERIAL OVERVIEWS (4K ड्रोन विहंगम दृश्य) ---
+  {
+    id: 'patna-drone-overview-4k',
+    youtubeId: '3wTOA1GkVf0',
+    title: 'पटना गंगा रिवरफ्रंट 4K ड्रोन विहंगम दर्शन',
+    subtitle: 'किलोमीटरों तक फैला दीपों और श्रद्धालुओं का समंदर',
+    category: 'drone',
+    categoryLabel: 'ड्रोन दर्शन',
+    duration: '0:35',
+    quality: '4K ULTRA HD',
+    location: 'गंगा पथ मरीन ड्राइव, पटना',
+    state: 'बिहार',
+    description: 'आसमान से लिए गए ड्रोन दृश्यों में गंगा नदी के दोनों किनारों पर लाखों दीपों की कतार और आस्था का महासागर दिखाई देता है।',
+    culturalInsight: 'विश्व में ऐसा कोई दूसरा पर्व नहीं है जहां करोड़ों लोग एक साथ, बिना किसी पुरोहित के, नदी तट पर प्रकृति की प्रत्यक्ष पूजा करते हैं।',
+    badge: '4K ड्रोन नजारा'
+  },
+  {
+    id: 'buxar-ganga-drone',
+    youtubeId: '2QFWCKQjRdM',
+    title: 'बक्सर व पूर्वांचल गंगा तट 4K ड्रोन दृश्य',
+    subtitle: 'प्राचीन महर्षि विश्वामित्र की पावन भूमि पर छठ महापर्व',
+    category: 'drone',
+    categoryLabel: 'ड्रोन दर्शन',
+    duration: '0:35',
+    quality: '1080p HD',
+    location: 'रामरेखा घाट, बक्सर',
+    state: 'बिहार',
+    description: 'बक्सर के ऐतिहासिक रामरेखा घाट पर सूर्यास्त के समय गंगा की लहरों पर तैरते अनगिनत दीप और व्रतियों का भव्य समागम।',
+    culturalInsight: 'रामरेखा घाट वह पावन स्थल है जहां भगवान श्रीराम और लक्ष्मण ने महर्षि विश्वामित्र के साथ गंगा पार की थी।',
+    badge: 'पूर्वांचल ड्रोन'
+  },
+
+  // --- 6. LEGENDARY SACRED FOLK SONGS & HERITAGE (अमर लोकगीत) ---
+  {
+    id: 'sharda-sinha-bahangiya-classic',
+    youtubeId: 'HnirJpqQKSU',
+    title: 'कांच ही बांस के बहंगिया — पद्मभूषण शारदा सिन्हा',
+    subtitle: 'जिस गीत के बिना छठ का कोई भी घाट अधूरा है',
+    category: 'songs',
+    categoryLabel: 'अमर लोकगीत',
+    duration: '5:40',
+    quality: '1080p HD',
+    location: 'अमर सांस्कृतिक धरोहर',
+    state: 'बिहार',
+    description: 'पद्मभूषण शारदा सिन्हा जी के अमर कंठ से निकला यह लोकगीत छठ महापर्व का राष्ट्रीय प्रतीक बन चुका है।',
+    culturalInsight: 'इस गीत में बांस, सूप, फल और दौरा की पवित्रता का ऐसा मार्मिक वर्णन है जो हर प्रवासी बिहारी को घर खींच लाता है।',
+    badge: 'अमर स्वर • शारदा सिन्हा'
+  },
+  {
+    id: 'anuradha-paudwal-ug-he-suruj',
+    youtubeId: 'xi-hTKJeLag',
+    title: 'उग हे सुरुज देव भइल अरघ के बेर — अनुराधा पौडवाल',
+    subtitle: 'भोर की ठंड में जल में खड़े होकर सूर्य देव की प्रतीक्षा',
+    category: 'songs',
+    categoryLabel: 'अमर लोकगीत',
+    duration: '0:48',
+    quality: '1080p HD',
+    location: 'उषा अर्घ्य अमृत ध्वनि',
+    state: 'भारत',
+    description: 'सप्तमी के प्रातःकाल जब व्रती ठंडे पानी में कांपते हुए भगवान भास्कर की एक किरण की प्रतीक्षा करते हैं, तब यह गीत गूंज उठता है।',
+    culturalInsight: 'सूर्य देव से प्रत्यक्ष विनती कि हे दीनानाथ, अब अपनी लालिमा बिखेरिए और हमारे अर्घ्य को स्वीकार कीजिए।',
+    badge: 'उषा अर्घ्य अमृत'
+  },
+  {
+    id: 'sharda-sinha-pahile-pahil',
+    youtubeId: 'Oj0sXD3OR8M',
+    title: 'पहिले पहिल हम कईनी छठी मईया व्रत तोहार — शारदा सिन्हा',
+    subtitle: 'प्रथम बार व्रत रखने वाले श्रद्धालु की भक्तिमय प्रार्थना',
+    category: 'songs',
+    categoryLabel: 'अमर लोकगीत',
+    duration: '6:12',
+    quality: '1080p HD',
+    location: 'पारंपरिक भक्ति संग्रह',
+    state: 'बिहार',
+    description: 'जब कोई नई बहू या नया व्रती पहली बार छठ का महाकठिन व्रत उठाता है, तो छठी मईया से भूल-चूक क्षमा करने की यह मार्मिक प्रार्थना गाई जाती है।',
+    culturalInsight: 'यह गीत छठ व्रत की कठिन तपस्या और मां के वात्सल्य की अटूट डोर का साक्षात संगीत है।',
+    badge: 'छठी मईया वंदना'
+  },
+  {
+    id: 'sharda-sinha-kelwa-ke-paat',
+    youtubeId: 'izQSepgaL7E',
+    title: 'केलवा के पात पर उगेलन सुरुज देव — शारदा सिन्हा',
+    subtitle: 'केले के पत्तों पर सूर्य देव का प्रत्यक्ष तेज व आह्वान',
+    category: 'songs',
+    categoryLabel: 'अमर लोकगीत',
+    duration: '4:50',
+    quality: '1080p HD',
+    location: 'सांस्कृतिक धरोहर',
+    state: 'बिहार',
+    description: 'प्रकृति और सूर्य के शाश्वत संबंध का सबसे कर्णप्रिय पारंपरिक छठ गीत।',
+    culturalInsight: 'केला शुद्धता और पूर्णता का प्रतीक है जिसे छठ के दउरा में साबुत घौद के रूप में चढ़ाया जाता है।',
+    badge: 'सूर्य आह्वान'
   }
 ];
 
-const HOTSPOTS: GhatSpotInfo[] = [
-  {
-    id: 'surya',
-    name: 'Bhagwan Surya (Sun God)',
-    hindiName: 'प्रत्यक्ष देव भगवान सूर्य',
-    category: 'उपासना',
-    desc: 'समस्त जगत के प्राण, ऊर्जा व चक्षु। छठ महापर्व में षष्ठी को अस्ताचलगामी और सप्तमी को उदीयमान सूर्य की प्रत्यक्ष पूजा होती है।',
-    significance: 'सूर्य देव की किरणें आरोग्य, तेज, बुद्धि और वंश वृद्धि का वरदान प्रदान करती हैं।',
-    mantra: 'ॐ घृणिः सूर्य आदित्यः क्लीं ॐ | ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्।',
-    position: [120, 140, -420]
-  },
-  {
-    id: 'ganga',
-    name: 'Holy Ganga River (Ganga Jal)',
-    hindiName: 'मोक्षदायिनी पावन गंगा',
-    category: 'पवित्र जल',
-    desc: 'शीतल पापनाशिनी भागीरथी गंगा। व्रती कमर तक जल में खड़े होकर दोनों हाथों में सूप लेकर सूर्य देव की प्रतीक्षा करते हैं।',
-    significance: 'गंगाजल में खड़े होने से शरीर के पंचतत्व संतुलित होते हैं और मन शांत व एकाग्र होता है।',
-    mantra: 'गंगे च यमुने चैव गोदावरि सरस्वति। नर्मदे सिन्धु कावेरि जलेऽस्मिन् संनिधिं कुरु॥',
-    position: [0, -90, -320]
-  },
-  {
-    id: 'daura',
-    name: 'Bamboo Daura & Sup',
-    hindiName: 'बांस का दउरा व पीतल सूप',
-    category: 'महाप्रसाद',
-    desc: 'शुद्ध घी से निर्मित ठेकुआ, कसार, मौसमी फल, नारियल, सिन्दूर व सुथनी से सुसज्जित पवित्र दउरा।',
-    significance: 'बांस प्रकृति से जुड़ाव और सामाजिक समानता का शाश्वत संदेश देता है।',
-    mantra: 'ॐ अन्नपते अन्नस्य नो देहि अनमीवस्य शुष्मिणः। प्र प्र दातारं तारिष ऊर्जं नो धेहि द्विपदे चतुष्पदे॥',
-    position: [-160, -95, -280]
-  },
-  {
-    id: 'sugarcane',
-    name: 'Sacred Sugarcane Canopy',
-    hindiName: 'पवित्र ईख का मंडप (गन्ना)',
-    category: 'मंडप',
-    desc: 'शीर्ष पर हरी पत्तियों सहित चार गांठेदार गन्नों को बांधकर सूर्य देव व षष्ठी माता का पावन मंडप बनाया जाता है।',
-    significance: 'ईख की मिठास व पोर-पोर जीवन की निरंतरता, कृषि समृद्धि व मिठास का प्रतीक है।',
-    position: [170, -75, -290]
-  },
-  {
-    id: 'diya',
-    name: 'Floating Earthen Lamps',
-    hindiName: 'गंगा में तैरते दीप (दीपदान)',
-    category: 'दीपदान',
-    desc: 'गाय के शुद्ध घी से प्रज्वलित मिट्टी के अखंड दीप, जो गंगा की लहरों पर तैरते हुए संपूर्ण घाट को आलोकित करते हैं।',
-    significance: 'अज्ञान और अंधकार पर प्रकाश, सत्य व निष्कलंक भक्ति की विजय का प्रतीक।',
-    mantra: 'शुभं करोति कल्याणमारोग्यं धनसंपदा। शत्रुबुद्धिविनाशाय दीपज्योतिर्नमोऽस्तुते॥',
-    position: [-40, -110, -220]
-  },
-  {
-    id: 'vrati',
-    name: 'Chhath Vrati Devotee',
-    hindiName: 'छठ व्रती व तपस्वी साधक',
-    category: 'साधना',
-    desc: '36 घंटे का अखंड निर्जला उपवास रखकर, पीले वस्त्र धारण किए निष्ठापूर्वक सूर्य उपासना में लीन व्रती।',
-    significance: 'व्रती की तपस्या समस्त परिवार, समाज और विश्व के कल्याण व आरोग्य हेतु होती है।',
-    position: [70, -100, -260]
-  }
+// Available Filter Tabs
+const FILTER_TABS: { key: VideoCategory; label: string; icon: string }[] = [
+  { key: 'all', label: 'सभी दर्शन (All)', icon: '🌟' },
+  { key: 'rituals', label: '4-दिवसीय विधि (Rituals)', icon: '🌅' },
+  { key: 'ghats', label: 'पावन घाट (Holy Ghats)', icon: '🌊' },
+  { key: 'thekua', label: 'ठेकुआ व महाप्रसाद (Prasad)', icon: '🪔' },
+  { key: 'kosi', label: 'कोसी व परंपराएं (Kosi)', icon: '🎋' },
+  { key: 'drone', label: '4K ड्रोन दृश्य (Drone)', icon: '🛸' },
+  { key: 'songs', label: 'अमर लोकगीत (Songs)', icon: '🎶' }
 ];
 
 export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNavigate }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  // States
-  const [selectedGhat, setSelectedGhat] = useState<HolyGhatData>(HOLY_GHATS[0]);
-  const [lighting, setLighting] = useState<LightingMode>('morning');
-  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
-  const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
-  const [isGyroActive, setIsGyroActive] = useState<boolean>(false);
-  const [selectedSpot, setSelectedSpot] = useState<GhatSpotInfo | null>(null);
-  const [arghyaModalOpen, setArghyaModalOpen] = useState<boolean>(false);
-  const [diyaModalOpen, setDiyaModalOpen] = useState<boolean>(false);
-  const [ghatInfoOpen, setGhatInfoOpen] = useState<boolean>(false);
-  const [diyaName, setDiyaName] = useState<string>('');
-  const [diyaWish, setDiyaWish] = useState<string>('');
-  const [floatedDiyasCount, setFloatedDiyasCount] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('chhath_user_floated_diyas');
-      return saved ? parseInt(saved, 10) : 3;
-    } catch {
-      return 3;
-    }
-  });
-  const [compassHeading, setCompassHeading] = useState<number>(90); // 90° East (Facing Sun)
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  // Three.js References
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const sphereMeshRef = useRef<THREE.Mesh | null>(null);
-  const waterPlaneRef = useRef<THREE.Mesh | null>(null);
-  const diyasGroupRef = useRef<THREE.Group | null>(null);
-  const hotspotsGroupRef = useRef<THREE.Group | null>(null);
-
-  // Interaction References
-  const isUserInteractingRef = useRef<boolean>(false);
-  const onPointerDownPointerXRef = useRef<number>(0);
-  const onPointerDownPointerYRef = useRef<number>(0);
-  const lonRef = useRef<number>(90); // Start facing East (facing Sun)
-  const onPointerDownLonRef = useRef<number>(90);
-  const latRef = useRef<number>(0);
-  const onPointerDownLatRef = useRef<number>(0);
-  const phiRef = useRef<number>(0);
-  const thetaRef = useRef<number>(0);
-  const touchDistanceStartRef = useRef<number>(0);
-  const initialFovRef = useRef<number>(75);
-
-  // Clean exit back to main app
+  // Navigation
   const handleBack = () => {
     sacredAudio.stop();
     if (onNavigate) {
@@ -238,881 +374,859 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
     }
   };
 
-  // Fullscreen toggle
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen?.().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-      setIsFullscreen(false);
+  // State
+  const [activeCategory, setActiveCategory] = useState<VideoCategory>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeModalVideo, setActiveModalVideo] = useState<VisualChhathVideo | null>(null);
+  const [heroVideo, setHeroVideo] = useState<VisualChhathVideo>(REAL_CHHATH_ARCHIVE[0]);
+  const [isHeroPlaying, setIsHeroPlaying] = useState<boolean>(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Digital Diya Offering State
+  const [diyaModalOpen, setDiyaModalOpen] = useState<boolean>(false);
+  const [diyaDevoteeName, setDiyaDevoteeName] = useState<string>('');
+  const [diyaDevoteeWish, setDiyaDevoteeWish] = useState<string>('');
+  const [diyaGhatChoice, setDiyaGhatChoice] = useState<string>('कलेक्ट्रेट घाट, पटना');
+  const [floatedCount, setFloatedCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('chhath_real_floated_diyas');
+      return saved ? parseInt(saved, 10) : 12;
+    } catch {
+      return 12;
     }
+  });
+
+  // Virtual Arghya Offering State
+  const [arghyaModalOpen, setArghyaModalOpen] = useState<boolean>(false);
+  const [arghyaCompleted, setArghyaCompleted] = useState<boolean>(false);
+
+  // Liked Videos (Persistent in LocalStorage)
+  const [likedVideoIds, setLikedVideoIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('chhath_liked_videos');
+      return saved ? new Set(JSON.parse(saved)) : new Set(['patna-sandhya-4k']);
+    } catch {
+      return new Set(['patna-sandhya-4k']);
+    }
+  });
+
+  // Live YouTube Dynamic Search Results
+  const [dynamicYtResults, setDynamicYtResults] = useState<YouTubeSearchSong[]>([]);
+  const [isSearchingYt, setIsSearchingYt] = useState<boolean>(false);
+
+  // Toast notification
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3200);
   };
 
-  // Sound toggle
+  // Toggle ambient temple audio
   const toggleAudio = () => {
     const active = sacredAudio.toggle();
     setIsAudioPlaying(active);
     if (active) {
-      showToast('पवित्र गंगाजल व मंदिर घंटियों की ध्वनि चालू');
+      showToast('🔔 पावन गंगाजल व मंदिर घंटियों की ध्वनि सक्रिय');
     } else {
       showToast('ध्वनि बंद');
     }
   };
 
-  // Generate 360 Panoramic Texture onto HTML Canvas
-  const generatePanoramaTexture = useCallback((ghat: HolyGhatData, mode: LightingMode): THREE.CanvasTexture => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 2048;
-    canvas.height = 1024;
-    const ctx = canvas.getContext('2d')!;
-
-    const w = canvas.width;
-    const h = canvas.height;
-
-    // 1. Sky Gradient based on Lighting
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.65);
-    if (mode === 'morning') {
-      skyGrad.addColorStop(0, '#581c87'); // Deep dawn purple zenith
-      skyGrad.addColorStop(0.25, '#c2410c'); // Vermillion morning glow
-      skyGrad.addColorStop(0.5, '#ea580c'); // Radiant saffron
-      skyGrad.addColorStop(0.85, '#fde047'); // Golden horizon
-      skyGrad.addColorStop(1, '#fef9c3'); // Brilliant morning light
-    } else if (mode === 'sunset') {
-      skyGrad.addColorStop(0, '#311042'); // Dusk violet
-      skyGrad.addColorStop(0.3, '#991b1b'); // Crimson red
-      skyGrad.addColorStop(0.65, '#ea580c'); // Deep orange
-      skyGrad.addColorStop(0.88, '#f59e0b'); // Amber
-      skyGrad.addColorStop(1, '#fed7aa'); // Sunset horizon
-    } else {
-      // Night mode
-      skyGrad.addColorStop(0, '#030712'); // Pitch black cosmos
-      skyGrad.addColorStop(0.4, '#0f172a'); // Midnight blue
-      skyGrad.addColorStop(0.8, '#1e293b'); // Dark indigo
-      skyGrad.addColorStop(1, '#334155'); // Soft horizon ambient glow
-    }
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // 2. Night Stars & Galaxy Dust
-    if (mode === 'night') {
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 400; i++) {
-        const sx = Math.random() * w;
-        const sy = Math.random() * (h * 0.6);
-        const radius = Math.random() * 1.6 + 0.3;
-        ctx.beginPath();
-        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-        ctx.globalAlpha = Math.random() * 0.8 + 0.2;
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1.0;
-
-      // Crescent Moon in Night Mode
-      const moonX = w * 0.72;
-      const moonY = h * 0.22;
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, 32, 0, Math.PI * 2);
-      ctx.fillStyle = '#fef08a';
-      ctx.shadowColor = '#fde047';
-      ctx.shadowBlur = 30;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      ctx.beginPath();
-      ctx.arc(moonX + 12, moonY - 6, 26, 0, Math.PI * 2);
-      ctx.fillStyle = '#0f172a';
-      ctx.fill();
-    }
-
-    // 3. Bhagwan Surya (Sun) in Morning / Sunset Mode
-    if (mode === 'morning' || mode === 'sunset') {
-      const sunX = w * 0.25; // Centered at 90° East
-      const sunY = mode === 'morning' ? h * 0.44 : h * 0.52;
-      const sunRadius = mode === 'morning' ? 48 : 56;
-
-      // Outer Divine Corona Glow
-      const glowGrad = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.5, sunX, sunY, sunRadius * 4.5);
-      if (mode === 'morning') {
-        glowGrad.addColorStop(0, 'rgba(255, 245, 150, 0.95)');
-        glowGrad.addColorStop(0.3, 'rgba(251, 191, 36, 0.75)');
-        glowGrad.addColorStop(0.7, 'rgba(249, 115, 22, 0.35)');
-        glowGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
+  // Toggle Like on Video
+  const toggleLike = (videoId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setLikedVideoIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(videoId)) {
+        next.delete(videoId);
+        showToast('पसंद से हटाया गया');
       } else {
-        glowGrad.addColorStop(0, 'rgba(254, 215, 170, 0.95)');
-        glowGrad.addColorStop(0.4, 'rgba(249, 115, 22, 0.8)');
-        glowGrad.addColorStop(0.8, 'rgba(225, 29, 72, 0.4)');
-        glowGrad.addColorStop(1, 'rgba(159, 18, 57, 0)');
+        next.add(videoId);
+        showToast('❤️ आपकी पसंद में जोड़ा गया!');
       }
-      ctx.fillStyle = glowGrad;
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunRadius * 4.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Sun Core Disk
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
-      ctx.fillStyle = mode === 'morning' ? '#ffffff' : '#fef08a';
-      ctx.shadowColor = '#f59e0b';
-      ctx.shadowBlur = 50;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // 4. Distant Shore & Holy Ganga River Bank Silhouettes
-    const horizonY = h * 0.60;
-    ctx.fillStyle = mode === 'night' ? '#090d16' : '#451a03';
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    for (let x = 0; x <= w; x += 30) {
-      const hillHeight = Math.sin(x * 0.015) * 12 + Math.cos(x * 0.04) * 8;
-      ctx.lineTo(x, horizonY - hillHeight);
-    }
-    ctx.lineTo(w, horizonY + 30);
-    ctx.lineTo(0, horizonY + 30);
-    ctx.fill();
-
-    // Distant Temple Domes & Shikhara Silhouettes
-    const templePoints = [w * 0.12, w * 0.42, w * 0.58, w * 0.85];
-    templePoints.forEach(tx => {
-      ctx.beginPath();
-      ctx.moveTo(tx - 20, horizonY);
-      ctx.lineTo(tx, horizonY - 45);
-      ctx.lineTo(tx + 20, horizonY);
-      ctx.fill();
-
-      // Sacred Temple Flag
-      ctx.strokeStyle = '#ea580c';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(tx, horizonY - 45);
-      ctx.lineTo(tx, horizonY - 60);
-      ctx.lineTo(tx + 12, horizonY - 54);
-      ctx.stroke();
-    });
-
-    // 5. River Water Base Surface (Bottom 40% of sphere)
-    const waterGrad = ctx.createLinearGradient(0, horizonY, 0, h);
-    if (mode === 'morning') {
-      waterGrad.addColorStop(0, '#fbbf24');
-      waterGrad.addColorStop(0.2, '#0284c7');
-      waterGrad.addColorStop(0.6, '#0369a1');
-      waterGrad.addColorStop(1, '#075985');
-    } else if (mode === 'sunset') {
-      waterGrad.addColorStop(0, '#f97316');
-      waterGrad.addColorStop(0.25, '#c2410c');
-      waterGrad.addColorStop(0.7, '#7c2d12');
-      waterGrad.addColorStop(1, '#431407');
-    } else {
-      waterGrad.addColorStop(0, '#0f172a');
-      waterGrad.addColorStop(0.3, '#0c4a6e');
-      waterGrad.addColorStop(1, '#020617');
-    }
-    ctx.fillStyle = waterGrad;
-    ctx.fillRect(0, horizonY, w, h - horizonY);
-
-    // 6. Shimmering Water Reflection of Surya Dev
-    if (mode === 'morning' || mode === 'sunset') {
-      const sunX = w * 0.25;
-      const refGrad = ctx.createLinearGradient(sunX, horizonY, sunX, h);
-      refGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-      refGrad.addColorStop(0.4, 'rgba(251, 191, 36, 0.45)');
-      refGrad.addColorStop(1, 'rgba(249, 115, 22, 0.05)');
-      ctx.fillStyle = refGrad;
-
-      for (let y = horizonY; y < h; y += 8) {
-        const spread = (y - horizonY) * 0.28;
-        const offset = Math.sin(y * 0.1) * 14;
-        ctx.fillRect(sunX - spread / 2 + offset, y, spread, 4);
+      try {
+        localStorage.setItem('chhath_liked_videos', JSON.stringify(Array.from(next)));
+      } catch {
+        // ignore
       }
-    }
-
-    // 7. Stone Ghat Steps & Devotee Platforms (South & West quadrant)
-    ctx.fillStyle = mode === 'night' ? '#18181b' : '#78350f';
-    const stepsStartX = w * 0.55;
-    const stepsEndX = w * 0.95;
-    ctx.beginPath();
-    ctx.moveTo(stepsStartX, h);
-    ctx.lineTo(stepsStartX + 40, h * 0.78);
-    ctx.lineTo(stepsEndX, h * 0.78);
-    ctx.lineTo(stepsEndX + 60, h);
-    ctx.fill();
-
-    // Sacred Marigold Flowers & Diyas on Steps
-    for (let i = 0; i < 45; i++) {
-      const dx = stepsStartX + 50 + Math.random() * (stepsEndX - stepsStartX - 60);
-      const dy = h * 0.80 + Math.random() * (h * 0.18);
-      ctx.beginPath();
-      ctx.arc(dx, dy, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#f59e0b'; // Marigold yellow/orange
-      ctx.fill();
-    }
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    return texture;
-  }, []);
-
-  // Initialize Three.js Scene, Camera, WebGL Renderer, 3D Water & 3D Diyas
-  useEffect(() => {
-    const container = containerRef.current;
-    const canvas = canvasRef.current;
-    if (!container || !canvas) return;
-
-    // 1. Scene & Camera
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
-
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || window.innerHeight;
-
-    const camera = new THREE.PerspectiveCamera(75, width / height, 1, 2000);
-    camera.position.set(0, 0, 0);
-    cameraRef.current = camera;
-
-    // 2. WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      powerPreference: 'high-performance'
+      return next;
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(width, height);
-    rendererRef.current = renderer;
+  };
 
-    // 3. 360 Sky Sphere (Normals inverted to look inward)
-    const sphereGeo = new THREE.SphereGeometry(800, 64, 48);
-    sphereGeo.scale(-1, 1, 1);
-
-    const panoTexture = generatePanoramaTexture(selectedGhat, lighting);
-    const sphereMat = new THREE.MeshBasicMaterial({ map: panoTexture });
-    const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
-    scene.add(sphereMesh);
-    sphereMeshRef.current = sphereMesh;
-
-    // 4. 3D Ganga Water Mesh with gentle Sinusoidal Ripple Animation
-    const waterGeo = new THREE.PlaneGeometry(900, 900, 48, 48);
-    const waterMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(selectedGhat.waterColor[lighting]),
-      roughness: 0.25,
-      metalness: 0.65,
-      transparent: true,
-      opacity: 0.88
-    });
-    const waterMesh = new THREE.Mesh(waterGeo, waterMat);
-    waterMesh.rotation.x = -Math.PI / 2;
-    waterMesh.position.y = -110;
-    scene.add(waterMesh);
-    waterPlaneRef.current = waterMesh;
-
-    // 5. Lighting
-    const ambientLight = new THREE.AmbientLight(
-      lighting === 'night' ? 0x2e3856 : (lighting === 'sunset' ? 0xff7733 : 0xfffae6),
-      lighting === 'night' ? 0.7 : 1.2
-    );
-    scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(
-      lighting === 'night' ? 0x6366f1 : (lighting === 'sunset' ? 0xf97316 : 0xfde047),
-      lighting === 'night' ? 0.4 : 1.4
-    );
-    sunLight.position.set(150, 180, -350);
-    scene.add(sunLight);
-
-    // 6. 3D Floating Diya Group
-    const diyasGroup = new THREE.Group();
-    diyasGroupRef.current = diyasGroup;
-    scene.add(diyasGroup);
-
-    // Populate initial floating diyas
-    const diyaCount = lighting === 'night' ? 36 : 16;
-    for (let i = 0; i < diyaCount; i++) {
-      const diyaMesh = createDiyaMesh();
-      const angle = (Math.PI * 2 * i) / diyaCount + (Math.random() - 0.5) * 0.4;
-      const dist = 120 + Math.random() * 260;
-      diyaMesh.position.set(Math.cos(angle) * dist, -108, Math.sin(angle) * dist);
-      diyasGroup.add(diyaMesh);
-    }
-
-    // 7. 3D Hotspot Sprites Group
-    const hotspotsGroup = new THREE.Group();
-    hotspotsGroupRef.current = hotspotsGroup;
-    scene.add(hotspotsGroup);
-
-    HOTSPOTS.forEach((spot) => {
-      const sprite = createHotspotSprite(spot);
-      sprite.position.set(...spot.position);
-      sprite.userData = { spotId: spot.id };
-      hotspotsGroup.add(sprite);
-    });
-
-    // 8. Animation & Render Loop
-    let animId: number;
-    let clock = new THREE.Clock();
-
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
-
-      // Auto-Rotation when enabled and user not interacting
-      if (isAutoRotate && !isUserInteractingRef.current && !isGyroActive) {
-        lonRef.current += 0.06;
-      }
-
-      // Lat / Lon to Camera Target Conversion
-      latRef.current = Math.max(-80, Math.min(80, latRef.current));
-      phiRef.current = THREE.MathUtils.degToRad(90 - latRef.current);
-      thetaRef.current = THREE.MathUtils.degToRad(lonRef.current);
-
-      const targetX = 500 * Math.sin(phiRef.current) * Math.cos(thetaRef.current);
-      const targetY = 500 * Math.cos(phiRef.current);
-      const targetZ = 500 * Math.sin(phiRef.current) * Math.sin(thetaRef.current);
-
-      camera.lookAt(targetX, targetY, targetZ);
-
-      // Update Compass Heading
-      const normalizedLon = ((lonRef.current % 360) + 360) % 360;
-      setCompassHeading(Math.round(normalizedLon));
-
-      // Gentle Water Wave Animation
-      const posAttr = waterGeo.attributes.position;
-      for (let i = 0; i < posAttr.count; i++) {
-        const u = posAttr.getX(i);
-        const v = posAttr.getY(i);
-        const wave = Math.sin(u * 0.035 + elapsedTime * 1.8) * 2.5 + Math.cos(v * 0.04 + elapsedTime * 1.4) * 2.2;
-        posAttr.setZ(i, wave);
-      }
-      posAttr.needsUpdate = true;
-
-      // Bob floating diyas on waves
-      diyasGroup.children.forEach((diya, idx) => {
-        const bob = Math.sin(elapsedTime * 2.2 + idx) * 1.8;
-        diya.position.y = -108 + bob;
-        // Slowly drift downstream
-        diya.position.x += 0.04;
-        if (diya.position.x > 380) diya.position.x = -380;
+  // Share Video Link
+  const handleShareVideo = (video: VisualChhathVideo, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const shareUrl = `https://www.youtube.com/watch?v=${video.youtubeId}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast('🔗 वीडियो लिंक कॉपी किया गया!');
+      }).catch(() => {
+        showToast(`लिंक: ${shareUrl}`);
       });
-
-      // Pulse Hotspot Sprites
-      hotspotsGroup.children.forEach((sprite, idx) => {
-        const pulse = 1 + Math.sin(elapsedTime * 3.5 + idx * 0.8) * 0.12;
-        sprite.scale.set(38 * pulse, 38 * pulse, 1);
-      });
-
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    // Resize Handler
-    const handleResize = () => {
-      if (!container || !renderer || !camera) return;
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', handleResize);
-      renderer.dispose();
-      sphereGeo.dispose();
-      waterGeo.dispose();
-      panoTexture.dispose();
-    };
-  }, [selectedGhat, lighting, generatePanoramaTexture, isAutoRotate, isGyroActive]);
-
-  // Create 3D Diya Mesh with Clay Cup and Glowing Flame Light
-  const createDiyaMesh = (): THREE.Group => {
-    const group = new THREE.Group();
-
-    // Clay Cup
-    const cupGeo = new THREE.ConeGeometry(7, 4, 16);
-    cupGeo.rotateX(Math.PI);
-    const cupMat = new THREE.MeshStandardMaterial({
-      color: 0x9a3412, // Terracotta brown
-      roughness: 0.85
-    });
-    const cupMesh = new THREE.Mesh(cupGeo, cupMat);
-    group.add(cupMesh);
-
-    // Glowing Flame Core
-    const flameGeo = new THREE.SphereGeometry(2.5, 12, 12);
-    flameGeo.scale(0.8, 1.8, 0.8);
-    const flameMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
-    const flameMesh = new THREE.Mesh(flameGeo, flameMat);
-    flameMesh.position.y = 3.5;
-    group.add(flameMesh);
-
-    // Point Light casting golden radiance
-    const diyaLight = new THREE.PointLight(0xf59e0b, 1.2, 55);
-    diyaLight.position.set(0, 4, 0);
-    group.add(diyaLight);
-
-    return group;
-  };
-
-  // Create Glowing 3D Hotspot Sprite
-  const createHotspotSprite = (spot: GhatSpotInfo): THREE.Sprite => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 128;
-    canvas.height = 128;
-    const ctx = canvas.getContext('2d')!;
-
-    // Concentric glowing divine rings
-    const grad = ctx.createRadialGradient(64, 64, 10, 64, 64, 58);
-    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    grad.addColorStop(0.3, 'rgba(245, 158, 11, 0.95)');
-    grad.addColorStop(0.7, 'rgba(234, 88, 12, 0.55)');
-    grad.addColorStop(1, 'rgba(234, 88, 12, 0)');
-
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(64, 64, 58, 0, Math.PI * 2);
-    ctx.fill();
-
-    // White Center Core
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(64, 64, 14, 0, Math.PI * 2);
-    ctx.shadowColor = '#fbbf24';
-    ctx.shadowBlur = 12;
-    ctx.fill();
-
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMat = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      depthTest: false
-    });
-    const sprite = new THREE.Sprite(spriteMat);
-    sprite.scale.set(38, 38, 1);
-    return sprite;
-  };
-
-  // Pointer Interaction Handlers for 360 Navigation
-  const handlePointerDown = (e: React.PointerEvent) => {
-    isUserInteractingRef.current = true;
-    onPointerDownPointerXRef.current = e.clientX;
-    onPointerDownPointerYRef.current = e.clientY;
-    onPointerDownLonRef.current = lonRef.current;
-    onPointerDownLatRef.current = latRef.current;
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isUserInteractingRef.current) return;
-    const deltaX = e.clientX - onPointerDownPointerXRef.current;
-    const deltaY = e.clientY - onPointerDownPointerYRef.current;
-
-    lonRef.current = onPointerDownLonRef.current - deltaX * 0.18;
-    latRef.current = onPointerDownLatRef.current + deltaY * 0.18;
-  };
-
-  const handlePointerUp = () => {
-    isUserInteractingRef.current = false;
-  };
-
-  // Wheel Zoom
-  const handleWheel = (e: React.WheelEvent) => {
-    if (!cameraRef.current) return;
-    const fov = cameraRef.current.fov + e.deltaY * 0.05;
-    cameraRef.current.fov = Math.max(38, Math.min(95, fov));
-    cameraRef.current.updateProjectionMatrix();
-  };
-
-  // Canvas Click for Hotspot Selection
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    if (!containerRef.current || !cameraRef.current || !hotspotsGroupRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    const mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), cameraRef.current);
-
-    const intersects = raycaster.intersectObjects(hotspotsGroupRef.current.children);
-    if (intersects.length > 0) {
-      const hit = intersects[0].object;
-      const spotId = hit.userData.spotId;
-      const spot = HOTSPOTS.find(s => s.id === spotId);
-      if (spot) {
-        setSelectedSpot(spot);
-        sacredAudio.playTempleBell();
-      }
-    }
-  };
-
-  // Gyroscope Mobile Device Orientation
-  useEffect(() => {
-    if (!isGyroActive) return;
-
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.alpha !== null && e.beta !== null) {
-        lonRef.current = e.alpha;
-        latRef.current = Math.max(-75, Math.min(75, (e.beta - 45) * 0.9));
-      }
-    };
-
-    if (typeof (DeviceOrientationEvent as any)?.requestPermission === 'function') {
-      (DeviceOrientationEvent as any).requestPermission()
-        .then((perm: string) => {
-          if (perm === 'granted') {
-            window.addEventListener('deviceorientation', handleOrientation);
-          } else {
-            setIsGyroActive(false);
-            showToast('मोशन सेंसर की अनुमति अस्वीकृत');
-          }
-        })
-        .catch(() => setIsGyroActive(false));
     } else {
-      window.addEventListener('deviceorientation', handleOrientation);
+      showToast(`लिंक: ${shareUrl}`);
     }
+  };
 
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-    };
-  }, [isGyroActive]);
-
-  // Float a new Diya into 3D Ganga
-  const handleFloatDiyaSubmit = (e: React.FormEvent) => {
+  // Diya Float Submit
+  const handleDiyaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sceneRef.current || !diyasGroupRef.current) return;
-
-    const newDiya = createDiyaMesh();
-    // Spawn right in front of camera
-    const rad = THREE.MathUtils.degToRad(lonRef.current);
-    newDiya.position.set(Math.sin(rad) * 110, -106, -Math.cos(rad) * 110);
-    diyasGroupRef.current.add(newDiya);
-
-    const nextCount = floatedDiyasCount + 1;
-    setFloatedDiyasCount(nextCount);
+    if (!diyaDevoteeName.trim()) return;
+    const newCount = floatedCount + 1;
+    setFloatedCount(newCount);
     try {
-      localStorage.setItem('chhath_user_floated_diyas', nextCount.toString());
-    } catch {}
-
+      localStorage.setItem('chhath_real_floated_diyas', newCount.toString());
+    } catch {
+      // ignore
+    }
     setDiyaModalOpen(false);
-    setDiyaName('');
-    setDiyaWish('');
-    sacredAudio.playArghyaChime();
-    showToast('✨ आपका पावन दीप गंगाजी में प्रवाहित हो गया!');
+    showToast(`🪔 ${diyaDevoteeName} जी का दीप ${diyaGhatChoice} पर प्रवाहित हुआ!`);
+    setDiyaDevoteeName('');
+    setDiyaDevoteeWish('');
   };
 
-  // Perform Virtual Arghya Ceremony
-  const handlePerformArghya = () => {
-    sacredAudio.playArghyaChime();
+  // Perform Virtual Arghya
+  const triggerArghyaOffering = () => {
     setArghyaModalOpen(true);
+    setArghyaCompleted(false);
+    // Play sacred Vedic chime harmonic
+    sacredAudio.playArghyaChime();
   };
 
-  // Quick Camera Direction Focus
-  const focusCameraTowards = (directionAngle: number, pitchAngle: number = 0) => {
-    lonRef.current = directionAngle;
-    latRef.current = pitchAngle;
-    setIsAutoRotate(false);
-  };
+  // Handle Search Input & Dynamic YouTube Query
+  useEffect(() => {
+    const query = searchQuery.trim();
+    if (!query || query.length < 3) {
+      setDynamicYtResults([]);
+      setIsSearchingYt(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingYt(true);
+      try {
+        const res = await searchYouTubeVideos(`Chhath Puja ${query} HD real video`);
+        if (res && res.results && res.results.length > 0) {
+          setDynamicYtResults(res.results.slice(0, 8));
+        }
+      } catch (err) {
+        console.error('Dynamic search error:', err);
+      } finally {
+        setIsSearchingYt(false);
+      }
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Filtered Archive Videos
+  const filteredVideos = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return REAL_CHHATH_ARCHIVE.filter((video) => {
+      const matchesCategory = activeCategory === 'all' || video.category === activeCategory;
+      if (!matchesCategory) return false;
+      if (!q) return true;
+      return (
+        video.title.toLowerCase().includes(q) ||
+        video.subtitle.toLowerCase().includes(q) ||
+        video.location.toLowerCase().includes(q) ||
+        video.description.toLowerCase().includes(q) ||
+        video.culturalInsight.toLowerCase().includes(q)
+      );
+    });
+  }, [activeCategory, searchQuery]);
 
   return (
-    <div 
-      ref={containerRef}
-      className="fixed inset-0 z-[60] bg-black text-white font-mukta overflow-hidden select-none flex flex-col"
-    >
-      {/* 3D WebGL Canvas Layer */}
-      <canvas 
-        ref={canvasRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onWheel={handleWheel}
-        onClick={handleCanvasClick}
-        className="w-full h-full cursor-grab active:cursor-grabbing touch-none block"
-      />
-
-      {/* Toast Alert */}
+    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col selection:bg-amber-500 selection:text-black">
+      
+      {/* ======================================================================
+          TOAST ALERT
+         ====================================================================== */}
       {toastMessage && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-stone-900/90 border border-amber-500/40 text-amber-200 px-4 py-2 rounded-2xl shadow-2xl text-xs sm:text-sm font-bold flex items-center gap-2 backdrop-blur-md animate-in fade-in zoom-in duration-200">
-          <Sparkles className="w-4 h-4 text-amber-400" />
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-stone-900/95 border border-amber-500/50 text-amber-200 px-4 py-2.5 rounded-2xl shadow-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 backdrop-blur-md animate-in fade-in zoom-in duration-200">
+          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* ========================================================
-          TOP NAVIGATION BAR (Instagram / VisionOS Translucent Bar)
-         ======================================================== */}
-      <div className="absolute top-0 left-0 right-0 z-30 p-2 sm:p-4 bg-gradient-to-b from-black/85 via-black/40 to-transparent flex items-center justify-between gap-2 pointer-events-none">
-        
-        {/* Left: Back & Holy Ghat Selector */}
-        <div className="flex items-center gap-2 pointer-events-auto">
+      {/* ======================================================================
+          TOP APP HEADER (Edge-to-Edge Sticky Navigation)
+         ====================================================================== */}
+      <header className="sticky top-0 z-40 bg-stone-950/90 backdrop-blur-md border-b border-stone-800/80 px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2 shadow-lg">
+        {/* Left: Back & Branding */}
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"
             onClick={handleBack}
-            className="p-2 sm:p-2.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 backdrop-blur-md text-white transition-all cursor-pointer"
-            title="वापस जाएं (Back)"
+            className="p-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-200 hover:text-white transition-all active:scale-95 cursor-pointer shrink-0"
+            title="मुख्य पृष्ठ पर जाएं"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          <div className="relative group">
-            <button
-              type="button"
-              onClick={() => setGhatInfoOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md text-left transition-all cursor-pointer"
-            >
-              <Compass className="w-4 h-4 text-amber-400 shrink-0" />
-              <div>
-                <p className="text-xs sm:text-sm font-bold leading-tight truncate max-w-[140px] sm:max-w-[200px]">
-                  {selectedGhat.name}
-                </p>
-                <p className="text-[10px] text-amber-300/80 leading-none">
-                  {selectedGhat.city}, {selectedGhat.state}
-                </p>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-white/60 ml-0.5" />
-            </button>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+              <h1 className="text-sm sm:text-base font-bold font-rozha text-amber-100 truncate">
+                साक्षात छठ दर्शन
+              </h1>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-wider shrink-0 hidden xs:inline-block">
+                Real 4K App
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-400 truncate hidden sm:block">
+              चारों दिन की पूजा विधि, प्रसिद्ध पावन घाट, ठेकुआ व कोसी के वास्तविक HD वीडियो
+            </p>
           </div>
         </div>
 
-        {/* Center: Compass Heading Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-white/15 backdrop-blur-md text-xs font-mono font-bold text-amber-300">
-          <span>{compassHeading}°</span>
-          <span className="text-[11px] text-white/80 font-mukta">
-            {compassHeading >= 45 && compassHeading < 135 ? 'पूर्व (सूर्य देव ☀️)' : 
-             compassHeading >= 135 && compassHeading < 225 ? 'दक्षिण (घाट सीढ़ियाँ)' :
-             compassHeading >= 225 && compassHeading < 315 ? 'पश्चिम (तट विस्तार)' : 'उत्तर (गंगा धारा 🌊)'}
-          </span>
-        </div>
-
-        {/* Right: Sound, Tour, Gyro, Fullscreen */}
-        <div className="flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
-          {/* Sound Toggle */}
+        {/* Right: Quick Sacred Actions & Audio Engine */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Audio Ambient Button */}
           <button
             type="button"
             onClick={toggleAudio}
-            className={`p-2 sm:p-2.5 rounded-full border backdrop-blur-md transition-all active:scale-95 cursor-pointer ${
-              isAudioPlaying 
-                ? 'bg-amber-500 border-amber-400 text-stone-950 shadow-lg shadow-amber-500/30' 
-                : 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl border text-xs font-bold transition-all active:scale-95 cursor-pointer ${
+              isAudioPlaying
+                ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md shadow-amber-500/30'
+                : 'bg-stone-900 text-stone-300 hover:text-white border-stone-800'
             }`}
-            title={isAudioPlaying ? "ध्वनि बंद करें" : "गंगा व मंदिर ध्वनि चालू करें"}
+            title="गंगाजल व मंदिर ध्वनि"
           >
-            {isAudioPlaying ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            {isAudioPlaying ? (
+              <>
+                <Volume2 className="w-4 h-4 animate-bounce" />
+                <span className="hidden md:inline">ध्वनि चालू</span>
+              </>
+            ) : (
+              <>
+                <VolumeX className="w-4 h-4" />
+                <span className="hidden md:inline">ध्वनि</span>
+              </>
+            )}
           </button>
 
-          {/* Auto Rotate Drone Tour */}
-          <button
-            type="button"
-            onClick={() => {
-              setIsAutoRotate(!isAutoRotate);
-              showToast(isAutoRotate ? 'ऑटो-दर्शन बंद' : '360° स्वतः दर्शन चालू');
-            }}
-            className={`p-2 sm:p-2.5 rounded-full border backdrop-blur-md transition-all active:scale-95 cursor-pointer ${
-              isAutoRotate 
-                ? 'bg-white/25 border-amber-400 text-amber-300' 
-                : 'bg-white/10 hover:bg-white/20 border-white/20 text-white/80'
-            }`}
-            title="360° स्वतः दर्शन"
-          >
-            <RotateCw className={`w-4 h-4 ${isAutoRotate ? 'animate-spin' : ''}`} style={{ animationDuration: '14s' }} />
-          </button>
-
-          {/* Fullscreen Toggle */}
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="p-2 sm:p-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md text-white transition-all active:scale-95 cursor-pointer"
-            title="फुलस्क्रीन (Fullscreen)"
-          >
-            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {/* ========================================================
-          BOTTOM FLOATING CONTROL BAR (Ghats, Lighting, Rituals)
-         ======================================================== */}
-      <div className="absolute bottom-4 left-2 right-2 sm:left-4 sm:right-4 z-30 pointer-events-none flex flex-col items-center gap-2.5">
-        
-        {/* Quick Perspective Focus Shortcuts */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/60 border border-white/15 backdrop-blur-md pointer-events-auto shadow-xl overflow-x-auto max-w-full">
-          <button
-            type="button"
-            onClick={() => focusCameraTowards(90, 8)}
-            className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 hover:bg-amber-500 hover:text-stone-950 transition-colors shrink-0"
-          >
-            ☀️ सूर्य देव
-          </button>
-          <button
-            type="button"
-            onClick={() => focusCameraTowards(0, -15)}
-            className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 hover:bg-sky-500 hover:text-stone-950 transition-colors shrink-0"
-          >
-            🌊 गंगाजल
-          </button>
-          <button
-            type="button"
-            onClick={() => focusCameraTowards(160, -12)}
-            className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 hover:bg-orange-500 hover:text-stone-950 transition-colors shrink-0"
-          >
-            🎋 दउरा व ईख
-          </button>
-          <button
-            type="button"
-            onClick={() => focusCameraTowards(270, -20)}
-            className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 hover:bg-amber-500 hover:text-stone-950 transition-colors shrink-0"
-          >
-            🪔 दीपदान
-          </button>
-        </div>
-
-        {/* Main Sacred Action Buttons & Time of Day Switcher */}
-        <div className="flex flex-wrap items-center justify-center gap-2 pointer-events-auto">
-          {/* Time of Day Lighting Toggle */}
-          <div className="flex items-center p-1 rounded-2xl bg-black/70 border border-white/20 backdrop-blur-md shadow-2xl">
-            <button
-              type="button"
-              onClick={() => setLighting('morning')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                lighting === 'morning'
-                  ? 'bg-amber-500 text-stone-950 shadow-md'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              <Sun className="w-3.5 h-3.5" />
-              <span>उषा अर्घ्य</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setLighting('sunset')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                lighting === 'sunset'
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              <Sunset className="w-3.5 h-3.5" />
-              <span>संध्या अर्घ्य</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setLighting('night')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                lighting === 'night'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              <Moon className="w-3.5 h-3.5" />
-              <span>रात्रि दीप</span>
-            </button>
-          </div>
-
-          {/* Action 1: Float a 3D Diya into the Ganga */}
+          {/* Diya Button */}
           <button
             type="button"
             onClick={() => setDiyaModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-xs sm:text-sm shadow-xl shadow-amber-500/25 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
           >
-            <Flame className="w-4 h-4 fill-current" />
-            <span>दीया प्रवाहित करें ({floatedDiyasCount})</span>
+            <Flame className="w-3.5 h-3.5 fill-current" />
+            <span className="hidden xs:inline">दीपदान ({floatedCount})</span>
+            <span className="xs:hidden">दीप</span>
           </button>
 
-          {/* Action 2: Virtual Arghya Offering */}
+          {/* Arghya Button */}
           <button
             type="button"
-            onClick={handlePerformArghya}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-bold text-xs sm:text-sm shadow-xl shadow-yellow-500/25 active:scale-95 transition-all cursor-pointer"
+            onClick={triggerArghyaOffering}
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
           >
-            <Droplets className="w-4 h-4 fill-current" />
-            <span>वर्चुअल अर्घ्य दें</span>
+            <Droplets className="w-3.5 h-3.5 fill-current" />
+            <span className="hidden sm:inline">वर्चुअल अर्घ्य</span>
+            <span className="sm:hidden">अर्घ्य</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* ========================================================
-          HOTSPOT DETAIL DRAWER / POPUP
-         ======================================================== */}
-      {selectedSpot && (
-        <div 
-          className="absolute inset-0 z-40 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200"
-          onClick={() => setSelectedSpot(null)}
-        >
-          <div 
-            className="w-full max-w-lg bg-stone-900 border border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {selectedSpot.category}
-                </span>
-                <h3 className="text-lg sm:text-xl font-bold font-rozha text-amber-100 mt-1">
-                  {selectedSpot.hindiName}
-                </h3>
-                <p className="text-xs text-stone-400 font-sans">{selectedSpot.name}</p>
+      {/* ======================================================================
+          MAIN SCROLLABLE CONTENT BODY
+         ====================================================================== */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 space-y-6">
+
+        {/* ====================================================================
+            HERO SPOTLIGHT CINEMA SHOWCASE (Main 4K Theater Feature)
+           ==================================================================== */}
+        <section className="relative rounded-3xl overflow-hidden border border-amber-500/30 bg-stone-900 shadow-2xl">
+          <div className="relative aspect-video sm:aspect-21/9 w-full max-h-[460px] bg-black">
+            {isHeroPlaying ? (
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${heroVideo.youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                title={heroVideo.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full border-0"
+              />
+            ) : (
+              <div 
+                className="relative w-full h-full group cursor-pointer overflow-hidden"
+                onClick={() => setIsHeroPlaying(true)}
+              >
+                {/* Real High-Res YouTube Thumbnail */}
+                <img
+                  src={`https://i.ytimg.com/vi/${heroVideo.youtubeId}/hqdefault.jpg`}
+                  alt={heroVideo.title}
+                  className="w-full h-full object-cover brightness-85 group-hover:scale-105 transition-transform duration-700"
+                />
+
+                {/* Ambient Cinematic Overlay Gradients */}
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-stone-950/80 via-transparent to-transparent hidden sm:block" />
+
+                {/* Glowing Play Center Button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-500/90 text-stone-950 flex items-center justify-center shadow-2xl shadow-amber-500/60 group-hover:scale-110 group-active:scale-95 transition-all">
+                    <Play className="w-7 h-7 sm:w-9 sm:h-9 fill-current ml-1" />
+                  </div>
+                </div>
+
+                {/* Top Badges */}
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold bg-red-600 text-white uppercase tracking-wider flex items-center gap-1 shadow-lg">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                    {heroVideo.quality}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-black/60 text-amber-300 border border-white/20 backdrop-blur-md">
+                    📍 {heroVideo.location}
+                  </span>
+                </div>
+
+                {/* Bottom Metadata & 1-Tap Play Bar */}
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                  <div className="max-w-2xl">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider">
+                      {heroVideo.categoryLabel}
+                    </span>
+                    <h2 className="text-lg sm:text-2xl md:text-3xl font-extrabold font-rozha text-white mt-1 leading-tight drop-shadow-md">
+                      {heroVideo.title}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-stone-300 mt-1 line-clamp-2 leading-relaxed">
+                      {heroVideo.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsHeroPlaying(true);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-500/30 cursor-pointer active:scale-95 transition-all"
+                    >
+                      <Play className="w-4 h-4 fill-current" />
+                      <span>अभी देखें (Play HD)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleLike(heroVideo.id, e)}
+                      className={`p-2.5 rounded-xl border backdrop-blur-md transition-all active:scale-95 cursor-pointer ${
+                        likedVideoIds.has(heroVideo.id)
+                          ? 'bg-rose-500/30 border-rose-500 text-rose-400'
+                          : 'bg-black/60 border-white/20 text-white hover:bg-black/80'
+                      }`}
+                      title="पसंद करें"
+                    >
+                      <Heart className={`w-4 h-4 ${likedVideoIds.has(heroVideo.id) ? 'fill-current' : ''}`} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleShareVideo(heroVideo, e)}
+                      className="p-2.5 rounded-xl bg-black/60 hover:bg-black/80 border border-white/20 backdrop-blur-md text-white transition-all active:scale-95 cursor-pointer"
+                      title="शेयर करें"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
+            )}
+          </div>
+        </section>
 
+        {/* ====================================================================
+            INTERACTIVE SEARCH & CATEGORY PILL FILTER BAR
+           ==================================================================== */}
+        <section className="space-y-3">
+          {/* Live Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="खोजें: ठेकुआ विधि, पटना घाट, संध्या अर्घ्य, कोसी भराई, शारदा सिन्हा, 4K ड्रोन..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-stone-900 border border-stone-800 focus:border-amber-500/60 text-xs sm:text-sm text-white placeholder-stone-500 focus:outline-none transition-colors shadow-inner"
+            />
+            {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSelectedSpot(null)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Pills (Smooth Horizontal Scroll on Mobile) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {FILTER_TABS.map((tab) => {
+              const isActive = activeCategory === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveCategory(tab.key)}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                    isActive
+                      ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20 ring-1 ring-amber-400'
+                      : 'bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-800'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ====================================================================
+            LIVE YOUTUBE DYNAMIC SEARCH RESULTS (When devotee types a search query)
+           ==================================================================== */}
+        {searchQuery.trim().length >= 3 && (
+          <section className="p-4 rounded-3xl bg-stone-900/80 border border-amber-500/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-amber-200">
+                  &ldquo;{searchQuery}&rdquo; के लाइव YouTube परिणाम ({dynamicYtResults.length})
+                </h3>
+              </div>
+              {isSearchingYt && (
+                <span className="text-[11px] text-amber-400 animate-pulse">खोज जारी है...</span>
+              )}
+            </div>
+
+            {dynamicYtResults.length === 0 && !isSearchingYt ? (
+              <p className="text-xs text-stone-400">कोई अतिरिक्त परिणाम नहीं मिला। कृपया नीचे संकलित वीडियो देखें।</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {dynamicYtResults.map((ytItem) => (
+                  <div
+                    key={ytItem.youtubeId}
+                    onClick={() => {
+                      setActiveModalVideo({
+                        id: ytItem.youtubeId,
+                        youtubeId: ytItem.youtubeId,
+                        title: ytItem.title,
+                        subtitle: ytItem.channelTitle,
+                        category: 'all',
+                        categoryLabel: 'लाइव सर्च दर्शन',
+                        duration: ytItem.duration || '5:00',
+                        quality: '1080p HD',
+                        location: 'भारत • लाइव यूट्यूब',
+                        state: 'बिहार/यूपी',
+                        description: ytItem.description || ytItem.title,
+                        culturalInsight: 'श्रद्धालुओं द्वारा साझा किया गया छठ महापर्व का पावन वीडियो।'
+                      });
+                    }}
+                    className="group rounded-2xl overflow-hidden bg-stone-950 border border-stone-800 hover:border-amber-500/50 transition-all cursor-pointer flex flex-col"
+                  >
+                    <div className="relative aspect-video bg-black overflow-hidden">
+                      <img
+                        src={ytItem.thumbnailUrl}
+                        alt={ytItem.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg">
+                          <Play className="w-5 h-5 fill-current ml-0.5" />
+                        </div>
+                      </div>
+                      <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-black/80 text-white">
+                        {ytItem.duration || 'HD'}
+                      </span>
+                    </div>
+                    <div className="p-2.5 flex-1 flex flex-col justify-between">
+                      <h4 className="text-xs font-bold text-stone-200 line-clamp-2 group-hover:text-amber-300">
+                        {ytItem.title}
+                      </h4>
+                      <p className="text-[11px] text-stone-400 mt-1 truncate">
+                        {ytItem.channelTitle}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ====================================================================
+            SECTION 1: चारों दिन की साक्षात वीडियो विधि (THE 4-DAY RITUALS)
+           ==================================================================== */}
+        {(activeCategory === 'all' || activeCategory === 'rituals') && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold font-rozha text-amber-200 flex items-center gap-2">
+                  <span>🌅</span>
+                  <span>चारों दिन की साक्षात पूजा विधि (4-Day Real Rituals)</span>
+                </h3>
+                <p className="text-xs text-stone-400">
+                  नहाय-खाय से उषा अर्घ्य पारण तक: देखें कैसे की जाती है वास्तविक छठ पूजा
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {REAL_CHHATH_ARCHIVE.filter((v) => v.category === 'rituals').map((video) => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  isLiked={likedVideoIds.has(video.id)}
+                  onPlay={() => setActiveModalVideo(video)}
+                  onSetHero={() => {
+                    setHeroVideo(video);
+                    setIsHeroPlaying(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onToggleLike={(e) => toggleLike(video.id, e)}
+                  onShare={(e) => handleShareVideo(video, e)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ====================================================================
+            SECTION 2: प्रसिद्ध पावन घाट दर्शन (FAMOUS REAL GHATS IN 4K/HD)
+           ==================================================================== */}
+        {(activeCategory === 'all' || activeCategory === 'ghats') && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold font-rozha text-amber-200 flex items-center gap-2">
+                  <span>🌊</span>
+                  <span>प्रसिद्ध पावन घाट दर्शन (Famous Sacred Ghats)</span>
+                </h3>
+                <p className="text-xs text-stone-400">
+                  पटना कलेक्ट्रेट, दीघा, काशी अस्सी घाट व देव सूर्य मंदिर का साक्षात दृश्य
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {REAL_CHHATH_ARCHIVE.filter((v) => v.category === 'ghats').map((video) => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  isLiked={likedVideoIds.has(video.id)}
+                  onPlay={() => setActiveModalVideo(video)}
+                  onSetHero={() => {
+                    setHeroVideo(video);
+                    setIsHeroPlaying(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onToggleLike={(e) => toggleLike(video.id, e)}
+                  onShare={(e) => handleShareVideo(video, e)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ====================================================================
+            SECTION 3: ठेकुआ निर्माण व महाप्रसाद (AUTHENTIC THEKUA & PRASAD)
+           ==================================================================== */}
+        {(activeCategory === 'all' || activeCategory === 'thekua') && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold font-rozha text-amber-200 flex items-center gap-2">
+                  <span>🪔</span>
+                  <span>ठेकुआ निर्माण व महाप्रसाद (Authentic Thekua Making)</span>
+                </h3>
+                <p className="text-xs text-stone-400">
+                  काठ के सांचे, मिट्टी के चूल्हे और देसी घी पर बने ठेकुआ महाप्रसाद का साक्षात वीडियो
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
+              {REAL_CHHATH_ARCHIVE.filter((v) => v.category === 'thekua').map((video) => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  isLiked={likedVideoIds.has(video.id)}
+                  onPlay={() => setActiveModalVideo(video)}
+                  onSetHero={() => {
+                    setHeroVideo(video);
+                    setIsHeroPlaying(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onToggleLike={(e) => toggleLike(video.id, e)}
+                  onShare={(e) => handleShareVideo(video, e)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ====================================================================
+            SECTION 4: कोसी भराई व जीवंत परंपराएं (KOSI BHARAI & TRADITIONS)
+           ==================================================================== */}
+        {(activeCategory === 'all' || activeCategory === 'kosi') && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold font-rozha text-amber-200 flex items-center gap-2">
+                  <span>🎋</span>
+                  <span>कोसी भराई व जीवंत परंपराएं (Kosi Bharai & Traditions)</span>
+                </h3>
+                <p className="text-xs text-stone-400">
+                  5 गन्नों का मंडप, 24 अखंड दीप और सिर पर दउरा उठाकर नंगे पांव घाट यात्रा
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
+              {REAL_CHHATH_ARCHIVE.filter((v) => v.category === 'kosi').map((video) => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  isLiked={likedVideoIds.has(video.id)}
+                  onPlay={() => setActiveModalVideo(video)}
+                  onSetHero={() => {
+                    setHeroVideo(video);
+                    setIsHeroPlaying(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onToggleLike={(e) => toggleLike(video.id, e)}
+                  onShare={(e) => handleShareVideo(video, e)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ====================================================================
+            SECTION 5: 4K ड्रोन विहंगम दृश्य (BIP-DRONE AERIAL OVERVIEWS)
+           ==================================================================== */}
+        {(activeCategory === 'all' || activeCategory === 'drone') && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold font-rozha text-amber-200 flex items-center gap-2">
+                  <span>🛸</span>
+                  <span>4K ड्रोन विहंगम दृश्य (Aerial 4K Drone Overviews)</span>
+                </h3>
+                <p className="text-xs text-stone-400">
+                  आसमान से देखें गंगा तट पर लाखों दीपों और करोड़ों श्रद्धालुओं का अलौकिक नजारा
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
+              {REAL_CHHATH_ARCHIVE.filter((v) => v.category === 'drone').map((video) => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  isLiked={likedVideoIds.has(video.id)}
+                  onPlay={() => setActiveModalVideo(video)}
+                  onSetHero={() => {
+                    setHeroVideo(video);
+                    setIsHeroPlaying(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onToggleLike={(e) => toggleLike(video.id, e)}
+                  onShare={(e) => handleShareVideo(video, e)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ====================================================================
+            SECTION 6: अमर छठ लोकगीत व भक्ति धारा (IMMORTAL FOLK SONGS)
+           ==================================================================== */}
+        {(activeCategory === 'all' || activeCategory === 'songs') && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold font-rozha text-amber-200 flex items-center gap-2">
+                  <span>🎶</span>
+                  <span>अमर छठ लोकगीत (Legendary Chhath Songs with Real Video)</span>
+                </h3>
+                <p className="text-xs text-stone-400">
+                  पद्मभूषण शारदा सिन्हा व अनुराधा पौडवाल की अमर आवाज में पारंपरिक छठ महिमा
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {REAL_CHHATH_ARCHIVE.filter((v) => v.category === 'songs').map((video) => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  isLiked={likedVideoIds.has(video.id)}
+                  onPlay={() => setActiveModalVideo(video)}
+                  onSetHero={() => {
+                    setHeroVideo(video);
+                    setIsHeroPlaying(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onToggleLike={(e) => toggleLike(video.id, e)}
+                  onShare={(e) => handleShareVideo(video, e)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ====================================================================
+            SACRED ENGAGEMENT BANNER: डिजिटल दीपदान व अर्घ्य संकल्प
+           ==================================================================== */}
+        <section className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-amber-950/70 via-stone-900 to-stone-900 border border-amber-500/40 shadow-2xl relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
+            <div className="max-w-xl space-y-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                🪔 पावन गंगा दीपदान अनुष्ठान
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold font-rozha text-amber-100">
+                मां गंगा की पावन धारा में अपना दीप प्रज्वलित करें
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                अब तक कुल <strong className="text-amber-400">{floatedCount}</strong> श्रद्धालुओं ने अपने परिवार के सुख, शांति व आरोग्य हेतु दीपदान संकल्प लिया है।
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setDiyaModalOpen(true)}
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl shadow-amber-500/25 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Flame className="w-4 h-4 fill-current" />
+                <span>अभी दीप प्रवाहित करें</span>
+              </button>
+              <button
+                type="button"
+                onClick={triggerArghyaOffering}
+                className="px-5 py-3 rounded-2xl bg-stone-800 hover:bg-stone-700 border border-amber-500/30 text-amber-300 font-bold text-xs sm:text-sm active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Droplets className="w-4 h-4 fill-current" />
+                <span>सूर्य देव को अर्घ्य दें</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      {/* ======================================================================
+          FULLSCREEN VIDEO THEATER MODAL (When any card is clicked)
+         ====================================================================== */}
+      {activeModalVideo && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setActiveModalVideo(null)}
+        >
+          <div 
+            className="w-full max-w-4xl bg-stone-900 border border-amber-500/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Video Header */}
+            <div className="px-4 py-3 bg-stone-950 border-b border-stone-800 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                  {activeModalVideo.quality}
+                </span>
+                <h3 className="text-xs sm:text-sm font-bold text-white truncate font-rozha">
+                  {activeModalVideo.title}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModalVideo(null)}
+                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs sm:text-sm text-stone-200 leading-relaxed mb-3">
-              {selectedSpot.desc}
-            </p>
-
-            <div className="p-3 rounded-2xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs mb-3 space-y-1">
-              <p className="font-bold text-amber-300 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>धार्मिक व आध्यात्मिक महत्व:</span>
-              </p>
-              <p className="leading-relaxed">{selectedSpot.significance}</p>
+            {/* Embedded 16:9 YouTube Player */}
+            <div className="relative aspect-video w-full bg-black">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${activeModalVideo.youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                title={activeModalVideo.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full border-0"
+              />
             </div>
 
-            {selectedSpot.mantra && (
-              <div className="p-3 rounded-2xl bg-stone-800/80 border border-stone-700 text-xs font-mono text-amber-200 mb-4">
-                <p className="text-[10px] text-stone-400 font-sans mb-0.5">पवित्र वैदिक मंत्र:</p>
-                <p className="italic">{selectedSpot.mantra}</p>
+            {/* Video Details & Cultural Insights */}
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-3 text-left">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-base sm:text-lg font-bold text-amber-100 font-rozha">
+                    {activeModalVideo.title}
+                  </h4>
+                  <p className="text-xs text-amber-300/80 font-medium">
+                    📍 {activeModalVideo.location} • {activeModalVideo.categoryLabel}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => toggleLike(activeModalVideo.id)}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      likedVideoIds.has(activeModalVideo.id)
+                        ? 'bg-rose-500/20 border-rose-500/60 text-rose-300'
+                        : 'bg-stone-800 border-stone-700 text-stone-300 hover:text-white'
+                    }`}
+                  >
+                    <Heart className={`w-3.5 h-3.5 ${likedVideoIds.has(activeModalVideo.id) ? 'fill-current' : ''}`} />
+                    <span>{likedVideoIds.has(activeModalVideo.id) ? 'पसंद किया' : 'पसंद करें'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleShareVideo(activeModalVideo)}
+                    className="px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>शेयर</span>
+                  </button>
+                  <a
+                    href={`https://www.youtube.com/watch?v=${activeModalVideo.youtubeId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>यूट्यूब पर देखें</span>
+                  </a>
+                </div>
               </div>
-            )}
 
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedSpot(null);
-                  handlePerformArghya();
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all cursor-pointer"
-              >
-                <Droplets className="w-4 h-4 fill-current" />
-                <span>अर्घ्य अर्पित करें</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedSpot(null)}
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer"
-              >
-                दर्शन जारी रखें
-              </button>
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                {activeModalVideo.description}
+              </p>
+
+              {activeModalVideo.culturalInsight && (
+                <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs space-y-1">
+                  <p className="font-bold text-amber-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>आध्यात्मिक व सांस्कृतिक महत्व:</span>
+                  </p>
+                  <p className="leading-relaxed">{activeModalVideo.culturalInsight}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ========================================================
-          FLOAT 3D DIYA MODAL
-         ======================================================== */}
+      {/* ======================================================================
+          FLOAT A DIYA MODAL (डिजिटल दीपदान)
+         ====================================================================== */}
       {diyaModalOpen && (
         <div 
-          className="absolute inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 animate-in fade-in duration-200"
           onClick={() => setDiyaModalOpen(false)}
         >
           <div 
@@ -1137,16 +1251,16 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
               </button>
             </div>
 
-            <form onSubmit={handleFloatDiyaSubmit} className="space-y-3">
+            <form onSubmit={handleDiyaSubmit} className="space-y-3.5 text-left">
               <div>
                 <label className="block text-xs font-bold text-stone-300 mb-1">
-                  श्रद्धालु का नाम (Devotee Name)
+                  श्रद्धालु / परिवार का नाम *
                 </label>
                 <input
                   type="text"
-                  value={diyaName}
-                  onChange={(e) => setDiyaName(e.target.value)}
-                  placeholder="उदा. राहुल व अंजलि"
+                  value={diyaDevoteeName}
+                  onChange={(e) => setDiyaDevoteeName(e.target.value)}
+                  placeholder="उदा. राहुल, अंजलि व समस्त परिवार"
                   required
                   className="w-full px-3.5 py-2.5 rounded-xl bg-stone-800 border border-stone-700 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
                 />
@@ -1154,11 +1268,29 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
 
               <div>
                 <label className="block text-xs font-bold text-stone-300 mb-1">
+                  पावन घाट चयन करें
+                </label>
+                <select
+                  value={diyaGhatChoice}
+                  onChange={(e) => setDiyaGhatChoice(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-stone-800 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                >
+                  <option value="कलेक्ट्रेट घाट, पटना">कलेक्ट्रेट घाट, पटना</option>
+                  <option value="दीघा घाट, पटना">दीघा पाटीपुल घाट, पटना</option>
+                  <option value="अस्सी घाट, वाराणसी">अस्सी घाट, वाराणसी</option>
+                  <option value="दशाश्वमेध घाट, वाराणसी">दशाश्वमेध घाट, वाराणसी</option>
+                  <option value="देव सूर्य कुंड, औरंगाबाद">देव सूर्य कुंड, औरंगाबाद</option>
+                  <option value="हर की पौड़ी, हरिद्वार">हर की पौड़ी, हरिद्वार</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-300 mb-1">
                   मनोकामना या प्रार्थना (Prayer / Wish)
                 </label>
                 <textarea
-                  value={diyaWish}
-                  onChange={(e) => setDiyaWish(e.target.value)}
+                  value={diyaDevoteeWish}
+                  onChange={(e) => setDiyaDevoteeWish(e.target.value)}
                   rows={2}
                   maxLength={120}
                   placeholder="समस्त परिवार के सुख, शांति व आरोग्य हेतु..."
@@ -1167,7 +1299,7 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
               </div>
 
               <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-300 text-[11px] leading-relaxed">
-                🪔 आपका दीप वास्तविक 3D गंगा धारा पर प्रवाहित होगा और समस्त भक्तों के साथ प्रकाशित रहेगा।
+                🪔 आपका दीप मां गंगा की पावन धारा पर प्रज्वलित होगा और छठी मईया की कृपा सदैव बनी रहेगी।
               </div>
 
               <button
@@ -1182,12 +1314,12 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
         </div>
       )}
 
-      {/* ========================================================
-          VIRTUAL ARGHYA CEREMONY MODAL
-         ======================================================== */}
+      {/* ======================================================================
+          VIRTUAL ARGHYA CEREMONY MODAL (वर्चुअल अर्घ्य अनुष्ठान)
+         ====================================================================== */}
       {arghyaModalOpen && (
         <div 
-          className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 animate-in fade-in duration-300"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 animate-in fade-in duration-300"
           onClick={() => setArghyaModalOpen(false)}
         >
           <div 
@@ -1197,12 +1329,12 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
             <button
               type="button"
               onClick={() => setArghyaModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white"
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Radiant Sun Motif */}
+            {/* Glowing Sun Emblem */}
             <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-1 shadow-2xl shadow-amber-500/50 mb-3 animate-pulse">
               <div className="w-full h-full rounded-full bg-stone-950 flex items-center justify-center text-3xl">
                 ☀️
@@ -1212,97 +1344,145 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
             <h3 className="font-rozha text-xl sm:text-2xl text-amber-200 mb-1">
               भगवान सूर्य को पावन अर्घ्य समर्पित
             </h3>
-            <p className="text-xs text-amber-400/90 font-medium mb-4">
-              गायत्री मंत्र व दुग्ध अर्घ्य अनुष्ठान पूर्ण हुआ
+            <p className="text-xs text-amber-400/90 font-medium mb-3">
+              गायत्री मंत्र व दुग्ध-जल अर्घ्य अनुष्ठान
             </p>
 
-            <div className="p-4 rounded-2xl bg-stone-800/90 border border-amber-500/30 text-amber-200 text-xs sm:text-sm font-mono leading-relaxed mb-4">
+            <div className="p-3.5 rounded-2xl bg-stone-800/90 border border-amber-500/30 text-amber-200 text-xs sm:text-sm font-mono leading-relaxed mb-4">
               &ldquo;ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्॥&rdquo;
             </div>
 
             <p className="text-xs text-stone-300 leading-relaxed mb-5">
-              छठी मईया व भुवन भास्कर सूर्य देव की असीम कृपा से आपके व आपके संपूर्ण परिवार के जीवन में सुख, शांति, आरोग्य और अखंड सौभाग्य का संचार हो।
+              छठी मईया व प्रत्यक्ष देव भगवान सूर्य की कृपा से आपके जीवन से समस्त अंधकार, रोग व कष्ट दूर हों और अखंड सौभाग्य की प्राप्ति हो।
             </p>
 
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setArghyaModalOpen(false);
+                  showToast('✨ अर्घ्य अर्पण सफल हुआ! जय छठी मईया!');
+                }}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl active:scale-95 transition-all cursor-pointer"
+              >
+                प्रणाम स्वीकार करें (जय सूर्य देव)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+// ============================================================================
+// VIDEO CARD COMPONENT (Mobile-Optimized Edge-to-Edge Visual Card)
+// ============================================================================
+interface VideoCardProps {
+  video: VisualChhathVideo;
+  isLiked: boolean;
+  onPlay: () => void;
+  onSetHero: () => void;
+  onToggleLike: (e: React.MouseEvent) => void;
+  onShare: (e: React.MouseEvent) => void;
+}
+
+const VideoCard: React.FC<VideoCardProps> = ({
+  video,
+  isLiked,
+  onPlay,
+  onSetHero,
+  onToggleLike,
+  onShare
+}) => {
+  return (
+    <div
+      onClick={onPlay}
+      className="group rounded-2xl overflow-hidden bg-stone-900 border border-stone-800/90 hover:border-amber-500/50 transition-all duration-300 cursor-pointer shadow-lg flex flex-col hover:-translate-y-0.5"
+    >
+      {/* 16:9 Thumbnail Header */}
+      <div className="relative aspect-video bg-black overflow-hidden">
+        <img
+          src={`https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`}
+          alt={video.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
+
+        {/* Dark Vignette Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+        {/* Center Hover Play Icon */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-85 group-hover:opacity-100 group-hover:scale-110 transition-all">
+          <div className="w-11 h-11 rounded-full bg-amber-500/90 text-stone-950 flex items-center justify-center shadow-lg">
+            <Play className="w-5 h-5 fill-current ml-0.5" />
+          </div>
+        </div>
+
+        {/* Top Badges */}
+        <div className="absolute top-2 left-2 flex items-center gap-1.5">
+          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-black/70 text-amber-300 border border-white/20 backdrop-blur-md">
+            {video.quality}
+          </span>
+          {video.badge && (
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/90 text-stone-950">
+              {video.badge}
+            </span>
+          )}
+        </div>
+
+        {/* Bottom Time & Location */}
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-bold text-white">
+          <span className="flex items-center gap-1 truncate max-w-[70%]">
+            <MapPin className="w-3 h-3 text-amber-400 shrink-0" />
+            <span className="truncate">{video.location}</span>
+          </span>
+          <span className="px-1.5 py-0.5 rounded bg-black/80 font-mono">
+            {video.duration}
+          </span>
+        </div>
+      </div>
+
+      {/* Card Content & Meta */}
+      <div className="p-3 sm:p-3.5 flex-1 flex flex-col justify-between space-y-2">
+        <div>
+          <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-2 font-rozha leading-snug">
+            {video.title}
+          </h4>
+          <p className="text-[11px] text-stone-400 mt-1 line-clamp-2 leading-relaxed">
+            {video.subtitle}
+          </p>
+        </div>
+
+        {/* Card Footer Actions */}
+        <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between gap-1">
+          <span className="text-[10px] font-bold text-amber-400/90 uppercase tracking-wide">
+            {video.categoryLabel}
+          </span>
+
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => {
-                setArghyaModalOpen(false);
-                showToast('✨ अर्घ्य दर्शन सफल रहा! जय छठी मईया!');
-              }}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl active:scale-95 transition-all cursor-pointer"
+              onClick={onToggleLike}
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                isLiked ? 'text-rose-400' : 'text-stone-400 hover:text-white'
+              }`}
+              title="पसंद करें"
             >
-              प्रणाम स्वीकार करें (जय सूर्य देव)
+              <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}`} />
+            </button>
+            <button
+              type="button"
+              onClick={onShare}
+              className="p-1.5 rounded-lg text-stone-400 hover:text-white transition-colors cursor-pointer"
+              title="शेयर करें"
+            >
+              <Share2 className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-      )}
-
-      {/* ========================================================
-          GHAT INFORMATION & SWITCHER SHEET
-         ======================================================== */}
-      {ghatInfoOpen && (
-        <div 
-          className="absolute inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 animate-in fade-in duration-200"
-          onClick={() => setGhatInfoOpen(false)}
-        >
-          <div 
-            className="w-full max-w-lg bg-stone-900 border border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-stone-800">
-              <h3 className="text-base sm:text-lg font-bold text-amber-100 font-rozha">
-                पावन घाट चयन (Holy Ghat Switcher)
-              </h3>
-              <button
-                type="button"
-                onClick={() => setGhatInfoOpen(false)}
-                className="p-1 rounded-full text-stone-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
-              {HOLY_GHATS.map((ghat) => (
-                <div
-                  key={ghat.id}
-                  onClick={() => {
-                    setSelectedGhat(ghat);
-                    setGhatInfoOpen(false);
-                    showToast(`${ghat.name} का 3D दृश्य लोड हुआ`);
-                  }}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
-                    selectedGhat.id === ghat.id
-                      ? 'border-amber-500 bg-amber-500/15 text-white ring-2 ring-amber-500/40'
-                      : 'border-stone-800 bg-stone-800/60 text-stone-300 hover:border-stone-700 hover:bg-stone-800'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h4 className="font-bold text-sm text-amber-200 leading-snug">
-                        {ghat.name}
-                      </h4>
-                      <p className="text-[11px] text-amber-400 font-medium">
-                        {ghat.city}, {ghat.state} • {ghat.tagline}
-                      </p>
-                    </div>
-                    {selectedGhat.id === ghat.id && (
-                      <span className="w-5 h-5 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center text-xs font-bold shrink-0">
-                        ✓
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-stone-400 mt-1.5 leading-relaxed">
-                    {ghat.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
+      </div>
     </div>
   );
 };
