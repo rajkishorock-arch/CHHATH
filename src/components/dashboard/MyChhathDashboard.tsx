@@ -30,7 +30,9 @@ import {
   CheckCircle2,
   Plus,
   X,
-  Share2
+  Share2,
+  User,
+  LogOut
 } from 'lucide-react';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAuth } from '../../context/AuthContext';
@@ -54,9 +56,40 @@ const DEFAULT_CHECKLIST_ITEMS = [
 
 export const MyChhathDashboard: React.FC = () => {
   const { userLocation, favoriteSongs, songs, favoriteGhats, ghats, familyTasks, toggleFamilyTask } = useChhathData();
-  const { currentUser, updateInterests, openOnboarding } = useAuth();
+  const { currentUser, updateProfile, logout, openAuthModal, updateInterests, openOnboarding } = useAuth();
   const { allReels, openReelsPlatform } = useReels();
   const { playSong } = useAudio();
+
+  // Profile Edit State
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [nameInput, setNameInput] = useState(currentUser?.name || '');
+  const [cityInput, setCityInput] = useState(currentUser?.city || userLocation.city || '');
+  const [stateInput, setStateInput] = useState(currentUser?.state || userLocation.state || '');
+  const [bioInput, setBioInput] = useState(currentUser?.bio || '');
+  const [roleInput, setRoleInput] = useState<'user' | 'creator' | 'admin'>(currentUser?.role || 'user');
+
+  useEffect(() => {
+    if (currentUser) {
+      setNameInput(currentUser.name);
+      setCityInput(currentUser.city || userLocation.city);
+      setStateInput(currentUser.state || userLocation.state);
+      setBioInput(currentUser.bio || '');
+      setRoleInput(currentUser.role || 'user');
+    }
+  }, [currentUser, userLocation]);
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameInput.trim()) return;
+    updateProfile({
+      name: nameInput.trim(),
+      city: cityInput.trim(),
+      state: stateInput.trim(),
+      bio: bioInput.trim(),
+      role: roleInput
+    });
+    setEditModalOpen(false);
+  };
 
   // Matched city data
   const matchedCity = cityArghyaData.find(c => 
@@ -190,33 +223,115 @@ export const MyChhathDashboard: React.FC = () => {
   const checklistProgressPercent = Math.round((completedChecklistIds.length / (checklistItems.length || 1)) * 100);
 
   return (
-    <section id="my-chhath" className="section-padding relative overflow-hidden bg-gradient-to-b from-amber-500/10 via-orange-500/5 to-transparent">
+    <section id="my-chhath" className="section-padding relative overflow-hidden bg-stone-50/80 min-h-screen text-stone-900">
       <div className="container-custom">
         
-        {/* Top Header: Devotee Welcome & Intelligent Action Triggers */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-6 pb-6 border-b border-amber-500/20">
-          <div className="flex items-center gap-4">
-            {currentUser?.avatarUrl && (
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 shadow-2xl shrink-0">
-                <img
-                  src={currentUser.avatarUrl}
-                  alt={currentUser.name}
-                  className="w-full h-full rounded-full object-cover"
-                />
+        {/* Professional Devotee Profile Card (Fully White Luxury UI) */}
+        <div className="bg-white rounded-3xl p-5 sm:p-7 border border-stone-200/90 shadow-sm relative overflow-hidden mb-6">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-100/40 rounded-full blur-3xl pointer-events-none" />
+
+          {currentUser ? (
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              {/* Profile Avatar & Details */}
+              <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-1 bg-gradient-to-tr from-amber-500 to-orange-500 shadow-md shrink-0">
+                  <div className="w-full h-full rounded-[14px] overflow-hidden bg-white">
+                    {currentUser.avatarUrl && currentUser.avatarUrl.length <= 4 ? (
+                      <span className="flex items-center justify-center w-full h-full text-2xl font-bold text-stone-900">{currentUser.avatarUrl}</span>
+                    ) : (
+                      <img src={currentUser.avatarUrl || '👤'} alt={currentUser.name} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold border-2 border-white shadow-xs" title="Verified">
+                    ✓
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 leading-tight">
+                      {currentUser.name}
+                    </h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      {currentUser.role === 'creator' ? 'पावन रचनाकार' : 'छठ व्रती'}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-amber-700 font-mono font-medium">
+                    {currentUser.username} {currentUser.email ? `• ${currentUser.email}` : ''}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-stone-600 font-mukta pt-0.5">
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{currentUser.city || userLocation.city}, {currentUser.state || userLocation.state}</span>
+                    </span>
+                    <span className="text-stone-300">•</span>
+                    <span className="text-stone-600 italic">
+                      "{currentUser.bio || 'हे छठी मईया! सबका कल्याण करें 🙏'}"
+                    </span>
+                  </div>
+                </div>
               </div>
-            )}
-            <div>
-              <div className="badge-saffron inline-flex items-center gap-1.5 mb-1.5 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>MY CHHATH • {currentUser?.username || '@bhakt'}</span>
+
+              {/* Action Buttons: Edit Profile & Logout */}
+              <div className="flex items-center gap-2.5 shrink-0 pt-2 md:pt-0">
+                <button
+                  onClick={() => setEditModalOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>प्रोफ़ाइल संपादित करें</span>
+                </button>
+
+                <button
+                  onClick={() => logout()}
+                  className="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-rose-50 text-stone-600 hover:text-rose-600 border border-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                  title="साइन आउट"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>लॉग आउट</span>
+                </button>
               </div>
-              <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100 gold-foil-text">
-                {getGreeting()}, {currentUser?.name || 'भक्तजन'}! 🙏
-              </h2>
-              <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-                {userLocation.city}, {userLocation.state} हेतु विशेष रूप से तैयार आपका निजी डिजिटल छठ अनुष्ठान।
-              </p>
             </div>
+          ) : (
+            /* Unauthenticated Welcoming Card */
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
+                  <User className="w-7 h-7 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold font-serif text-stone-900">
+                    जय छठी मईया! अपनी प्रोफ़ाइल से जुड़ें 🙏
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-600 font-mukta">
+                    1-क्लिक में Google से जुड़कर अपना छठ संकल्प, चेकलिस्ट और निजी पूजा डायरी सुरक्षित रखें।
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => openAuthModal('login')}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-extrabold text-xs shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 shrink-0 active:scale-95 transition-all cursor-pointer"
+              >
+                <User className="w-4 h-4" />
+                <span>Google से 1-क्लिक में लॉगिन करें</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Top Header: Devotee Welcome & Intelligent Action Triggers */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-6 pb-6 border-b border-stone-200/80">
+          <div>
+            <div className="badge-saffron inline-flex items-center gap-1.5 mb-1.5 text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{getGreeting()}, {currentUser?.name || 'भक्तजन'}! 🙏</span>
+            </div>
+            <p className="font-mukta text-xs sm:text-sm text-stone-600">
+              {userLocation.city}, {userLocation.state} हेतु विशेष रूप से तैयार आपका निजी डिजिटल छठ अनुष्ठान।
+            </p>
           </div>
 
           {/* AI Contextual Action Triggers (Parts 44, 45, 46) */}
@@ -777,6 +892,111 @@ export const MyChhathDashboard: React.FC = () => {
                   समाप्त करें
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Profile Modal (Fully White Professional UI) */}
+        {editModalOpen && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={() => setEditModalOpen(false)}
+          >
+            <div 
+              className="relative w-full max-w-md bg-white text-stone-900 rounded-3xl p-6 sm:p-7 shadow-2xl border border-stone-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-stone-100 mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                    <Edit3 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold font-serif text-stone-900">प्रोफ़ाइल संपादित करें</h3>
+                    <p className="text-[11px] text-stone-500 font-mukta">अपनी जानकारी आवश्यकतानुसार बदलें</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEditModalOpen(false)}
+                  className="p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveProfile} className="space-y-4 text-xs font-mukta">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">पूरा नाम (Full Name) *</label>
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-stone-900 font-medium"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-stone-700 mb-1">शहर (City)</label>
+                    <input
+                      type="text"
+                      value={cityInput}
+                      onChange={(e) => setCityInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-stone-900 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-stone-700 mb-1">राज्य (State)</label>
+                    <input
+                      type="text"
+                      value={stateInput}
+                      onChange={(e) => setStateInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-stone-900 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">आपकी भूमिका (Role)</label>
+                  <select
+                    value={roleInput}
+                    onChange={(e) => setRoleInput(e.target.value as any)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-stone-900 font-medium bg-white"
+                  >
+                    <option value="user">छठ व्रती (Fasting Devotee)</option>
+                    <option value="creator">सूर्य उपासक / रचनाकार</option>
+                    <option value="admin">सेवादार / व्यवस्थापक</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">भक्ति संदेश / संकल्प (Bio)</label>
+                  <textarea
+                    rows={3}
+                    value={bioInput}
+                    onChange={(e) => setBioInput(e.target.value)}
+                    placeholder="उदा. हे छठी मईया, पूरे परिवार पर कृपा बनाए रखें..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-stone-900 font-medium resize-none"
+                  />
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setEditModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold"
+                  >
+                    रद्द करें
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  >
+                    सेव करें
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

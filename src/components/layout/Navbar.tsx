@@ -408,11 +408,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
           </button>
 
-          {/* Theme Toggle Button (Available on all devices) */}
+          {/* Theme Toggle Button (Desktop only, removed on phone layout) */}
           <button
             onClick={toggleTheme}
             title={theme === 'light' ? navText.darkTheme : navText.lightTheme}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-200 hover:text-amber-500 transition-colors shadow-sm"
+            className="hidden md:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-200 hover:text-amber-500 transition-colors shadow-sm"
           >
             {theme === 'light' ? (
               <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
@@ -420,6 +420,35 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
             )}
           </button>
+
+          {/* Mobile Phone Only: Premium Login Sign / Profile Avatar linking to 'my-chhath' */}
+          {isAuthenticated && currentUser ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(e, 'my-chhath');
+              }}
+              className="flex md:hidden items-center justify-center p-[2px] rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 shadow-md active:scale-95 transition-all cursor-pointer"
+              title="मेरी प्रोफाइल (My Chhath)"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-white">
+                {currentUser.avatarUrl && currentUser.avatarUrl.length <= 4 ? (
+                  <span className="flex items-center justify-center w-full h-full text-xs font-bold text-stone-900">{currentUser.avatarUrl}</span>
+                ) : (
+                  <img src={currentUser.avatarUrl || '👤'} alt={currentUser.name} className="w-full h-full object-cover" />
+                )}
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={() => openAuthModal('login')}
+              className="flex md:hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+              title="लॉग इन"
+            >
+              <User className="w-3.5 h-3.5 text-stone-950" />
+              <span>लॉग इन</span>
+            </button>
+          )}
 
           {/* Desktop-Only Temple Bell Sound */}
           <button
@@ -430,9 +459,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <BellRing className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* User Account / Auth Trigger */}
+          {/* Desktop User Account / Auth Trigger */}
           {isAuthenticated && currentUser ? (
-            <div className="relative">
+            <div className="relative hidden md:block">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 p-1 pl-2 rounded-full bg-amber-500/10 border border-amber-500/30 hover:border-amber-400 transition-all group"
