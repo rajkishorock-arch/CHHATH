@@ -19,10 +19,13 @@ export const AuthModal: React.FC = () => {
     authModalOpen, 
     closeAuthModal, 
     signInWithGoogle, 
+    quickDevoteeLogin,
     authPromptMessage 
   } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [quickLoading, setQuickLoading] = useState(false);
+  const [devoteeName, setDevoteeName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   if (!authModalOpen) return null;
@@ -32,17 +35,25 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     try {
       const res = await signInWithGoogle();
-      if (res.redirecting) {
-        // Page is navigating to Google accounts chooser, maintain loading spinner
-        return;
-      }
       if (!res.success) {
-        setError(res.error || 'Google साइन-इन में समस्या आई। कृपया पुनः प्रयास करें।');
-        setLoading(false);
+        setError(res.error || 'Google साइन-इन में समस्या आई। आप नीचे "त्वरित श्रद्धालु प्रवेश" से भी जुड़ सकते हैं।');
       }
     } catch (err: any) {
-      setError(err?.message || 'Google साइन-इन विफल रहा।');
+      setError(err?.message || 'Google साइन-इन विफल रहा। आप नीचे "त्वरित श्रद्धालु प्रवेश" से भी जुड़ सकते हैं।');
+    } finally {
       setLoading(false);
+    }
+  };
+
+  const handleQuickDevoteeSignIn = async () => {
+    setError(null);
+    setQuickLoading(true);
+    try {
+      await quickDevoteeLogin(devoteeName);
+    } catch (err: any) {
+      setError('त्वरित प्रवेश में समस्या आई।');
+    } finally {
+      setQuickLoading(false);
     }
   };
 
@@ -161,12 +172,54 @@ export const AuthModal: React.FC = () => {
           )}
         </button>
 
-        {/* Fallback warning only if totally unconfigured */}
-        {!isConfigured && (
-          <div className="mt-4 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-800 font-mukta text-center font-medium">
-            ⚙️ <strong>Firebase Keys:</strong> कृपया Firebase Configuration चेक करें।
+        {/* Divider */}
+        <div className="relative my-4 flex items-center justify-center">
+          <div className="border-t border-stone-200 w-full" />
+          <span className="bg-white px-3 text-[11px] font-mukta font-bold text-stone-400 uppercase tracking-wider shrink-0">
+            या बिना पासवर्ड तुरंत जुड़ें
+          </span>
+          <div className="border-t border-stone-200 w-full" />
+        </div>
+
+        {/* 1-Click Quick Devotee Sign-In */}
+        <div className="p-3.5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/15 border border-amber-300/70 rounded-2xl space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-950 font-mukta flex items-center gap-1.5">
+              <span>🌸</span>
+              <span>श्रद्धालु त्वरित प्रवेश (1-क्लिक)</span>
+            </span>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-full">
+              तत्काल सक्रिय
+            </span>
           </div>
-        )}
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={devoteeName}
+              onChange={(e) => setDevoteeName(e.target.value)}
+              placeholder="अपना नाम लिखें (उदा. राज किशोर)"
+              className="flex-1 px-3 py-2 text-xs bg-white border border-amber-300/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-900 placeholder:text-stone-400 font-mukta"
+            />
+            <button
+              onClick={handleQuickDevoteeSignIn}
+              disabled={quickLoading}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-extrabold text-xs rounded-xl shadow-sm hover:shadow active:scale-95 transition-all flex items-center gap-1 shrink-0 font-mukta cursor-pointer"
+            >
+              {quickLoading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-stone-950" />
+              ) : (
+                <>
+                  <span>प्रवेश करें</span>
+                  <span>→</span>
+                </>
+              )}
+            </button>
+          </div>
+          <p className="text-[10px] text-stone-500 font-mukta text-center leading-tight">
+            बिना किसी फॉर्म या पासवर्ड के तुरंत प्रोफाइल व 'मेरी छठ' डैशबोर्ड पाएं।
+          </p>
+        </div>
 
         {/* Footer info & Guest continue */}
         <div className="mt-5 pt-4 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500 font-mukta">

@@ -3,6 +3,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/__/auth/(.*)",
+      "destination": "https://chhath-1948a.firebaseapp.com/__/auth/$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

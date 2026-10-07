@@ -21,7 +21,8 @@ interface AuthContextType {
   userSettings: UserSettings | null;
   activeSessions: ActiveSession[];
   pendingFollowRequests: ReelUser[];
-  signInWithGoogle: () => Promise<{ success: boolean; error?: string; redirecting?: boolean }>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  quickDevoteeLogin: (name?: string) => Promise<{ success: boolean }>;
   signup: (data: SignUpData) => Promise<{ success: boolean; error?: string }>;
   login: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -83,15 +84,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     async function initSession() {
-      // 1. Check for completed Google redirect sign-in
-      const redirectUser = await AuthService.handleRedirectResult();
-      if (redirectUser) {
-        setCurrentUser(redirectUser);
-        closeAuthModal();
-        return;
-      }
-
-      // 2. Check stored session
       const sessionData = await AuthService.getSession();
       if (sessionData && sessionData.user) {
         setCurrentUser(sessionData.user);
@@ -115,12 +107,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string; redirecting?: boolean }> => {
+  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await AuthService.signInWithGoogle();
-      if (res.redirecting) {
-        return { success: true, redirecting: true };
-      }
       if (!res.success || !res.user) {
         return { success: false, error: res.error || 'Google साइन-इन विफल रहा।' };
       }
@@ -131,6 +120,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err?.message || 'Google साइन-इन में त्रुटि हुई।' };
+    }
+  };
+
+  const quickDevoteeLogin = async (devoteeName?: string): Promise<{ success: boolean }> => {
+    try {
+      const res = AuthService.createDevoteeSession(devoteeName);
+      if (res.user) {
+        setCurrentUser(res.user);
+        if (res.settings) setUserSettings(res.settings);
+        closeAuthModal();
+        return { success: true };
+      }
+      return { success: false };
+    } catch (e) {
+      return { success: false };
     }
   };
 
@@ -388,6 +392,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         activeSessions,
         pendingFollowRequests,
         signInWithGoogle,
+        quickDevoteeLogin,
         signup,
         login,
         logout,

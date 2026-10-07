@@ -132,13 +132,55 @@ export const AuthService = {
     }
   },
 
+  createDevoteeSession(devoteeName?: string): { success: boolean; user: ReelUser; settings: UserSettings; token: string } {
+    const rawName = (devoteeName && devoteeName.trim()) || 'छठ श्रद्धालु';
+    const cleanUsername = `@devotee_${Date.now().toString().slice(-4)}`;
+    const sessionToken = `devotee_token_${Date.now()}`;
+    
+    const newUser: ReelUser = {
+      id: `usr_${Date.now()}`,
+      user_id: `usr_${Date.now()}`,
+      name: rawName,
+      username: cleanUsername,
+      email: `${cleanUsername.replace('@', '')}@chhath.dev`,
+      avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80',
+      coverUrl: '',
+      website: '',
+      bio: 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।',
+      city: 'पटना (Patna)',
+      state: 'बिहार (Bihar)',
+      country: 'भारत (India)',
+      language: 'hi',
+      role: 'user',
+      followersCount: 1,
+      followingCount: 3,
+      totalLikesCount: 24,
+      reelsCount: 0,
+      verified: true,
+      interests: ['songs', 'vidhi', 'ghats', 'prasad'],
+      onboardingCompleted: true,
+      createdAt: new Date().toISOString()
+    };
+
+    const settings = getDefaultSettings(newUser);
+    this.setToken(sessionToken);
+    ReelsStorage.addUser(newUser);
+    ReelsStorage.setSession(newUser);
+
+    return {
+      success: true,
+      user: newUser,
+      settings,
+      token: sessionToken
+    };
+  },
+
   async signInWithGoogle(): Promise<{ 
     success: boolean; 
     user?: ReelUser; 
     settings?: UserSettings; 
     token?: string; 
     error?: string;
-    redirecting?: boolean;
   }> {
     const auth = getFirebaseAuth();
     const googleProvider = getGoogleProvider();
@@ -150,27 +192,6 @@ export const AuthService = {
       };
     }
 
-    // Save current URL before auth so redirect returns to the exact active tab/screen
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.setItem('chhath_auth_return_url', window.location.href);
-      } catch (e) {}
-    }
-
-    // 1. Mobile devices: Always use signInWithRedirect
-    // Prevents mobile browser blank screen & disconnected window.opener bug
-    const isMobile = isMobileBrowser();
-    if (isMobile) {
-      try {
-        await signInWithRedirect(auth, googleProvider);
-        return { success: true, redirecting: true };
-      } catch (err: any) {
-        console.error('[AuthService] Mobile signInWithRedirect failed:', err);
-        return { success: false, error: err?.message || 'Google रिडायरेक्ट प्रारंभ नहीं हो सका।' };
-      }
-    }
-
-    // 2. Desktop: Try signInWithPopup first
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const mapped = mapFirebaseUserToReelUser(result.user);
@@ -188,62 +209,31 @@ export const AuthService = {
         token: sessionToken
       };
     } catch (err: any) {
-      console.warn('[AuthService] Desktop Google popup notice:', err);
-
-      // If browser/adblocker blocks the popup, fallback automatically to signInWithRedirect!
-      if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-        try {
-          console.log('[AuthService] Popup blocked by browser. Automatically falling back to signInWithRedirect...');
-          await signInWithRedirect(auth, googleProvider);
-          return { success: true, redirecting: true };
-        } catch (redirectErr: any) {
-          return { 
-            success: false, 
-            error: 'ब्राउज़र ने पॉपअप ब्लॉक कर दिया है। कृपया पॉपअप अनुमति दें।' 
-          };
-        }
-      }
+      console.warn('[AuthService] Google popup sign-in error:', err);
 
       if (err.code === 'auth/popup-closed-by-user') {
-        return { success: false, error: 'साइन-इन विंडो बंद कर दी गई।' };
+        return { 
+          success: false, 
+          error: 'साइन-इन विंडो बंद कर दी गई। आप नीचे नाम दर्ज करके 1-क्लिक में भी प्रवेश कर सकते हैं।' 
+        };
+      }
+      if (err.code === 'auth/popup-blocked') {
+        return { 
+          success: false, 
+          error: 'ब्राउज़र ने Google पॉपअप ब्लॉक कर दिया है। कृपया ऊपर पॉपअप की अनुमति दें या नीचे 1-क्लिक त्वरित प्रवेश चुनें।' 
+        };
       }
       if (err.code === 'auth/unauthorized-domain') {
-        return { success: false, error: 'Firebase Console में यह डोमेन Authorized Domains में जोड़ें।' };
+        return { 
+          success: false, 
+          error: 'Firebase Console में यह डोमेन Authorized Domains में जोड़ें।' 
+        };
       }
-      return { success: false, error: err.message || 'Google साइन-इन विफल रहा।' };
+      return { 
+        success: false, 
+        error: err.message || 'Google साइन-इन विफल रहा। कृपया नीचे 1-क्लिक त्वरित प्रवेश से तुरंत जुड़ें।' 
+      };
     }
-  },
-
-  async handleRedirectResult(): Promise<ReelUser | null> {
-    const auth = getFirebaseAuth();
-    if (!auth) return null;
-    try {
-      const result = await getRedirectResult(auth);
-      if (result && result.user) {
-        const mapped = mapFirebaseUserToReelUser(result.user);
-        const sessionToken = `fb_token_${result.user.uid}`;
-        this.setToken(sessionToken);
-        ReelsStorage.addUser(mapped);
-        ReelsStorage.setSession(mapped);
-
-        // Restore return URL / hash if saved
-        try {
-          const returnUrl = sessionStorage.getItem('chhath_auth_return_url');
-          sessionStorage.removeItem('chhath_auth_return_url');
-          if (returnUrl) {
-            const url = new URL(returnUrl);
-            if (url.hash && window.location.hash !== url.hash) {
-              window.location.hash = url.hash;
-            }
-          }
-        } catch (e) {}
-
-        return mapped;
-      }
-    } catch (err: any) {
-      console.warn('[AuthService] handleRedirectResult notice:', err);
-    }
-    return null;
   },
 
   subscribeToAuthChanges(callback: (user: ReelUser | null) => void): (() => void) {
