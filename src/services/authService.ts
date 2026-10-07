@@ -6,6 +6,7 @@ import {
   getRedirectResult, 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   updateProfile as updateFirebaseProfile,
   signOut as firebaseSignOut, 
   onAuthStateChanged, 
@@ -450,6 +451,33 @@ export const AuthService = {
         success: false,
         error: friendlyError
       };
+    }
+  },
+
+  async resetPassword(email: string): Promise<{ success: boolean; error?: string }> {
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      return { success: false, error: 'Firebase Auth लोड नहीं हुआ है।' };
+    }
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !trimmedEmail.includes('@')) {
+      return { success: false, error: 'कृपया एक वैध ईमेल पता दर्ज करें।' };
+    }
+    try {
+      await sendPasswordResetEmail(auth, trimmedEmail);
+      return { success: true };
+    } catch (err: any) {
+      console.warn('[AuthService] Firebase reset password error:', err);
+      const code = err?.code || '';
+      let friendlyError = 'पासवर्ड रीसेट लिंक भेजने में समस्या आई।';
+      if (code === 'auth/user-not-found') {
+        friendlyError = 'इस ईमेल से कोई खाता पंजीकृत नहीं है।';
+      } else if (code === 'auth/invalid-email') {
+        friendlyError = 'कृपया एक वैध ईमेल पता दर्ज करें।';
+      } else if (code === 'auth/too-many-requests') {
+        friendlyError = 'कृपया थोड़ी देर बाद पुनः प्रयास करें।';
+      }
+      return { success: false, error: friendlyError };
     }
   },
 

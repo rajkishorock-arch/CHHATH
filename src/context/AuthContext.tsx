@@ -30,7 +30,7 @@ interface AuthContextType {
   updateProfile: (updates: Partial<ReelUser>) => boolean;
   updateInterests: (interests: string[]) => void;
   completeOnboarding: (data: { language: Language; interests: string[]; country: string; state: string; city: string }) => Promise<void>;
-  resetPassword: (email: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string, newPass?: string) => Promise<{ success: boolean; error?: string }>;
   toggleFollow: (targetUserId: string) => Promise<{ status: SocialFollowStatus | 'unfollowed'; success: boolean }>;
   isFollowing: (targetUserId: string) => boolean;
   blockUser: (targetUserId: string) => Promise<boolean>;
@@ -294,8 +294,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setOnboardingModalOpen(false);
   };
 
-  const resetPassword = async (_email: string, _newPass: string): Promise<{ success: boolean; error?: string }> => {
-    return { success: true };
+  const resetPassword = async (email: string, _newPass?: string): Promise<{ success: boolean; error?: string }> => {
+    return await AuthService.resetPassword(email);
   };
 
   const updateUserSettings = async (updates: Partial<UserSettings>): Promise<boolean> => {
