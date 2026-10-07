@@ -181,6 +181,7 @@ export const AuthService = {
     settings?: UserSettings; 
     token?: string; 
     error?: string;
+    redirecting?: boolean;
   }> {
     const auth = getFirebaseAuth();
     const googleProvider = getGoogleProvider();
@@ -192,6 +193,24 @@ export const AuthService = {
       };
     }
 
+    const isMobile = isMobileBrowser();
+
+    // On mobile devices, use signInWithRedirect (runs on same first-party domain chhathvibes.vercel.app with zero storage partitioning)
+    if (isMobile) {
+      try {
+        if (typeof window !== 'undefined') {
+          try {
+            sessionStorage.setItem('chhath_auth_return_url', window.location.href);
+          } catch (e) {}
+        }
+        await signInWithRedirect(auth, googleProvider);
+        return { success: true, redirecting: true };
+      } catch (redirectErr: any) {
+        console.warn('[AuthService] signInWithRedirect notice:', redirectErr);
+      }
+    }
+
+    // On desktop, use signInWithPopup
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const mapped = mapFirebaseUserToReelUser(result.user);
@@ -218,10 +237,15 @@ export const AuthService = {
         };
       }
       if (err.code === 'auth/popup-blocked') {
-        return { 
-          success: false, 
-          error: 'ब्राउज़र ने Google पॉपअप ब्लॉक कर दिया है। कृपया ऊपर पॉपअप की अनुमति दें या नीचे 1-क्लिक त्वरित प्रवेश चुनें।' 
-        };
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return { success: true, redirecting: true };
+        } catch (rErr) {
+          return { 
+            success: false, 
+            error: 'ब्राउज़र ने Google पॉपअप ब्लॉक कर दिया है। कृपया ऊपर पॉपअप की अनुमति दें या नीचे 1-क्लिक त्वरित प्रवेश चुनें।' 
+          };
+        }
       }
       if (err.code === 'auth/unauthorized-domain') {
         return { 
@@ -234,6 +258,37 @@ export const AuthService = {
         error: err.message || 'Google साइन-इन विफल रहा। कृपया नीचे 1-क्लिक त्वरित प्रवेश से तुरंत जुड़ें।' 
       };
     }
+  },
+
+  async handleRedirectResult(): Promise<ReelUser | null> {
+    const auth = getFirebaseAuth();
+    if (!auth) return null;
+    try {
+      const result = await getRedirectResult(auth);
+      if (result && result.user) {
+        const mapped = mapFirebaseUserToReelUser(result.user);
+        const sessionToken = `fb_token_${result.user.uid}`;
+        this.setToken(sessionToken);
+        ReelsStorage.addUser(mapped);
+        ReelsStorage.setSession(mapped);
+
+        try {
+          const returnUrl = sessionStorage.getItem('chhath_auth_return_url');
+          sessionStorage.removeItem('chhath_auth_return_url');
+          if (returnUrl) {
+            const url = new URL(returnUrl);
+            if (url.hash && window.location.hash !== url.hash) {
+              window.location.hash = url.hash;
+            }
+          }
+        } catch (e) {}
+
+        return mapped;
+      }
+    } catch (err: any) {
+      console.warn('[AuthService] handleRedirectResult notice:', err);
+    }
+    return null;
   },
 
   subscribeToAuthChanges(callback: (user: ReelUser | null) => void): (() => void) {

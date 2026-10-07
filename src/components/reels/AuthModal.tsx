@@ -35,12 +35,16 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     try {
       const res = await signInWithGoogle();
+      if (res.redirecting) {
+        // Navigating to Google accounts chooser, maintain spinner
+        return;
+      }
       if (!res.success) {
         setError(res.error || 'Google साइन-इन में समस्या आई। आप नीचे "त्वरित श्रद्धालु प्रवेश" से भी जुड़ सकते हैं।');
+        setLoading(false);
       }
     } catch (err: any) {
       setError(err?.message || 'Google साइन-इन विफल रहा। आप नीचे "त्वरित श्रद्धालु प्रवेश" से भी जुड़ सकते हैं।');
-    } finally {
       setLoading(false);
     }
   };
