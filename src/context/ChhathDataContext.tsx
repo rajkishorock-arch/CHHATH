@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Song, Ghat, BlogPost, WishItem, UserLocationPreference, DedicatedVirtualDiya, FamilyTask } from '../types';
+import { UserSyncService } from '../services/userSyncService';
+import { ReelsStorage } from '../services/reelsStorage';
 import { chhathSongs as defaultSongs } from '../data/songs';
 import { chhathGhatsData as defaultGhats } from '../data/ghats';
 import { chhathBlogPosts as defaultBlogs } from '../data/blog';
@@ -156,9 +158,15 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [favoriteGhats, setFavoriteGhats] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('chhath_favorite_ghats');
-      return saved ? JSON.parse(saved) : ['ghat-1', 'ghat-2'];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(id => id !== 'ghat-1' && id !== 'ghat-2');
+        }
+      }
+      return [];
     } catch {
-      return ['ghat-1', 'ghat-2'];
+      return [];
     }
   });
 
@@ -225,11 +233,36 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     localStorage.setItem('chhath_favorite_songs', JSON.stringify(favoriteSongs));
     localStorage.setItem('chhath_music_favorites', JSON.stringify(favoriteSongs));
+    const session = ReelsStorage.getSession();
+    if (session?.id && !session.id.startsWith('demo_') && !session.id.startsWith('local_')) {
+      UserSyncService.saveUserData(session.id, { favoriteSongs }).catch(() => {});
+    }
   }, [favoriteSongs]);
 
   useEffect(() => {
     localStorage.setItem('chhath_favorite_ghats', JSON.stringify(favoriteGhats));
+    const session = ReelsStorage.getSession();
+    if (session?.id && !session.id.startsWith('demo_') && !session.id.startsWith('local_')) {
+      UserSyncService.saveUserData(session.id, { favoriteGhats }).catch(() => {});
+    }
   }, [favoriteGhats]);
+
+  // Load cloud favorites if user is authenticated
+  useEffect(() => {
+    const session = ReelsStorage.getSession();
+    if (session?.id && !session.id.startsWith('demo_') && !session.id.startsWith('local_')) {
+      UserSyncService.fetchUserData(session.id).then((cloud) => {
+        if (cloud) {
+          if (Array.isArray(cloud.favoriteSongs) && cloud.favoriteSongs.length > 0) {
+            setFavoriteSongs(cloud.favoriteSongs);
+          }
+          if (Array.isArray(cloud.favoriteGhats) && cloud.favoriteGhats.length > 0) {
+            setFavoriteGhats(cloud.favoriteGhats.filter(id => id !== 'ghat-1' && id !== 'ghat-2'));
+          }
+        }
+      }).catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('chhath_dedicated_diyas', JSON.stringify(virtualDiyas));

@@ -26,6 +26,7 @@ import {
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useAudio } from '../../context/AudioContext';
+import { UserSyncService } from '../../services/userSyncService';
 
 interface MyChhathDashboardProps {
   onNavigate?: (tab: string) => void;
@@ -37,12 +38,6 @@ interface PersonalVow {
   completed: boolean;
   createdAt: string;
 }
-
-const DEFAULT_VOWS: PersonalVow[] = [
-  { id: 'vow-1', text: 'छठ महापर्व के चारों दिन पूर्ण सात्विक नियम व श्रद्धा का पालन।', completed: true, createdAt: '2026-10-01' },
-  { id: 'vow-2', text: 'सूप व दउरा में शुद्ध घी से निर्मित पारंपरिक ठेकुआ और कसार का अर्पण।', completed: false, createdAt: '2026-10-02' },
-  { id: 'vow-3', text: 'घाट की स्वच्छता में सहयोग एवं सूर्य भगवान को श्रद्धापूर्वक संध्या व उषा अर्घ्य।', completed: false, createdAt: '2026-10-03' }
-];
 
 export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate }) => {
   const { userLocation, favoriteSongs, songs, favoriteGhats, ghats } = useChhathData();
@@ -71,35 +66,63 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Personal Vows & Diary in LocalStorage
+  // Personal Vows & Diary (0 vows by default for new users, persisted per-account across devices)
   const [vows, setVows] = useState<PersonalVow[]>(() => {
     try {
-      const stored = localStorage.getItem('chhath_personal_vows');
-      if (stored) return JSON.parse(stored);
+      const stored = localStorage.getItem(currentUser?.id ? `chhath_vows_${currentUser.id}` : 'chhath_personal_vows');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          // Filter out any legacy dummy vows like 'vow-1', 'vow-2', 'vow-3'
+          return parsed.filter(v => v.id && !v.id.startsWith('vow-1') && !v.id.startsWith('vow-2') && !v.id.startsWith('vow-3'));
+        }
+      }
     } catch {}
-    return DEFAULT_VOWS;
+    return [];
   });
   const [newVowText, setNewVowText] = useState('');
 
+  // Persist vows to localStorage per-user cache
   useEffect(() => {
     try {
-      localStorage.setItem('chhath_personal_vows', JSON.stringify(vows));
+      const storageKey = currentUser?.id ? `chhath_vows_${currentUser.id}` : 'chhath_personal_vows';
+      localStorage.setItem(storageKey, JSON.stringify(vows));
     } catch {}
-  }, [vows]);
+  }, [vows, currentUser?.id]);
+
+  // Sync with cloud data when user changes or logs in
+  useEffect(() => {
+    if (currentUser?.id) {
+      UserSyncService.fetchUserData(currentUser.id).then((cloudData) => {
+        if (cloudData) {
+          if (Array.isArray(cloudData.vows)) {
+            setVows(cloudData.vows);
+          }
+          if (cloudData.avatarUrl && !avatarPreview) {
+            setAvatarPreview(cloudData.avatarUrl);
+          }
+        }
+      }).catch(() => {});
+    }
+  }, [currentUser?.id]);
 
   useEffect(() => {
     if (currentUser) {
       setNameInput(currentUser.name);
       setUsernameInput(currentUser.username || '');
-      setCityInput(currentUser.city || userLocation.city);
-      setStateInput(currentUser.state || userLocation.state);
+      setCityInput(currentUser.city || userLocation.city || '');
+      setStateInput(currentUser.state || userLocation.state || '');
       setBioInput(currentUser.bio || '');
       setAvatarPreview(currentUser.avatarUrl || '');
     }
   }, [currentUser, userLocation]);
 
   const handleToggleVow = (id: string) => {
-    setVows(prev => prev.map(v => v.id === id ? { ...v, completed: !v.completed } : v));
+    const updated = vows.map(v => v.id === id ? { ...v, completed: !v.completed } : v);
+    setVows(updated);
+    if (currentUser?.id) {
+      UserSyncService.saveUserData(currentUser.id, { vows: updated }).catch(() => {});
+    }
   };
 
   const handleAddVow = (e: React.FormEvent) => {
@@ -112,33 +135,79 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
       completed: false,
       createdAt: new Date().toISOString()
     };
-    setVows(prev => [newVow, ...prev]);
+    const updated = [newVow, ...vows];
+    setVows(updated);
     setNewVowText('');
     showToast('नया संकल्प छठ डायरी में जोड़ा गया!');
+    if (currentUser?.id) {
+      UserSyncService.saveUserData(currentUser.id, { vows: updated }).catch(() => {});
+    }
   };
 
   const handleDeleteVow = (id: string) => {
-    setVows(prev => prev.filter(v => v.id !== id));
+    const updated = vows.filter(v => v.id !== id);
+    setVows(updated);
     showToast('संकल्प हटाया गया');
+    if (currentUser?.id) {
+      UserSyncService.saveUserData(currentUser.id, { vows: updated }).catch(() => {});
+    }
   };
 
-  // Image Upload handler via FileReader
+  // Image Upload handler with Canvas Compression (max 240x240 JPEG ~12KB for instant cross-device sync)
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('फ़ोटो का आकार 2MB से कम होना चाहिए।');
+    if (file.size > 8 * 1024 * 1024) {
+      showToast('फ़ोटो का आकार 8MB से कम होना चाहिए।');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const result = event.target?.result as string;
-      if (result) {
-        setAvatarPreview(result);
-        showToast('फ़ोटो चुनी गई! "बदलाव सहेजें" पर क्लिक करें।');
-      }
+      const dataUri = event.target?.result as string;
+      if (!dataUri) return;
+
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 240;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            setAvatarPreview(compressed);
+            showToast('फ़ोटो चुनी गई! "परिवर्तन सहेजें" पर क्लिक करें।');
+          } else {
+            setAvatarPreview(dataUri);
+            showToast('फ़ोटो चुनी गई! "परिवर्तन सहेजें" पर क्लिक करें।');
+          }
+        } catch {
+          setAvatarPreview(dataUri);
+          showToast('फ़ोटो चुनी गई! "परिवर्तन सहेजें" पर क्लिक करें।');
+        }
+      };
+      img.onerror = () => {
+        setAvatarPreview(dataUri);
+        showToast('फ़ोटो चुनी गई! "परिवर्तन सहेजें" पर क्लिक करें।');
+      };
+      img.src = dataUri;
     };
     reader.readAsDataURL(file);
   };
@@ -155,14 +224,20 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
       cleanUser = `@${cleanUser}`;
     }
 
-    updateProfile({
+    const updates = {
       name: nameInput.trim(),
       username: cleanUser || currentUser?.username,
       city: cityInput.trim(),
       state: stateInput.trim(),
       bio: bioInput.trim(),
       avatarUrl: avatarPreview
-    });
+    };
+
+    updateProfile(updates);
+
+    if (currentUser?.id) {
+      UserSyncService.saveUserData(currentUser.id, updates).catch(e => console.warn(e));
+    }
 
     setEditModalOpen(false);
     showToast('प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई! ✨');
@@ -228,9 +303,11 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             <h1 className="text-base sm:text-lg font-bold font-sans tracking-tight text-stone-900 dark:text-stone-100">
               {currentUser?.username || '@devotee_chhath'}
             </h1>
-            <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-bold" title="सत्यापित खाता">
-              ✓
-            </span>
+            {currentUser?.verified && (
+              <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-bold" title="सत्यापित खाता">
+                ✓
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -352,14 +429,18 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                 </div>
               )}
 
-              <div className="flex items-center gap-1 text-xs text-amber-800 dark:text-amber-400 font-semibold pt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>{currentUser.city || userLocation.city}, {currentUser.state || userLocation.state}</span>
-              </div>
+              {(currentUser.city || currentUser.state) && (
+                <div className="flex items-center gap-1 text-xs text-amber-800 dark:text-amber-400 font-semibold pt-0.5">
+                  <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>{[currentUser.city, currentUser.state].filter(Boolean).join(', ')}</span>
+                </div>
+              )}
 
-              <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed pt-1">
-                {currentUser.bio || 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।'}
-              </p>
+              {currentUser.bio ? (
+                <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed pt-1">
+                  {currentUser.bio}
+                </p>
+              ) : null}
             </div>
 
             {/* Instagram Full-Width Action Buttons */}
@@ -477,42 +558,54 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
             </form>
 
             {/* Vows List */}
-            <div className="space-y-2">
-              {vows.map((vow) => (
-                <div
-                  key={vow.id}
-                  className={`p-3.5 rounded-2xl border transition-all flex items-start justify-between gap-3 ${
-                    vow.completed 
-                      ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-500 dark:text-stone-400' 
-                      : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200'
-                  }`}
-                >
-                  <button
-                    onClick={() => handleToggleVow(vow.id)}
-                    className="flex items-start gap-3 text-left flex-1 cursor-pointer"
-                  >
-                    <div className={`w-5 h-5 rounded-lg border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+            {vows.length === 0 ? (
+              <div className="text-center py-8 px-4 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-2">
+                <Bookmark className="w-8 h-8 text-amber-500 mx-auto opacity-70" />
+                <h4 className="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-200">
+                  अभी कोई संकल्प नहीं जोड़ा गया है
+                </h4>
+                <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 max-w-sm mx-auto">
+                  छठ महापर्व 2026 के लिए अपने निजी नियम, व्रत मन्नत या संकल्प ऊपर लिखकर &ldquo;जोड़ें&rdquo; पर क्लिक करें।
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {vows.map((vow) => (
+                  <div
+                    key={vow.id}
+                    className={`p-3.5 rounded-2xl border transition-all flex items-start justify-between gap-3 ${
                       vow.completed 
-                        ? 'bg-emerald-500 border-emerald-500 text-white' 
-                        : 'border-stone-300 dark:border-stone-700 hover:border-amber-500'
-                    }`}>
-                      {vow.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                    </div>
-                    <span className={`text-xs sm:text-sm font-medium leading-relaxed ${vow.completed ? 'line-through text-stone-400 dark:text-stone-500' : ''}`}>
-                      {vow.text}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteVow(vow.id)}
-                    className="p-1.5 text-stone-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                    title="हटाएं"
+                        ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-500 dark:text-stone-400' 
+                        : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200'
+                    }`}
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
+                    <button
+                      onClick={() => handleToggleVow(vow.id)}
+                      className="flex items-start gap-3 text-left flex-1 cursor-pointer"
+                    >
+                      <div className={`w-5 h-5 rounded-lg border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                        vow.completed 
+                          ? 'bg-emerald-500 border-emerald-500 text-white' 
+                          : 'border-stone-300 dark:border-stone-700 hover:border-amber-500'
+                      }`}>
+                        {vow.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
+                      <span className={`text-xs sm:text-sm font-medium leading-relaxed ${vow.completed ? 'line-through text-stone-400 dark:text-stone-500' : ''}`}>
+                        {vow.text}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteVow(vow.id)}
+                      className="p-1.5 text-stone-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                      title="हटाएं"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

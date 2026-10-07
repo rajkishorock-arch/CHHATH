@@ -13,6 +13,7 @@ import {
   User as FirebaseUser 
 } from 'firebase/auth';
 import { getFirebaseAuth, getGoogleProvider, isFirebaseConfigured } from './firebase';
+import { UserSyncService } from './userSyncService';
 
 const API_BASE = '/api/v1';
 const TOKEN_KEY = 'chhath_auth_session_token';
@@ -38,18 +39,18 @@ export function mapFirebaseUserToReelUser(fbUser: FirebaseUser): ReelUser {
     avatarUrl: fbUser.photoURL || '',
     coverUrl: '',
     website: '',
-    bio: 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।',
-    city: 'Patna',
-    state: 'Bihar',
+    bio: '',
+    city: '',
+    state: '',
     country: 'India',
     language: 'hi',
     role: 'user',
-    followersCount: 1,
-    followingCount: 3,
-    totalLikesCount: 12,
+    followersCount: 0,
+    followingCount: 0,
+    totalLikesCount: 0,
     reelsCount: 0,
-    verified: true,
-    interests: ['songs', 'vidhi', 'ghats', 'prasad'],
+    verified: false,
+    interests: [],
     onboardingCompleted: true,
     createdAt: fbUser.metadata.creationTime || new Date().toISOString()
   };
@@ -150,18 +151,18 @@ export const AuthService = {
       avatarUrl: '',
       coverUrl: '',
       website: '',
-      bio: 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।',
-      city: 'पटना (Patna)',
-      state: 'बिहार (Bihar)',
+      bio: '',
+      city: '',
+      state: '',
       country: 'भारत (India)',
       language: 'hi',
       role: 'user',
-      followersCount: 1,
-      followingCount: 3,
-      totalLikesCount: 24,
+      followersCount: 0,
+      followingCount: 0,
+      totalLikesCount: 0,
       reelsCount: 0,
-      verified: true,
-      interests: ['songs', 'vidhi', 'ghats', 'prasad'],
+      verified: false,
+      interests: [],
       onboardingCompleted: true,
       createdAt: new Date().toISOString()
     };
@@ -199,6 +200,20 @@ export const AuthService = {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const mapped = mapFirebaseUserToReelUser(result.user);
+
+      // Merge saved cloud profile from other devices if available
+      try {
+        const cloudData = await UserSyncService.fetchUserData(result.user.uid);
+        if (cloudData) {
+          if (cloudData.avatarUrl) mapped.avatarUrl = cloudData.avatarUrl;
+          if (cloudData.name) mapped.name = cloudData.name;
+          if (cloudData.username) mapped.username = cloudData.username;
+          if (cloudData.bio !== undefined) mapped.bio = cloudData.bio;
+          if (cloudData.city !== undefined) mapped.city = cloudData.city;
+          if (cloudData.state !== undefined) mapped.state = cloudData.state;
+        }
+      } catch (e) {}
+
       const settings = getDefaultSettings(mapped);
       const sessionToken = `fb_token_${result.user.uid}`;
       
@@ -273,6 +288,19 @@ export const AuthService = {
       const result = await getRedirectResult(auth);
       if (result && result.user) {
         const mapped = mapFirebaseUserToReelUser(result.user);
+
+        try {
+          const cloudData = await UserSyncService.fetchUserData(result.user.uid);
+          if (cloudData) {
+            if (cloudData.avatarUrl) mapped.avatarUrl = cloudData.avatarUrl;
+            if (cloudData.name) mapped.name = cloudData.name;
+            if (cloudData.username) mapped.username = cloudData.username;
+            if (cloudData.bio !== undefined) mapped.bio = cloudData.bio;
+            if (cloudData.city !== undefined) mapped.city = cloudData.city;
+            if (cloudData.state !== undefined) mapped.state = cloudData.state;
+          }
+        } catch (e) {}
+
         const sessionToken = `fb_token_${result.user.uid}`;
         this.setToken(sessionToken);
         ReelsStorage.addUser(mapped);
@@ -302,9 +330,25 @@ export const AuthService = {
     if (!auth) {
       return () => {};
     }
-    return onAuthStateChanged(auth, (fbUser) => {
+    return onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         const mapped = mapFirebaseUserToReelUser(fbUser);
+
+        try {
+          const cloudData = await UserSyncService.fetchUserData(fbUser.uid);
+          if (cloudData) {
+            if (cloudData.avatarUrl) mapped.avatarUrl = cloudData.avatarUrl;
+            if (cloudData.name) mapped.name = cloudData.name;
+            if (cloudData.username) mapped.username = cloudData.username;
+            if (cloudData.bio !== undefined) mapped.bio = cloudData.bio;
+            if (cloudData.city !== undefined) mapped.city = cloudData.city;
+            if (cloudData.state !== undefined) mapped.state = cloudData.state;
+          }
+        } catch (e) {
+          console.warn('[AuthService] subscribeToAuthChanges cloud fetch notice:', e);
+        }
+
+        ReelsStorage.addUser(mapped);
         ReelsStorage.setSession(mapped);
         callback(mapped);
       } else {
@@ -415,6 +459,19 @@ export const AuthService = {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, trimmedInput, pass);
       const mapped = mapFirebaseUserToReelUser(userCredential.user);
+
+      try {
+        const cloudData = await UserSyncService.fetchUserData(userCredential.user.uid);
+        if (cloudData) {
+          if (cloudData.avatarUrl) mapped.avatarUrl = cloudData.avatarUrl;
+          if (cloudData.name) mapped.name = cloudData.name;
+          if (cloudData.username) mapped.username = cloudData.username;
+          if (cloudData.bio !== undefined) mapped.bio = cloudData.bio;
+          if (cloudData.city !== undefined) mapped.city = cloudData.city;
+          if (cloudData.state !== undefined) mapped.state = cloudData.state;
+        }
+      } catch (e) {}
+
       const settings = getDefaultSettings(mapped);
       const sessionToken = `fb_token_${userCredential.user.uid}`;
 
@@ -602,6 +659,18 @@ export const AuthService = {
     // 1. Update in local storage
     const updated = ReelsStorage.updateUser(userId, updates) || { ...(current || ({} as ReelUser)), ...updates };
     ReelsStorage.setSession(updated);
+
+    // 2. Persist to Cloud across all logged-in devices
+    if (userId && !userId.startsWith('demo_') && !userId.startsWith('local_')) {
+      UserSyncService.saveUserData(userId, {
+        name: updates.name,
+        username: updates.username,
+        bio: updates.bio,
+        avatarUrl: updates.avatarUrl,
+        city: updates.city,
+        state: updates.state
+      }).catch(err => console.warn('[AuthService] user sync error:', err));
+    }
 
     // 2. Sync to backend if token exists
     if (token) {
