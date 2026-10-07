@@ -1,7 +1,7 @@
 import { ReelUser, Language, UserSettings, ActiveSession, SocialFollowStatus } from '../types';
 import { ReelsStorage } from './reelsStorage';
 import { signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { auth, googleProvider, isFirebaseConfigured } from './firebase';
+import { getFirebaseAuth, getGoogleProvider, isFirebaseConfigured } from './firebase';
 
 const API_BASE = '/api/v1';
 const TOKEN_KEY = 'chhath_auth_session_token';
@@ -120,7 +120,10 @@ export const AuthService = {
   },
 
   async signInWithGoogle(): Promise<{ success: boolean; user?: ReelUser; settings?: UserSettings; token?: string; error?: string }> {
-    if (!isFirebaseConfigured()) {
+    const auth = getFirebaseAuth();
+    const googleProvider = getGoogleProvider();
+
+    if (!auth || !googleProvider) {
       return {
         success: false,
         error: 'Firebase API Keys configure नहीं हैं। कृपया .env फ़ाइल में VITE_FIREBASE_API_KEY आदि दर्ज करें।'
@@ -159,7 +162,8 @@ export const AuthService = {
   },
 
   subscribeToAuthChanges(callback: (user: ReelUser | null) => void): (() => void) {
-    if (!isFirebaseConfigured()) {
+    const auth = getFirebaseAuth();
+    if (!auth) {
       return () => {};
     }
     return onAuthStateChanged(auth, (fbUser) => {
@@ -361,7 +365,8 @@ export const AuthService = {
 
   async logout(): Promise<void> {
     try {
-      if (isFirebaseConfigured()) {
+      const auth = getFirebaseAuth();
+      if (auth) {
         await firebaseSignOut(auth);
       }
     } catch (e) {

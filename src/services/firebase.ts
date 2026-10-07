@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
@@ -12,20 +12,57 @@ const firebaseConfig = {
 
 export const isFirebaseConfigured = (): boolean => {
   return Boolean(
-    import.meta.env.VITE_FIREBASE_API_KEY &&
-    import.meta.env.VITE_FIREBASE_PROJECT_ID &&
-    import.meta.env.VITE_FIREBASE_APP_ID
+    firebaseConfig.apiKey &&
+    firebaseConfig.apiKey.trim().length > 5 &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId
   );
 };
 
-// Initialize Firebase App safely (singleton)
-export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+let _app: FirebaseApp | null = null;
+let _auth: Auth | null = null;
+let _googleProvider: GoogleAuthProvider | null = null;
 
-// Initialize Firebase Auth
-export const auth = getAuth(app);
+export const getFirebaseApp = (): FirebaseApp | null => {
+  if (!isFirebaseConfigured()) return null;
+  if (!_app) {
+    try {
+      _app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    } catch (e) {
+      console.warn('[Firebase] App initialization warning:', e);
+      return null;
+    }
+  }
+  return _app;
+};
 
-// Configure Google Provider
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
+export const getFirebaseAuth = (): Auth | null => {
+  if (!isFirebaseConfigured()) return null;
+  if (!_auth) {
+    const app = getFirebaseApp();
+    if (!app) return null;
+    try {
+      _auth = getAuth(app);
+    } catch (e) {
+      console.warn('[Firebase] Auth initialization warning:', e);
+      return null;
+    }
+  }
+  return _auth;
+};
+
+export const getGoogleProvider = (): GoogleAuthProvider | null => {
+  if (!isFirebaseConfigured()) return null;
+  if (!_googleProvider) {
+    try {
+      _googleProvider = new GoogleAuthProvider();
+      _googleProvider.setCustomParameters({
+        prompt: 'select_account'
+      });
+    } catch (e) {
+      console.warn('[Firebase] Google provider setup warning:', e);
+      return null;
+    }
+  }
+  return _googleProvider;
+};
