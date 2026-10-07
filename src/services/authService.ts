@@ -181,7 +181,6 @@ export const AuthService = {
     settings?: UserSettings; 
     token?: string; 
     error?: string;
-    redirecting?: boolean;
   }> {
     const auth = getFirebaseAuth();
     const googleProvider = getGoogleProvider();
@@ -189,28 +188,10 @@ export const AuthService = {
     if (!auth || !googleProvider) {
       return {
         success: false,
-        error: 'Firebase API Keys configure नहीं हैं।'
+        error: 'Google Authentication सेवा लोड हो रही है। कृपया कुछ क्षण बाद पुनः प्रयास करें।'
       };
     }
 
-    const isMobile = isMobileBrowser();
-
-    // On mobile devices, use signInWithRedirect (runs on same first-party domain chhathvibes.vercel.app with zero storage partitioning)
-    if (isMobile) {
-      try {
-        if (typeof window !== 'undefined') {
-          try {
-            sessionStorage.setItem('chhath_auth_return_url', window.location.href);
-          } catch (e) {}
-        }
-        await signInWithRedirect(auth, googleProvider);
-        return { success: true, redirecting: true };
-      } catch (redirectErr: any) {
-        console.warn('[AuthService] signInWithRedirect notice:', redirectErr);
-      }
-    }
-
-    // On desktop, use signInWithPopup
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const mapped = mapFirebaseUserToReelUser(result.user);
@@ -228,34 +209,55 @@ export const AuthService = {
         token: sessionToken
       };
     } catch (err: any) {
-      console.warn('[AuthService] Google popup sign-in error:', err);
+      console.warn('[AuthService] Google sign-in error:', err);
+      const code = err?.code || '';
 
-      if (err.code === 'auth/popup-closed-by-user') {
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
         return { 
           success: false, 
-          error: 'साइन-इन विंडो बंद कर दी गई। आप नीचे नाम दर्ज करके 1-क्लिक में भी प्रवेश कर सकते हैं।' 
+          error: 'साइन-इन विंडो बंद कर दी गई। कृपया दोबारा कोशिश करें।' 
         };
       }
-      if (err.code === 'auth/popup-blocked') {
-        try {
-          await signInWithRedirect(auth, googleProvider);
-          return { success: true, redirecting: true };
-        } catch (rErr) {
-          return { 
-            success: false, 
-            error: 'ब्राउज़र ने Google पॉपअप ब्लॉक कर दिया है। कृपया ऊपर पॉपअप की अनुमति दें या नीचे 1-क्लिक त्वरित प्रवेश चुनें।' 
-          };
-        }
-      }
-      if (err.code === 'auth/unauthorized-domain') {
+      if (code === 'auth/popup-blocked') {
         return { 
           success: false, 
-          error: 'Firebase Console में यह डोमेन Authorized Domains में जोड़ें।' 
+          error: 'ब्राउज़र ने Google साइन-इन विंडो को ब्लॉक कर दिया है। कृपया एड्रेस बार में पॉप-अप (Pop-ups) की अनुमति दें और पुनः प्रयास करें।' 
         };
       }
+      if (code === 'auth/unauthorized-domain') {
+        return { 
+          success: false, 
+          error: 'यह डोमेन Firebase Authorized Domains में शामिल नहीं है। कृपया Firebase Console में chhathvibes.vercel.app जोड़ें।' 
+        };
+      }
+      if (code === 'auth/network-request-failed') {
+        return {
+          success: false,
+          error: 'नेटवर्क कनेक्शन में समस्या आई। कृपया इंटरनेट चेक करके पुनः प्रयास करें।'
+        };
+      }
+      if (code === 'auth/account-exists-with-different-credential') {
+        return {
+          success: false,
+          error: 'इस ईमेल से पहले ही एक खाता मौजूद है।'
+        };
+      }
+      if (code === 'auth/invalid-credential') {
+        return {
+          success: false,
+          error: 'प्रमाणीकरण क्रेडेंशियल अमान्य है। कृपया पुनः प्रयास करें।'
+        };
+      }
+      if (code === 'auth/internal-error') {
+        return {
+          success: false,
+          error: 'Google प्रमाणीकरण सेवा में अस्थायी रुकावट है। कृपया कुछ क्षण बाद पुनः प्रयास करें।'
+        };
+      }
+
       return { 
         success: false, 
-        error: err.message || 'Google साइन-इन विफल रहा। कृपया नीचे 1-क्लिक त्वरित प्रवेश से तुरंत जुड़ें।' 
+        error: err.message || 'Google साइन-इन अस्थायी रूप से अनुपलब्ध है। कृपया पुनः प्रयास करें।' 
       };
     }
   },

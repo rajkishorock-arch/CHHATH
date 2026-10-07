@@ -18,10 +18,11 @@ interface AuthContextType {
   currentUser: ReelUser | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  authLoading: boolean;
   userSettings: UserSettings | null;
   activeSessions: ActiveSession[];
   pendingFollowRequests: ReelUser[];
-  signInWithGoogle: () => Promise<{ success: boolean; error?: string; redirecting?: boolean }>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   quickDevoteeLogin: (name?: string) => Promise<{ success: boolean }>;
   signup: (data: SignUpData) => Promise<{ success: boolean; error?: string }>;
   login: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -63,6 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<ReelUser | null>(() => {
     return ReelsStorage.getSession();
   });
+  const [authLoading, setAuthLoading] = useState(true);
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
   const [pendingFollowRequests, setPendingFollowRequests] = useState<ReelUser[]>([]);
@@ -81,32 +83,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (fbUser) {
         setCurrentUser(fbUser);
       }
+      setAuthLoading(false);
     });
 
     async function initSession() {
-      // 1. Check for real Google OAuth redirect result on first-party domain
-      const redirectUser = await AuthService.handleRedirectResult();
-      if (redirectUser) {
-        setCurrentUser(redirectUser);
-        closeAuthModal();
-        return;
-      }
+      try {
+        // 1. Check for real Google OAuth redirect result on first-party domain
+        const redirectUser = await AuthService.handleRedirectResult();
+        if (redirectUser) {
+          setCurrentUser(redirectUser);
+          closeAuthModal();
+          setAuthLoading(false);
+          return;
+        }
 
-      // 2. Stored session check
-      const sessionData = await AuthService.getSession();
-      if (sessionData && sessionData.user) {
-        setCurrentUser(sessionData.user);
-        setUserSettings(sessionData.settings);
-        ReelsStorage.setSession(sessionData.user);
-        if (!sessionData.user.onboardingCompleted) {
-          setOnboardingModalOpen(true);
+        // 2. Stored session check
+        const sessionData = await AuthService.getSession();
+        if (sessionData && sessionData.user) {
+          setCurrentUser(sessionData.user);
+          setUserSettings(sessionData.settings);
+          ReelsStorage.setSession(sessionData.user);
+          if (!sessionData.user.onboardingCompleted) {
+            setOnboardingModalOpen(true);
+          }
+        } else {
+          // Fallback: check local storage session
+          const local = ReelsStorage.getSession();
+          if (local) {
+            setCurrentUser(local);
+          }
         }
-      } else {
-        // Fallback: check local storage session
-        const local = ReelsStorage.getSession();
-        if (local) {
-          setCurrentUser(local);
-        }
+      } finally {
+        setAuthLoading(false);
       }
     }
     initSession();
@@ -116,12 +124,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string; redirecting?: boolean }> => {
+  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await AuthService.signInWithGoogle();
-      if (res.redirecting) {
-        return { success: true, redirecting: true };
-      }
       if (!res.success || !res.user) {
         return { success: false, error: res.error || 'Google साइन-इन विफल रहा।' };
       }
@@ -400,6 +405,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentUser,
         isAuthenticated: Boolean(currentUser),
         isAdmin: currentUser?.role === 'admin',
+        authLoading,
         userSettings,
         activeSessions,
         pendingFollowRequests,

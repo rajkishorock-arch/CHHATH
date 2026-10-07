@@ -1,20 +1,9 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
 
-const getEffectiveAuthDomain = (): string => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    // When running on Vercel (e.g. chhathvibes.vercel.app), use same host via reverse proxy to eliminate storage partitioning
-    if (host.includes('vercel.app')) {
-      return host;
-    }
-  }
-  return import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'chhath-1948a.firebaseapp.com';
-};
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyDJCDLzfRLIuq5b_szHyeDIbvsPu91oz4Q',
-  authDomain: getEffectiveAuthDomain(),
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'chhath-1948a.firebaseapp.com',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'chhath-1948a',
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'chhath-1948a.firebasestorage.app',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '861449125504',
