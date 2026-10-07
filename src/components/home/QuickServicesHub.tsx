@@ -69,7 +69,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       badge: '3D दर्शन',
       icon: Compass,
       gradient: 'from-violet-500 to-purple-600',
-      action: () => onOpenFeatureModal('ghat3d')
+      action: () => onNavigate('3d-ghat')
     },
     {
       id: 'thekua',

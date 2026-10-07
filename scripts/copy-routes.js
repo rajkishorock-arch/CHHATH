@@ -20,7 +20,9 @@ const routes = [
   'patna-chhath-puja-2026',
   'settings',
   'login',
-  'signup'
+  'signup',
+  '3d-ghat',
+  'ghat-3d'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');

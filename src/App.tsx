@@ -43,6 +43,7 @@ import { CookingStudio } from './components/prasad/CookingStudio';
 import { MantraAarti } from './components/spiritual/MantraAarti';
 import { SongsSection } from './components/audio/SongsSection';
 import { MyChhathDashboard } from './components/dashboard/MyChhathDashboard';
+import { Ghat3DExperiencePage } from './components/ghats/Ghat3DExperiencePage';
 import { FamilyChhathHub } from './components/family/FamilyChhathHub';
 import { Lock, LogIn, Sparkles } from 'lucide-react';
 
@@ -154,6 +155,7 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'chhath-puja-date-2026' || t === 'chhath-puja-date' || t === 'date') return 'chhath-puja-date-2026';
   if (t === 'patna-chhath-puja-2026' || t === 'patna-chhath' || t === 'patna') return 'patna-chhath-puja-2026';
   if (t === 'settings' || t === 'setting') return 'settings';
+  if (t === '3d-ghat' || t === 'ghat-3d' || t === '3d_ghat' || t === 'ghat3d' || t === '3d-darshan') return '3d-ghat';
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
   if (t === 'music' || t === 'songs' || t === 'song') return 'music';
@@ -405,6 +407,7 @@ const MainContent: React.FC = () => {
     else if (targetTab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
     else if (targetTab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
     else if (targetTab === 'settings') urlPath = `${base}#settings`;
+    else if (targetTab === '3d-ghat' || targetTab === 'ghat-3d') urlPath = `${base}#3d-ghat`;
     else if (targetTab === 'aarti') urlPath = `${base}#aarti`;
     else if (targetTab === 'ghats') urlPath = `${base}#ghats`;
     else if (targetTab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
@@ -675,6 +678,10 @@ const MainContent: React.FC = () => {
 
           {activeTab === 'my-chhath' && (
             <MyChhathDashboard onNavigate={handleNavigate} />
+          )}
+
+          {(activeTab === '3d-ghat' || activeTab === 'ghat-3d') && (
+            <Ghat3DExperiencePage onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'explore' && (

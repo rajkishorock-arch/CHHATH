@@ -111,7 +111,31 @@ export const FeatureExperienceModal: React.FC<FeatureExperienceModalProps> = ({
           <Suspense fallback={<ModalLoadingSpinner />}>
             {activeModal === 'certificate' && <BlessingCertificate />}
             {activeModal === 'ghat3d' && (
-              <div className="space-y-8">
+              <div className="space-y-6">
+                <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/20 to-amber-500/10 border border-amber-500/40 text-center space-y-3">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center shadow-lg">
+                    <Compass className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="font-rozha text-lg sm:text-xl text-amber-900 dark:text-amber-100 font-bold">
+                      नया प्रीमियम 360° आभासी घाट दर्शन (360° Virtual Experience)
+                    </h3>
+                    <p className="text-xs text-stone-700 dark:text-stone-300 max-w-md mx-auto mt-1 leading-relaxed">
+                      पटना कलेक्ट्रेट घाट, अस्सी घाट व हर की पौड़ी का 360° थ्री.जेएस दर्शन, गंगा में तैरते दीप, वर्चुअल दुग्ध अर्घ्य व पवित्र मंदिर घंटियों की ध्वनि।
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      window.location.hash = '#3d-ghat';
+                    }}
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl active:scale-95 transition-all inline-flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>पूरा 360° फुल-स्क्रीन घाट खोलें (Open 360° View)</span>
+                    <Compass className="w-4 h-4" />
+                  </button>
+                </div>
                 <Interactive3DGhat />
                 <VirtualArghyaSimulator />
               </div>

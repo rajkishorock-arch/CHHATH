@@ -343,6 +343,16 @@ export const Interactive3DGhat: React.FC = () => {
           <p className="font-mukta text-base sm:text-lg text-stone-300">
             पवित्र गंगा, घाट की सीढ़ियां, सूर्य देव, दउरा, ईख व तैरते दीयों को स्पर्श करें और 360° घुमाकर दर्शन करें।
           </p>
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => { window.location.hash = '#3d-ghat'; }}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl shadow-amber-500/25 active:scale-95 transition-all inline-flex items-center gap-2 cursor-pointer"
+            >
+              <Rotate3d className="w-4 h-4" />
+              <span>प्रीमियम 360° फुल-स्क्रीन घाट दर्शन खोलें (Open 360° Experience)</span>
+            </button>
+          </div>
         </div>
 
         {/* 3D Canvas Box */}
