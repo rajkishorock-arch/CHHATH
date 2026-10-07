@@ -1,10 +1,23 @@
 import { ReelUser, Language, UserSettings, ActiveSession, SocialFollowStatus } from '../types';
 import { ReelsStorage } from './reelsStorage';
-import { signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult, 
+  signOut as firebaseSignOut, 
+  onAuthStateChanged, 
+  User as FirebaseUser 
+} from 'firebase/auth';
 import { getFirebaseAuth, getGoogleProvider, isFirebaseConfigured } from './firebase';
 
 const API_BASE = '/api/v1';
 const TOKEN_KEY = 'chhath_auth_session_token';
+
+export function isMobileBrowser(): boolean {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua) || window.innerWidth <= 768;
+}
 
 // Convert Firebase user to frontend ReelUser format
 export function mapFirebaseUserToReelUser(fbUser: FirebaseUser): ReelUser {
@@ -119,17 +132,45 @@ export const AuthService = {
     }
   },
 
-  async signInWithGoogle(): Promise<{ success: boolean; user?: ReelUser; settings?: UserSettings; token?: string; error?: string }> {
+  async signInWithGoogle(): Promise<{ 
+    success: boolean; 
+    user?: ReelUser; 
+    settings?: UserSettings; 
+    token?: string; 
+    error?: string;
+    redirecting?: boolean;
+  }> {
     const auth = getFirebaseAuth();
     const googleProvider = getGoogleProvider();
 
     if (!auth || !googleProvider) {
       return {
         success: false,
-        error: 'Firebase API Keys configure नहीं हैं। कृपया .env फ़ाइल में VITE_FIREBASE_API_KEY आदि दर्ज करें।'
+        error: 'Firebase API Keys configure नहीं हैं।'
       };
     }
 
+    // Save current URL before auth so redirect returns to the exact active tab/screen
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('chhath_auth_return_url', window.location.href);
+      } catch (e) {}
+    }
+
+    // 1. Mobile devices: Always use signInWithRedirect
+    // Prevents mobile browser blank screen & disconnected window.opener bug
+    const isMobile = isMobileBrowser();
+    if (isMobile) {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+        return { success: true, redirecting: true };
+      } catch (err: any) {
+        console.error('[AuthService] Mobile signInWithRedirect failed:', err);
+        return { success: false, error: err?.message || 'Google रिडायरेक्ट प्रारंभ नहीं हो सका।' };
+      }
+    }
+
+    // 2. Desktop: Try signInWithPopup first
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const mapped = mapFirebaseUserToReelUser(result.user);
@@ -147,18 +188,62 @@ export const AuthService = {
         token: sessionToken
       };
     } catch (err: any) {
-      console.error('[AuthService] Google sign-in failed:', err);
+      console.warn('[AuthService] Desktop Google popup notice:', err);
+
+      // If browser/adblocker blocks the popup, fallback automatically to signInWithRedirect!
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+        try {
+          console.log('[AuthService] Popup blocked by browser. Automatically falling back to signInWithRedirect...');
+          await signInWithRedirect(auth, googleProvider);
+          return { success: true, redirecting: true };
+        } catch (redirectErr: any) {
+          return { 
+            success: false, 
+            error: 'ब्राउज़र ने पॉपअप ब्लॉक कर दिया है। कृपया पॉपअप अनुमति दें।' 
+          };
+        }
+      }
+
       if (err.code === 'auth/popup-closed-by-user') {
         return { success: false, error: 'साइन-इन विंडो बंद कर दी गई।' };
-      }
-      if (err.code === 'auth/cancelled-popup-request') {
-        return { success: false, error: 'अनुरोध रद्द कर दिया गया।' };
       }
       if (err.code === 'auth/unauthorized-domain') {
         return { success: false, error: 'Firebase Console में यह डोमेन Authorized Domains में जोड़ें।' };
       }
       return { success: false, error: err.message || 'Google साइन-इन विफल रहा।' };
     }
+  },
+
+  async handleRedirectResult(): Promise<ReelUser | null> {
+    const auth = getFirebaseAuth();
+    if (!auth) return null;
+    try {
+      const result = await getRedirectResult(auth);
+      if (result && result.user) {
+        const mapped = mapFirebaseUserToReelUser(result.user);
+        const sessionToken = `fb_token_${result.user.uid}`;
+        this.setToken(sessionToken);
+        ReelsStorage.addUser(mapped);
+        ReelsStorage.setSession(mapped);
+
+        // Restore return URL / hash if saved
+        try {
+          const returnUrl = sessionStorage.getItem('chhath_auth_return_url');
+          sessionStorage.removeItem('chhath_auth_return_url');
+          if (returnUrl) {
+            const url = new URL(returnUrl);
+            if (url.hash && window.location.hash !== url.hash) {
+              window.location.hash = url.hash;
+            }
+          }
+        } catch (e) {}
+
+        return mapped;
+      }
+    } catch (err: any) {
+      console.warn('[AuthService] handleRedirectResult notice:', err);
+    }
+    return null;
   },
 
   subscribeToAuthChanges(callback: (user: ReelUser | null) => void): (() => void) {

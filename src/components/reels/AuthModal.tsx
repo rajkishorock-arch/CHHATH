@@ -32,12 +32,16 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     try {
       const res = await signInWithGoogle();
+      if (res.redirecting) {
+        // Page is navigating to Google accounts chooser, maintain loading spinner
+        return;
+      }
       if (!res.success) {
         setError(res.error || 'Google साइन-इन में समस्या आई। कृपया पुनः प्रयास करें।');
+        setLoading(false);
       }
     } catch (err: any) {
       setError(err?.message || 'Google साइन-इन विफल रहा।');
-    } finally {
       setLoading(false);
     }
   };

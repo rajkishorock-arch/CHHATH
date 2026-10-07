@@ -21,7 +21,7 @@ interface AuthContextType {
   userSettings: UserSettings | null;
   activeSessions: ActiveSession[];
   pendingFollowRequests: ReelUser[];
-  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string; redirecting?: boolean }>;
   signup: (data: SignUpData) => Promise<{ success: boolean; error?: string }>;
   login: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -83,6 +83,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     async function initSession() {
+      // 1. Check for completed Google redirect sign-in
+      const redirectUser = await AuthService.handleRedirectResult();
+      if (redirectUser) {
+        setCurrentUser(redirectUser);
+        closeAuthModal();
+        return;
+      }
+
+      // 2. Check stored session
       const sessionData = await AuthService.getSession();
       if (sessionData && sessionData.user) {
         setCurrentUser(sessionData.user);
@@ -106,9 +115,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string; redirecting?: boolean }> => {
     try {
       const res = await AuthService.signInWithGoogle();
+      if (res.redirecting) {
+        return { success: true, redirecting: true };
+      }
       if (!res.success || !res.user) {
         return { success: false, error: res.error || 'Google साइन-इन विफल रहा।' };
       }
