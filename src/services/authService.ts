@@ -1,8 +1,42 @@
 import { ReelUser, Language, UserSettings, ActiveSession, SocialFollowStatus } from '../types';
 import { ReelsStorage } from './reelsStorage';
+import { signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth, googleProvider, isFirebaseConfigured } from './firebase';
 
 const API_BASE = '/api/v1';
 const TOKEN_KEY = 'chhath_auth_session_token';
+
+// Convert Firebase user to frontend ReelUser format
+export function mapFirebaseUserToReelUser(fbUser: FirebaseUser): ReelUser {
+  const displayName = fbUser.displayName || 'छठ श्रद्धालु';
+  const emailPrefix = fbUser.email ? fbUser.email.split('@')[0] : 'devotee';
+  const cleanUsername = `@${emailPrefix.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()}`;
+
+  return {
+    id: fbUser.uid,
+    user_id: fbUser.uid,
+    name: displayName,
+    username: cleanUsername,
+    email: fbUser.email || '',
+    avatarUrl: fbUser.photoURL || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80',
+    coverUrl: '',
+    website: '',
+    bio: 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।',
+    city: 'Patna',
+    state: 'Bihar',
+    country: 'India',
+    language: 'hi',
+    role: 'user',
+    followersCount: 1,
+    followingCount: 3,
+    totalLikesCount: 12,
+    reelsCount: 0,
+    verified: true,
+    interests: ['songs', 'vidhi', 'ghats', 'prasad'],
+    onboardingCompleted: true,
+    createdAt: fbUser.metadata.creationTime || new Date().toISOString()
+  };
+}
 
 // Convert backend profile to frontend ReelUser format
 export function mapBackendProfileToReelUser(profile: any): ReelUser {
@@ -83,6 +117,60 @@ export const AuthService = {
     } else {
       localStorage.removeItem(TOKEN_KEY);
     }
+  },
+
+  async signInWithGoogle(): Promise<{ success: boolean; user?: ReelUser; settings?: UserSettings; token?: string; error?: string }> {
+    if (!isFirebaseConfigured()) {
+      return {
+        success: false,
+        error: 'Firebase API Keys configure नहीं हैं। कृपया .env फ़ाइल में VITE_FIREBASE_API_KEY आदि दर्ज करें।'
+      };
+    }
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const mapped = mapFirebaseUserToReelUser(result.user);
+      const settings = getDefaultSettings(mapped);
+      const sessionToken = `fb_token_${result.user.uid}`;
+      
+      this.setToken(sessionToken);
+      ReelsStorage.addUser(mapped);
+      ReelsStorage.setSession(mapped);
+
+      return {
+        success: true,
+        user: mapped,
+        settings,
+        token: sessionToken
+      };
+    } catch (err: any) {
+      console.error('[AuthService] Google sign-in failed:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'साइन-इन विंडो बंद कर दी गई।' };
+      }
+      if (err.code === 'auth/cancelled-popup-request') {
+        return { success: false, error: 'अनुरोध रद्द कर दिया गया।' };
+      }
+      if (err.code === 'auth/unauthorized-domain') {
+        return { success: false, error: 'Firebase Console में यह डोमेन Authorized Domains में जोड़ें।' };
+      }
+      return { success: false, error: err.message || 'Google साइन-इन विफल रहा।' };
+    }
+  },
+
+  subscribeToAuthChanges(callback: (user: ReelUser | null) => void): (() => void) {
+    if (!isFirebaseConfigured()) {
+      return () => {};
+    }
+    return onAuthStateChanged(auth, (fbUser) => {
+      if (fbUser) {
+        const mapped = mapFirebaseUserToReelUser(fbUser);
+        ReelsStorage.setSession(mapped);
+        callback(mapped);
+      } else {
+        callback(null);
+      }
+    });
   },
 
   async signup(data: {
@@ -272,6 +360,13 @@ export const AuthService = {
   },
 
   async logout(): Promise<void> {
+    try {
+      if (isFirebaseConfigured()) {
+        await firebaseSignOut(auth);
+      }
+    } catch (e) {
+      console.warn('[AuthService] Firebase signout error:', e);
+    }
     const token = this.getToken();
     if (token) {
       try {

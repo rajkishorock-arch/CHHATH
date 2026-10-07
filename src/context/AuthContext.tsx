@@ -21,6 +21,7 @@ interface AuthContextType {
   userSettings: UserSettings | null;
   activeSessions: ActiveSession[];
   pendingFollowRequests: ReelUser[];
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   signup: (data: SignUpData) => Promise<{ success: boolean; error?: string }>;
   login: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -73,8 +74,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [accountCenterModalOpen, setAccountCenterModalOpen] = useState(false);
   const [accountCenterTab, setAccountCenterTab] = useState('profile');
 
-  // Verify backend session on mount
+  // Verify session & listen to Firebase auth on mount
   useEffect(() => {
+    const unsubscribe = AuthService.subscribeToAuthChanges((fbUser) => {
+      if (fbUser) {
+        setCurrentUser(fbUser);
+      }
+    });
+
     async function initSession() {
       const sessionData = await AuthService.getSession();
       if (sessionData && sessionData.user) {
@@ -93,7 +100,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
     initSession();
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await AuthService.signInWithGoogle();
+      if (!res.success || !res.user) {
+        return { success: false, error: res.error || 'Google साइन-इन विफल रहा।' };
+      }
+      setCurrentUser(res.user);
+      if (res.settings) setUserSettings(res.settings);
+      ReelsStorage.setSession(res.user);
+      closeAuthModal();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Google साइन-इन में त्रुटि हुई।' };
+    }
+  };
 
   const openOnboarding = () => setOnboardingModalOpen(true);
   const closeOnboarding = () => setOnboardingModalOpen(false);
@@ -348,6 +375,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userSettings,
         activeSessions,
         pendingFollowRequests,
+        signInWithGoogle,
         signup,
         login,
         logout,
