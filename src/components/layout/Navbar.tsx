@@ -19,7 +19,8 @@ import {
   LogIn,
   Settings,
   LayoutGrid,
-  Film
+  Film,
+  Download
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useReels } from '../../context/ReelsContext';
@@ -27,6 +28,7 @@ import { AccountCenterModal } from '../settings/AccountCenterModal';
 import { AppSettingsModal } from '../settings/AppSettingsModal';
 import { TopSongSearchBar } from '../audio/TopSongSearchBar';
 import { SidebarDrawer } from './SidebarDrawer';
+import { isNativeApp, getApkDownloadUrl } from '../../utils/platform';
 
 interface NavbarProps {
   activeTab?: string;
@@ -372,6 +374,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {mobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4 text-amber-500" />}
           </button>
+
+          {/* Web-Only Direct APK Download Button (Hidden inside installed Native App) */}
+          {!isNativeApp() && (
+            <a
+              href={getApkDownloadUrl()}
+              download="chhath-app-debug.apk"
+              title="एंड्रॉइड ऐप डाउनलोड करें"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mukta font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs hover:scale-105 active:scale-95 transition-all text-decoration-none border border-emerald-400/40"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">ऐप डाउनलोड</span>
+              <span className="xs:hidden">ऐप</span>
+            </a>
+          )}
 
           {/* Dedicated Settings Button (Opens Full Page #settings) */}
           <button

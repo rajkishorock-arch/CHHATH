@@ -5,7 +5,7 @@ import { ChhathDataProvider } from './context/ChhathDataContext';
 import { AudioProvider, useAudio } from './context/AudioContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ReelsProvider, useReels } from './context/ReelsContext';
-import { ChatProvider } from './context/ChatContext';
+import { ChatProvider, useChat } from './context/ChatContext';
 import { App as CapApp } from '@capacitor/app';
 
 // Layout & Core Navigation Components
@@ -30,6 +30,8 @@ import { PersonalizationWizard } from './components/onboarding/PersonalizationWi
 
 // Core Views & Sections
 import { PublicHomeView } from './components/home/PublicHomeView';
+import { QuickServicesHub } from './components/home/QuickServicesHub';
+import { FeatureExperienceModal, type FeatureModalType } from './components/home/FeatureExperienceModal';
 import { FourDaysTimeline } from './components/timeline/FourDaysTimeline';
 import { PujaVidhi } from './components/vidhi/PujaVidhi';
 import { SamagriChecklist } from './components/vidhi/SamagriChecklist';
@@ -254,12 +256,13 @@ const MainContent: React.FC = () => {
     return () => window.removeEventListener('resize', handleScreenResize);
   }, []);
 
-  // Do NOT interrupt user with an immediate location popup on first arrival
   const [locationModalOpen, setLocationModalOpen] = useState<boolean>(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [assistantModalOpen, setAssistantModalOpen] = useState(false);
   const [mixerModalOpen, setMixerModalOpen] = useState(false);
+  const [featureModal, setFeatureModal] = useState<FeatureModalType>(null);
+  const { openConnect } = useChat();
 
   // Helper to restore home scroll position smoothly
   const restoreHomeScroll = () => {
@@ -452,6 +455,7 @@ const MainContent: React.FC = () => {
     if (mixerModalOpen) { setMixerModalOpen(false); return 'handled'; }
     if (adminModalOpen) { setAdminModalOpen(false); return 'handled'; }
     if (locationModalOpen) { setLocationModalOpen(false); return 'handled'; }
+    if (featureModal) { setFeatureModal(null); return 'handled'; }
 
     // 5. Navigation: If user is on any other tab/page (explore, vidhi, etc.), return to home!
     if (activeTab !== 'home') {
@@ -490,7 +494,8 @@ const MainContent: React.FC = () => {
     assistantModalOpen,
     mixerModalOpen,
     adminModalOpen,
-    locationModalOpen
+    locationModalOpen,
+    featureModal
   ]);
 
   const handleBackLogicRef = React.useRef(handleBackLogic);
@@ -576,10 +581,21 @@ const MainContent: React.FC = () => {
           {activeTab === 'home' && (
             isMobileScreen ? (
               <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
+                <QuickServicesHub
+                  onNavigate={handleNavigate}
+                  onOpenFeatureModal={setFeatureModal}
+                  onOpenAssistant={() => setAssistantModalOpen(true)}
+                  onOpenChat={() => openConnect()}
+                />
                 <SongsSection initialQuery={musicInitialQuery} />
               </div>
             ) : (
-              <PublicHomeView onNavigate={handleNavigate} />
+              <PublicHomeView
+                onNavigate={handleNavigate}
+                onOpenFeatureModal={setFeatureModal}
+                onOpenAssistant={() => setAssistantModalOpen(true)}
+                onOpenChat={() => openConnect()}
+              />
             )
           )}
 
@@ -663,7 +679,12 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'explore' && (
-            <PublicHomeView onNavigate={handleNavigate} />
+            <PublicHomeView
+              onNavigate={handleNavigate}
+              onOpenFeatureModal={setFeatureModal}
+              onOpenAssistant={() => setAssistantModalOpen(true)}
+              onOpenChat={() => openConnect()}
+            />
           )}
 
           {activeTab === 'settings' && (
@@ -718,6 +739,10 @@ const MainContent: React.FC = () => {
         <ChhathConnectModal />
         <CallScreenModal />
         <ShareToChatModal />
+        <FeatureExperienceModal
+          activeModal={featureModal}
+          onClose={() => setFeatureModal(null)}
+        />
       </Suspense>
 
       {/* Double Tap Back to Exit Toast Banner */}

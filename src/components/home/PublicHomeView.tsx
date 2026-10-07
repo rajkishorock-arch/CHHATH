@@ -22,11 +22,22 @@ import {
   Flame
 } from 'lucide-react';
 
+import { QuickServicesHub } from './QuickServicesHub';
+import { FeatureModalType } from './FeatureExperienceModal';
+
 interface PublicHomeViewProps {
   onNavigate: (tab: string) => void;
+  onOpenFeatureModal?: (modal: FeatureModalType) => void;
+  onOpenAssistant?: () => void;
+  onOpenChat?: () => void;
 }
 
-export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) => {
+export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
+  onNavigate,
+  onOpenFeatureModal,
+  onOpenAssistant,
+  onOpenChat
+}) => {
   const utilityCards = [
     {
       id: 'arghya',
@@ -100,6 +111,18 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({ onNavigate }) =>
     <div className="space-y-12 pb-16">
       {/* 1. Hero Section */}
       <HeroSection onNavigate={onNavigate} />
+
+      {/* Quick Services & Experiences Hub */}
+      {onOpenFeatureModal && onOpenAssistant && onOpenChat && (
+        <section className="container-custom max-w-5xl mx-auto px-4 -mt-4 sm:-mt-6">
+          <QuickServicesHub
+            onNavigate={onNavigate}
+            onOpenFeatureModal={onOpenFeatureModal}
+            onOpenAssistant={onOpenAssistant}
+            onOpenChat={onOpenChat}
+          />
+        </section>
+      )}
 
       {/* 2. Chhath Mahaparv 2026 Command Center */}
       <section className="container-custom max-w-5xl mx-auto px-4">
