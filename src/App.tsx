@@ -672,7 +672,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'my-chhath' && (
-            <MyChhathDashboard />
+            <MyChhathDashboard onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'explore' && (

@@ -1168,7 +1168,12 @@ export const ReelsStorage = {
     const raw = localStorage.getItem(KEYS.SESSION);
     if (!raw) return null;
     try {
-      return JSON.parse(raw);
+      const user = JSON.parse(raw);
+      if (user && user.avatarUrl === 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80') {
+        user.avatarUrl = '';
+        this.setSession(user);
+      }
+      return user;
     } catch {
       return null;
     }

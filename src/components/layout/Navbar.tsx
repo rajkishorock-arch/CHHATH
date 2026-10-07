@@ -524,11 +524,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex md:hidden items-center justify-center p-[2px] rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 shadow-md active:scale-95 transition-all cursor-pointer"
               title="मेरी प्रोफाइल (My Chhath)"
             >
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-white">
-                {currentUser.avatarUrl && currentUser.avatarUrl.length <= 4 ? (
-                  <span className="flex items-center justify-center w-full h-full text-xs font-bold text-stone-900">{currentUser.avatarUrl}</span>
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-amber-100 border border-amber-300 flex items-center justify-center shadow-xs">
+                {currentUser.avatarUrl ? (
+                  <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-full h-full object-cover" />
                 ) : (
-                  <img src={currentUser.avatarUrl || '👤'} alt={currentUser.name} className="w-full h-full object-cover" />
+                  <span className="text-xs font-extrabold text-amber-950 font-sans">
+                    {currentUser.name ? currentUser.name.trim().charAt(0).toUpperCase() : '👤'}
+                  </span>
                 )}
               </div>
             </button>
@@ -564,11 +566,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                     {currentUser.name}
                   </span>
                 </div>
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-amber-400 bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center font-bold text-xs text-stone-950">
-                  {currentUser.avatarUrl && currentUser.avatarUrl.length <= 4 ? (
-                    <span>{currentUser.avatarUrl}</span>
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-amber-400 bg-amber-100 flex items-center justify-center font-bold text-xs text-amber-950 shadow-xs">
+                  {currentUser.avatarUrl ? (
+                    <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-full h-full object-cover" />
                   ) : (
-                    <img src={currentUser.avatarUrl || '👤'} alt={currentUser.name} className="w-full h-full object-cover" />
+                    <span className="font-extrabold font-sans">
+                      {currentUser.name ? currentUser.name.trim().charAt(0).toUpperCase() : '👤'}
+                    </span>
                   )}
                 </div>
               </button>
