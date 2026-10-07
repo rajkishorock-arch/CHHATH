@@ -5,7 +5,7 @@ import { AuthService } from '../services/authService';
 
 interface SignUpData {
   name: string;
-  username: string;
+  username?: string;
   email: string;
   password: string;
   avatarUrl?: string;

@@ -4,6 +4,9 @@ import {
   signInWithPopup, 
   signInWithRedirect, 
   getRedirectResult, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile as updateFirebaseProfile,
   signOut as firebaseSignOut, 
   onAuthStateChanged, 
   User as FirebaseUser 
@@ -311,7 +314,7 @@ export const AuthService = {
 
   async signup(data: {
     name: string;
-    username: string;
+    username?: string;
     email: string;
     password: string;
     avatarUrl?: string;
@@ -322,145 +325,132 @@ export const AuthService = {
     language?: string;
     role?: 'user' | 'creator';
   }): Promise<{ success: boolean; user?: ReelUser; settings?: UserSettings; token?: string; error?: string }> {
-    // 1. Try backend API first
-    const apiData = await safeFetchJson(`${API_BASE}/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      return { success: false, error: 'Firebase Auth लोड नहीं हुआ है।' };
+    }
 
-    if (apiData && apiData.success && apiData.user) {
-      this.setToken(apiData.sessionToken);
-      const mapped = mapBackendProfileToReelUser(apiData.user);
+    const trimmedEmail = data.email.trim();
+    const trimmedName = data.name.trim();
+
+    if (!trimmedName || trimmedName.length < 2) {
+      return { success: false, error: 'कृपया अपना पूरा नाम दर्ज करें।' };
+    }
+    if (!trimmedEmail || !trimmedEmail.includes('@')) {
+      return { success: false, error: 'कृपया एक वैध ईमेल पता दर्ज करें।' };
+    }
+    if (!data.password || data.password.length < 6) {
+      return { success: false, error: 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।' };
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, trimmedEmail, data.password);
+      
+      // Update Firebase Profile with real Display Name
+      try {
+        await updateFirebaseProfile(userCredential.user, {
+          displayName: trimmedName
+        });
+      } catch (e) {}
+
+      const mapped = mapFirebaseUserToReelUser(userCredential.user);
+      mapped.name = trimmedName;
+      if (data.city) mapped.city = data.city;
+      if (data.state) mapped.state = data.state;
+      if (data.bio) mapped.bio = data.bio;
+
+      const settings = getDefaultSettings(mapped);
+      const sessionToken = `fb_token_${userCredential.user.uid}`;
+
+      this.setToken(sessionToken);
       ReelsStorage.addUser(mapped);
       ReelsStorage.setSession(mapped);
+
       return {
         success: true,
         user: mapped,
-        settings: apiData.settings,
-        token: apiData.sessionToken
+        settings,
+        token: sessionToken
+      };
+    } catch (err: any) {
+      console.warn('[AuthService] Firebase signup error:', err);
+      const code = err?.code || '';
+
+      let friendlyError = 'खाता बनाने में समस्या आई। कृपया पुनः प्रयास करें।';
+      if (code === 'auth/email-already-in-use') {
+        friendlyError = 'इस ईमेल से पहले से खाता बना हुआ है। कृपया "लॉग इन करें" चुनें।';
+      } else if (code === 'auth/weak-password') {
+        friendlyError = 'पासवर्ड बहुत कमजोर है। कम से कम 6 अक्षर दर्ज करें।';
+      } else if (code === 'auth/invalid-email') {
+        friendlyError = 'कृपया एक वैध ईमेल पता दर्ज करें।';
+      } else if (code === 'auth/network-request-failed') {
+        friendlyError = 'इंटरनेट कनेक्शन में समस्या आई। नेटवर्क चेक करें।';
+      }
+
+      return {
+        success: false,
+        error: friendlyError
       };
     }
-
-    // 2. Client-side / Static Fallback (GitHub Pages)
-    const cleanUsername = data.username.startsWith('@') ? data.username : `@${data.username}`;
-    const validLangs: Language[] = ['hi', 'en', 'bho', 'mai', 'mag'];
-    const userLang: Language = validLangs.includes(data.language as any) ? (data.language as Language) : 'hi';
-
-    const newUser: ReelUser = {
-      id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      user_id: `usr_${Date.now()}`,
-      name: data.name || 'छठ भक्त',
-      username: cleanUsername,
-      email: data.email || `${cleanUsername.replace('@', '')}@chhath.in`,
-      avatarUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80',
-      bio: data.bio || 'छठी मईया की जय! 🙏',
-      city: data.city || 'Patna',
-      state: data.state || 'Bihar',
-      country: data.country || 'India',
-      language: userLang,
-      role: data.role || 'user',
-      followersCount: 0,
-      followingCount: 3,
-      totalLikesCount: 0,
-      reelsCount: 0,
-      verified: false,
-      interests: ['songs', 'vidhi', 'ghats', 'prasad'],
-      onboardingCompleted: true,
-      createdAt: new Date().toISOString()
-    };
-
-    ReelsStorage.addUser(newUser);
-    const sessionToken = `demo_token_${newUser.id}_${Date.now()}`;
-    this.setToken(sessionToken);
-    ReelsStorage.setSession(newUser);
-
-    return {
-      success: true,
-      user: newUser,
-      settings: getDefaultSettings(newUser),
-      token: sessionToken
-    };
   },
 
   async login(
     emailOrUsername: string,
     pass: string
   ): Promise<{ success: boolean; user?: ReelUser; settings?: UserSettings; token?: string; error?: string }> {
-    // 1. Try backend API first
-    const apiData = await safeFetchJson(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ emailOrUsername, password: pass })
-    });
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      return { success: false, error: 'Firebase Auth लोड नहीं हुआ है।' };
+    }
 
-    if (apiData && apiData.success && apiData.user) {
-      this.setToken(apiData.sessionToken);
-      const mapped = mapBackendProfileToReelUser(apiData.user);
+    const trimmedInput = emailOrUsername.trim();
+    if (!trimmedInput) {
+      return { success: false, error: 'कृपया ईमेल पता दर्ज करें।' };
+    }
+    if (!pass) {
+      return { success: false, error: 'कृपया पासवर्ड दर्ज करें।' };
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, trimmedInput, pass);
+      const mapped = mapFirebaseUserToReelUser(userCredential.user);
+      const settings = getDefaultSettings(mapped);
+      const sessionToken = `fb_token_${userCredential.user.uid}`;
+
+      this.setToken(sessionToken);
+      ReelsStorage.addUser(mapped);
       ReelsStorage.setSession(mapped);
+
       return {
         success: true,
         user: mapped,
-        settings: apiData.settings,
-        token: apiData.sessionToken
+        settings,
+        token: sessionToken
       };
-    }
+    } catch (err: any) {
+      console.warn('[AuthService] Firebase login error:', err);
+      const code = err?.code || '';
 
-    // 2. Client-side / Static Fallback (GitHub Pages)
-    const normalizedInput = emailOrUsername.trim();
-    let user = ReelsStorage.findUserByUsername(normalizedInput) || 
-               ReelsStorage.findUserByEmail(normalizedInput);
-
-    if (!user) {
-      if (normalizedInput.startsWith('@')) {
-        user = ReelsStorage.findUserByUsername(normalizedInput.slice(1));
-      } else {
-        user = ReelsStorage.findUserByUsername(`@${normalizedInput}`);
+      let friendlyError = 'लॉगिन विफल रहा। कृपया अपनी जानकारी पुनः जांचें।';
+      if (code === 'auth/user-not-found') {
+        friendlyError = 'इस ईमेल से कोई खाता नहीं मिला। कृपया पहले "नया खाता बनाएं" चुनें।';
+      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        friendlyError = 'गलत ईमेल या पासवर्ड। कृपया पुनः जांचें।';
+      } else if (code === 'auth/invalid-email') {
+        friendlyError = 'कृपया एक वैध ईमेल पता दर्ज करें।';
+      } else if (code === 'auth/user-disabled') {
+        friendlyError = 'यह खाता अक्षम कर दिया गया है।';
+      } else if (code === 'auth/too-many-requests') {
+        friendlyError = 'अत्यधिक गलत प्रयासों के कारण खाता अस्थायी रूप से लॉक है। थोड़ी देर बाद प्रयास करें।';
+      } else if (code === 'auth/network-request-failed') {
+        friendlyError = 'इंटरनेट कनेक्शन में समस्या आई। नेटवर्क चेक करें।';
       }
-    }
 
-    // If still not found, auto-create profile so any custom email/username works immediately!
-    if (!user) {
-      const rawUserPart = normalizedInput.includes('@') ? normalizedInput.split('@')[0] : normalizedInput;
-      const cleanUserPart = rawUserPart.replace(/[^a-zA-Z0-9_]/g, '') || 'devotee';
-      const cleanUsername = `@${cleanUserPart.toLowerCase()}`;
-      const displayName = cleanUserPart.charAt(0).toUpperCase() + cleanUserPart.slice(1);
-
-      user = {
-        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        user_id: `usr_${Date.now()}`,
-        name: displayName,
-        username: cleanUsername,
-        email: normalizedInput.includes('@') ? normalizedInput : `${cleanUserPart}@chhath.in`,
-        avatarUrl: `https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80`,
-        bio: 'छठी मईया की जय! 🙏 सूर्य उपासना के पावन पर्व पर हार्दिक शुभकामनाएं।',
-        city: 'Patna',
-        state: 'Bihar',
-        country: 'India',
-        language: 'hi',
-        role: 'user',
-        followersCount: 1,
-        followingCount: 4,
-        totalLikesCount: 12,
-        reelsCount: 0,
-        verified: false,
-        interests: ['songs', 'vidhi', 'ghats', 'prasad'],
-        onboardingCompleted: true,
-        createdAt: new Date().toISOString()
+      return {
+        success: false,
+        error: friendlyError
       };
-      ReelsStorage.addUser(user);
     }
-
-    const sessionToken = `demo_token_${user.id}_${Date.now()}`;
-    this.setToken(sessionToken);
-    ReelsStorage.setSession(user);
-
-    return {
-      success: true,
-      user,
-      settings: getDefaultSettings(user),
-      token: sessionToken
-    };
   },
 
   async getSession(): Promise<{ user: ReelUser; settings: UserSettings } | null> {
