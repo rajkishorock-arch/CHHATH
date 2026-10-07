@@ -261,8 +261,101 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  // Smart YouTube-style auto-hide on scroll down, instant reveal on scroll up
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollYRef = React.useRef(0);
+  const pivotYRef = React.useRef(0);
+  const scrollDirectionRef = React.useRef<'up' | 'down' | null>(null);
+
+  React.useEffect(() => {
+    let animationFrameId: number;
+    lastScrollYRef.current = window.scrollY || document.documentElement.scrollTop || 0;
+    pivotYRef.current = lastScrollYRef.current;
+
+    const handleScroll = () => {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(() => {
+        const rawY = window.scrollY || document.documentElement.scrollTop || 0;
+        const currentY = Math.max(0, rawY);
+        const lastY = lastScrollYRef.current;
+        const diff = currentY - lastY;
+
+        // Keep header visible when near the top of the page
+        if (currentY <= 30) {
+          setIsVisible(true);
+          scrollDirectionRef.current = null;
+          pivotYRef.current = currentY;
+          lastScrollYRef.current = currentY;
+          return;
+        }
+
+        // Keep header visible if any modal/drawer/dropdown is open
+        if (
+          sidebarDrawerOpen ||
+          mobileSearchOpen ||
+          langDropdownOpen ||
+          userMenuOpen ||
+          settingsModalOpen ||
+          accountCenterModalOpen
+        ) {
+          setIsVisible(true);
+          pivotYRef.current = currentY;
+          lastScrollYRef.current = currentY;
+          return;
+        }
+
+        if (diff > 0) {
+          // Scrolling downwards into content
+          if (scrollDirectionRef.current !== 'down') {
+            scrollDirectionRef.current = 'down';
+            pivotYRef.current = currentY;
+          }
+          if (currentY - pivotYRef.current > 15 && currentY > 40) {
+            setIsVisible(false);
+          }
+        } else if (diff < 0) {
+          // Scrolling upwards towards top
+          if (scrollDirectionRef.current !== 'up') {
+            scrollDirectionRef.current = 'up';
+            pivotYRef.current = currentY;
+          }
+          if (pivotYRef.current - currentY > 8) {
+            setIsVisible(true);
+          }
+        }
+
+        lastScrollYRef.current = currentY;
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [
+    sidebarDrawerOpen,
+    mobileSearchOpen,
+    langDropdownOpen,
+    userMenuOpen,
+    settingsModalOpen,
+    accountCenterModalOpen
+  ]);
+
+  // Always show header on tab / view change
+  React.useEffect(() => {
+    setIsVisible(true);
+    pivotYRef.current = 0;
+    lastScrollYRef.current = 0;
+  }, [activeTab]);
+
   return (
-    <header className="sticky top-0 z-50 chhath-glass border-b border-stone-200/80 dark:border-amber-500/20 transition-all duration-300 shadow-sm backdrop-blur-xl bg-white/95 dark:bg-stone-950/90">
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 chhath-glass border-b border-stone-200/80 dark:border-amber-500/20 shadow-sm backdrop-blur-xl bg-white/95 dark:bg-stone-950/90 transition-transform duration-300 ease-out will-change-transform ${
+          isVisible ? 'translate-y-0' : '-translate-y-full pointer-events-none'
+        }`}
+      >
       <div className="container-custom flex items-center justify-between h-16 sm:h-20 max-w-full px-2 sm:px-4 md:px-6">
         
         {/* Left: Sidebar Drawer Trigger + Brand Logo */}
@@ -587,6 +680,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         onClose={() => setSettingsModalOpen(false)}
       />
     </header>
-  );
+
+    {/* Persistent Layout Spacer for document flow */}
+    <div className="h-16 sm:h-20 shrink-0 pointer-events-none" aria-hidden="true" />
+  </>
+);
 };
 
