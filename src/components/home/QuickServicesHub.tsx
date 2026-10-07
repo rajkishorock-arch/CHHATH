@@ -53,7 +53,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       badge: 'आशीर्वाद',
       icon: Award,
       gradient: 'from-yellow-500 to-amber-600',
-      action: () => onOpenFeatureModal('certificate')
+      action: () => onNavigate('blessing-certificate')
     },
     {
       id: 'chat',
@@ -101,7 +101,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       badge: 'ज्ञान',
       icon: Brain,
       gradient: 'from-blue-500 to-indigo-600',
-      action: () => onOpenFeatureModal('quiz')
+      action: () => onNavigate('chhath-quiz')
     },
     {
       id: 'memories',
@@ -109,7 +109,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       badge: 'यादें',
       icon: Camera,
       gradient: 'from-rose-500 to-pink-600',
-      action: () => onOpenFeatureModal('memories')
+      action: () => onNavigate('chhath-memories')
     },
     {
       id: 'ai-pandit',

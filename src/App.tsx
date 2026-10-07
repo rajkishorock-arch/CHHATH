@@ -58,6 +58,9 @@ import { ChhathCalendarPage } from './components/pages/ChhathCalendarPage';
 import { ChhathDatePage } from './components/pages/ChhathDatePage';
 import { PatnaChhathPage } from './components/pages/PatnaChhathPage';
 import { SettingsPage } from './components/pages/SettingsPage';
+import { BlessingCertificatePage } from './components/pages/BlessingCertificatePage';
+import { MemoryAlbumPage } from './components/pages/MemoryAlbumPage';
+import { ChhathQuizPage } from './components/pages/ChhathQuizPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -155,6 +158,9 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'chhath-puja-date-2026' || t === 'chhath-puja-date' || t === 'date') return 'chhath-puja-date-2026';
   if (t === 'patna-chhath-puja-2026' || t === 'patna-chhath' || t === 'patna') return 'patna-chhath-puja-2026';
   if (t === 'settings' || t === 'setting') return 'settings';
+  if (t === 'blessing-certificate' || t === 'certificate' || t === 'ashirwad-patra') return 'blessing-certificate';
+  if (t === 'chhath-memories' || t === 'memories' || t === 'sansmaran' || t === 'album') return 'chhath-memories';
+  if (t === 'chhath-quiz' || t === 'quiz') return 'chhath-quiz';
   if (t === '3d-ghat' || t === 'ghat-3d' || t === '3d_ghat' || t === 'ghat3d' || t === '3d-darshan') return '3d-ghat';
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
@@ -682,6 +688,18 @@ const MainContent: React.FC = () => {
 
           {(activeTab === '3d-ghat' || activeTab === 'ghat-3d') && (
             <Ghat3DExperiencePage onNavigate={handleNavigate} />
+          )}
+
+          {(activeTab === 'blessing-certificate' || activeTab === 'certificate') && (
+            <BlessingCertificatePage onNavigate={handleNavigate} />
+          )}
+
+          {(activeTab === 'chhath-memories' || activeTab === 'memories') && (
+            <MemoryAlbumPage onNavigate={handleNavigate} />
+          )}
+
+          {(activeTab === 'chhath-quiz' || activeTab === 'quiz') && (
+            <ChhathQuizPage onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'explore' && (

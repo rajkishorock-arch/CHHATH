@@ -22,7 +22,13 @@ const routes = [
   'login',
   'signup',
   '3d-ghat',
-  'ghat-3d'
+  'ghat-3d',
+  'blessing-certificate',
+  'certificate',
+  'chhath-memories',
+  'memories',
+  'chhath-quiz',
+  'quiz'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');

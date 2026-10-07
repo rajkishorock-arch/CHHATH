@@ -18,6 +18,8 @@ import {
   MessageSquare, 
   Heart, 
   Award, 
+  Brain,
+  Camera,
   User, 
   Users, 
   Settings, 
@@ -320,7 +322,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'डिजिटल अनुभव व एआई',
         subtitle: 'Interactive & AI Tools',
         items: [
-          { id: 'explore', label: 'एक्सप्लोर हब (सभी फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { id: '3d-ghat', label: '3D घाट 360° दर्शन', sub: 'पावन गंगा घाट व आभासी अर्घ्य', icon: Compass, badge: '3D', highlight: true },
+          { id: 'blessing-certificate', label: 'डिजिटल आशीर्वाद पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नया' },
+          { id: 'chhath-memories', label: 'छठ संस्मरण व फोटो', sub: 'पारिवारिक पावन स्मृतियां', icon: Camera, badge: 'क्लाउड' },
+          { id: 'chhath-quiz', label: 'छठ महापर्व ज्ञान क्विज', sub: 'संस्कृति व परंपरा प्रश्नोत्तरी', icon: Brain, badge: 'क्विज' },
           { 
             id: 'assistant_action', 
             label: 'छठी मईया एआई सहायक', 
@@ -409,7 +414,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'Interactive Tools & AI',
         subtitle: 'Digital Features',
         items: [
-          { id: 'explore', label: 'Explore Hub (All Features)', sub: '3D Ghat, Quiz, Diary & More', icon: Sparkles },
+          { id: '3d-ghat', label: '3D Ghat 360° View', sub: 'Virtual Arghya & Holy Ghats', icon: Compass, badge: '3D', highlight: true },
+          { id: 'blessing-certificate', label: 'Blessing Certificate', sub: 'Personalized HD digital certificate', icon: Award, badge: 'New' },
+          { id: 'chhath-memories', label: 'Chhath Photo Memories', sub: 'Upload & preserve family moments', icon: Camera, badge: 'Cloud' },
+          { id: 'chhath-quiz', label: 'Chhath Mahaparv Quiz', sub: 'Interactive knowledge quiz', icon: Brain, badge: 'Quiz' },
           { 
             id: 'assistant_action', 
             label: 'Chhathi Maiya AI Assistant', 
@@ -498,7 +506,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'डिजिटल अनुभव आ एआई',
         subtitle: 'Interactive & AI Tools',
         items: [
-          { id: 'explore', label: 'एक्सप्लोर हब (सगरी फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { id: '3d-ghat', label: '3D घाट 360° दर्शन', sub: 'पावन गंगा घाट आ आभासी अरघ', icon: Compass, badge: '3D', highlight: true },
+          { id: 'blessing-certificate', label: 'डिजिटल असीस पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नया' },
+          { id: 'chhath-memories', label: 'छठ संस्मरण आ फोटो', sub: 'परिवार के पावन सुरति', icon: Camera, badge: 'क्लाउड' },
+          { id: 'chhath-quiz', label: 'छठ महापर्व ज्ञान क्विज', sub: 'परंपरा आ संस्कृति सवाल-जवाब', icon: Brain, badge: 'क्विज' },
           { 
             id: 'assistant_action', 
             label: 'छठी मईया एआई सहायक', 
@@ -587,7 +598,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'डिजिटल अनुभव ओ एआई',
         subtitle: 'Interactive & AI Tools',
         items: [
-          { id: 'explore', label: 'एक्सप्लोर हब (समस्त फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { id: '3d-ghat', label: '3D घाट 360° दर्शन', sub: 'पावन गंगा घाट ओ आभासी अर्घ्य', icon: Compass, badge: '3D', highlight: true },
+          { id: 'blessing-certificate', label: 'डिजिटल आशीष पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नव' },
+          { id: 'chhath-memories', label: 'छठि संस्मरण ओ फोटो', sub: 'परिवारक पावन संस्मरण', icon: Camera, badge: 'क्लाउड' },
+          { id: 'chhath-quiz', label: 'छठि महापर्व ज्ञान क्विज', sub: 'संस्कृति ओ परंपरा प्रश्नोत्तरी', icon: Brain, badge: 'क्विज' },
           { 
             id: 'assistant_action', 
             label: 'छठी मईया एआई सहायक', 
@@ -676,7 +690,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'डिजिटल अनुभव व एआई',
         subtitle: 'Interactive & AI Tools',
         items: [
-          { id: 'explore', label: 'एक्सप्लोर हब (सभे फीचर्स)', sub: '3D घाट, क्विज, डायरी', icon: Sparkles },
+          { id: '3d-ghat', label: '3D घाट 360° दर्शन', sub: 'पावन गंगा घाट व आभासी अरघ', icon: Compass, badge: '3D', highlight: true },
+          { id: 'blessing-certificate', label: 'डिजिटल असीस पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नया' },
+          { id: 'chhath-memories', label: 'छठ संस्मरण व फोटो', sub: 'परिवार के पावन सुरति', icon: Camera, badge: 'क्लाउड' },
+          { id: 'chhath-quiz', label: 'छठ महापर्व ज्ञान क्विज', sub: 'परंपरा व संस्कृति सवाल-जवाब', icon: Brain, badge: 'क्विज' },
           { 
             id: 'assistant_action', 
             label: 'छठी मईया एआई सहायक', 
