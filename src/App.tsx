@@ -13,7 +13,6 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { MobileNav } from './components/layout/MobileNav';
 import { SearchModal } from './components/layout/SearchModal';
-import { ScrollProgressBar } from './components/layout/ScrollProgressBar';
 import { StickyPlayer } from './components/audio/StickyPlayer';
 import { ExpandedPlayerModal } from './components/audio/ExpandedPlayerModal';
 import { PlaybackQueueModal } from './components/audio/PlaybackQueueModal';
@@ -562,9 +561,6 @@ const MainContent: React.FC = () => {
         <CinematicIntro onComplete={() => setShowCinematicIntro(false)} />
       )}
 
-      {/* Real-time Scroll Progress Bar */}
-      <ScrollProgressBar />
-
       {/* Header Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -578,9 +574,10 @@ const MainContent: React.FC = () => {
       {/* Main Content Area based on destination tab */}
       <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
-          {activeTab === 'home' && (
-            isMobileScreen ? (
-              <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
+          {/* Persistent Home Screen (Kept in DOM to eliminate white flash, prevent reloads, and preserve 60fps instant transitions) */}
+          <div className={activeTab === 'home' ? 'block' : 'hidden'}>
+            {isMobileScreen ? (
+              <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4">
                 <QuickServicesHub
                   onNavigate={handleNavigate}
                   onOpenFeatureModal={setFeatureModal}
@@ -596,8 +593,8 @@ const MainContent: React.FC = () => {
                 onOpenAssistant={() => setAssistantModalOpen(true)}
                 onOpenChat={() => openConnect()}
               />
-            )
-          )}
+            )}
+          </div>
 
           {activeTab === 'chhath-puja-vidhi' && (
             <ChhathVidhiPage onNavigate={handleNavigate} />
@@ -636,7 +633,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'guide' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
               <Breadcrumbs 
                 items={[{ label: 'छठ पूजा विधि व संपूर्ण मार्गदर्शिका', url: '#guide' }]} 
                 onNavigate={handleNavigate} 
@@ -648,7 +645,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'ghats' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
               <Breadcrumbs 
                 items={[{ label: 'घाट एवं सुरक्षा निर्देश', url: '#ghats' }]} 
                 onNavigate={handleNavigate} 
@@ -659,7 +656,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'aarti' && (
-            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+            <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-8">
               <Breadcrumbs 
                 items={[{ label: 'सूर्य देव आरती व वैदिक मंत्र', url: '#aarti' }]} 
                 onNavigate={handleNavigate} 
@@ -669,7 +666,7 @@ const MainContent: React.FC = () => {
           )}
 
           {activeTab === 'music' && (
-            <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4 animate-in fade-in duration-300">
+            <div className="container-custom max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-6 space-y-4">
               <SongsSection initialQuery={musicInitialQuery} />
             </div>
           )}

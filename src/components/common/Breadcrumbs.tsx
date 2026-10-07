@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronRight, Home } from 'lucide-react';
+import { isNativeApp } from '../../utils/platform';
 
 export interface BreadcrumbItem {
   label: string;
@@ -12,6 +13,9 @@ interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, onNavigate }) => {
+  // Completely removed in APK and on mobile phone screens for clean UI
+  if (isNativeApp()) return null;
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
     if (onNavigate) {
       e.preventDefault();
@@ -20,7 +24,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, onNavigate }) =
   };
 
   return (
-    <nav aria-label="Breadcrumb" className="py-3 px-1">
+    <nav aria-label="Breadcrumb" className="hidden md:block py-3 px-1">
       <ol className="flex items-center flex-wrap gap-1.5 text-xs sm:text-sm font-mukta text-stone-600 dark:text-stone-300 list-none p-0 m-0">
         <li className="flex items-center gap-1">
           <a
