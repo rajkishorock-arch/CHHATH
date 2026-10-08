@@ -401,6 +401,9 @@ const MainContent: React.FC = () => {
     }
     if (query !== undefined) {
       setMusicInitialQuery(query);
+    } else if (targetTab === 'home') {
+      setMusicInitialQuery('');
+      window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
     }
 
     // Save scroll position for the current tab before navigating away
