@@ -227,8 +227,24 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const handleStopInline = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    sendIframeCommand('pauseVideo');
+    sendIframeCommand('stopVideo');
     setActiveInlineVideoId(null);
   };
+
+  useEffect(() => {
+    const handleGlobalPause = () => {
+      if (isInlineActive) {
+        sendIframeCommand('pauseVideo');
+        sendIframeCommand('stopVideo');
+        setActiveInlineVideoId(null);
+      }
+    };
+    window.addEventListener('pause_inline_video', handleGlobalPause);
+    return () => {
+      window.removeEventListener('pause_inline_video', handleGlobalPause);
+    };
+  }, [isInlineActive, sendIframeCommand, setActiveInlineVideoId]);
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -295,6 +311,17 @@ const YouTubeVideoCardComponent: React.FC<{
                   <div className="w-10 h-10 rounded-full border-3 border-amber-500/30 border-t-amber-500 animate-spin" />
                 </div>
               )}
+
+              {/* DESKTOP QUICK CLOSE BUTTON */}
+              <button
+                type="button"
+                onClick={handleStopVideo}
+                className="hidden md:flex absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-black/75 hover:bg-black text-white/90 hover:text-white items-center justify-center border border-white/20 shadow-lg transition-transform hover:scale-110 active:scale-95 cursor-pointer"
+                title="वीडियो बंद करें"
+                aria-label="वीडियो बंद करें"
+              >
+                <X className="w-4 h-4" />
+              </button>
 
               {/* MOBILE TOUCH CONTROL OVERLAY (Phone screen only - md:hidden) */}
               {/* On Desktop (md:), this overlay is completely hidden, so desktop cursor hover controls remain 100% untouched */}

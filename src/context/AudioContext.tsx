@@ -723,6 +723,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    // Clear pending song and global playback flags so global player never starts
+    pendingSongRef.current = null;
+    hasStartedPlaybackRef.current = false;
     userRequestedPauseRef.current = true;
 
     // 1. Stop background global player so it NEVER competes with the inline video for audio focus or bandwidth!
@@ -743,7 +746,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // 2. Set currentSong without activating background isPlaying
     currentSongRef.current = song;
     setCurrentSong(song);
-    hasStartedPlaybackRef.current = true;
     setIsPlaying(false);
     setShowVideo(false);
     setActiveInlineVideoId(song ? song.youtubeId || null : null);
@@ -1073,11 +1075,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Resilience: Keep audio playing if Android or browser backgrounds or minimizes the app
   useEffect(() => {
     const handleKeepAlive = () => {
-      if (!userRequestedPauseRef.current && currentSongRef.current) {
+      if (!userRequestedPauseRef.current && currentSongRef.current && !activeInlineVideoId) {
         startAudioKeepalive();
         setIsPlaying(true);
         setTimeout(() => {
-          if (!userRequestedPauseRef.current && ytPlayerRef.current) {
+          if (!userRequestedPauseRef.current && ytPlayerRef.current && !activeInlineVideoId) {
             try {
               ytPlayerRef.current.playVideo();
             } catch (err) {}
@@ -1094,7 +1096,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       window.removeEventListener('blur', handleKeepAlive);
       window.removeEventListener('pagehide', handleKeepAlive);
     };
-  }, [startAudioKeepalive]);
+  }, [startAudioKeepalive, activeInlineVideoId]);
 
 
 

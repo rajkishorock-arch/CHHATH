@@ -5,8 +5,6 @@ import {
   Sun, 
   Sunset, 
   Moon, 
-  Volume2, 
-  VolumeX, 
   Compass, 
   Maximize, 
   Minimize, 
@@ -28,7 +26,6 @@ import {
   MoveUp,
   MoveDown
 } from 'lucide-react';
-import { sacredAudio } from '../../utils/sacredAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 
 interface Ghat3DExperiencePageProps {
@@ -255,7 +252,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
   // States
   const [selectedGhat, setSelectedGhat] = useState<HolyGhatData>(HOLY_GHATS[0]);
   const [lighting, setLighting] = useState<LightingMode>('morning');
-  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
   const [isGyroActive, setIsGyroActive] = useState<boolean>(false);
   const [selectedSpot, setSelectedSpot] = useState<GhatSpotInfo | null>(null);
@@ -314,7 +310,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
 
   // Clean exit back to main app
   const handleBack = () => {
-    sacredAudio.stop();
     if (onNavigate) {
       onNavigate('home');
     } else {
@@ -329,17 +324,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
       showToast('🌟 360° पूर्ण विहंगम मोड सक्रिय');
     } else {
       showToast('साधारण दृश्य मोड');
-    }
-  };
-
-  // Sound toggle
-  const toggleAudio = () => {
-    const active = sacredAudio.toggle();
-    setIsAudioPlaying(active);
-    if (active) {
-      showToast('🔔 पवित्र गंगाजल व मंदिर घंटियों की ध्वनि चालू');
-    } else {
-      showToast('ध्वनि बंद');
     }
   };
 
@@ -371,7 +355,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
     if (actionType === 'diya') {
       setDiyaModalOpen(true);
     } else {
-      sacredAudio.playArghyaChime();
       setArghyaModalOpen(true);
     }
   };
@@ -681,7 +664,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
       const spot = HOTSPOTS.find(s => s.id === spotId);
       if (spot) {
         setSelectedSpot(spot);
-        sacredAudio.playTempleBell();
       }
     }
   };
@@ -921,7 +903,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
 
     setDiyaModalOpen(false);
     setDiyaWish('');
-    sacredAudio.playArghyaChime();
     showToast(`✨ ${diyaName || 'श्रद्धालु'} जी का पावन दीप मां गंगा में प्रवाहित हो गया!`);
   };
 
@@ -1000,19 +981,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
             </button>
           )}
 
-          {/* Sound Toggle */}
-          <button
-            type="button"
-            onClick={toggleAudio}
-            className={`p-2 sm:p-2.5 rounded-xl border transition-all active:scale-95 cursor-pointer ${
-              isAudioPlaying 
-                ? 'bg-amber-500 border-amber-400 text-stone-950 shadow-sm' 
-                : 'bg-stone-100 hover:bg-stone-200 border-stone-200 text-stone-700'
-            }`}
-            title={isAudioPlaying ? "ध्वनि बंद करें" : "गंगा व मंदिर ध्वनि चालू करें"}
-          >
-            {isAudioPlaying ? <Volume2 className="w-4 h-4 animate-bounce" /> : <VolumeX className="w-4 h-4" />}
-          </button>
 
           {/* Auto Rotate Tour */}
           <button
@@ -1332,7 +1300,6 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
                   onClick={() => {
                     setSelectedSpot(spot);
                     focusCameraTowards(spot.targetAngle.lon, spot.targetAngle.lat);
-                    sacredAudio.playTempleBell();
                     showToast(`${spot.hindiName} की ओर कैमरा घुमाया गया`);
                   }}
                   className="p-4 rounded-3xl bg-white border border-stone-200/90 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer shadow-xs space-y-2 flex flex-col justify-between"

@@ -239,10 +239,18 @@ const MainContent: React.FC = () => {
     isFullscreenMode,
     toggleNativeFullscreen,
     lyricsSong, 
-    setLyricsSong 
+    setLyricsSong,
+    setActiveInlineVideoId
   } = useAudio();
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
+
+  // When switching away from music/home, stop any inline video so no audio leaks into other pages
+  useEffect(() => {
+    if (activeTab !== 'music' && activeTab !== 'home') {
+      setActiveInlineVideoId(null);
+    }
+  }, [activeTab, setActiveInlineVideoId]);
 
   const [musicInitialQuery, setMusicInitialQuery] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -587,29 +595,31 @@ const MainContent: React.FC = () => {
       {/* Main Content Area based on destination tab */}
       <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
-          {/* Persistent Home Screen (Kept in DOM to eliminate white flash, prevent reloads, and preserve 60fps instant transitions) */}
-          <div className={activeTab === 'home' ? 'block' : 'hidden'}>
-            {isMobileScreen ? (
-              <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
-                <div className="px-2 sm:px-0 pt-1 sm:pt-0">
-                  <QuickServicesHub
-                    onNavigate={handleNavigate}
-                    onOpenFeatureModal={setFeatureModal}
-                    onOpenAssistant={() => handleNavigate('ai-pandit')}
-                    onOpenChat={() => handleNavigate('chat')}
-                  />
+          {/* Home Screen View */}
+          {activeTab === 'home' && (
+            <div>
+              {isMobileScreen ? (
+                <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
+                  <div className="px-2 sm:px-0 pt-1 sm:pt-0">
+                    <QuickServicesHub
+                      onNavigate={handleNavigate}
+                      onOpenFeatureModal={setFeatureModal}
+                      onOpenAssistant={() => handleNavigate('ai-pandit')}
+                      onOpenChat={() => handleNavigate('chat')}
+                    />
+                  </div>
+                  <SongsSection initialQuery={musicInitialQuery} />
                 </div>
-                <SongsSection initialQuery={musicInitialQuery} />
-              </div>
-            ) : (
-              <PublicHomeView
-                onNavigate={handleNavigate}
-                onOpenFeatureModal={setFeatureModal}
-                onOpenAssistant={() => handleNavigate('ai-pandit')}
-                onOpenChat={() => handleNavigate('chat')}
-              />
-            )}
-          </div>
+              ) : (
+                <PublicHomeView
+                  onNavigate={handleNavigate}
+                  onOpenFeatureModal={setFeatureModal}
+                  onOpenAssistant={() => handleNavigate('ai-pandit')}
+                  onOpenChat={() => handleNavigate('chat')}
+                />
+              )}
+            </div>
+          )}
 
           {activeTab === 'chhath-puja-vidhi' && (
             <ChhathVidhiPage onNavigate={handleNavigate} />
