@@ -186,26 +186,14 @@ const getInitialTabFromLocation = (): string => {
     const rawHash = hash.replace(/^#/, '');
     const cleanHash = rawHash.split('?')[0];
     if (cleanHash) {
-      const normHash = normalizeTabKey(cleanHash);
-      if (normHash !== 'home') return normHash;
+      return normalizeTabKey(cleanHash);
     }
   }
 
   const rawPath = window.location.pathname.toLowerCase();
   const cleanPath = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
   const normPath = normalizeTabKey(cleanPath);
-  if (normPath !== 'home') return normPath;
-
-  // Persist current tab across refresh from sessionStorage
-  try {
-    const savedTab = sessionStorage.getItem('chhath_active_tab');
-    if (savedTab && savedTab !== 'home') {
-      const normSaved = normalizeTabKey(savedTab);
-      if (normSaved !== 'home') return normSaved;
-    }
-  } catch (e) {}
-
-  return 'home';
+  return normPath;
 };
 
 const MainContent: React.FC = () => {
@@ -337,12 +325,9 @@ const MainContent: React.FC = () => {
 
   // Deep-linking & URL route listener (handles browser back/forward and hash changes)
   React.useEffect(() => {
-    const handleUrlChange = () => {
-      const tab = getInitialTabFromLocation();
+    const handleUrlChange = (e?: any) => {
+      const tab = (e?.state && e.state.tab) ? normalizeTabKey(e.state.tab) : getInitialTabFromLocation();
       setActiveTab(tab);
-      try {
-        sessionStorage.setItem('chhath_active_tab', tab);
-      } catch (e) {}
 
       if (tab === 'home') {
         if (!restoreHomeScroll()) {
@@ -416,9 +401,6 @@ const MainContent: React.FC = () => {
     }
 
     setActiveTab(targetTab);
-    try {
-      sessionStorage.setItem('chhath_active_tab', targetTab);
-    } catch (e) {}
 
     // When navigating to home/explore, restore saved scroll position; otherwise go to top
     if (targetTab === 'home' || targetTab === 'explore') {
@@ -432,25 +414,14 @@ const MainContent: React.FC = () => {
     const rawBase = import.meta.env.BASE_URL || '/';
     const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 
-    let urlPath = base;
-    if (targetTab === 'chhath-puja-vidhi') urlPath = `${base}chhath-puja-vidhi/`;
-    else if (targetTab === 'chhath-samagri') urlPath = `${base}chhath-samagri/`;
-    else if (targetTab === 'chhath-arghya-time-2026') urlPath = `${base}chhath-arghya-time-2026/`;
-    else if (targetTab === 'thekua-recipe') urlPath = `${base}thekua-recipe/`;
-    else if (targetTab === 'chhath-puja-geet') urlPath = `${base}chhath-puja-geet/`;
-    else if (targetTab === 'chhath-puja-katha') urlPath = `${base}chhath-puja-katha/`;
-    else if (targetTab === 'chhath-calendar-2026') urlPath = `${base}chhath-calendar-2026/`;
-    else if (targetTab === 'chhath-puja-date-2026') urlPath = `${base}chhath-puja-date-2026/`;
-    else if (targetTab === 'patna-chhath-puja-2026') urlPath = `${base}patna-chhath-puja-2026/`;
-    else if (targetTab === 'settings') urlPath = `${base}#settings`;
-    else if (targetTab === '3d-ghat' || targetTab === 'ghat-3d') urlPath = `${base}#3d-ghat`;
-    else if (targetTab === 'aarti') urlPath = `${base}#aarti`;
-    else if (targetTab === 'ghats') urlPath = `${base}#ghats`;
-    else if (targetTab === 'music') urlPath = query ? `${base}#music?q=${encodeURIComponent(query)}` : `${base}#music`;
-    else if (targetTab !== 'home') urlPath = `${base}#${targetTab}`;
+    const urlPath = targetTab === 'home' 
+      ? base 
+      : targetTab === 'music' && query 
+        ? `${base}#music?q=${encodeURIComponent(query)}` 
+        : `${base}#${targetTab}`;
 
     try {
-      window.history.pushState(null, '', urlPath);
+      window.history.pushState({ tab: targetTab }, '', urlPath);
     } catch (e) {}
   };
 
@@ -613,8 +584,9 @@ const MainContent: React.FC = () => {
       {/* Main Content Area based on destination tab */}
       <main className={`flex-1 flex flex-col min-h-0 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-16 sm:pb-0' : 'pb-36 lg:pb-16'}`}>
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
-          {/* Home Screen View */}
-          {activeTab === 'home' && (
+          <div key={activeTab} className="page-transition-enter flex-1 flex flex-col min-h-0 w-full">
+            {/* Home Screen View */}
+            {activeTab === 'home' && (
             <div>
               {isMobileScreen ? (
                 <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
@@ -758,6 +730,7 @@ const MainContent: React.FC = () => {
               onOpenAssistant={() => setAssistantModalOpen(true)}
             />
           )}
+          </div>
         </SectionErrorBoundary>
       </main>
 

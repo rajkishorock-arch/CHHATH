@@ -13,7 +13,7 @@ import {
   serverTimestamp,
   type Unsubscribe 
 } from 'firebase/firestore';
-import { ReelUser, Conversation, ChatMessage } from '../../types';
+import { ReelUser, Conversation, ChatMessage, CallSession, CallStatus } from '../../types';
 
 export const FirestoreChatService = {
   /**
@@ -61,45 +61,6 @@ export const FirestoreChatService = {
         console.warn('[FirestoreChat] Fetching devotees notice:', err);
       }
     }
-
-    // Also check Cloud Bin for cross-environment safety
-    try {
-      const res = await fetch('https://extendsclass.com/api/json-storage/bin/eeeaedd', {
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (res.ok) {
-        const json = await res.json();
-        const usersMap = json?.users || {};
-        for (const uid of Object.keys(usersMap)) {
-          if (uid !== currentUserId && !seenIds.has(uid)) {
-            const u = usersMap[uid];
-            seenIds.add(uid);
-            realUsers.push({
-              id: uid,
-              user_id: uid,
-              name: u.name || 'छठ श्रद्धालु',
-              username: u.username || `@devotee_${uid.slice(0, 5)}`,
-              email: u.email || '',
-              avatarUrl: u.avatarUrl || '',
-              bio: u.bio || 'जय छठी मइया 🙏',
-              city: u.city || 'बिहार',
-              state: u.state || 'बिहार',
-              country: 'India',
-              language: 'hi',
-              role: 'user',
-              followersCount: 0,
-              followingCount: 0,
-              totalLikesCount: 0,
-              reelsCount: 0,
-              verified: false,
-              interests: [],
-              onboardingCompleted: true,
-              createdAt: u.updatedAt || new Date().toISOString()
-            });
-          }
-        }
-      }
-    } catch {}
 
     return realUsers;
   },
@@ -250,5 +211,95 @@ export const FirestoreChatService = {
     }
 
     return newMsg;
+  },
+
+  /**
+   * Create or dispatch call session record in Firestore
+   */
+  async createCallSession(session: CallSession): Promise<void> {
+    const db = getFirebaseFirestore();
+    if (!db) return;
+    try {
+      const callRef = doc(db, 'calls', session.callId);
+      await setDoc(callRef, {
+        ...session,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {
+      console.warn('[FirestoreChat] createCallSession error:', err);
+    }
+  },
+
+  /**
+   * Update call session status in Firestore
+   */
+  async updateCallStatus(callId: string, status: CallStatus): Promise<void> {
+    const db = getFirebaseFirestore();
+    if (!db || !callId) return;
+    try {
+      const callRef = doc(db, 'calls', callId);
+      await setDoc(callRef, {
+        status,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.warn('[FirestoreChat] updateCallStatus error:', err);
+    }
+  },
+
+  /**
+   * Listen to incoming call invitations for a user
+   */
+  listenToIncomingCall(currentUserId: string, callback: (call: CallSession | null) => void): Unsubscribe {
+    const db = getFirebaseFirestore();
+    if (!db || !currentUserId) {
+      callback(null);
+      return () => {};
+    }
+    try {
+      const q = query(
+        collection(db, 'calls'),
+        where('receiverId', '==', currentUserId),
+        where('status', '==', 'ringing')
+      );
+      return onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const docData = snapshot.docs[0].data();
+          callback(docData as CallSession);
+        } else {
+          callback(null);
+        }
+      }, (err) => {
+        console.warn('[FirestoreChat] listenToIncomingCall notice:', err);
+      });
+    } catch (err) {
+      return () => {};
+    }
+  },
+
+  /**
+   * Listen to status changes on a specific call
+   */
+  listenToCall(callId: string, callback: (call: CallSession | null) => void): Unsubscribe {
+    const db = getFirebaseFirestore();
+    if (!db || !callId) {
+      callback(null);
+      return () => {};
+    }
+    try {
+      const callRef = doc(db, 'calls', callId);
+      return onSnapshot(callRef, (docSnap) => {
+        if (docSnap.exists()) {
+          callback(docSnap.data() as CallSession);
+        } else {
+          callback(null);
+        }
+      }, (err) => {
+        console.warn('[FirestoreChat] listenToCall notice:', err);
+      });
+    } catch (err) {
+      return () => {};
+    }
   }
 };

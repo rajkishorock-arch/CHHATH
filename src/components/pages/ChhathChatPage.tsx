@@ -367,7 +367,7 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
           </div>
 
           {/* Real Devotees Inbox Stream */}
-          <div className="flex-1 overflow-y-auto divide-y divide-stone-100 scrollbar-thin bg-white">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain divide-y divide-stone-100 scrollbar-thin bg-white">
             {loadingDevotees ? (
               <div className="p-12 text-center space-y-2">
                 <Loader2 className="w-6 h-6 animate-spin text-amber-500 mx-auto" />
@@ -454,13 +454,15 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
            ======================================================== */}
         <div 
           className={`flex-1 flex flex-col bg-white h-full ${
-            mobileView === 'inbox' ? 'hidden sm:flex' : 'flex'
+            mobileView === 'inbox' 
+              ? 'hidden sm:flex' 
+              : 'fixed inset-0 z-40 sm:static sm:z-auto sm:flex-1 flex'
           }`}
         >
           {activeOtherUser && activeConversation ? (
             <>
-              {/* Instagram Style Clean White Chat Header */}
-              <div className="p-3 sm:p-3.5 border-b border-stone-200/90 flex items-center justify-between gap-2 bg-white shrink-0 shadow-2xs">
+              {/* Instagram Style Clean White Chat Header (Pinned Top Bar) */}
+              <div className="p-3 sm:p-3.5 border-b border-stone-200/90 flex items-center justify-between gap-2 bg-white shrink-0 sticky top-0 z-20 shadow-2xs">
                 
                 {/* Left: Mobile Back Button + Devotee Info */}
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -525,8 +527,8 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
                 </div>
               </div>
 
-              {/* Chat Message Stream (White Background) */}
-              <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3.5 scrollbar-thin bg-white">
+              {/* Chat Message Stream (Internal Scrolling Only - Middle Area) */}
+              <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3.5 sm:p-5 space-y-3.5 scrollbar-thin bg-white">
                 
                 {/* Intro Card */}
                 <div className="py-6 flex flex-col items-center justify-center text-center">
@@ -607,10 +609,10 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
                 ))}
               </div>
 
-              {/* Message Input Bar */}
+              {/* Message Input Bar (Pinned Bottom Bar) */}
               <form 
                 onSubmit={handleSend}
-                className="p-2.5 sm:p-3 border-t border-stone-200/90 flex items-center gap-2 bg-white shrink-0"
+                className="p-2.5 sm:p-3 border-t border-stone-200/90 flex items-center gap-2 bg-white shrink-0 sticky bottom-0 z-20 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
               >
                 <input
                   type="text"

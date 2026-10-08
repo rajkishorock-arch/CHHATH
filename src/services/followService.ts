@@ -77,10 +77,11 @@ export const FollowService = {
       }
     }
 
-    // Also check Cloud Bin
-    try {
-      const res = await fetch(CLOUD_STORAGE_URL, { headers: { 'Cache-Control': 'no-cache' } });
-      if (res.ok) {
+    // Fallback to Cloud Bin only if Firestore returned 0 users
+    if (realUsers.length === 0) {
+      try {
+        const res = await fetch(CLOUD_STORAGE_URL, { headers: { 'Cache-Control': 'no-cache' } }).catch(() => null);
+        if (res && res.ok) {
         const json = await res.json();
         const usersMap = json?.users || {};
         for (const uid of Object.keys(usersMap)) {
@@ -120,6 +121,7 @@ export const FollowService = {
         }
       }
     } catch {}
+  }
 
     return realUsers;
   },

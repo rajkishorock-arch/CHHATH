@@ -13,6 +13,7 @@ import { useAuth } from './AuthContext';
 import { ChatStorage } from '../services/chat/chatStorage';
 import { realtimeEngine, RealtimeEventPayload } from '../services/chat/realtimeEngine';
 import { webrtcCallEngine } from '../services/chat/webrtcCallEngine';
+import { FirestoreChatService } from '../services/chat/firestoreChatService';
 
 export type ChatFilterType = 'all' | 'unread' | 'groups' | 'requests';
 
@@ -112,6 +113,7 @@ interface ChatContextType {
   endCall: () => void;
   toggleCallAudio: () => void;
   toggleCallVideo: () => void;
+  flipCamera: () => Promise<boolean>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -204,11 +206,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setRemoteStream(remote);
     });
 
+    // Subscribe to Firestore incoming calls across devices
+    let unsubFirestoreCall: (() => void) | undefined;
+    if (currentUser?.id) {
+      unsubFirestoreCall = FirestoreChatService.listenToIncomingCall(currentUser.id, (incomingCall) => {
+        if (incomingCall) {
+          realtimeEngine.broadcast('call_signal', {
+            callId: incomingCall.callId,
+            signalType: 'call_offer',
+            callSession: incomingCall
+          });
+        }
+      });
+    }
+
     return () => {
       unsub();
       unsubCall();
+      if (unsubFirestoreCall) unsubFirestoreCall();
     };
-  }, [currentUserId, handleRealtimeEvent, refreshConversations]);
+  }, [currentUserId, currentUser?.id, handleRealtimeEvent, refreshConversations]);
 
   // Refresh privacy when user changes
   useEffect(() => {
@@ -514,6 +531,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsVideoOff(!enabled);
   };
 
+  const flipCamera = async () => {
+    return webrtcCallEngine.flipCamera();
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -561,7 +582,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         acceptCall,
         endCall,
         toggleCallAudio,
-        toggleCallVideo
+        toggleCallVideo,
+        flipCamera
       }}
     >
       {children}

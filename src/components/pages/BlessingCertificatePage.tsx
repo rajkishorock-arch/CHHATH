@@ -11,7 +11,8 @@ import {
   MapPin, 
   Calendar,
   Lock,
-  RotateCcw
+  RotateCcw,
+  ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SeoHead } from '../seo/SeoHead';
@@ -245,6 +246,15 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
         {/* Sleek Action Toolbar */}
         <div className="flex items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-3 shadow-xs">
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onNavigate('home')}
+              className="p-2 rounded-xl text-stone-600 hover:text-stone-950 hover:bg-stone-100 active:scale-95 transition-all cursor-pointer"
+              title="वापस मुख्य पृष्ठ"
+              aria-label="वापस मुख्य पृष्ठ"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center shadow-xs">
               <Award className="w-4 h-4" />
             </div>
