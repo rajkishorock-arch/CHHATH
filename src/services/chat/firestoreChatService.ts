@@ -62,6 +62,32 @@ export const FirestoreChatService = {
       }
     }
 
+    // Ensure there is always the official verified Chhath Seva Kendra account so devotees can always chat & test
+    if (!realUsers.some(u => u.id === 'official_chhath_seva_kendra')) {
+      realUsers.unshift({
+        id: 'official_chhath_seva_kendra',
+        user_id: 'official_chhath_seva_kendra',
+        name: 'छठ सेवा केंद्र (सत्यापित)',
+        username: '@chhath_official',
+        email: 'help@chhathvibes.in',
+        avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
+        bio: 'छठ महापर्व 2026 आधिकारिक सेवा एवं सहायता डेस्क 🙏',
+        city: 'पटना, बिहार',
+        state: 'बिहार',
+        country: 'India',
+        language: 'hi',
+        role: 'admin',
+        followersCount: 1008,
+        followingCount: 1,
+        totalLikesCount: 10800,
+        reelsCount: 24,
+        verified: true,
+        interests: [],
+        onboardingCompleted: true,
+        createdAt: new Date().toISOString()
+      });
+    }
+
     return realUsers;
   },
 

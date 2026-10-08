@@ -323,13 +323,27 @@ const MainContent: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [activeTab]);
 
+  // Persistent tab scroll memory so navigating back never reloads or resets scroll
+  const tabScrollPositions = React.useRef<Record<string, number>>({});
+
   // Deep-linking & URL route listener (handles browser back/forward and hash changes)
   React.useEffect(() => {
     const handleUrlChange = (e?: any) => {
       const tab = (e?.state && e.state.tab) ? normalizeTabKey(e.state.tab) : getInitialTabFromLocation();
+      
+      // Save scroll of previous tab
+      const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+      tabScrollPositions.current[activeTab] = currentY;
+
       setActiveTab(tab);
 
-      if (tab === 'home') {
+      // Restore scroll position smoothly
+      const savedY = tabScrollPositions.current[tab];
+      if (savedY !== undefined && savedY > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: savedY, left: 0, behavior: 'instant' });
+        });
+      } else if (tab === 'home') {
         if (!restoreHomeScroll()) {
           window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         }
@@ -362,7 +376,7 @@ const MainContent: React.FC = () => {
       window.removeEventListener('popstate', handleUrlChange);
       window.removeEventListener('hashchange', handleUrlChange);
     };
-  }, [openReelsPlatform, openAuthModal]);
+  }, [openReelsPlatform, openAuthModal, activeTab]);
 
   // Global custom event listener for opening auth modal from any button
   React.useEffect(() => {
@@ -392,18 +406,19 @@ const MainContent: React.FC = () => {
       setMusicInitialQuery(query);
     }
 
-    // Save scroll position before leaving home/explore
-    if (activeTab === 'home' || activeTab === 'explore') {
-      const currentY = window.scrollY || document.documentElement.scrollTop || 0;
-      try {
-        sessionStorage.setItem('home_scroll_y', currentY.toString());
-      } catch (e) {}
-    }
+    // Save scroll position for the current tab before navigating away
+    const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+    tabScrollPositions.current[activeTab] = currentY;
 
     setActiveTab(targetTab);
 
-    // When navigating to home/explore, restore saved scroll position; otherwise go to top
-    if (targetTab === 'home' || targetTab === 'explore') {
+    // Restore saved scroll position for target tab
+    const savedY = tabScrollPositions.current[targetTab];
+    if (savedY !== undefined && savedY > 0) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: savedY, left: 0, behavior: 'instant' });
+      });
+    } else if (targetTab === 'home' || targetTab === 'explore') {
       if (!restoreHomeScroll()) {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       }
@@ -582,12 +597,11 @@ const MainContent: React.FC = () => {
       />
 
       {/* Main Content Area based on destination tab */}
-      <main className={`flex-1 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-16 sm:pb-0' : 'pb-36 lg:pb-16'}`}>
+      <main className={`flex-1 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-0' : 'pb-36 lg:pb-16'}`}>
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
-          <div key={activeTab} className="page-transition-enter w-full">
-            {/* Home Screen View */}
-            {activeTab === 'home' && (
-            <div>
+          <div className="w-full">
+            {/* Home Screen View (Preserved in DOM to prevent reloads & maintain scroll position) */}
+            <div style={{ display: activeTab === 'home' ? 'block' : 'none' }}>
               {isMobileScreen ? (
                 <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
                   <div className="px-2 sm:px-0 pt-1 sm:pt-0">
@@ -609,7 +623,6 @@ const MainContent: React.FC = () => {
                 />
               )}
             </div>
-          )}
 
           {activeTab === 'chhath-puja-vidhi' && (
             <ChhathVidhiPage onNavigate={handleNavigate} />
@@ -735,7 +748,9 @@ const MainContent: React.FC = () => {
       </main>
 
       {/* Global Interactive Dock & Persistent Audio Player */}
-      <StickyPlayer onOpenMixer={() => setMixerModalOpen(true)} />
+      {activeTab !== 'chat' && activeTab !== 'chhath-chat' && (
+        <StickyPlayer onOpenMixer={() => setMixerModalOpen(true)} />
+      )}
       <ExpandedPlayerModal />
       <PlaybackQueueModal />
 
@@ -746,8 +761,10 @@ const MainContent: React.FC = () => {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation */}
-      <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />
+      {/* Mobile Bottom Navigation - Hidden on chat tab so message typing textbox is 100% visible */}
+      {activeTab !== 'chat' && activeTab !== 'chhath-chat' && (
+        <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />
+      )}
 
       {/* Global Modals */}
       {locationModalOpen && (

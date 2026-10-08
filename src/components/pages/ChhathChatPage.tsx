@@ -322,7 +322,16 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
         >
           {/* Top Inbox Header */}
           <div className="p-3.5 border-b border-stone-100 flex items-center justify-between gap-2 shrink-0 bg-white">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onNavigate ? onNavigate('home') : (window.location.hash = '#home')}
+                className="p-1.5 -ml-1 text-stone-600 hover:text-stone-950 active:scale-95 transition-all cursor-pointer"
+                title="मुख्य पृष्ठ पर लौटें"
+                aria-label="मुख्य पृष्ठ पर लौटें"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center font-bold shadow-xs">
                 <MessageCircle className="w-5 h-5 text-stone-950" />
               </div>
@@ -456,7 +465,7 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
           className={`flex-1 flex flex-col bg-white h-full ${
             mobileView === 'inbox' 
               ? 'hidden sm:flex' 
-              : 'fixed inset-0 z-40 sm:static sm:z-auto sm:flex-1 flex'
+              : 'fixed inset-0 z-50 sm:static sm:z-auto sm:flex-1 flex h-[100dvh] sm:h-full overflow-hidden'
           }`}
         >
           {activeOtherUser && activeConversation ? (
@@ -595,47 +604,50 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Devotional Emoji Reactions Strip */}
-              <div className="px-3 py-1.5 border-t border-stone-100 flex items-center justify-around bg-stone-50/60 text-base shrink-0">
-                {['🙏', '🪔', '☀️', '❤️', '🌾', '🥥', '👍'].map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => handleSendEmoji(emoji)}
-                    className="hover:scale-125 active:scale-95 transition-transform cursor-pointer p-1"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
+              {/* Pinned Bottom Control Dock (Emojis + Message Input Bar) */}
+              <div className="shrink-0 bg-white border-t border-stone-200 z-30 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg">
+                {/* Devotional Emoji Reactions Strip */}
+                <div className="px-3 py-1 flex items-center justify-around bg-stone-50/80 border-b border-stone-100 text-base">
+                  {['🙏', '🪔', '☀️', '❤️', '🌾', '🥥', '👍'].map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => handleSendEmoji(emoji)}
+                      className="hover:scale-125 active:scale-95 transition-transform cursor-pointer p-1"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
 
-              {/* Message Input Bar (Pinned Bottom Bar) */}
-              <form 
-                onSubmit={handleSend}
-                className="p-2.5 sm:p-3 border-t border-stone-200/90 flex items-center gap-2 bg-white shrink-0 sticky bottom-0 z-20 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-              >
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder={`${activeOtherUser.name.split(' ')[0]} को संदेश भेजें...`}
-                  className="flex-1 px-4 py-2.5 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 focus:outline-none focus:border-amber-500 font-medium placeholder:text-stone-400"
-                />
-
-                <button
-                  type="submit"
-                  disabled={!inputText.trim() || sendingMessage}
-                  className="p-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold active:scale-95 shadow-xs transition-transform cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-                  title="संदेश भेजें"
-                  aria-label="संदेश भेजें"
+                {/* Message Input Bar */}
+                <form 
+                  onSubmit={handleSend}
+                  className="p-2.5 sm:p-3 flex items-center gap-2 bg-white"
                 >
-                  {sendingMessage ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </button>
-              </form>
+                  <input
+                    type="text"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder={`${activeOtherUser.name.split(' ')[0]} को संदेश लिखें...`}
+                    className="flex-1 px-4 py-2.5 text-xs sm:text-sm bg-stone-100 hover:bg-stone-50 focus:bg-white border border-stone-300 rounded-full text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium placeholder:text-stone-400 shadow-inner"
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={!inputText.trim() || sendingMessage}
+                    className="p-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold active:scale-95 shadow-md transition-transform cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    title="संदेश भेजें"
+                    aria-label="संदेश भेजें"
+                  >
+                    {sendingMessage ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </button>
+                </form>
+              </div>
             </>
           ) : (
             /* Empty State when no conversation selected (Desktop View) */
@@ -649,6 +661,16 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
               <p className="text-xs text-stone-500 max-w-sm mb-6 leading-relaxed">
                 बाईं ओर से किसी भी पंजीकृत श्रद्धालु को चुनें और पावन पर्व पर वास्तविक विचार, वॉयस कॉल व वीडियो कॉल साझा करें।
               </p>
+              {realDevotees.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectDevotee(realDevotees[0])}
+                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{realDevotees[0].name} से बातचीत शुरू करें</span>
+                </button>
+              )}
             </div>
           )}
         </div>
