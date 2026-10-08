@@ -1,0 +1,6 @@
+{
+  "cleanUrls": true,
+  "ignoreCommand": "exit 0",
+  "buildCommand": "echo 'Static branch - no build required'",
+  "outputDirectory": "."
+}
