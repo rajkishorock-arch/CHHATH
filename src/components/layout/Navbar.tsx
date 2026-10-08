@@ -477,8 +477,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a
               href={getApkDownloadUrl()}
               download="chhath-app-debug.apk"
-              title="एंड्रॉइड ऐप डाउनलोड करें"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mukta font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs hover:scale-105 active:scale-95 transition-all text-decoration-none border border-emerald-400/40"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="एंड्रॉइड ऐप डाउनलोड करें (Direct APK)"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-mukta font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs hover:scale-105 active:scale-95 transition-all text-decoration-none border border-emerald-400/40"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">ऐप डाउनलोड</span>

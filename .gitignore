@@ -14,7 +14,9 @@ dist-ssr
 .env
 .env.*
 !.env.example
+# Android Builds & APKs
 *.apk
+!public/chhath-app-debug.apk
 
 # Editor directories and files
 .vscode/*

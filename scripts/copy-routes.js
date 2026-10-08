@@ -65,6 +65,14 @@ if (fs.existsSync(indexPath)) {
   });
   console.log(`[post-build] Successfully mirrored routes to CHHATH/ prefix`);
 
+  // Mirror APK to CHHATH/ prefix for GitHub Pages direct download
+  const apkSrc = path.join(distDir, 'chhath-app-debug.apk');
+  const apkDest = path.join(chhathDir, 'chhath-app-debug.apk');
+  if (fs.existsSync(apkSrc)) {
+    fs.copyFileSync(apkSrc, apkDest);
+    console.log(`[post-build] Copied chhath-app-debug.apk to CHHATH/ prefix`);
+  }
+
   // Ensure gh-pages branch has a safe vercel.json so Vercel doesn't fail with vite not found
   const distVercelConfig = {
     cleanUrls: true,

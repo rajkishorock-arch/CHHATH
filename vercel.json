@@ -2,6 +2,25 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"gh-pages\" ]; then exit 0; else exit 1; fi",
+  "headers": [
+    {
+      "source": "/(.*)\\.apk",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.android.package-archive"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"chhath-app-debug.apk\""
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/__/auth/(.*)",
@@ -14,6 +33,10 @@
     {
       "source": "/CHHATH/(.*)",
       "destination": "/$1"
+    },
+    {
+      "source": "/chhath-app-debug.apk",
+      "destination": "/chhath-app-debug.apk"
     },
     {
       "source": "/(.*)",
