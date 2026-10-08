@@ -70,6 +70,9 @@ const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').th
 const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformModal').then(m => ({ default: m.ReelsPlatformModal })));
 const CallScreenModal = lazy(() => import('./components/chat/CallScreenModal').then(m => ({ default: m.CallScreenModal })));
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
+const UserProfileModal = lazy(() => import('./components/reels/UserProfileModal').then(m => ({ default: m.UserProfileModal })));
+import { ReelUser } from './types';
+import { ReelsStorage } from './services/reelsStorage';
 
 const ComponentLoader: React.FC = () => (
   <div className="p-12 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
@@ -280,7 +283,23 @@ const MainContent: React.FC = () => {
   const [assistantModalOpen, setAssistantModalOpen] = useState(false);
   const [mixerModalOpen, setMixerModalOpen] = useState(false);
   const [featureModal, setFeatureModal] = useState<FeatureModalType>(null);
+  const [selectedDevoteeUser, setSelectedDevoteeUser] = useState<ReelUser | null>(null);
   const { openConnect } = useChat();
+
+  const handleSelectUserFromSearch = (handleOrUsername: string) => {
+    if (!handleOrUsername) return;
+    const clean = handleOrUsername.trim().toLowerCase();
+    const allUsers = ReelsStorage.getUsers();
+    const found = allUsers.find(u => 
+      u.username.toLowerCase() === clean ||
+      u.username.toLowerCase() === `@${clean.replace(/^@/, '')}` ||
+      u.id === handleOrUsername ||
+      u.name.toLowerCase() === clean
+    );
+    if (found) {
+      setSelectedDevoteeUser(found);
+    }
+  };
 
   // Helper to restore home scroll position smoothly
   const restoreHomeScroll = () => {
@@ -763,7 +782,12 @@ const MainContent: React.FC = () => {
       )}
 
       {searchModalOpen && (
-        <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} onNavigate={handleNavigate} />
+        <SearchModal 
+          isOpen={searchModalOpen} 
+          onClose={() => setSearchModalOpen(false)} 
+          onNavigate={handleNavigate} 
+          onSelectUser={handleSelectUserFromSearch}
+        />
       )}
 
       {assistantModalOpen && (
@@ -787,6 +811,17 @@ const MainContent: React.FC = () => {
           activeModal={featureModal}
           onClose={() => setFeatureModal(null)}
         />
+        {selectedDevoteeUser && (
+          <UserProfileModal
+            user={selectedDevoteeUser}
+            isOpen={Boolean(selectedDevoteeUser)}
+            onClose={() => setSelectedDevoteeUser(null)}
+            onSelectReel={() => {
+              setSelectedDevoteeUser(null);
+              handleNavigate('reels');
+            }}
+          />
+        )}
       </Suspense>
 
       {/* Double Tap Back to Exit Toast Banner */}
