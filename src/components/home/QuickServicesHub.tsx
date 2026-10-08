@@ -61,7 +61,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       badge: 'कम्युनिटी',
       icon: MessageCircle,
       gradient: 'from-emerald-500 to-teal-600',
-      action: () => onOpenChat()
+      action: () => onNavigate('chat')
     },
     {
       id: 'ghat3d',
@@ -117,7 +117,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       badge: 'AI',
       icon: Bot,
       gradient: 'from-cyan-500 to-blue-600',
-      action: () => onOpenAssistant()
+      action: () => onNavigate('ai-pandit')
     },
     {
       id: 'aarti',

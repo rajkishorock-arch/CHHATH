@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ArrowLeft, 
   Brain, 
   Award, 
   CheckCircle2, 
@@ -12,7 +11,7 @@ import {
   LogIn, 
   Sparkles, 
   Trophy, 
-  ChevronRight,
+  ChevronRight, 
   Flame,
   Check
 } from 'lucide-react';
@@ -33,7 +32,7 @@ interface ChhathQuizPageProps {
 }
 
 export const ChhathQuizPage: React.FC<ChhathQuizPageProps> = ({ onNavigate }) => {
-  const { currentUser, isAuthenticated, openAuthModal, signInWithGoogle } = useAuth();
+  const { currentUser, isAuthenticated, openAuthModal } = useAuth();
 
   const [difficulty, setDifficulty] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -80,6 +79,10 @@ export const ChhathQuizPage: React.FC<ChhathQuizPageProps> = ({ onNavigate }) =>
   }, [currentUser]);
 
   const handleSelect = (index: number) => {
+    if (!isAuthenticated) {
+      openAuthModal('login', 'क्विज खेलने और उत्तर चुनने के लिए कृपया लॉगिन करें');
+      return;
+    }
     if (isAnswered) return;
     setSelectedOption(index);
     setIsAnswered(true);
@@ -174,20 +177,14 @@ export const ChhathQuizPage: React.FC<ChhathQuizPageProps> = ({ onNavigate }) =>
         </div>
       )}
 
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 px-3 sm:px-6 py-3 flex items-center justify-between gap-2 shadow-xs">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onNavigate('home')}
-            className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 transition-all cursor-pointer"
-            title="होम पर जाएं"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* Main Container */}
+      <main className="w-full max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
+        
+        {/* Sleek Action Toolbar */}
+        <div className="flex items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-3 shadow-xs">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center">
-              <Brain className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center shadow-xs">
+              <Brain className="w-4 h-4" />
             </div>
             <div>
               <h1 className="text-sm sm:text-base font-bold font-rozha text-stone-950 leading-tight">
@@ -198,58 +195,25 @@ export const ChhathQuizPage: React.FC<ChhathQuizPageProps> = ({ onNavigate }) =>
               </p>
             </div>
           </div>
-        </div>
 
-        {isAuthenticated && currentUser ? (
           <div className="flex items-center gap-2">
-            {userRecord && userRecord.highScore > 0 && (
-              <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300">
-                <Trophy className="w-3.5 h-3.5 text-amber-600" />
-                <span>रिकॉर्ड: {userRecord.highScore}</span>
+            {isAuthenticated && currentUser ? (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="truncate max-w-[100px]">{currentUser.name || 'सत्यापित'}</span>
               </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openAuthModal('login', 'अपना क्विज स्कोर सुरक्षित करने हेतु लॉगिन करें')}
+                className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>लॉगिन</span>
+              </button>
             )}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span className="truncate max-w-[100px]">{currentUser.name || 'सत्यापित'}</span>
-            </div>
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => openAuthModal('login', 'अपना क्विज स्कोर अपने खाते में सुरक्षित करने हेतु लॉगिन करें')}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs shadow-xs transition-all cursor-pointer"
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>लॉगिन</span>
-          </button>
-        )}
-      </header>
-
-      {/* Main Container */}
-      <main className="w-full max-w-3xl mx-auto px-3 sm:px-6 py-6 space-y-6 flex-1">
-        
-        {/* Auth status banner if guest */}
-        {!isAuthenticated && (
-          <div className="p-4 rounded-2xl bg-white border border-amber-300 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-            <div className="space-y-0.5">
-              <div className="flex items-center justify-center sm:justify-start gap-1 text-amber-700 font-bold text-xs">
-                <Lock className="w-3.5 h-3.5" />
-                <span>स्कोर सेविंग सुविधा</span>
-              </div>
-              <p className="text-xs text-stone-600">
-                लॉगिन करने पर आपका क्विज रिकॉर्ड और पदक आपके स्थायी खाते में सुरक्षित रहेगा।
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => signInWithGoogle?.()}
-              className="px-3.5 py-2 rounded-xl bg-stone-900 text-white font-bold text-xs hover:bg-stone-800 shrink-0 flex items-center gap-1.5 cursor-pointer"
-            >
-              <LogIn className="w-3.5 h-3.5 text-amber-400" />
-              <span>लॉगिन करें</span>
-            </button>
-          </div>
-        )}
+        </div>
 
         {/* User Stats Card if logged in */}
         {isAuthenticated && userRecord && userRecord.totalAttempts > 0 && (

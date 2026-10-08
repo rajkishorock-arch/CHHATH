@@ -61,6 +61,8 @@ import { SettingsPage } from './components/pages/SettingsPage';
 import { BlessingCertificatePage } from './components/pages/BlessingCertificatePage';
 import { MemoryAlbumPage } from './components/pages/MemoryAlbumPage';
 import { ChhathQuizPage } from './components/pages/ChhathQuizPage';
+import { ChhathiAIPage } from './components/pages/ChhathiAIPage';
+import { ChhathChatPage } from './components/pages/ChhathChatPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -161,6 +163,8 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'blessing-certificate' || t === 'certificate' || t === 'ashirwad-patra') return 'blessing-certificate';
   if (t === 'chhath-memories' || t === 'memories' || t === 'sansmaran' || t === 'album') return 'chhath-memories';
   if (t === 'chhath-quiz' || t === 'quiz') return 'chhath-quiz';
+  if (t === 'ai-pandit' || t === 'ai-assistant' || t === 'assistant' || t === 'pandit' || t === 'chhathi-ai') return 'ai-pandit';
+  if (t === 'chat' || t === 'chhath-chat' || t === 'connect' || t === 'dm') return 'chat';
   if (t === '3d-ghat' || t === 'ghat-3d' || t === '3d_ghat' || t === 'ghat3d' || t === '3d-darshan') return '3d-ghat';
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
@@ -577,7 +581,7 @@ const MainContent: React.FC = () => {
         onOpenSearch={() => setSearchModalOpen(true)}
         onOpenAdmin={() => setAdminModalOpen(true)}
         onOpenMixer={() => setMixerModalOpen(true)}
-        onOpenAssistant={() => setAssistantModalOpen(true)}
+        onOpenAssistant={() => handleNavigate('ai-pandit')}
       />
 
       {/* Main Content Area based on destination tab */}
@@ -591,8 +595,8 @@ const MainContent: React.FC = () => {
                   <QuickServicesHub
                     onNavigate={handleNavigate}
                     onOpenFeatureModal={setFeatureModal}
-                    onOpenAssistant={() => setAssistantModalOpen(true)}
-                    onOpenChat={() => openConnect()}
+                    onOpenAssistant={() => handleNavigate('ai-pandit')}
+                    onOpenChat={() => handleNavigate('chat')}
                   />
                 </div>
                 <SongsSection initialQuery={musicInitialQuery} />
@@ -601,8 +605,8 @@ const MainContent: React.FC = () => {
               <PublicHomeView
                 onNavigate={handleNavigate}
                 onOpenFeatureModal={setFeatureModal}
-                onOpenAssistant={() => setAssistantModalOpen(true)}
-                onOpenChat={() => openConnect()}
+                onOpenAssistant={() => handleNavigate('ai-pandit')}
+                onOpenChat={() => handleNavigate('chat')}
               />
             )}
           </div>
@@ -700,6 +704,14 @@ const MainContent: React.FC = () => {
 
           {(activeTab === 'chhath-quiz' || activeTab === 'quiz') && (
             <ChhathQuizPage onNavigate={handleNavigate} />
+          )}
+
+          {(activeTab === 'ai-pandit' || activeTab === 'ai-assistant' || activeTab === 'chhathi-ai') && (
+            <ChhathiAIPage onNavigate={handleNavigate} />
+          )}
+
+          {(activeTab === 'chat' || activeTab === 'chhath-chat') && (
+            <ChhathChatPage onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'explore' && (

@@ -250,7 +250,7 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Authentication Context (Real User Auth)
-  const { currentUser, isAuthenticated, openAuthModal, signInWithGoogle } = useAuth();
+  const { currentUser, isAuthenticated, openAuthModal } = useAuth();
 
   // States
   const [selectedGhat, setSelectedGhat] = useState<HolyGhatData>(HOLY_GHATS[0]);
@@ -1613,29 +1613,12 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
                 type="button"
                 onClick={() => {
                   setAuthGateModalOpen(false);
-                  signInWithGoogle?.().then((res) => {
-                    if (res?.success) {
-                      showToast('✨ लॉगिन सफल! अब आप दीपदान कर सकते हैं।');
-                      if (authGateFeature === 'diya') setDiyaModalOpen(true);
-                      else setArghyaModalOpen(true);
-                    }
-                  });
-                }}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Google से तुरंत लॉगिन करें</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthGateModalOpen(false);
                   openAuthModal('login', 'पवित्र दीपदान व अर्घ्य अनुष्ठान के लिए लॉगिन करें');
                 }}
-                className="w-full py-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs transition-all cursor-pointer"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                ईमेल व पासवर्ड से लॉगिन करें
+                <LogIn className="w-4 h-4" />
+                <span>लॉगिन करें</span>
               </button>
             </div>
           </div>

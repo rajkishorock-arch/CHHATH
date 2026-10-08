@@ -28,7 +28,10 @@ const routes = [
   'chhath-memories',
   'memories',
   'chhath-quiz',
-  'quiz'
+  'quiz',
+  'ai-pandit',
+  'chat',
+  'chhath-chat'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');

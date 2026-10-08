@@ -326,17 +326,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           { id: 'blessing-certificate', label: 'डिजिटल आशीर्वाद पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नया' },
           { id: 'chhath-memories', label: 'छठ संस्मरण व फोटो', sub: 'पारिवारिक पावन स्मृतियां', icon: Camera, badge: 'क्लाउड' },
           { id: 'chhath-quiz', label: 'छठ महापर्व ज्ञान क्विज', sub: 'संस्कृति व परंपरा प्रश्नोत्तरी', icon: Brain, badge: 'क्विज' },
-          { 
-            id: 'assistant_action', 
-            label: 'छठी मईया एआई सहायक', 
-            sub: 'पूछें कोई भी सवाल', 
-            icon: MessageSquare,
-            badge: 'AI',
-            action: () => {
-              onClose();
-              onOpenAssistant?.();
-            }
-          }
+          { id: 'chat', label: 'छठ कम्युनिटी चैट', sub: 'श्रद्धालुओं का लाइव संवाद', icon: MessageSquare, badge: 'लाइव' },
+          { id: 'ai-pandit', label: 'छठ AI पंडित', sub: '24x7 वैदिक परामर्श', icon: Sparkles, badge: 'AI', highlight: true }
         ]
       },
       {
@@ -418,17 +409,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           { id: 'blessing-certificate', label: 'Blessing Certificate', sub: 'Personalized HD digital certificate', icon: Award, badge: 'New' },
           { id: 'chhath-memories', label: 'Chhath Photo Memories', sub: 'Upload & preserve family moments', icon: Camera, badge: 'Cloud' },
           { id: 'chhath-quiz', label: 'Chhath Mahaparv Quiz', sub: 'Interactive knowledge quiz', icon: Brain, badge: 'Quiz' },
-          { 
-            id: 'assistant_action', 
-            label: 'Chhathi Maiya AI Assistant', 
-            sub: 'Ask any puja query anytime', 
-            icon: MessageSquare,
-            badge: 'AI',
-            action: () => {
-              onClose();
-              onOpenAssistant?.();
-            }
-          }
+          { id: 'chat', label: 'Chhath Community Chat', sub: 'Live devotee chat room', icon: MessageSquare, badge: 'Live' },
+          { id: 'ai-pandit', label: 'Chhath AI Pandit', sub: '24x7 Vedic AI Guide', icon: Sparkles, badge: 'AI', highlight: true }
         ]
       },
       {
@@ -510,17 +492,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           { id: 'blessing-certificate', label: 'डिजिटल असीस पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नया' },
           { id: 'chhath-memories', label: 'छठ संस्मरण आ फोटो', sub: 'परिवार के पावन सुरति', icon: Camera, badge: 'क्लाउड' },
           { id: 'chhath-quiz', label: 'छठ महापर्व ज्ञान क्विज', sub: 'परंपरा आ संस्कृति सवाल-जवाब', icon: Brain, badge: 'क्विज' },
-          { 
-            id: 'assistant_action', 
-            label: 'छठी मईया एआई सहायक', 
-            sub: 'पूछीं कवनो सवाल', 
-            icon: MessageSquare,
-            badge: 'AI',
-            action: () => {
-              onClose();
-              onOpenAssistant?.();
-            }
-          }
+          { id: 'chat', label: 'छठ कम्युनिटी चैट', sub: 'श्रद्धालु लोग के लाइव संवाद', icon: MessageSquare, badge: 'लाइव' },
+          { id: 'ai-pandit', label: 'छठ AI पंडित', sub: '24x7 वैदिक परामर्श', icon: Sparkles, badge: 'AI', highlight: true }
         ]
       },
       {
@@ -602,17 +575,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           { id: 'blessing-certificate', label: 'डिजिटल आशीष पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नव' },
           { id: 'chhath-memories', label: 'छठि संस्मरण ओ फोटो', sub: 'परिवारक पावन संस्मरण', icon: Camera, badge: 'क्लाउड' },
           { id: 'chhath-quiz', label: 'छठि महापर्व ज्ञान क्विज', sub: 'संस्कृति ओ परंपरा प्रश्नोत्तरी', icon: Brain, badge: 'क्विज' },
-          { 
-            id: 'assistant_action', 
-            label: 'छठी मईया एआई सहायक', 
-            sub: 'पुछू कोनो प्रश्न', 
-            icon: MessageSquare,
-            badge: 'AI',
-            action: () => {
-              onClose();
-              onOpenAssistant?.();
-            }
-          }
+          { id: 'chat', label: 'छठ कम्युनिटी चैट', sub: 'श्रद्धालु लोकनिक लाइव संवाद', icon: MessageSquare, badge: 'लाइव' },
+          { id: 'ai-pandit', label: 'छठ AI पंडित', sub: '24x7 वैदिक परामर्श', icon: Sparkles, badge: 'AI', highlight: true }
         ]
       },
       {
@@ -694,17 +658,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           { id: 'blessing-certificate', label: 'डिजिटल असीस पत्र', sub: 'व्यक्तिगत HD प्रमाण पत्र', icon: Award, badge: 'नया' },
           { id: 'chhath-memories', label: 'छठ संस्मरण व फोटो', sub: 'परिवार के पावन सुरति', icon: Camera, badge: 'क्लाउड' },
           { id: 'chhath-quiz', label: 'छठ महापर्व ज्ञान क्विज', sub: 'परंपरा व संस्कृति सवाल-जवाब', icon: Brain, badge: 'क्विज' },
-          { 
-            id: 'assistant_action', 
-            label: 'छठी मईया एआई सहायक', 
-            sub: 'पूछीं कवनो सवाल', 
-            icon: MessageSquare,
-            badge: 'AI',
-            action: () => {
-              onClose();
-              onOpenAssistant?.();
-            }
-          }
+          { id: 'chat', label: 'छठ कम्युनिटी चैट', sub: 'श्रद्धालु लोग के लाइव संवाद', icon: MessageSquare, badge: 'लाइव' },
+          { id: 'ai-pandit', label: 'छठ AI पंडित', sub: '24x7 वैदिक परामर्श', icon: Sparkles, badge: 'AI', highlight: true }
         ]
       },
       {

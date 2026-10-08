@@ -689,7 +689,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               लॉग आउट करना चाहते हैं?
             </h3>
             <p className="text-xs text-stone-500 mb-4">
-              आप कभी भी पुनः अपने ईमेल या Google खाते से लॉगिन कर सकते हैं।
+              आप कभी भी पुनः अपने ईमेल और पासवर्ड से लॉगिन कर सकते हैं।
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button

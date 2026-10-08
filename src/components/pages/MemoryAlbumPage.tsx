@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ArrowLeft, 
   Camera, 
   Plus, 
   Trash2, 
@@ -33,7 +32,7 @@ interface MemoryAlbumPageProps {
 }
 
 export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) => {
-  const { currentUser, isAuthenticated, openAuthModal, signInWithGoogle } = useAuth();
+  const { currentUser, isAuthenticated, openAuthModal } = useAuth();
 
   const [selectedYear, setSelectedYear] = useState<'all' | '2026' | '2025' | '2024'>('all');
   const [memories, setMemories] = useState<MemoryItem[]>([]);
@@ -155,93 +154,53 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
         </div>
       )}
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 px-3 sm:px-6 py-3 flex items-center justify-between gap-2 shadow-xs">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onNavigate('home')}
-            className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 transition-all cursor-pointer"
-            title="होम पर जाएं"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* Main Body */}
+      <main className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
+        
+        {/* Sleek Action Toolbar */}
+        <div className="flex items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-3 shadow-xs">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-600 flex items-center justify-center">
-              <Camera className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center shadow-xs">
+              <Camera className="w-4 h-4" />
             </div>
             <div>
               <h1 className="text-sm sm:text-base font-bold font-rozha text-stone-950 leading-tight">
-                छठ संस्मरण व फोटो एल्बम
+                छठ संस्मरण व फोटो
               </h1>
-              <p className="text-[10px] sm:text-xs text-rose-700 font-semibold leading-none">
-                पारिवारिक छठ यादें • सुरक्षित क्लाउड डायरी
+              <p className="text-[10px] sm:text-xs text-amber-700 font-semibold leading-none">
+                पारिवारिक पावन स्मृतियां
               </p>
             </div>
           </div>
-        </div>
 
-        {isAuthenticated && currentUser ? (
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  openAuthModal('login', 'पारिवारिक फोटो एल्बम में फोटो जोड़ने के लिए लॉगिन करें');
+                } else {
+                  setShowAddForm(true);
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>फोटो जोड़ें</span>
             </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => openAuthModal('login', 'पारिवारिक फोटो एल्बम सुरक्षित रखने के लिए लॉगिन करें')}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs shadow-xs transition-all cursor-pointer"
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>लॉगिन करें</span>
-          </button>
-        )}
-      </header>
 
-      {/* Main Body */}
-      <main className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-6 space-y-6 flex-1">
-
-        {/* Auth Gate Banner (If Not Authenticated) */}
-        {!isAuthenticated && (
-          <div className="p-5 sm:p-6 rounded-3xl bg-white border border-rose-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <div className="space-y-1 max-w-xl">
-              <div className="flex items-center justify-center md:justify-start gap-1.5 text-rose-700 font-bold text-xs">
-                <Lock className="w-3.5 h-3.5" />
-                <span>निजी पारिवारिक संस्मरण सुरक्षा</span>
-              </div>
-              <h3 className="text-base sm:text-lg font-bold font-rozha text-stone-950">
-                अपने परिवार की छठ फोटो सुरक्षित रखने के लिए लॉगिन करें
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                लॉगिन करने पर आपके द्वारा जोड़ी गई सभी तस्वीरें और संस्मरण आपके खाते में एन्क्रिप्टेड और सुरक्षित रहेंगे। कोई भी डमी या फर्जी डेटा नहीं।
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
+            {!isAuthenticated && (
               <button
                 type="button"
-                onClick={() => signInWithGoogle?.()}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                onClick={() => openAuthModal('login', 'पारिवारिक फोटो एल्बम सुरक्षित रखने के लिए लॉगिन करें')}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs transition-all cursor-pointer"
               >
-                <LogIn className="w-4 h-4" />
-                <span>Google से लॉगिन</span>
+                <LogIn className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">लॉगिन</span>
               </button>
-              <button
-                type="button"
-                onClick={() => openAuthModal('login')}
-                className="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs transition-all cursor-pointer"
-              >
-                ईमेल लॉगिन
-              </button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Year Filter Tabs */}
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">

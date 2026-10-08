@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  ArrowLeft, 
   Award, 
   Download, 
   Share2, 
@@ -22,7 +21,7 @@ interface BlessingCertificatePageProps {
 }
 
 export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = ({ onNavigate }) => {
-  const { currentUser, isAuthenticated, openAuthModal, signInWithGoogle } = useAuth();
+  const { currentUser, isAuthenticated, openAuthModal } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Devotee input states (pre-filled with real user data if authenticated)
@@ -240,20 +239,14 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
         </div>
       )}
 
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 px-3 sm:px-6 py-3 flex items-center justify-between gap-2 shadow-xs">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onNavigate('home')}
-            className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 transition-all cursor-pointer"
-            title="होम पर जाएं"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* Main Content Body */}
+      <main className="w-full max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
+
+        {/* Sleek Action Toolbar */}
+        <div className="flex items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-3 shadow-xs">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center">
-              <Award className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center shadow-xs">
+              <Award className="w-4 h-4" />
             </div>
             <div>
               <h1 className="text-sm sm:text-base font-bold font-rozha text-stone-950 leading-tight">
@@ -264,63 +257,25 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
               </p>
             </div>
           </div>
-        </div>
 
-        {isAuthenticated && currentUser ? (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span className="truncate max-w-[110px]">{currentUser.name || 'सत्यापित'}</span>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => openAuthModal('login', 'अपना व्यक्तिगत प्रमाण पत्र प्राप्त करने के लिए लॉगिन करें')}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs shadow-xs transition-all cursor-pointer"
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>लॉगिन करें</span>
-          </button>
-        )}
-      </header>
-
-      {/* Main Content Body */}
-      <main className="w-full max-w-4xl mx-auto px-3 sm:px-6 py-6 space-y-6 flex-1">
-
-        {/* Auth Gate Banner (If Not Authenticated) */}
-        {!isAuthenticated && (
-          <div className="p-5 sm:p-6 rounded-3xl bg-white border border-amber-300 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <div className="space-y-1 max-w-xl">
-              <div className="flex items-center justify-center md:justify-start gap-1.5 text-amber-700 font-bold text-xs">
-                <Lock className="w-3.5 h-3.5" />
-                <span>पंजीकृत श्रद्धालु विशेषाधिकार</span>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && currentUser ? (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="truncate max-w-[100px]">{currentUser.name || 'सत्यापित'}</span>
               </div>
-              <h3 className="text-base sm:text-lg font-bold font-rozha text-stone-950">
-                अपने नाम का स्थायी प्रमाण पत्र प्राप्त करने के लिए लॉगिन करें
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                लॉगिन करने पर आपका आशीर्वाद पत्र आपके वास्तविक खाते में आजीवन सुरक्षित रहेगा और किसी भी डिवाइस से डाउनलोड किया जा सकेगा।
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
+            ) : (
               <button
                 type="button"
-                onClick={() => signInWithGoogle?.()}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                onClick={() => openAuthModal('login', 'अपना व्यक्तिगत प्रमाण पत्र प्राप्त करने के लिए लॉगिन करें')}
+                className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
               >
-                <LogIn className="w-4 h-4" />
-                <span>Google लॉगिन</span>
+                <LogIn className="w-3.5 h-3.5" />
+                <span>लॉगिन करें</span>
               </button>
-              <button
-                type="button"
-                onClick={() => openAuthModal('login')}
-                className="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs transition-all cursor-pointer"
-              >
-                ईमेल लॉगिन
-              </button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Input Customizer Card */}
         <div className="p-4 sm:p-5 rounded-3xl bg-white border border-stone-200 shadow-xs space-y-3">
