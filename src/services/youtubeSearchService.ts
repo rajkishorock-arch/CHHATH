@@ -177,10 +177,8 @@ export const searchYouTubeVideos = async (
     }
   }
 
-  // Contextualize query with Chhath devotion if generic singer or title
-  const lowerQ = trimmed.toLowerCase();
-  const isChhathContext = lowerQ.includes('chhath') || lowerQ.includes('chhat') || lowerQ.includes('छठ') || lowerQ.includes('argh') || lowerQ.includes('अरघ') || lowerQ.includes('सुरुज') || lowerQ.includes('सूरज') || lowerQ.includes('भक्ति');
-  const optimizedQuery = isChhathContext ? trimmed : `${trimmed} छठ गीत`;
+  // Execute real-time search for the user query directly (YouTube-grade global search)
+  const optimizedQuery = trimmed;
 
   // 2. TIER 1: Dedicated High-Speed Live API (Local Vercel Serverless First -> Vercel Production -> Worker)
   const workerBase = getWorkerUrl().replace(/\/+$/, '');

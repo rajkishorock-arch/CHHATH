@@ -279,6 +279,7 @@ export default async function handler(req, res) {
             return {
               youtubeId: vidId,
               id: vidId,
+              videoId: vidId,
               title,
               channelTitle: item.snippet?.channelTitle || 'छठ भक्ति',
               singer: item.snippet?.channelTitle || 'छठ भक्ति',
@@ -384,6 +385,7 @@ function processInnerTubeItem(item, extractedItems, type) {
     extractedItems.push({
       youtubeId: v.videoId,
       id: v.videoId,
+      videoId: v.videoId,
       title,
       channelTitle: channel,
       singer: channel,
@@ -416,6 +418,7 @@ function processInnerTubeItem(item, extractedItems, type) {
         extractedItems.push({
           youtubeId: r.videoId,
           id: r.videoId,
+          videoId: r.videoId,
           title,
           channelTitle: channel,
           singer: channel,

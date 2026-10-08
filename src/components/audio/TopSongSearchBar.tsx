@@ -38,7 +38,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
         const results = await YouTubeSuggestService.getSuggestions(query);
         setSuggestions(results);
       } else {
-        setSuggestions(YouTubeSuggestService.getTrendingSearches().slice(0, 6));
+        setSuggestions([]);
       }
     }, 150);
 
@@ -266,12 +266,13 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
             </div>
           )}
 
-          {/* Suggestions List */}
-          <div className="p-2 space-y-0.5 max-h-72 overflow-y-auto">
-            <div className="px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
-              {!query ? <Flame className="w-3 h-3 text-orange-500" /> : <Search className="w-3 h-3 text-amber-500" />}
-              <span>{!query ? 'लोकप्रिय छठ सर्च (Trending)' : 'YouTube त्वरित सुझाव'}</span>
-            </div>
+          {/* Real-time YouTube Suggestions List */}
+          {suggestions.length > 0 && (
+            <div className="p-2 space-y-0.5 max-h-72 overflow-y-auto">
+              <div className="px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                <Search className="w-3 h-3 text-amber-500" />
+                <span>YouTube त्वरित सुझाव</span>
+              </div>
 
             {suggestions.map((item, idx) => (
               <div
@@ -294,7 +295,8 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
                 </button>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       )}
 

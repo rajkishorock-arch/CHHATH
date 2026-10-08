@@ -1,7 +1,6 @@
 import { NormalizedSearchResult, QueryAnalysis } from './types';
 import { getImageUrl } from '../../utils/imageUtils';
 import { ReelsStorage } from '../reelsStorage';
-import { chhathSongs } from '../../data/songs';
 import { chhathPrasadItems } from '../../data/prasad';
 import { chhathBlogPosts } from '../../data/blog';
 import { chhathKathaStories } from '../../data/katha';
@@ -108,61 +107,7 @@ export class InternalSearchProvider {
       }
     });
 
-    // -------------------------------------------------------------
-    // 2. INTERNAL SONGS SEARCH (#2 & #16 - Highest Priority Content)
-    // -------------------------------------------------------------
-    chhathSongs.forEach(s => {
-      const title = s.title.toLowerCase();
-      const singer = s.singer.toLowerCase();
-      const lyrics = (s.lyricsSnippet || '').toLowerCase();
-      const cat = (s.category || '').toLowerCase();
-      const lang = (s.language || '').toLowerCase();
-
-      let match = false;
-      let score = 0;
-
-      if (title.includes(q) || singer.includes(q)) {
-        match = true;
-        score = 90;
-      } else if (lyrics.includes(q)) {
-        match = true;
-        score = 80;
-      } else if (q.includes('geet') || q.includes('song') || q.includes('गीत') || q.includes('भजन')) {
-        match = true;
-        score = 75;
-      } else if (cat.includes(q) || lang.includes(q)) {
-        match = true;
-        score = 70;
-      }
-
-      // Language boost
-      if (match && userLanguage && lang.includes(userLanguage.toLowerCase())) {
-        score += 8;
-      }
-
-      if (match) {
-        results.push({
-          id: s.id,
-          source: 'internal',
-          type: 'song',
-          title: s.title,
-          description: s.lyricsSnippet || `${s.singer} • ${s.language}`,
-          thumbnail: s.thumbnail,
-          creator: s.singer,
-          url: s.audioUrl,
-          videoId: s.youtubeId,
-          relevanceScore: score,
-          badge: '✨ Chhath Mahaparv Original',
-          metadata: {
-            duration: s.duration,
-            language: s.language,
-            category: s.category,
-            youtubeId: s.youtubeId,
-            singer: s.singer
-          }
-        });
-      }
-    });
+    // (Static songs removed - dynamic real-time YouTube search handles all media)
 
     // -------------------------------------------------------------
     // 3. REELS SEARCH

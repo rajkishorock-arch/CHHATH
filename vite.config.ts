@@ -71,6 +71,7 @@ function youtubeSearchPlugin(): Plugin {
                 videos.push({
                   id: v.videoId,
                   youtubeId: v.videoId,
+                  videoId: v.videoId,
                   title,
                   singer: channel,
                   channelTitle: channel,

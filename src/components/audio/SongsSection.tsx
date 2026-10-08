@@ -654,7 +654,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   // Real-time suggestions listener
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setSearchSuggestions(YouTubeSuggestService.getTrendingSearches().slice(0, 6));
+      setSearchSuggestions([]);
       return;
     }
     const timer = setTimeout(async () => {
@@ -731,38 +731,14 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   };
 
   const CHHATH_LIVE_TOPICS = useMemo(() => [
-    'शारदा सिन्हा लोकप्रिय छठ गीत संग्रह',
-    'पवन सिंह नए छठ गीत 2026 स्पेशल',
-    'अनुराधा पौडवाल संपूर्ण छठ भजन',
-    'खेसारी लाल यादव छठ पूजा नए 2026',
-    'मैथिली ठाकुर छठ महापर्व भक्ति लाइव',
-    'मनोज तिवारी छठ महापर्व पारम्परिक गीत',
-    'कांच ही बांस के बहंगिया छठ स्पेशल',
-    'केलवा के पात पर उगेलन सुरुज देव',
-    'कल्पना पटवारी छठ पूजा पारम्परिक',
-    'छठ संध्या अर्घ्य लाइव आरती भजन',
-    'उषा अर्घ्य दर्शन भक्ति गीत भोरवा',
-    'अक्षरा सिंह छठ पूजा स्पेशल नए',
-    'सोनू निगम छठ मईया भजन सुपरहिट',
-    'रितेश पांडे नए छठ गीत 2026',
-    'प्रिया मल्लिक छठ गीत पारम्परिक',
-    'शिल्पी राज नए छठ गीत 2026',
-    'नीलकमल सिंह छठ पूजा स्पेशल',
-    'पटना गंगा घाट छठ पूजा लाइव दर्शन',
-    'दउरा उठावे के पारम्परिक छठ गीत',
-    'कोसी भराई छठ पूजा स्पेशल गीत',
-    'नहाय खाय स्पेशल पारंपरिक छठ गीत',
-    'खरना स्पेशल छठ पूजा प्रसाद गीत',
-    'प्रमोद प्रेमी यादव छठ महापर्व',
-    'अरविंद अकेला कल्लू छठ महापर्व',
-    'अंकुश राजा छठ गीत सुपरहिट',
-    'देवी छठ महापर्व पारंपरिक गीत',
-    'सुनील छैला बिहारी छठ स्पेशल',
-    'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026',
-    'छठ मईया के पारंपरिक पचरा वंदना',
-    'उग हे सुरुज देव अस्ताचल अर्घ्य',
-    'जोड़िले जोड़िया फलवा सुरुज देव',
-    'केरवा जे फरेला घवद से छठ सुपरहिट'
+    'chhath puja trending songs 2026',
+    'छठ महापर्व 2026 नए ट्रेंडिंग गीत',
+    'chhath puja top hits latest',
+    'छठ महापर्व लाइव दर्शन भजन',
+    'chhath geet new video 2026',
+    'छठ संध्या अर्घ्य उषा अर्घ्य स्पेशल वीडियो',
+    'chhath puja viral devotional songs',
+    'छठ महापर्व पावन भक्ति संगीत 2026'
   ], []);
 
   // Canonical signature normalizer: Strips channel/promotional noise and hashtags to deduplicate re-uploaded songs
@@ -788,66 +764,6 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
     return clean.slice(0, 15);
   };
-
-  // Identify singer bucket to prevent single-artist domination
-  const detectSingerBucket = (song: Song): string => {
-    const text = `${song.title} ${song.singer || ''}`.toLowerCase();
-    if (text.includes('sharda') || text.includes('शारदा')) return 'sharda';
-    if (text.includes('pawan') || text.includes('पवन')) return 'pawan';
-    if (text.includes('khesari') || text.includes('खेसारी')) return 'khesari';
-    if (text.includes('anuradha') || text.includes('अनुराधा') || text.includes('paudwal')) return 'anuradha';
-    if (text.includes('maithili') || text.includes('मैथिली')) return 'maithili';
-    if (text.includes('manoj') || text.includes('मनोज') || text.includes('tiwari')) return 'manoj';
-    if (text.includes('ritesh') || text.includes('रितेश')) return 'ritesh';
-    if (text.includes('kalpana') || text.includes('कल्पना')) return 'kalpana';
-    if (text.includes('akshara') || text.includes('अक्षरा')) return 'akshara';
-    if (text.includes('shilpi') || text.includes('शिल्पी')) return 'shilpi';
-    if (text.includes('pramod') || text.includes('प्रमोद')) return 'pramod';
-    if (text.includes('sonu') || text.includes('सोनू')) return 'sonu';
-    if (text.includes('priya') || text.includes('प्रिया')) return 'priya';
-    return 'devotional_folk';
-  };
-
-  // Dynamic Diversity Interleaving Engine: guarantees variety and fresh combination every single time!
-  const interleaveSingers = useCallback((songs: Song[]): Song[] => {
-    const buckets: Record<string, Song[]> = {};
-
-    for (const s of songs) {
-      const bucketKey = detectSingerBucket(s);
-      if (!buckets[bucketKey]) buckets[bucketKey] = [];
-      buckets[bucketKey].push(s);
-    }
-
-    // Shuffle songs inside each bucket so positions are completely dynamic
-    for (const k in buckets) {
-      buckets[k] = shuffleArray(buckets[k]);
-    }
-
-    // Dynamically randomize the artist rotation order so no single artist is fixed in position #1
-    const allArtists = ['sharda', 'pawan', 'maithili', 'khesari', 'anuradha', 'manoj', 'ritesh', 'kalpana', 'akshara', 'shilpi', 'pramod', 'priya', 'devotional_folk'];
-    const activeArtists = shuffleArray(allArtists.filter(k => buckets[k]?.length > 0));
-
-    const result: Song[] = [];
-    let addedAny = true;
-
-    while (addedAny) {
-      addedAny = false;
-      for (const key of activeArtists) {
-        if (buckets[key] && buckets[key].length > 0) {
-          result.push(buckets[key].shift()!);
-          addedAny = true;
-        }
-      }
-    }
-
-    for (const key in buckets) {
-      while (buckets[key] && buckets[key].length > 0) {
-        result.push(buckets[key].shift()!);
-      }
-    }
-
-    return result;
-  }, []);
 
   // Filter helper: STRICTLY exclude shorts / reels from the songs section
   const filterValidLandscapeSongs = (rawSongs: YouTubeSearchSong[]): Song[] => {
@@ -881,56 +797,23 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     return unique;
   }, []);
 
-  // Load real-time live songs on mount with multiple singers, trending, and all-time hits
+  // Load real-time live songs on mount directly from live YouTube trending queries
   const fetchInitialLiveSongs = useCallback(async () => {
     setIsLiveInitialLoading(true);
     seenYoutubeIdsRef.current.clear();
     seenSignaturesRef.current.clear();
     try {
-      // 3 High-diversity query pools to ensure new, fresh song combination on every page refresh!
-      const LEGEND_QUERIES = [
-        'छठ पूजा के अमर सुपरहिट गीत शारदा सिन्हा अनुराधा पौडवाल',
-        'केलवा के पात पर उगेलन सुरुज देव शारदा सिन्हा',
-        'कांच ही बांस के बहंगिया पारम्परिक छठ गीत शारदा सिन्हा',
-        'हे छठी मईया सुन लीं पुकार अनुराधा पौडवाल',
-        'उ जे केरवा जे फरेला घवद से छठ गीत सुपरहिट',
-        'शारदा सिन्हा छठ महापर्व आरधना गीत',
-        'मनोज तिवारी पारम्परिक छठ पूजा गीत',
-        'सोनू निगम सूर्य देव छठ भजन',
-        'देवी छठ महापर्व पारंपरिक गीत'
-      ];
-
       const TRENDING_QUERIES = [
-        'नए छठ गीत 2026 पवन सिंह खेसारी लाल मैथिली ठाकुर',
-        'पवन सिंह छठ पूजा स्पेशल नए 2026 गीत सुपरहिट',
-        'खेसारी लाल यादव छठ गीत 2026 भक्ति',
-        'मैथिली ठाकुर छठ महापर्व भक्ति गीत लाइव',
-        'अक्षरा सिंह छठ पूजा स्पेशल नए गीत 2026',
-        'रितेश पांडे नए छठ गीत 2026',
-        'शिल्पी राज नए छठ गीत सुपरहिट',
-        'नीलकमल सिंह छठ पूजा स्पेशल 2026',
-        'प्रमोद प्रेमी यादव छठ महापर्व'
+        'chhath puja trending songs 2026',
+        'छठ महापर्व 2026 नए ट्रेंडिंग गीत',
+        'chhath geet trending latest superhit'
       ];
 
-      const DEVOTIONAL_QUERIES = [
-        'कांच ही बांस के बहंगिया केलवा के पात छठ पूजा सुपरहिट',
-        'पटना गंगा घाट छठ पूजा लाइव आरती दर्शन',
-        'छठ पूजा संध्या अर्घ्य लाइव आरती भजन',
-        'उषा अर्घ्य भोरवा के अर्घ्य छठ गीत',
-        'दउरा उठावे के पारम्परिक छठ गीत',
-        'कोसी भराई छठ पूजा स्पेशल गीत',
-        'नहाय खाय स्पेशल पारंपरिक छठ गीत',
-        'खरना स्पेशल छठ पूजा प्रसाद गीत',
-        'छठ पूजा नॉनस्टॉप जूकबॉक्स 2026',
-        'छठ संध्या अर्घ्य उषा अर्घ्य स्पेशल भक्ति गीत'
-      ];
+      const query1 = TRENDING_QUERIES[Math.floor(Math.random() * TRENDING_QUERIES.length)];
+      const query2 = 'छठ पूजा पावन भक्ति वीडियो 2026';
+      const query3 = 'chhath geet new superhit';
 
-      const pickRandom = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-      const query1 = pickRandom(LEGEND_QUERIES);
-      const query2 = pickRandom(TRENDING_QUERIES);
-      const query3 = pickRandom(DEVOTIONAL_QUERIES);
-
-      // Randomize the initial topic index for smooth diverse continuation scrolling
+      // Randomize the initial topic index for smooth continuation scrolling
       liveTopicIndexRef.current = Math.floor(Math.random() * CHHATH_LIVE_TOPICS.length);
 
       // Fetch with bypassCache = true to guarantee 100% fresh, live real-world YouTube songs
@@ -957,22 +840,20 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
       setLiveNextPageToken(tokenToKeep);
 
-      // Filter valid landscape songs and deduplicate re-uploaded copies
+      // Filter valid landscape songs and deduplicate
       const filtered = filterValidLandscapeSongs(rawPool);
       const unique = deduplicateSongs(filtered);
+      const shuffled = shuffleArray(unique);
 
-      // Multi-singer round-robin dynamic interleaving
-      const diversified = interleaveSingers(unique);
-
-      if (diversified.length > 0) {
-        setLiveSongs(diversified);
+      if (shuffled.length > 0) {
+        setLiveSongs(shuffled);
       }
     } catch (err) {
-      console.warn('Initial multi-singer live songs fetch failed:', err);
+      console.warn('Initial live YouTube songs fetch failed:', err);
     } finally {
       setIsLiveInitialLoading(false);
     }
-  }, [deduplicateSongs, interleaveSingers, CHHATH_LIVE_TOPICS]);
+  }, [deduplicateSongs, CHHATH_LIVE_TOPICS]);
 
   useEffect(() => {
     fetchInitialLiveSongs();
@@ -1011,18 +892,18 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
       setLiveNextPageToken(newNextToken);
 
-      // Append strictly unique songs interleaved by singer so newly loaded songs also stay diverse
+      // Append strictly unique songs
       const uniqueNew = deduplicateSongs(results);
       if (uniqueNew.length > 0) {
-        const diversifiedNew = interleaveSingers(uniqueNew);
-        setLiveSongs(prev => [...prev, ...diversifiedNew]);
+        const freshNew = shuffleArray(uniqueNew);
+        setLiveSongs(prev => [...prev, ...freshNew]);
       }
     } catch (err) {
       console.warn('Load more live songs failed:', err);
     } finally {
       setIsLoadingMoreLive(false);
     }
-  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS, deduplicateSongs, interleaveSingers]);
+  }, [isLoadingMoreLive, isLiveInitialLoading, liveNextPageToken, CHHATH_LIVE_TOPICS, deduplicateSongs]);
 
   // Execute YouTube API Search
   const handleExecuteSearch = async (query: string, token: string = '', isContinuation: boolean = false) => {
@@ -1345,12 +1226,12 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           </form>
 
           {/* YouTube Real-time Autocomplete Dropdown with ↖ Auto-fill */}
-          {isSearchFocused && searchSuggestions.length > 0 && (
+          {isSearchFocused && searchQuery.trim() && searchSuggestions.length > 0 && (
             <div className="absolute top-full left-2 right-2 sm:left-0 sm:right-0 mt-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-2xl overflow-hidden z-40 animate-in fade-in zoom-in-95 duration-150">
               <div className="p-2 space-y-0.5 max-h-64 overflow-y-auto">
                 <div className="px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
-                  {!searchQuery.trim() ? <Sparkles className="w-3 h-3 text-amber-500" /> : <Search className="w-3 h-3 text-amber-500" />}
-                  <span>{!searchQuery.trim() ? 'लोकप्रिय छठ सर्च (Trending)' : 'YouTube सुझाव'}</span>
+                  <Search className="w-3 h-3 text-amber-500" />
+                  <span>YouTube सुझाव</span>
                 </div>
 
                 {searchSuggestions.map((item, idx) => (

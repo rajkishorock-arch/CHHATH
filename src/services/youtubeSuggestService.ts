@@ -9,24 +9,9 @@
  * - Real-time auto-fill capability (↖ arrow)
  */
 
-import { chhathSongs } from '../data/songs';
-
 const RECENT_SEARCHES_KEY = 'chhath_yt_recent_searches_v2';
 const MAX_RECENT = 8;
 const MAX_SUGGESTIONS = 8;
-
-const TRENDING_SEARCHES: string[] = [
-  'शारदा सिन्हा छठ गीत',
-  'पवन सिंह नए छठ गीत 2026',
-  'काँच ही बाँस के बहंगिया',
-  'केलवा के पात पर उगेलन सुरुज देव',
-  'उग हो सुरुज देव अरघ के बेर',
-  'खेसारी लाल यादव छठ स्पेशल',
-  'अनुराधा पौडवाल पारंपरिक छठ गीत',
-  'मैथिली ठाकुर पावन छठ भजन',
-  'संध्या अर्घ्य लाइव दर्शन',
-  'ठेकुआ महाप्रसाद विधि'
-];
 
 // Rich cultural and phonetic keywords for offline instant autocomplete
 const CULTURAL_DICTIONARY: string[] = [
@@ -66,7 +51,7 @@ class YouTubeSuggestEngine {
   async getSuggestions(query: string): Promise<string[]> {
     const clean = (query || '').trim();
     if (!clean) {
-      return this.getTrendingSearches();
+      return [];
     }
 
     const cacheKey = clean.toLowerCase();
@@ -191,33 +176,14 @@ class YouTubeSuggestEngine {
   }
 
   /**
-   * Instant local dictionary and song catalog match
+   * Instant local dictionary match
    */
   private getLocalDictionaryMatches(query: string): string[] {
     const q = query.toLowerCase();
     const results: string[] = [];
 
-    // Songs catalog matching
-    chhathSongs.forEach(song => {
-      const titleLower = song.title.toLowerCase();
-      const singerLower = song.singer.toLowerCase();
-      if (titleLower.includes(q)) {
-        results.push(song.title);
-      }
-      if (singerLower.includes(q)) {
-        results.push(`${song.singer} छठ गीत`);
-      }
-    });
-
     // Cultural dictionary matching
     CULTURAL_DICTIONARY.forEach(term => {
-      if (term.toLowerCase().includes(q)) {
-        results.push(term);
-      }
-    });
-
-    // Trending matching
-    TRENDING_SEARCHES.forEach(term => {
       if (term.toLowerCase().includes(q)) {
         results.push(term);
       }
@@ -230,7 +196,7 @@ class YouTubeSuggestEngine {
    * Trending searches for empty input
    */
   getTrendingSearches(): string[] {
-    return [...TRENDING_SEARCHES];
+    return [];
   }
 
   /**

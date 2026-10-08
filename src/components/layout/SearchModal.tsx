@@ -59,7 +59,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   // Real-time YouTube Autocomplete Suggestions
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [trendingSearches] = useState<string[]>(() => YouTubeSuggestService.getTrendingSearches());
 
   // YouTube Video Modal Player state
   const [activeVideo, setActiveVideo] = useState<NormalizedSearchResult | null>(null);
@@ -422,40 +421,18 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                 </div>
               )}
 
-              {/* Trending Chhath Searches */}
-              {!query.trim() && (
-                <div className="space-y-2">
-                  <div className="px-1 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Flame className="w-4 h-4 text-orange-500" />
-                    <span>लोकप्रिय छठ सर्च (Trending on YouTube)</span>
+              {/* YouTube-Style Empty Search Prompt (Zero Static Data) */}
+              {!query.trim() && recentSearches.length === 0 && (
+                <div className="py-16 px-4 text-center space-y-3">
+                  <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                    <Search className="w-7 h-7" />
                   </div>
-
-                  <div className="bg-stone-50 dark:bg-stone-900/60 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden divide-y divide-stone-100 dark:divide-stone-800/60">
-                    {trendingSearches.map((trend, idx) => (
-                      <div
-                        key={`trend-${idx}`}
-                        onClick={() => executeSearch(trend)}
-                        className="flex items-center justify-between px-4 py-3 hover:bg-amber-50 dark:hover:bg-stone-850 cursor-pointer transition-colors group"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Flame className="w-4 h-4 text-orange-500 shrink-0" />
-                          <span className="text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate font-semibold">
-                            {trend}
-                          </span>
-                        </div>
-
-                        {/* ↖ Auto-fill button */}
-                        <button
-                          type="button"
-                          onClick={(e) => handleAutoFill(trend, e)}
-                          className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-amber-500/20 transition-all shrink-0 cursor-pointer"
-                          title="सर्च बॉक्स में भरें (Auto-fill)"
-                        >
-                          <ArrowUpLeft className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  <h3 className="font-bold text-base text-stone-900 dark:text-stone-100">
+                    YouTube रियल-टाइम ग्लोबल सर्च
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 max-w-sm mx-auto leading-relaxed">
+                    कोई भी गीत, संगीत, गायक, भजन या वीडियो खोजें। यूट्यूब से सीधे लाइव परिणाम तुरंत प्राप्त करें।
+                  </p>
                 </div>
               )}
 

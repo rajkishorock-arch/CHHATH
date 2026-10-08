@@ -7,7 +7,6 @@ import {
 import { QueryEngine } from './queryEngine';
 import { InternalSearchProvider } from './internalSearchProvider';
 import { ReelsStorage } from '../reelsStorage';
-import { chhathSongs } from '../../data/songs';
 import { chhathGhatsData } from '../../data/ghats';
 
 const HISTORY_KEY = 'chhath_search_history';
@@ -49,8 +48,7 @@ export class GlobalSearchService {
       }
     }
 
-    // 4. External YouTube Search (#6, #7, #8, #17, #20)
-    // Determine whether external search is necessary
+    // 4. External YouTube Real-Time Global Search (#6, #7, #8, #17, #20)
     let externalResults: NormalizedSearchResult[] = [];
     let nextPageToken: string | undefined = undefined;
 
@@ -58,11 +56,14 @@ export class GlobalSearchService {
       (!exactUser || intent === 'SONG' || intent === 'VIDEO' || intent === 'GENERAL' || internalOutcome.results.length < 4);
 
     if (shouldSearchExternal) {
-      // Pick best expanded search query for YouTube (#8)
-      const externalSearchQuery = isChhathRelevant ? (expandedQueries[0] || `${cleanQuery} Chhath Puja`) : cleanQuery;
+      // Execute true global real-time search on YouTube for exactly what the user searched
+      const externalSearchQuery = cleanQuery;
 
       try {
-        const fetchUrl = `/api/search?q=${encodeURIComponent(externalSearchQuery)}${
+        const baseUrl = (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))
+          ? 'https://chhathvibes.vercel.app'
+          : '';
+        const fetchUrl = `${baseUrl}/api/search?q=${encodeURIComponent(externalSearchQuery)}${
           options.pageToken ? `&pageToken=${encodeURIComponent(options.pageToken)}` : ''
         }`;
 
@@ -71,35 +72,44 @@ export class GlobalSearchService {
           const data = await res.json();
           nextPageToken = data.nextPageToken;
 
-          if (data.results && Array.isArray(data.results)) {
-            externalResults = data.results
-              .filter((v: any) => v.videoId && !ReelsStorage.isBlockedVideo(v.videoId)) // Result validation (#18)
-              .map((v: any) => {
-                // Score external videos based on title match and relevance
-                const vTitle = (v.title || '').toLowerCase();
-                let score = 55;
-                if (vTitle.includes(cleanQuery.toLowerCase())) score += 15;
-                if (vTitle.includes('sharda sinha') || vTitle.includes('anuradha')) score += 5;
+          const rawList = data.results || data.items || [];
+          if (Array.isArray(rawList)) {
+            const mapped: NormalizedSearchResult[] = [];
+            for (const v of rawList) {
+              const vid = v.videoId || v.youtubeId || v.id;
+              if (!vid || typeof vid !== 'string' || vid.length < 5 || ReelsStorage.isBlockedVideo(vid)) {
+                continue;
+              }
 
-                return {
-                  id: `yt-${v.videoId}`,
-                  source: 'youtube' as const,
-                  type: 'video' as const,
-                  title: v.title,
-                  description: v.description || 'छठ महापर्व का पावन वीडियो',
-                  thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
-                  creator: v.channelTitle || 'पावन भक्ति संगीत',
-                  url: v.url || `https://www.youtube.com/watch?v=${v.videoId}`,
-                  videoId: v.videoId,
-                  relevanceScore: score,
-                  badge: 'भक्ति दर्शन',
-                  metadata: {
-                    channelTitle: v.channelTitle,
-                    publishedAt: v.publishedAt,
-                    videoId: v.videoId
-                  }
-                };
+              // Score external videos based on title match and relevance
+              const vTitle = (v.title || '').toLowerCase();
+              let score = 75;
+              if (vTitle.includes(cleanQuery.toLowerCase())) score += 20;
+
+              const thumb = v.thumbnail || v.thumbnailUrl || `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+              const channel = v.channelTitle || v.singer || 'YouTube Creator';
+
+              mapped.push({
+                id: `yt-${vid}`,
+                source: 'youtube' as const,
+                type: 'video' as const,
+                title: v.title || 'पावन भक्ति गीत',
+                description: v.description || `${channel} • YouTube`,
+                thumbnail: thumb,
+                creator: channel,
+                url: v.url || `https://www.youtube.com/watch?v=${vid}`,
+                videoId: vid,
+                relevanceScore: score,
+                badge: 'YouTube',
+                metadata: {
+                  channelTitle: channel,
+                  publishedAt: v.publishedAt,
+                  videoId: vid,
+                  duration: v.duration
+                }
               });
+            }
+            externalResults = mapped;
           }
         }
       } catch (err) {
@@ -108,22 +118,18 @@ export class GlobalSearchService {
     }
 
     // 5. Combine and Rank Results (#16 & #23)
-    // Internal content gets priority over external content when equally relevant
     const dedupeMap = new Map<string, NormalizedSearchResult>();
 
-    // Add internal results (already have high base score: 70-95)
-    internalOutcome.results.forEach(item => {
-      dedupeMap.set(`${item.type}-${item.id}`, item);
+    // Add external video results first so user gets real YouTube media instantly
+    externalResults.forEach(item => {
+      dedupeMap.set(`video-${item.videoId}`, item);
     });
 
-    // Add external video results
-    externalResults.forEach(item => {
-      // Don't add duplicate if videoId already exists in internal songs/reels
-      const existsInternally = Array.from(dedupeMap.values()).some(
-        internalItem => internalItem.videoId === item.videoId
-      );
-      if (!existsInternally) {
-        dedupeMap.set(`video-${item.videoId}`, item);
+    // Add internal results
+    internalOutcome.results.forEach(item => {
+      const key = `${item.type}-${item.id}`;
+      if (!dedupeMap.has(key)) {
+        dedupeMap.set(key, item);
       }
     });
 
@@ -133,16 +139,16 @@ export class GlobalSearchService {
       const bExact = b.title.toLowerCase().includes(cleanQuery.toLowerCase()) ? 1 : 0;
       if (aExact !== bExact) return bExact - aExact;
 
-      // Priority 2: Relevance score (incorporates internal bonus, language, and location)
+      // Priority 2: Relevance score
       return b.relevanceScore - a.relevanceScore;
     });
 
     // 6. Build Categorized Buckets (#5)
     const categorized = {
-      top: allRanked.slice(0, 15),
+      top: allRanked.slice(0, 25),
       people: allRanked.filter(r => r.type === 'user'),
       reels: allRanked.filter(r => r.type === 'reel'),
-      songs: allRanked.filter(r => r.type === 'song'),
+      songs: allRanked.filter(r => r.type === 'song' || r.type === 'video'),
       videos: allRanked.filter(r => r.type === 'video'),
       hashtags: allRanked.filter(r => r.type === 'hashtag'),
       articles: allRanked.filter(r => ['article', 'recipe', 'mantra', 'ghat', 'samagri', 'event'].includes(r.type))
@@ -194,19 +200,7 @@ export class GlobalSearchService {
       }
     });
 
-    // 2. Songs
-    chhathSongs.forEach(s => {
-      if (suggestions.length < 6 && (s.title.toLowerCase().includes(q) || s.singer.toLowerCase().includes(q))) {
-        suggestions.push({
-          type: 'song',
-          icon: '🎵',
-          label: s.title,
-          sub: s.singer
-        });
-      }
-    });
-
-    // 3. Reels
+    // 2. Reels
     allReels.forEach(r => {
       if (suggestions.length < 6 && r.title.toLowerCase().includes(q)) {
         suggestions.push({
