@@ -20,7 +20,8 @@ import {
   Settings,
   LayoutGrid,
   Film,
-  Download
+  Download,
+  ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useReels } from '../../context/ReelsContext';
@@ -216,7 +217,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   // Global listener to open sidebar drawer from any feature or button
   React.useEffect(() => {
     const handleOpenDrawer = () => setSidebarDrawerOpen(true);
-    const handleOpenMobileSearch = () => onOpenSearch();
+    const handleOpenMobileSearch = () => setMobileSearchOpen(true);
     window.addEventListener('open_sidebar_drawer', handleOpenDrawer);
     window.addEventListener('open_mobile_search', handleOpenMobileSearch);
     return () => {
@@ -229,6 +230,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSidebarDrawerOpen(false);
+        setMobileSearchOpen(false);
         setLangDropdownOpen(false);
         setUserMenuOpen(false);
       }
@@ -358,119 +360,143 @@ export const Navbar: React.FC<NavbarProps> = ({
       >
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-14 sm:h-20 px-2 sm:px-4 md:px-6">
         
-        {/* Left: Sidebar Drawer Trigger + Brand Logo */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
-          {/* Hamburger / All Features Drawer Button (Available on all devices) */}
-          <button
-            onClick={() => setSidebarDrawerOpen(true)}
-            aria-label={navText.drawerLabel}
-            title={navText.drawerLabel}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center text-stone-700 dark:text-stone-200 hover:bg-amber-500/15 hover:text-amber-600 active:scale-95 transition-all shrink-0 border border-stone-200/60 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50"
-          >
-            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-
-          {/* Brand Logo */}
-          <a 
-            href="#home" 
-            onClick={(e) => handleNavClick(e, 'home')}
-            className="flex items-center gap-2 sm:gap-2.5 text-decoration-none group min-w-0"
-          >
-            <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-200 shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform shrink-0">
-              <div className="w-full h-full rounded-full bg-stone-950 flex items-center justify-center overflow-hidden border border-amber-300/40">
-                <span className="text-lg sm:text-2xl filter drop-shadow">🌅</span>
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-stone-950 rounded-full p-0.5 shadow">
-                <Flame className="w-3 h-3 text-amber-950 fill-amber-200" />
-              </div>
+        {/* Mobile Full Header Search Bar Transformation */}
+        {mobileSearchOpen ? (
+          <div className="flex md:hidden items-center gap-2 w-full py-1 animate-in fade-in duration-150">
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen(false)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-stone-700 dark:text-stone-200 hover:bg-amber-500/15 hover:text-amber-600 transition-colors shrink-0 cursor-pointer"
+              title="वापस"
+              aria-label="सर्च बंद करें"
+            >
+              <ArrowLeft className="w-5 h-5 text-amber-500" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <TopSongSearchBar
+                autoFocus
+                onNavigateToMusic={(q) => {
+                  setMobileSearchOpen(false);
+                  handleSearchNavigate(q);
+                }}
+              />
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-rozha text-lg sm:text-2xl font-black text-amber-900 dark:text-amber-100 leading-tight drop-shadow-sm truncate">
-                {t.siteTitle}
-              </span>
-              <span className="hidden xl:block text-[10px] font-mukta font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
-                {navText.subtitle}
-              </span>
-            </div>
-          </a>
-        </div>
-
-        {/* Center: YouTube Top Song Search Bar (Desktop / Large Tablet) */}
-        <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-3">
-          <TopSongSearchBar 
-            onNavigateToMusic={handleSearchNavigate} 
-            onOpenFullSearch={onOpenSearch}
-          />
-        </div>
-
-        {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Drawer Button */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 shrink-0" aria-label="मुख्य नेविगेशन">
-          {primaryNavLinks.map((item) => {
-            const isActive = item.isReels ? reelsPlatformOpen : activeTab === item.id;
-            if (item.isReels) {
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={(e) => handleNavClick(e, item.id)}
-                  title={item.label}
-                  className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 border shadow-sm group active:scale-95 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 text-white border-orange-400 shadow-orange-500/30 ring-2 ring-orange-400/50'
-                      : 'bg-gradient-to-r from-red-600/15 via-orange-500/15 to-amber-500/15 hover:from-red-600/25 hover:via-orange-500/25 hover:to-amber-500/25 text-red-700 dark:text-amber-300 border-orange-500/30 hover:border-orange-500/60'
-                  }`}
-                >
-                  <Film className="w-3.5 h-3.5 text-red-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            }
-            return (
-              <a
-                key={item.id}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.id)}
-                className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-bold transition-all duration-200 text-decoration-none flex items-center gap-1 ${
-                  isActive
-                    ? 'bg-amber-500 text-stone-950 font-extrabold shadow-sm'
-                    : 'text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/10'
-                }`}
+          </div>
+        ) : (
+          <>
+            {/* Left: Sidebar Drawer Trigger + Brand Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+              {/* Hamburger / All Features Drawer Button (Available on all devices) */}
+              <button
+                onClick={() => setSidebarDrawerOpen(true)}
+                aria-label={navText.drawerLabel}
+                title={navText.drawerLabel}
+                className="w-10 h-10 rounded-2xl flex items-center justify-center text-stone-700 dark:text-stone-200 hover:bg-amber-500/15 hover:text-amber-600 active:scale-95 transition-all shrink-0 border border-stone-200/60 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50"
               >
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-extrabold leading-tight ${
-                    isActive ? 'bg-stone-950 text-amber-300' : 'bg-red-600 text-white'
-                  }`}>
-                    {item.badge}
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+
+              {/* Brand Logo */}
+              <a 
+                href="#home" 
+                onClick={(e) => handleNavClick(e, 'home')}
+                className="flex items-center gap-2 sm:gap-2.5 text-decoration-none group min-w-0"
+              >
+                <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-200 shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform shrink-0">
+                  <div className="w-full h-full rounded-full bg-stone-950 flex items-center justify-center overflow-hidden border border-amber-300/40">
+                    <span className="text-lg sm:text-2xl filter drop-shadow">🌅</span>
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-stone-950 rounded-full p-0.5 shadow">
+                    <Flame className="w-3 h-3 text-amber-950 fill-amber-200" />
+                  </div>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-rozha text-lg sm:text-2xl font-black text-amber-900 dark:text-amber-100 leading-tight drop-shadow-sm truncate">
+                    {t.siteTitle}
                   </span>
-                )}
+                  <span className="hidden xl:block text-[10px] font-mukta font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
+                    {navText.subtitle}
+                  </span>
+                </div>
               </a>
-            );
-          })}
+            </div>
 
-          {/* "सभी फीचर्स" Drawer Quick Trigger */}
-          <button
-            onClick={() => setSidebarDrawerOpen(true)}
-            className="px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-900 dark:text-amber-200 border border-amber-500/40 shadow-xs group"
-            title={navText.allFeaturesDesc}
-          >
-            <LayoutGrid className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform" />
-            <span>{navText.allFeatures}</span>
-          </button>
-        </nav>
+            {/* Center: YouTube Top Song Search Bar (Desktop / Large Tablet) */}
+            <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-3">
+              <TopSongSearchBar 
+                onNavigateToMusic={handleSearchNavigate} 
+                onOpenFullSearch={() => setMobileSearchOpen(true)}
+              />
+            </div>
 
-        {/* Right Header Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          
-          {/* Top YouTube Search Button (Mobile & Desktop) */}
-          <button
-            onClick={onOpenSearch}
-            title={navText.searchTitle}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex md:hidden items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm cursor-pointer active:scale-95"
-            aria-label="यूट्यूब सर्च खोलें"
-          >
-            <Search className="w-4 h-4 text-amber-500" />
-          </button>
+            {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Drawer Button */}
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 shrink-0" aria-label="मुख्य नेविगेशन">
+              {primaryNavLinks.map((item) => {
+                const isActive = item.isReels ? reelsPlatformOpen : activeTab === item.id;
+                if (item.isReels) {
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={(e) => handleNavClick(e, item.id)}
+                      title={item.label}
+                      className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 border shadow-sm group active:scale-95 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 text-white border-orange-400 shadow-orange-500/30 ring-2 ring-orange-400/50'
+                          : 'bg-gradient-to-r from-red-600/15 via-orange-500/15 to-amber-500/15 hover:from-red-600/25 hover:via-orange-500/25 hover:to-amber-500/25 text-red-700 dark:text-amber-300 border-orange-500/30 hover:border-orange-500/60'
+                      }`}
+                    >
+                      <Film className="w-3.5 h-3.5 text-red-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                }
+                return (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-bold transition-all duration-200 text-decoration-none flex items-center gap-1 ${
+                      isActive
+                        ? 'bg-amber-500 text-stone-950 font-extrabold shadow-sm'
+                        : 'text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-500/10'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge && (
+                      <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-extrabold leading-tight ${
+                        isActive ? 'bg-stone-950 text-amber-300' : 'bg-red-600 text-white'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </a>
+                );
+              })}
+
+              {/* "सभी फीचर्स" Drawer Quick Trigger */}
+              <button
+                onClick={() => setSidebarDrawerOpen(true)}
+                className="px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-900 dark:text-amber-200 border border-amber-500/40 shadow-xs group"
+                title={navText.allFeaturesDesc}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform" />
+                <span>{navText.allFeatures}</span>
+              </button>
+            </nav>
+
+            {/* Right Header Actions */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              
+              {/* Top YouTube Search Button (Mobile & Desktop) */}
+              <button
+                onClick={() => setMobileSearchOpen(true)}
+                title={navText.searchTitle}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex md:hidden items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm cursor-pointer active:scale-95"
+                aria-label="यूट्यूब सर्च खोलें"
+              >
+                <Search className="w-4 h-4 text-amber-500" />
+              </button>
 
           {/* Web-Only Direct APK Download Button (Hidden inside installed Native App) */}
           {!isNativeApp() && (
@@ -651,19 +677,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
         </div>
+          </>
+        )}
       </div>
-
-      {/* Mobile Expandable Top Search Bar */}
-      {mobileSearchOpen && (
-        <div className="md:hidden px-4 py-2.5 bg-stone-950/95 border-b border-amber-500/25 shadow-xl animate-in slide-in-from-top duration-200">
-          <TopSongSearchBar
-            onNavigateToMusic={(q) => {
-              setMobileSearchOpen(false);
-              handleSearchNavigate(q);
-            }}
-          />
-        </div>
-      )}
 
       {/* Professional Slide-in Sidebar Navigation Drawer (Mobile & Desktop) */}
       <SidebarDrawer

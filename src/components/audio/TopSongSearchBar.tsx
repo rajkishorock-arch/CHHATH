@@ -6,12 +6,14 @@ interface TopSongSearchBarProps {
   onNavigateToMusic?: (query?: string) => void;
   onOpenFullSearch?: () => void;
   className?: string;
+  autoFocus?: boolean;
 }
 
 export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
   onNavigateToMusic,
   onOpenFullSearch,
-  className = ''
+  className = '',
+  autoFocus = false
 }) => {
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -23,6 +25,12 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<any>(null);
+  // Auto-focus when requested (e.g. mobile search opened)
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
 
   // Load recent searches
   useEffect(() => {
@@ -167,7 +175,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
             setQuery(e.target.value);
             setIsFocused(true);
           }}
-          placeholder="YouTube पर छठ गीत, भजन या वीडियो खोजें..."
+          placeholder="YouTube पर कोई भी गाना, वीडियो या भजन खोजें..."
           className="w-full pl-10 pr-20 py-2 sm:py-2.5 rounded-full bg-stone-100/90 dark:bg-stone-900/90 hover:bg-white dark:hover:bg-stone-900 border border-stone-200 dark:border-amber-500/30 hover:border-amber-400 focus:border-amber-500 focus:bg-white dark:focus:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 transition-all shadow-inner"
           aria-label="गाना या वीडियो खोजें"
         />
@@ -179,6 +187,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
               onClick={() => {
                 setQuery('');
                 inputRef.current?.focus();
+                window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
               }}
               className="p-1 rounded-full text-stone-400 hover:text-stone-800 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-800 transition-colors cursor-pointer"
               title="साफ़ करें"
