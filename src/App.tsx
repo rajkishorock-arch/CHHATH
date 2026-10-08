@@ -593,7 +593,7 @@ const MainContent: React.FC = () => {
       />
 
       {/* Main Content Area based on destination tab */}
-      <main className="flex-1 pb-36 lg:pb-16">
+      <main className={`flex-1 flex flex-col min-h-0 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-16 sm:pb-0' : 'pb-36 lg:pb-16'}`}>
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           {/* Home Screen View */}
           {activeTab === 'home' && (
