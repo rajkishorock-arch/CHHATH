@@ -64,6 +64,26 @@ if (fs.existsSync(indexPath)) {
     fs.writeFileSync(path.join(chhathRouteDir, 'index.html'), indexHtml, 'utf-8');
   });
   console.log(`[post-build] Successfully mirrored routes to CHHATH/ prefix`);
+
+  // Ensure gh-pages branch has a safe vercel.json so Vercel doesn't fail with vite not found
+  const distVercelConfig = {
+    cleanUrls: true,
+    ignoreCommand: "exit 0",
+    buildCommand: "echo 'Static branch - no build required'",
+    outputDirectory: "."
+  };
+  fs.writeFileSync(path.join(distDir, 'vercel.json'), JSON.stringify(distVercelConfig, null, 2), 'utf-8');
+
+  // Provide dummy package.json for gh-pages branch
+  const distPkg = {
+    name: "chhath-static",
+    version: "1.0.0",
+    private: true,
+    scripts: {
+      build: "echo 'Already built'"
+    }
+  };
+  fs.writeFileSync(path.join(distDir, 'package.json'), JSON.stringify(distPkg, null, 2), 'utf-8');
 } else {
   console.warn('[post-build] dist/index.html not found!');
 }
