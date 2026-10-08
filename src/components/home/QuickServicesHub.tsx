@@ -1,10 +1,10 @@
 import React from 'react';
 import {
+  Compass,
   BookOpen,
   Sun,
   Award,
-  MessageCircle,
-  Compass,
+  Layers,
   UtensilsCrossed,
   CheckSquare,
   Scroll,
@@ -16,121 +16,315 @@ import {
 } from 'lucide-react';
 import { FeatureModalType } from './FeatureExperienceModal';
 import { isNativeApp, getApkDownloadUrl } from '../../utils/platform';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface QuickServicesHubProps {
   onNavigate: (tab: string) => void;
   onOpenFeatureModal: (modal: FeatureModalType) => void;
   onOpenAssistant: () => void;
-  onOpenChat: () => void;
+  onOpenChat?: () => void;
 }
 
 export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
-  onNavigate,
-  onOpenFeatureModal,
-  onOpenAssistant,
-  onOpenChat
+  onNavigate
 }) => {
+  const { language } = useLanguage();
+
+  const hubText = {
+    hi: {
+      title: 'महापर्व सेवाएं व अनुभव',
+      countBadge: '12 विशेष सेवाएं',
+      explore: 'एक्सप्लोर',
+      exploreBadge: 'कम्युनिटी',
+      vidhi: 'पूजा विधि',
+      vidhiBadge: 'नियम',
+      arghya: 'अर्घ्य समय',
+      arghyaBadge: 'लाइव',
+      certificate: 'सर्टिफिकेट',
+      certificateBadge: 'आशीर्वाद',
+      ghat3d: '3D घाट',
+      ghat3dBadge: '3D दर्शन',
+      thekua: 'ठेकुआ विधि',
+      thekuaBadge: 'प्रसाद',
+      samagri: 'सामग्री सूची',
+      samagriBadge: 'चेकलिस्ट',
+      katha: 'छठ कथा',
+      kathaBadge: 'पावन',
+      quiz: 'छठ क्विज़',
+      quizBadge: 'ज्ञान',
+      memories: 'संस्मरण',
+      memoriesBadge: 'यादें',
+      aiPandit: 'AI पंडित',
+      aiPanditBadge: 'AI',
+      aarti: 'आरती व मंत्र',
+      aartiBadge: 'वैदिक',
+      downloadApk: 'ऐप डाउनलोड',
+      downloadApkBadge: 'APK'
+    },
+    en: {
+      title: 'Sacred Services & Experiences',
+      countBadge: '12 Features',
+      explore: 'Explore',
+      exploreBadge: 'Community',
+      vidhi: 'Puja Vidhi',
+      vidhiBadge: 'Guide',
+      arghya: 'Arghya Time',
+      arghyaBadge: 'Live',
+      certificate: 'Certificate',
+      certificateBadge: 'Blessing',
+      ghat3d: '3D Ghat',
+      ghat3dBadge: '3D View',
+      thekua: 'Thekua Recipe',
+      thekuaBadge: 'Prasad',
+      samagri: 'Samagri List',
+      samagriBadge: 'Checklist',
+      katha: 'Chhath Katha',
+      kathaBadge: 'Sacred',
+      quiz: 'Chhath Quiz',
+      quizBadge: 'Trivia',
+      memories: 'Memories',
+      memoriesBadge: 'Album',
+      aiPandit: 'AI Pandit',
+      aiPanditBadge: 'AI',
+      aarti: 'Aarti & Mantra',
+      aartiBadge: 'Vedic',
+      downloadApk: 'Download App',
+      downloadApkBadge: 'APK'
+    },
+    bho: {
+      title: 'महापर्व सेवा आ अनुभव',
+      countBadge: '12 गो सेवा',
+      explore: 'एक्सप्लोर',
+      exploreBadge: 'कम्युनिटी',
+      vidhi: 'पूजा बिधि',
+      vidhiBadge: 'नियम',
+      arghya: 'अरघ समय',
+      arghyaBadge: 'लाइव',
+      certificate: 'सर्टिफिकेट',
+      certificateBadge: 'असीस',
+      ghat3d: '3D घाट',
+      ghat3dBadge: '3D दर्शन',
+      thekua: 'ठेकुआ बिधि',
+      thekuaBadge: 'परसाद',
+      samagri: 'सामग्री सूची',
+      samagriBadge: 'चेकलिस्ट',
+      katha: 'छठ कथा',
+      kathaBadge: 'पावन',
+      quiz: 'छठ क्विज',
+      quizBadge: 'ज्ञान',
+      memories: 'संस्मरण',
+      memoriesBadge: 'याद',
+      aiPandit: 'AI पंडित',
+      aiPanditBadge: 'AI',
+      aarti: 'आरती आ मंत्र',
+      aartiBadge: 'वैदिक',
+      downloadApk: 'ऐप डाउनलोड',
+      downloadApkBadge: 'APK'
+    },
+    mai: {
+      title: 'महापर्व सेवा ओ अनुभव',
+      countBadge: '12 टा सेवा',
+      explore: 'एक्सप्लोर',
+      exploreBadge: 'कम्युनिटी',
+      vidhi: 'पूजा विधि',
+      vidhiBadge: 'नियम',
+      arghya: 'अर्घ्य समय',
+      arghyaBadge: 'लाइव',
+      certificate: 'प्रमाणपत्र',
+      certificateBadge: 'आशीर्वाद',
+      ghat3d: '3D घाट',
+      ghat3dBadge: '3D दर्शन',
+      thekua: 'ठेकुआ विधि',
+      thekuaBadge: 'प्रसाद',
+      samagri: 'सामग्री सूची',
+      samagriBadge: 'चेकलिस्ट',
+      katha: 'छठि कथा',
+      kathaBadge: 'पावन',
+      quiz: 'छठि क्विज',
+      quizBadge: 'ज्ञान',
+      memories: 'स्मृति',
+      memoriesBadge: 'याद',
+      aiPandit: 'AI पंडित',
+      aiPanditBadge: 'AI',
+      aarti: 'आरती ओ मंत्र',
+      aartiBadge: 'वैदिक',
+      downloadApk: 'ऐप डाउनलोड',
+      downloadApkBadge: 'APK'
+    },
+    mag: {
+      title: 'महापर्व सेवा आ अनुभव',
+      countBadge: '12 गो सेवा',
+      explore: 'एक्सप्लोर',
+      exploreBadge: 'कम्युनिटी',
+      vidhi: 'पूजा विधि',
+      vidhiBadge: 'नियम',
+      arghya: 'अर्घ्य समय',
+      arghyaBadge: 'लाइव',
+      certificate: 'सर्टिफिकेट',
+      certificateBadge: 'आशीर्वाद',
+      ghat3d: '3D घाट',
+      ghat3dBadge: '3D दर्शन',
+      thekua: 'ठेकुआ विधि',
+      thekuaBadge: 'प्रसाद',
+      samagri: 'सामग्री सूची',
+      samagriBadge: 'चेकलिस्ट',
+      katha: 'छठ कथा',
+      kathaBadge: 'पावन',
+      quiz: 'छठ क्विज',
+      quizBadge: 'ज्ञान',
+      memories: 'संस्मरण',
+      memoriesBadge: 'याद',
+      aiPandit: 'AI पंडित',
+      aiPanditBadge: 'AI',
+      aarti: 'आरती आ मंत्र',
+      aartiBadge: 'वैदिक',
+      downloadApk: 'ऐप डाउनलोड',
+      downloadApkBadge: 'APK'
+    }
+  }[language] || {
+    title: 'महापर्व सेवाएं व अनुभव',
+    countBadge: '12 विशेष सेवाएं',
+    explore: 'एक्सप्लोर',
+    exploreBadge: 'कम्युनिटी',
+    vidhi: 'पूजा विधि',
+    vidhiBadge: 'नियम',
+    arghya: 'अर्घ्य समय',
+    arghyaBadge: 'लाइव',
+    certificate: 'सर्टिफिकेट',
+    certificateBadge: 'आशीर्वाद',
+    ghat3d: '3D घाट',
+    ghat3dBadge: '3D दर्शन',
+    thekua: 'ठेकुआ विधि',
+    thekuaBadge: 'प्रसाद',
+    samagri: 'सामग्री सूची',
+    samagriBadge: 'चेकलिस्ट',
+    katha: 'छठ कथा',
+    kathaBadge: 'पावन',
+    quiz: 'छठ क्विज़',
+    quizBadge: 'ज्ञान',
+    memories: 'संस्मरण',
+    memoriesBadge: 'यादें',
+    aiPandit: 'AI पंडित',
+    aiPanditBadge: 'AI',
+    aarti: 'आरती व मंत्र',
+    aartiBadge: 'वैदिक',
+    downloadApk: 'ऐप डाउनलोड',
+    downloadApkBadge: 'APK'
+  };
+
   const services = [
+    // 1. Explore button FIRST (before Puja Vidhi) as explicitly requested
+    {
+      id: 'explore',
+      label: hubText.explore,
+      badge: hubText.exploreBadge,
+      icon: Compass,
+      gradient: 'from-amber-500 via-orange-500 to-red-500',
+      action: () => onNavigate('explore')
+    },
+    // 2. Puja Vidhi
     {
       id: 'vidhi',
-      label: 'पूजा विधि',
-      badge: 'नियम',
+      label: hubText.vidhi,
+      badge: hubText.vidhiBadge,
       icon: BookOpen,
       gradient: 'from-amber-500 to-orange-500',
       action: () => onNavigate('chhath-puja-vidhi')
     },
+    // 3. Arghya Time
     {
       id: 'arghya',
-      label: 'अर्घ्य समय',
-      badge: 'लाइव',
+      label: hubText.arghya,
+      badge: hubText.arghyaBadge,
       icon: Sun,
       gradient: 'from-orange-500 to-rose-500',
       action: () => onNavigate('chhath-arghya-time-2026')
     },
+    // 4. Blessing Certificate
     {
       id: 'certificate',
-      label: 'सर्टिफिकेट',
-      badge: 'आशीर्वाद',
+      label: hubText.certificate,
+      badge: hubText.certificateBadge,
       icon: Award,
       gradient: 'from-yellow-500 to-amber-600',
       action: () => onNavigate('blessing-certificate')
     },
-    {
-      id: 'chat',
-      label: 'छठ चैट',
-      badge: 'कम्युनिटी',
-      icon: MessageCircle,
-      gradient: 'from-emerald-500 to-teal-600',
-      action: () => onNavigate('chat')
-    },
+    // 5. 3D Ghat Experience
     {
       id: 'ghat3d',
-      label: '3D घाट',
-      badge: '3D दर्शन',
-      icon: Compass,
+      label: hubText.ghat3d,
+      badge: hubText.ghat3dBadge,
+      icon: Layers,
       gradient: 'from-violet-500 to-purple-600',
       action: () => onNavigate('3d-ghat')
     },
+    // 6. Thekua Recipe
     {
       id: 'thekua',
-      label: 'ठेकुआ विधि',
-      badge: 'प्रसाद',
+      label: hubText.thekua,
+      badge: hubText.thekuaBadge,
       icon: UtensilsCrossed,
       gradient: 'from-amber-600 to-red-500',
       action: () => onNavigate('thekua-recipe')
     },
+    // 7. Samagri Checklist
     {
       id: 'samagri',
-      label: 'सामग्री सूची',
-      badge: 'चेकलिस्ट',
+      label: hubText.samagri,
+      badge: hubText.samagriBadge,
       icon: CheckSquare,
       gradient: 'from-amber-500 to-yellow-600',
       action: () => onNavigate('chhath-samagri')
     },
+    // 8. Chhath Katha
     {
       id: 'katha',
-      label: 'छठ कथा',
-      badge: 'पावन',
+      label: hubText.katha,
+      badge: hubText.kathaBadge,
       icon: Scroll,
       gradient: 'from-orange-600 to-amber-700',
       action: () => onNavigate('chhath-puja-katha')
     },
+    // 9. Chhath Quiz
     {
       id: 'quiz',
-      label: 'छठ क्विज़',
-      badge: 'ज्ञान',
+      label: hubText.quiz,
+      badge: hubText.quizBadge,
       icon: Brain,
       gradient: 'from-blue-500 to-indigo-600',
       action: () => onNavigate('chhath-quiz')
     },
+    // 10. Memories Album
     {
       id: 'memories',
-      label: 'संस्मरण',
-      badge: 'यादें',
+      label: hubText.memories,
+      badge: hubText.memoriesBadge,
       icon: Camera,
       gradient: 'from-rose-500 to-pink-600',
       action: () => onNavigate('chhath-memories')
     },
+    // 11. AI Pandit
     {
       id: 'ai-pandit',
-      label: 'AI पंडित',
-      badge: 'AI',
+      label: hubText.aiPandit,
+      badge: hubText.aiPanditBadge,
       icon: Bot,
       gradient: 'from-cyan-500 to-blue-600',
       action: () => onNavigate('ai-pandit')
     },
+    // 12. Aarti & Mantra
     {
       id: 'aarti',
-      label: 'आरती व मंत्र',
-      badge: 'वैदिक',
+      label: hubText.aarti,
+      badge: hubText.aartiBadge,
       icon: Flame,
       gradient: 'from-red-500 to-orange-500',
       action: () => onNavigate('aarti')
     },
     ...(!isNativeApp() ? [{
       id: 'download-apk',
-      label: 'ऐप डाउनलोड',
-      badge: 'APK',
+      label: hubText.downloadApk,
+      badge: hubText.downloadApkBadge,
       icon: Download,
       gradient: 'from-emerald-600 to-teal-700',
       action: () => {
@@ -149,10 +343,10 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       <div className="flex items-center justify-between px-1 mb-2.5">
         <div className="flex items-center gap-1.5 font-rozha text-sm sm:text-base font-bold text-stone-900 dark:text-amber-100">
           <span className="text-amber-500">✨</span>
-          <span>महापर्व सेवाएं व अनुभव</span>
+          <span>{hubText.title}</span>
         </div>
         <span className="font-mukta text-[10px] sm:text-xs font-semibold text-amber-700 dark:text-amber-400/90">
-          12 विशेष सेवाएं
+          {hubText.countBadge}
         </span>
       </div>
 
@@ -166,7 +360,7 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
               type="button"
               onClick={service.action}
               aria-label={service.label}
-              className="flex flex-col items-center gap-1.5 flex-shrink-0 group focus:outline-none snap-start active:scale-95 transition-transform duration-150"
+              className="flex flex-col items-center gap-1.5 flex-shrink-0 group focus:outline-none snap-start active:scale-95 transition-transform duration-150 cursor-pointer"
             >
               <div className="relative">
                 <div

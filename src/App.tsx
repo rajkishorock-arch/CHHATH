@@ -62,7 +62,6 @@ import { BlessingCertificatePage } from './components/pages/BlessingCertificateP
 import { MemoryAlbumPage } from './components/pages/MemoryAlbumPage';
 import { ChhathQuizPage } from './components/pages/ChhathQuizPage';
 import { ChhathiAIPage } from './components/pages/ChhathiAIPage';
-import { ChhathChatPage } from './components/pages/ChhathChatPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -165,7 +164,7 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'chhath-memories' || t === 'memories' || t === 'sansmaran' || t === 'album') return 'chhath-memories';
   if (t === 'chhath-quiz' || t === 'quiz') return 'chhath-quiz';
   if (t === 'ai-pandit' || t === 'ai-assistant' || t === 'assistant' || t === 'pandit' || t === 'chhathi-ai') return 'ai-pandit';
-  if (t === 'chat' || t === 'chhath-chat' || t === 'connect' || t === 'dm') return 'chat';
+  if (t === 'chat' || t === 'chhath-chat' || t === 'connect' || t === 'dm') return 'explore';
   if (t === '3d-ghat' || t === 'ghat-3d' || t === '3d_ghat' || t === 'ghat3d' || t === '3d-darshan') return '3d-ghat';
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
@@ -262,6 +261,20 @@ const MainContent: React.FC = () => {
     const handleScreenResize = () => setIsMobileScreen(window.innerWidth < 1024);
     window.addEventListener('resize', handleScreenResize);
     return () => window.removeEventListener('resize', handleScreenResize);
+  }, []);
+
+  // Wipe any dummy / obsolete chat data from localStorage
+  useEffect(() => {
+    try {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('chhath_connect_') || key.startsWith('chhath_chat_') || key.startsWith('chat_'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+    } catch {}
   }, []);
 
   const [locationModalOpen, setLocationModalOpen] = useState<boolean>(false);
@@ -597,7 +610,7 @@ const MainContent: React.FC = () => {
       />
 
       {/* Main Content Area based on destination tab */}
-      <main className={`flex-1 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-0' : 'pb-36 lg:pb-16'}`}>
+      <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           <div className="w-full">
             {/* Home Screen View (Preserved in DOM to prevent reloads & maintain scroll position) */}
@@ -609,7 +622,6 @@ const MainContent: React.FC = () => {
                       onNavigate={handleNavigate}
                       onOpenFeatureModal={setFeatureModal}
                       onOpenAssistant={() => handleNavigate('ai-pandit')}
-                      onOpenChat={() => handleNavigate('chat')}
                     />
                   </div>
                   <SongsSection initialQuery={musicInitialQuery} />
@@ -619,7 +631,6 @@ const MainContent: React.FC = () => {
                   onNavigate={handleNavigate}
                   onOpenFeatureModal={setFeatureModal}
                   onOpenAssistant={() => handleNavigate('ai-pandit')}
-                  onOpenChat={() => handleNavigate('chat')}
                   initialQuery={musicInitialQuery}
                 />
               )}
@@ -724,17 +735,10 @@ const MainContent: React.FC = () => {
             <ChhathiAIPage onNavigate={handleNavigate} />
           )}
 
-          {(activeTab === 'chat' || activeTab === 'chhath-chat') && (
-            <ChhathChatPage onNavigate={handleNavigate} />
-          )}
-
           {activeTab === 'explore' && (
-            <PublicHomeView
-              onNavigate={handleNavigate}
-              onOpenFeatureModal={setFeatureModal}
-              onOpenAssistant={() => setAssistantModalOpen(true)}
-              onOpenChat={() => handleNavigate('chat')}
-            />
+            <Suspense fallback={<ComponentLoader />}>
+              <ExploreView />
+            </Suspense>
           )}
 
           {activeTab === 'settings' && (
@@ -749,9 +753,7 @@ const MainContent: React.FC = () => {
       </main>
 
       {/* Global Interactive Dock & Persistent Audio Player */}
-      {activeTab !== 'chat' && activeTab !== 'chhath-chat' && (
-        <StickyPlayer onOpenMixer={() => setMixerModalOpen(true)} />
-      )}
+      <StickyPlayer onOpenMixer={() => setMixerModalOpen(true)} />
       <ExpandedPlayerModal />
       <PlaybackQueueModal />
 
@@ -762,10 +764,8 @@ const MainContent: React.FC = () => {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation - Hidden on chat tab so message typing textbox is 100% visible */}
-      {activeTab !== 'chat' && activeTab !== 'chhath-chat' && (
-        <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />
-      )}
+      {/* Mobile Bottom Navigation */}
+      <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />
 
       {/* Global Modals */}
       {locationModalOpen && (

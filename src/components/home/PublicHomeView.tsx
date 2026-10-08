@@ -24,12 +24,12 @@ import {
 
 import { QuickServicesHub } from './QuickServicesHub';
 import { FeatureModalType } from './FeatureExperienceModal';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface PublicHomeViewProps {
   onNavigate: (tab: string) => void;
   onOpenFeatureModal?: (modal: FeatureModalType) => void;
   onOpenAssistant?: () => void;
-  onOpenChat?: () => void;
   initialQuery?: string;
 }
 
@@ -37,9 +37,9 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
   onNavigate,
   onOpenFeatureModal,
   onOpenAssistant,
-  onOpenChat,
   initialQuery
 }) => {
+  const { language } = useLanguage();
   const [activeSearchQuery, setActiveSearchQuery] = React.useState<string>(initialQuery || '');
 
   React.useEffect(() => {
@@ -58,49 +58,236 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
     window.addEventListener('chhath_music_search', handleMusicSearchEvent);
     return () => window.removeEventListener('chhath_music_search', handleMusicSearchEvent);
   }, []);
-  const utilityCards = [
-    {
-      id: 'arghya',
-      title: 'आज का अर्घ्य समय',
-      desc: 'सूर्यास्त एवं सूर्योदय का सटीक स्थानीय समय व खगोलीय गणना।',
-      icon: Sun,
-      badge: 'समय'
+  const homeText = {
+    hi: {
+      servicesTitle: 'छठ पूजा 2026: मुख्य सेवाएं एवं गाइड',
+      servicesSub: 'आपकी पूजा की संपूर्ण तैयारी के लिए आवश्यक 6 मुख्य अनुभाग',
+      viewBtn: 'देखें',
+      seoTitle: 'छठ पूजा 2026 की महत्वपूर्ण गाइड',
+      seoSub: 'संपूर्ण नियम, सामग्री, अर्घ्य समय और ठेकुआ रेसिपी की विस्तृत गाइड',
+      readMore: 'विस्तार से पढ़ें',
+      checkListBtn: 'सामग्री सूची देखें',
+      checkTimeBtn: 'समय देखें',
+      viewRecipeBtn: 'रेसिपी देखें',
+      listenSongsBtn: 'छठ गीत सुनें',
+      readKathaBtn: 'कथा पढ़ें',
+      samagriCardTitle: 'छठ पूजा सामग्री सूची (Chhath Samagri)',
+      samagriCardSub: 'दउरा, सूप, मौसमी अर्घ्य फल, ठेकुआ-कसार सामग्री और घाट की संपूर्ण आवश्यक वस्तुओं की विस्तृत प्रामाणिक सूची।',
+      samagriCardPill: '40+ प्रामाणिक पूजन वस्तुएं • संपूर्ण चेकलिस्ट',
+      samagriCardBtn: 'संपूर्ण सामग्री सूची देखें',
+      prasadCardTitle: 'पावन पकवान व ठेकुआ रेसिपी (Chhath Prasad & Recipes)',
+      prasadCardSub: 'पारंपरिक सांचे पर गढ़ा खस्ता ठेकुआ, खरना का अमृततुल्य रसियाव (गुड़ की खीर), चावल के कसार लड्डू और मौसमी फल।',
+      prasadCardPill: 'छठ महापर्व के पवित्र महाप्रसाद • विधि व वीडियो गाइड',
+      prasadCardBtn: 'सभी पकवान रेसिपी व वीडियो देखें',
+      mantraCardTitle: 'सूर्य देव वैदिक मंत्र व छठी मईया आरती (Mantra & Aarti)',
+      mantraCardSub: 'सूर्य अर्घ्य समर्पण महामंत्र, षष्ठी देवी ध्यान, सूर्य गायत्री, आदित्य हृदय स्तोत्र और छठी मईया की संपूर्ण पावन आरती।',
+      mantraCardPill: 'वैदिक मंत्र, स्तोत्र व पावन आरती • संपूर्ण आध्यात्मिक संग्रह',
+      mantraCardBtn: 'संपूर्ण मंत्र, आरती व वीडियो सुनें',
+      communityTitle: 'श्रद्धालु अनुभव व संस्मरण',
+      communitySub: 'समुदाय से चुनिंदा पावन क्षण (Community Highlights)',
+      exploreAllBtn: 'सभी देखें (Explore)',
+      trustSource: 'विश्वसनीय स्रोत: दृक् पंचांग एवं क्षेत्रीय खगोलीय वेधशाला आंकड़े • 2026',
+      geoBased: 'स्थानिक अक्षांश-रेखांश गणना आधारित'
     },
-    {
-      id: 'guide',
-      title: 'चार दिन की पूजा गाइड',
-      desc: 'नहाय-खाय, खरना, संध्या व उषा अर्घ्य के पावन नियम।',
-      icon: Calendar,
-      badge: 'नियम'
+    en: {
+      servicesTitle: 'Chhath Puja 2026: Core Services & Guides',
+      servicesSub: 'Essential 6 primary sections for your complete festival preparations',
+      viewBtn: 'View',
+      seoTitle: 'Chhath Puja 2026 Essential Guides',
+      seoSub: 'Complete rules, holy samagri, solar arghya timings, and thekua recipes',
+      readMore: 'Read Full Guide',
+      checkListBtn: 'View Checklist',
+      checkTimeBtn: 'View Timings',
+      viewRecipeBtn: 'View Recipe',
+      listenSongsBtn: 'Listen to Songs',
+      readKathaBtn: 'Read Legends',
+      samagriCardTitle: 'Chhath Puja Samagri List (Chhath Samagri)',
+      samagriCardSub: 'Exhaustive checklist of bamboo winnows, baskets, holy fruits, thekua ingredients, and ghat essentials.',
+      samagriCardPill: '40+ Authentic Sacred Items • Interactive Checklist',
+      samagriCardBtn: 'View Complete Samagri List',
+      prasadCardTitle: 'Sacred Offerings & Thekua Recipes (Chhath Prasad)',
+      prasadCardSub: 'Crispy wooden-mold Thekua, divine Kharna Rasiyaw jaggery kheer, Kasar laddoos, and fresh seasonal offerings.',
+      prasadCardPill: 'Sacred Mahaprasad of Chhath • Recipe & Video Guide',
+      prasadCardBtn: 'View All Prasad Recipes & Videos',
+      mantraCardTitle: 'Vedic Surya Mantras & Chhathi Maiya Aarti',
+      mantraCardSub: 'Solar Arghya Dedication Mantras, Shashthi Devi Dhyan, Surya Gayatri, Aditya Hridaya Stotra, and holy Aarti.',
+      mantraCardPill: 'Vedic Mantras, Hymns & Sacred Aarti • Complete Spiritual Collection',
+      mantraCardBtn: 'Listen to All Mantras & Aarti',
+      communityTitle: 'Devotee Experiences & Memories',
+      communitySub: 'Heartwarming moments shared by the global Chhath community',
+      exploreAllBtn: 'Explore All',
+      trustSource: 'Trusted Sources: Drik Panchang & Regional Solar Observatories • 2026',
+      geoBased: 'Calculated using geographic latitude and longitude coordinates'
     },
-    {
-      id: 'samagri',
-      title: 'सामग्री सूची',
-      desc: 'दउरा, सूप, फल, ठेकुआ व पूजा सामग्री की चेकलिस्ट।',
-      icon: CheckSquare,
-      badge: 'चेकलिस्ट'
+    bho: {
+      servicesTitle: 'छठ पूजा 2026: मुख्य सेवा आ गाइड',
+      servicesSub: 'पूजा के पूरा तइयारी खातिर जरूरी 6 गो मुख्य अनुभाग',
+      viewBtn: 'देखीं',
+      seoTitle: 'छठ पूजा 2026 के जरूरी गाइड',
+      seoSub: 'सगरी नेम, सामान, अरघ समय आ ठेकुआ के प्रामाणिक बिधि',
+      readMore: 'बिस्तार से पढ़ीं',
+      checkListBtn: 'सामग्री सूची देखीं',
+      checkTimeBtn: 'समय देखीं',
+      viewRecipeBtn: 'रेसिपी देखीं',
+      listenSongsBtn: 'छठ गीत सुनीं',
+      readKathaBtn: 'कथा पढ़ीं',
+      samagriCardTitle: 'छठ पूजा सामग्री सूची (Chhath Samagri)',
+      samagriCardSub: 'दउरा, सूप, फल, ठेकुआ-कसार आ घाट के सगरी जरूरी सामान के सूची।',
+      samagriCardPill: '40+ पूजा सामग्री • पूरा चेकलिस्ट',
+      samagriCardBtn: 'सगरी सामान के सूची देखीं',
+      prasadCardTitle: 'पावन पकवान आ ठेकुआ रेसिपी (Chhath Prasad)',
+      prasadCardSub: 'काठ के सांचा पर बनल खस्ता ठेकुआ, खरना के रसियाव खीर आ कसार लाडू।',
+      prasadCardPill: 'छठ महापर्व के पवित्र महापरसाद • बिधि आ वीडियो गाइड',
+      prasadCardBtn: 'सगरी पकवान के बिधि देखीं',
+      mantraCardTitle: 'सुरुज देव वैदिक मंत्र आ छठी मइया आरती',
+      mantraCardSub: 'सुरुज अरघ मंतर, छठी मइया ध्यान, सुरुज गायत्री आ पावन आरती।',
+      mantraCardPill: 'वैदिक मंत्र, स्तोत्र आ पावन आरती • आध्यात्मिक संग्रह',
+      mantraCardBtn: 'सगरी मंत्र आ आरती सुनीं',
+      communityTitle: 'श्रद्धालु अनुभव आ सुरति',
+      communitySub: 'समुदाय से चुनल पावन क्षण (Community Highlights)',
+      exploreAllBtn: 'सगरी देखीं (Explore)',
+      trustSource: 'सच्चा स्रोत: दृक् पंचांग आ खगोलीय वेधशाला आंकड़े • 2026',
+      geoBased: 'सहर के अक्षांश-देशांतर के हिसाब से गणना'
     },
-    {
-      id: 'ghats',
-      title: 'पास के घाट',
-      desc: 'नजदीकी पवित्र घाट, पार्किंग सुविधा व भीड़ सुरक्षा गाइड।',
-      icon: MapPin,
-      badge: 'घाट'
+    mai: {
+      servicesTitle: 'छठि पूजा 2026: मुख्य सेवा ओ गाइड',
+      servicesSub: 'पूजाक सम्पूर्ण तैयारी लेल आवश्यक 6 मुख्य अनुभाग',
+      viewBtn: 'देखू',
+      seoTitle: 'छठि पूजा 2026 केर महत्वपूर्ण गाइड',
+      seoSub: 'सम्पूर्ण नियम, सामग्री, अर्घ्य समय ओ ठेकुआ रेसिपीक विस्तृत गाइड',
+      readMore: 'विस्तार सं पढ़ू',
+      checkListBtn: 'सामग्री सूची देखू',
+      checkTimeBtn: 'समय देखू',
+      viewRecipeBtn: 'रेसिपी देखू',
+      listenSongsBtn: 'छठि गीत सुनू',
+      readKathaBtn: 'कथा पढ़ू',
+      samagriCardTitle: 'छठि पूजा सामग्री सूची (Chhath Samagri)',
+      samagriCardSub: 'दउरा, सूप, फल, ठेकुआ-कसार सामग्रीक सम्पूर्ण प्रामाणिक सूची।',
+      samagriCardPill: '40+ प्रामाणिक पूजन सामग्री • सम्पूर्ण चेकलिस्ट',
+      samagriCardBtn: 'सम्पूर्ण सामग्री सूची देखू',
+      prasadCardTitle: 'पावन पकवान ओ ठेकुआ रेसिपी (Chhath Prasad)',
+      prasadCardSub: 'काठक सांचा पर बनल खस्ता ठेकुआ, खरनाक रसियाव खीर ओ कसार लड्डू।',
+      prasadCardPill: 'छठि महापर्वक पवित्र महाप्रसाद • विधि ओ वीडियो गाइड',
+      prasadCardBtn: 'समस्त पकवान विधि देखू',
+      mantraCardTitle: 'सूर्य देव वैदिक मंत्र व षष्ठी देवी आरती',
+      mantraCardSub: 'सूर्य अर्घ्य महामंत्र, षष्ठी देवी ध्यान, सूर्य गायत्री ओ पावन आरती।',
+      mantraCardPill: 'वैदिक मंत्र, स्तोत्र ओ पावन आरती • सम्पूर्ण आध्यात्मिक संग्रह',
+      mantraCardBtn: 'सम्पूर्ण मंत्र ओ आरती सुनू',
+      communityTitle: 'श्रद्धालु अनुभव ओ संस्मरण',
+      communitySub: 'समुदाय सं चुनल पावन क्षण (Community Highlights)',
+      exploreAllBtn: 'समस्त देखू (Explore)',
+      trustSource: 'विश्वसनीय स्रोत: दृक् पंचांग एवं क्षेत्रीय खगोलीय आंकड़े • 2026',
+      geoBased: 'स्थानिक अक्षांश-रेखांश गणना आधारित'
     },
-    {
-      id: 'prasad',
-      title: 'प्रसाद व रेसिपी',
-      desc: 'सात्विक ठेकुआ, कसार व छठ रेसिपी बनाने की सरल विधि।',
-      icon: Utensils,
-      badge: 'रेसिपी'
-    },
-    {
-      id: 'aarti',
-      title: 'मंत्र, आरती व गीत',
-      desc: 'पारंपरिक छठ गीत, सूर्य मंत्र, स्तोत्र एवं पवित्र आरती।',
-      icon: Music,
-      badge: 'संगीत'
+    mag: {
+      servicesTitle: 'छठ पूजा 2026: मुख्य सेवा आ गाइड',
+      servicesSub: 'पूजा के संपूर्ण तैयारी खातिर आवश्यक 6 मुख्य अनुभाग',
+      viewBtn: 'देखी',
+      seoTitle: 'छठ पूजा 2026 के महत्वपूर्ण गाइड',
+      seoSub: 'संपूर्ण नियम, सामग्री, अर्घ्य समय आ ठेकुआ रेसिपी के गाइड',
+      readMore: 'विस्तार से पढ़ी',
+      checkListBtn: 'सामग्री सूची देखी',
+      checkTimeBtn: 'समय देखी',
+      viewRecipeBtn: 'रेसिपी देखी',
+      listenSongsBtn: 'छठ गीत सुनी',
+      readKathaBtn: 'कथा पढ़ी',
+      samagriCardTitle: 'छठ पूजा सामग्री सूची (Chhath Samagri)',
+      samagriCardSub: 'दउरा, सूप, फल, ठेकुआ सामग्री के संपूर्ण जांच सूची।',
+      samagriCardPill: '40+ पूजन सामग्री • संपूर्ण चेकलिस्ट',
+      samagriCardBtn: 'संपूर्ण सामग्री सूची देखी',
+      prasadCardTitle: 'पावन पकवान व ठेकुआ रेसिपी (Chhath Prasad)',
+      prasadCardSub: 'पारंपरिक ठेकुआ, खरना के रसियाव खीर आ कसार लड्डू।',
+      prasadCardPill: 'छठ महापर्व के पवित्र महाप्रसाद • विधि आ वीडियो गाइड',
+      prasadCardBtn: 'सभे पकवान रेसिपी देखी',
+      mantraCardTitle: 'सूर्य देव वैदिक मंत्र व छठी मईया आरती',
+      mantraCardSub: 'सूर्य अर्घ्य मंत्र, षष्ठी देवी ध्यान, सूर्य गायत्री आ छठी मईया के पावन आरती।',
+      mantraCardPill: 'वैदिक मंत्र व पावन आरती • संपूर्ण आध्यात्मिक संग्रह',
+      mantraCardBtn: 'संपूर्ण मंत्र व आरती सुनी',
+      communityTitle: 'श्रद्धालु अनुभव व संस्मरण',
+      communitySub: 'समुदाय से चुनल पावन क्षण (Community Highlights)',
+      exploreAllBtn: 'सभे देखी (Explore)',
+      trustSource: 'विश्वसनीय स्रोत: दृक् पंचांग एवं खगोलीय वेधशाला आंकड़े • 2026',
+      geoBased: 'स्थानिक अक्षांश-रेखांश गणना आधारित'
     }
+  }[language] || {
+    servicesTitle: 'छठ पूजा 2026: मुख्य सेवाएं एवं गाइड',
+    servicesSub: 'आपकी पूजा की संपूर्ण तैयारी के लिए आवश्यक 6 मुख्य अनुभाग',
+    viewBtn: 'देखें',
+    seoTitle: 'छठ पूजा 2026 की महत्वपूर्ण गाइड',
+    seoSub: 'संपूर्ण नियम, सामग्री, अर्घ्य समय और ठेकुआ रेसिपी की विस्तृत गाइड',
+    readMore: 'विस्तार से पढ़ें',
+    checkListBtn: 'सामग्री सूची देखें',
+    checkTimeBtn: 'समय देखें',
+    viewRecipeBtn: 'रेसिपी देखें',
+    listenSongsBtn: 'छठ गीत सुनें',
+    readKathaBtn: 'कथा पढ़ें',
+    samagriCardTitle: 'छठ पूजा सामग्री सूची (Chhath Samagri)',
+    samagriCardSub: 'दउरा, सूप, मौसमी अर्घ्य फल, ठेकुआ-कसार सामग्री और घाट की संपूर्ण आवश्यक वस्तुओं की विस्तृत प्रामाणिक सूची।',
+    samagriCardPill: '40+ प्रामाणिक पूजन वस्तुएं • संपूर्ण चेकलिस्ट',
+    samagriCardBtn: 'संपूर्ण सामग्री सूची देखें',
+    prasadCardTitle: 'पावन पकवान व ठेकुआ रेसिपी (Chhath Prasad & Recipes)',
+    prasadCardSub: 'पारंपरिक सांचे पर गढ़ा खस्ता ठेकुआ, खरना का अमृततुल्य रसियाव (गुड़ की खीर), चावल के कसार लड्डू और मौसमी फल।',
+    prasadCardPill: 'छठ महापर्व के पवित्र महाप्रसाद • विधि व वीडियो गाइड',
+    prasadCardBtn: 'सभी पकवान रेसिपी व वीडियो देखें',
+    mantraCardTitle: 'सूर्य देव वैदिक मंत्र व छठी मईया आरती (Mantra & Aarti)',
+    mantraCardSub: 'सूर्य अर्घ्य समर्पण महामंत्र, षष्ठी देवी ध्यान, सूर्य गायत्री, आदित्य हृदय स्तोत्र और छठी मईया की संपूर्ण पावन आरती।',
+    mantraCardPill: 'वैदिक मंत्र, स्तोत्र व पावन आरती • संपूर्ण आध्यात्मिक संग्रह',
+    mantraCardBtn: 'संपूर्ण मंत्र, आरती व वीडियो सुनें',
+    communityTitle: 'श्रद्धालु अनुभव व संस्मरण',
+    communitySub: 'समुदाय से चुनिंदा पावन क्षण (Community Highlights)',
+    exploreAllBtn: 'सभी देखें (Explore)',
+    trustSource: 'विश्वसनीय स्रोत: दृक् पंचांग एवं क्षेत्रीय खगोलीय वेधशाला आंकड़े • 2026',
+    geoBased: 'स्थानिक अक्षांश-रेखांश गणना आधारित'
+  };
+
+  const utilityCards = {
+    hi: [
+      { id: 'arghya', title: 'आज का अर्घ्य समय', desc: 'सूर्यास्त एवं सूर्योदय का सटीक स्थानीय समय व खगोलीय गणना।', icon: Sun, badge: 'समय' },
+      { id: 'guide', title: 'चार दिन की पूजा गाइड', desc: 'नहाय-खाय, खरना, संध्या व उषा अर्घ्य के पावन नियम।', icon: Calendar, badge: 'नियम' },
+      { id: 'samagri', title: 'सामग्री सूची', desc: 'दउरा, सूप, फल, ठेकुआ व पूजा सामग्री की चेकलिस्ट।', icon: CheckSquare, badge: 'चेकलिस्ट' },
+      { id: 'ghats', title: 'पास के घाट', desc: 'नजदीकी पवित्र घाट, पार्किंग सुविधा व भीड़ सुरक्षा गाइड।', icon: MapPin, badge: 'घाट' },
+      { id: 'prasad', title: 'प्रसाद व रेसिपी', desc: 'सात्विक ठेकुआ, कसार व छठ रेसिपी बनाने की सरल विधि।', icon: Utensils, badge: 'रेसिपी' },
+      { id: 'aarti', title: 'मंत्र, आरती व गीत', desc: 'पारंपरिक छठ गीत, सूर्य मंत्र, स्तोत्र एवं पवित्र आरती।', icon: Music, badge: 'संगीत' }
+    ],
+    en: [
+      { id: 'arghya', title: "Today's Arghya Time", desc: 'Accurate local sunset and sunrise solar calculation.', icon: Sun, badge: 'Timing' },
+      { id: 'guide', title: '4-Day Puja Guide', desc: 'Sacred rules of Nahay-Khay, Kharna, Sandhya & Usha Arghya.', icon: Calendar, badge: 'Rules' },
+      { id: 'samagri', title: 'Samagri Checklist', desc: 'Complete interactive checklist for baskets, winnows & fruits.', icon: CheckSquare, badge: 'Checklist' },
+      { id: 'ghats', title: 'Nearby Ghats', desc: 'Nearest holy river ghats, parking, amenities & safety.', icon: MapPin, badge: 'Ghats' },
+      { id: 'prasad', title: 'Prasad & Recipes', desc: 'Authentic recipes of crispy Thekua, Rasiyaw kheer & Kasar.', icon: Utensils, badge: 'Recipe' },
+      { id: 'aarti', title: 'Mantras, Aarti & Songs', desc: 'Vedic solar hymns, Chhathi Maiya Aarti & devotional songs.', icon: Music, badge: 'Music' }
+    ],
+    bho: [
+      { id: 'arghya', title: 'आज के अरघ समय', desc: 'सुरुज डूबते आ उगते बेरा के सही घरी आ खगोलीय गणना।', icon: Sun, badge: 'समय' },
+      { id: 'guide', title: 'चार दिनी पूजा गाइड', desc: 'नहाय-खाय, खरना, सँझिया आ भोरहरिया अरघ के नेम।', icon: Calendar, badge: 'नियम' },
+      { id: 'samagri', title: 'सामग्री सूची', desc: 'दउरा, सूप, फल, ठेकुआ आ पूजा सामान के चेकलिस्ट।', icon: CheckSquare, badge: 'चेकलिस्ट' },
+      { id: 'ghats', title: 'लगपास के घाट', desc: 'नजदीकी पावन घाट, पार्किंग सुविधा आ भीड़ निर्देशिका।', icon: MapPin, badge: 'घाट' },
+      { id: 'prasad', title: 'परसाद आ रेसिपी', desc: 'सात्त्विक ठेकुआ, कसार आ खरना रसियाव बनावे के बिधि।', icon: Utensils, badge: 'रेसिपी' },
+      { id: 'aarti', title: 'मंत्र, आरती आ गीत', desc: 'पारंपरिक छठ गीत, सुरुज मंतर, स्तोत्र आ पावन आरती।', icon: Music, badge: 'संगीत' }
+    ],
+    mai: [
+      { id: 'arghya', title: 'आइ केर अर्घ्य समय', desc: 'सूर्यास्त ओ सूर्योदयक सटीक स्थानीय समय व खगोलीय गणना।', icon: Sun, badge: 'समय' },
+      { id: 'guide', title: 'चारि दिवसीय पूजा गाइड', desc: 'नहाय-खाय, खरना, साँझक ओ प्रात: अर्घ्यक पावन नियम।', icon: Calendar, badge: 'नियम' },
+      { id: 'samagri', title: 'सामग्री सूची', desc: 'दउरा, सूप, फल, ठेकुआ ओ पूजा सामग्रीक चेकलिस्ट।', icon: CheckSquare, badge: 'चेकलिस्ट' },
+      { id: 'ghats', title: 'निकटवर्ती घाट', desc: 'नजदीकी पवित्र घाट, पार्किंग सुविधा ओ सुरक्षा गाइड।', icon: MapPin, badge: 'घाट' },
+      { id: 'prasad', title: 'प्रसाद ओ रेसिपी', desc: 'सात्विक ठेकुआ, कसार ओ खरनाक रसियाव बनेबाक विधि।', icon: Utensils, badge: 'रेसिपी' },
+      { id: 'aarti', title: 'मंत्र, आरती ओ गीत', desc: 'पारंपरिक छठि गीत, सूर्य मंत्र, स्तोत्र ओ पावन आरती।', icon: Music, badge: 'संगीत' }
+    ],
+    mag: [
+      { id: 'arghya', title: 'आज के अर्घ्य समय', desc: 'सूर्यास्त आ सूर्योदय के सटीक स्थानीय समय व खगोलीय गणना।', icon: Sun, badge: 'समय' },
+      { id: 'guide', title: 'चार दिन के पूजा गाइड', desc: 'नहाय-खाय, खरना, संध्या आ उषा अर्घ्य के पावन नियम।', icon: Calendar, badge: 'नियम' },
+      { id: 'samagri', title: 'सामग्री सूची', desc: 'दउरा, सूप, फल, ठेकुआ व पूजा सामग्री के चेकलिस्ट।', icon: CheckSquare, badge: 'चेकलिस्ट' },
+      { id: 'ghats', title: 'पास के घाट', desc: 'नजदीकी पवित्र घाट, पार्किंग सुविधा व भीड़ सुरक्षा गाइड।', icon: MapPin, badge: 'घाट' },
+      { id: 'prasad', title: 'प्रसाद व रेसिपी', desc: 'सात्विक ठेकुआ, कसार व छठ रेसिपी बनावे के सरल विधि।', icon: Utensils, badge: 'रेसिपी' },
+      { id: 'aarti', title: 'मंत्र, आरती व गीत', desc: 'पारंपरिक छठ गीत, सूर्य मंत्र, स्तोत्र एवं पवित्र आरती।', icon: Music, badge: 'संगीत' }
+    ]
+  }[language] || [
+    { id: 'arghya', title: 'आज का अर्घ्य समय', desc: 'सूर्यास्त एवं सूर्योदय का सटीक स्थानीय समय व खगोलीय गणना।', icon: Sun, badge: 'समय' },
+    { id: 'guide', title: 'चार दिन की पूजा गाइड', desc: 'नहाय-खाय, खरना, संध्या व उषा अर्घ्य के पावन नियम।', icon: Calendar, badge: 'नियम' },
+    { id: 'samagri', title: 'सामग्री सूची', desc: 'दउरा, सूप, फल, ठेकुआ व पूजा सामग्री की चेकलिस्ट।', icon: CheckSquare, badge: 'चेकलिस्ट' },
+    { id: 'ghats', title: 'पास के घाट', desc: 'नजदीकी पवित्र घाट, पार्किंग सुविधा व भीड़ सुरक्षा गाइड।', icon: MapPin, badge: 'घाट' },
+    { id: 'prasad', title: 'प्रसाद व रेसिपी', desc: 'सात्विक ठेकुआ, कसार व छठ रेसिपी बनाने की सरल विधि।', icon: Utensils, badge: 'रेसिपी' },
+    { id: 'aarti', title: 'मंत्र, आरती व गीत', desc: 'पारंपरिक छठ गीत, सूर्य मंत्र, स्तोत्र एवं पवित्र आरती।', icon: Music, badge: 'संगीत' }
   ];
 
   const sampleCommunityStories = [
@@ -133,13 +320,12 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       <HeroSection onNavigate={onNavigate} />
 
       {/* Quick Services & Experiences Hub */}
-      {onOpenFeatureModal && onOpenAssistant && onOpenChat && (
+      {onOpenFeatureModal && onOpenAssistant && (
         <section className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4 -mt-4 sm:-mt-6">
           <QuickServicesHub
             onNavigate={onNavigate}
             onOpenFeatureModal={onOpenFeatureModal}
             onOpenAssistant={onOpenAssistant}
-            onOpenChat={onOpenChat}
           />
         </section>
       )}
@@ -160,10 +346,10 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
       <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">
         <div className="text-center space-y-2 mb-8">
           <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-amber-100">
-            छठ पूजा 2026: मुख्य सेवाएं एवं गाइड
+            {homeText.servicesTitle}
           </h2>
           <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300">
-            आपकी पूजा की संपूर्ण तैयारी के लिए आवश्यक 6 मुख्य अनुभाग
+            {homeText.servicesSub}
           </p>
         </div>
 
@@ -207,7 +393,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </div>
 
                 <div className="pt-4 flex items-center gap-1.5 text-xs font-bold font-mukta text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                  <span>देखें</span>
+                  <span>{homeText.viewBtn}</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </a>
@@ -221,10 +407,10 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
         <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/10 border border-amber-500/30 space-y-6 shadow-sm">
           <div className="text-center space-y-2">
             <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
-              छठ पूजा 2026 की महत्वपूर्ण गाइड
+              {homeText.seoTitle}
             </h2>
             <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-              संपूर्ण नियम, सामग्री, अर्घ्य समय और ठेकुआ रेसिपी की विस्तृत गाइड
+              {homeText.seoSub}
             </p>
           </div>
 
@@ -250,7 +436,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>विस्तार से पढ़ें</span>
+                <span>{homeText.readMore}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -276,7 +462,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>सामग्री सूची देखें</span>
+                <span>{homeText.checkListBtn}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -302,7 +488,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>समय देखें</span>
+                <span>{homeText.checkTimeBtn}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -328,7 +514,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>रेसिपी देखें</span>
+                <span>{homeText.viewRecipeBtn}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -354,7 +540,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>छठ गीत सुनें</span>
+                <span>{homeText.listenSongsBtn}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -380,7 +566,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>कथा पढ़ें</span>
+                <span>{homeText.readKathaBtn}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </a>
@@ -410,13 +596,13 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
             <div className="space-y-3 flex-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
                 <CheckSquare className="w-3.5 h-3.5" />
-                <span>40+ प्रामाणिक पूजन वस्तुएं • संपूर्ण चेकलिस्ट</span>
+                <span>{homeText.samagriCardPill}</span>
               </div>
               <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
-                छठ पूजा सामग्री सूची (Chhath Samagri)
+                {homeText.samagriCardTitle}
               </h2>
               <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
-                दउरा, सूप, मौसमी अर्घ्य फल, ठेकुआ-कसार सामग्री और घाट की संपूर्ण आवश्यक वस्तुओं की विस्तृत प्रामाणिक सूची। अलग पेज पर इंटरैक्टिव चेकलिस्ट के साथ अपनी तैयारी भी ट्रैक करें।
+                {homeText.samagriCardSub}
               </p>
               
               {/* Quick feature pills */}
@@ -443,7 +629,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 onClick={() => onNavigate('chhath-samagri')}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
               >
-                <span>संपूर्ण सामग्री सूची देखें</span>
+                <span>{homeText.samagriCardBtn}</span>
                 <ArrowRight className="w-4 h-4 text-stone-950" />
               </button>
             </div>
@@ -463,13 +649,13 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
             <div className="space-y-3 flex-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
                 <Utensils className="w-3.5 h-3.5" />
-                <span>छठ महापर्व के पवित्र महाप्रसाद • विधि व वीडियो गाइड</span>
+                <span>{homeText.prasadCardPill}</span>
               </div>
               <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
-                पावन पकवान व ठेकुआ रेसिपी (Chhath Prasad & Recipes)
+                {homeText.prasadCardTitle}
               </h2>
               <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
-                पारंपरिक सांचे पर गढ़ा खस्ता ठेकुआ, खरना का अमृततुल्य रसियाव (गुड़ की खीर), चावल के कसार लड्डू और मौसमी फल। संपूर्ण प्रामाणिक सामग्री, चरणबद्ध विधि और वीडियो ट्यूटोरियल प्लेलिस्ट के साथ देखें।
+                {homeText.prasadCardSub}
               </p>
               
               {/* Quick Pakwan feature pills */}
@@ -515,7 +701,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 onClick={() => onNavigate('thekua-recipe')}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
               >
-                <span>सभी पकवान रेसिपी व वीडियो देखें</span>
+                <span>{homeText.prasadCardBtn}</span>
                 <ArrowRight className="w-4 h-4 text-stone-950" />
               </button>
             </div>
@@ -530,13 +716,13 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
             <div className="space-y-3 flex-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30">
                 <Flame className="w-3.5 h-3.5 text-orange-500 animate-diya-flicker" />
-                <span>वैदिक मंत्र, स्तोत्र व पावन आरती • संपूर्ण आध्यात्मिक संग्रह</span>
+                <span>{homeText.mantraCardPill}</span>
               </div>
               <h2 className="font-rozha text-2xl sm:text-3xl font-bold text-stone-900 dark:text-amber-100">
-                सूर्य देव वैदिक मंत्र व छठी मईया आरती (Mantra & Aarti)
+                {homeText.mantraCardTitle}
               </h2>
               <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
-                सूर्य अर्घ्य समर्पण महामंत्र, षष्ठी देवी ध्यान, सूर्य गायत्री, आदित्य हृदय स्तोत्र और छठी मईया की संपूर्ण पावन आरती। शुद्ध संस्कृत श्लोक, हिंदी भावार्थ, ऑडियो उच्चारण और संपूर्ण वीडियो प्लेलिस्ट के लिए समर्पित पेज पर जाएं।
+                {homeText.mantraCardSub}
               </p>
               
               {/* Quick Mantra feature pills */}
@@ -586,7 +772,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
                 onClick={() => onNavigate('aarti')}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
               >
-                <span>संपूर्ण मंत्र, आरती व वीडियो सुनें</span>
+                <span>{homeText.mantraCardBtn}</span>
                 <ArrowRight className="w-4 h-4 text-stone-950" />
               </button>
             </div>
@@ -610,11 +796,11 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-amber-500 shrink-0" />
             <span>
-              <strong>विश्वसनीय स्रोत:</strong> दृक् पंचांग एवं क्षेत्रीय खगोलीय वेधशाला आंकड़े • अंतिम अद्यतन: सितंबर 2026
+              <strong>{homeText.trustSource}</strong>
             </span>
           </div>
           <div className="text-[11px] text-stone-500 dark:text-stone-500 font-mono">
-            स्थानिक अक्षांश-रेखांश गणना आधारित
+            {homeText.geoBased}
           </div>
         </div>
       </section>
@@ -626,10 +812,10 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
             <div className="space-y-1">
               <h3 className="font-rozha text-xl sm:text-2xl font-bold text-stone-900 dark:text-amber-100 flex items-center gap-2">
                 <Users className="w-5 h-5 text-amber-500" />
-                <span>श्रद्धालु अनुभव व संस्मरण</span>
+                <span>{homeText.communityTitle}</span>
               </h3>
               <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-                समुदाय से चुनिंदा पावन क्षण (Community Highlights)
+                {homeText.communitySub}
               </p>
             </div>
 
@@ -637,7 +823,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
               onClick={() => onNavigate('explore')}
               className="px-4 py-2 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta flex items-center gap-1.5 transition-all"
             >
-              <span>सभी देखें (Explore)</span>
+              <span>{homeText.exploreAllBtn}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

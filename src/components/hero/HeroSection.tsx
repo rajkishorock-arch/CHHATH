@@ -9,15 +9,62 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
 
-  const handleNav = (tab: string) => {
-    if (onNavigate) {
-      onNavigate(tab);
-    } else {
-      const el = document.getElementById(tab);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const heroContent = {
+    hi: {
+      badge: 'कार्तिक शुक्ल चतुर्थी से सप्तमी • महापर्व 2026',
+      heading: 'छठ महापर्व 2026 — श्रद्धा, आस्था और सूर्य उपासना',
+      subheading: 'पूजा विधि, अर्घ्य समय, सामग्री और घाट की जानकारी—एक ही जगह।',
+      btnVidhi: 'छठ पूजा विधि देखें',
+      btnArghya: 'अर्घ्य समय देखें',
+      btnSamagri: 'पूजा सामग्री',
+      btnThekua: 'ठेकुआ रेसिपी'
+    },
+    en: {
+      badge: 'Kartik Shukla 4 to 7 • Chhath Mahaparv 2026',
+      heading: 'Chhath Mahaparv 2026 — Faith, Devotion & Sun Worship',
+      subheading: 'Puja Vidhi, Solar Arghya Timings, Samagri Checklist & Sacred Ghats — All in One Place.',
+      btnVidhi: 'View Puja Vidhi',
+      btnArghya: 'View Arghya Times',
+      btnSamagri: 'Puja Samagri',
+      btnThekua: 'Thekua Recipe'
+    },
+    bho: {
+      badge: 'कार्तिक सुक्ल चउथ से सत्तमी • महापर्व 2026',
+      heading: 'छठ महापर्व 2026 — आस्था, नेह आ सुरुज उपासना',
+      subheading: 'पूजा बिधि, अरघ समय, सामग्री आ घाट के जानकारी—एके जगह।',
+      btnVidhi: 'पूजा बिधि देखीं',
+      btnArghya: 'अरघ समय देखीं',
+      btnSamagri: 'पूजा सामग्री',
+      btnThekua: 'ठेकुआ रेसिपी'
+    },
+    mai: {
+      badge: 'कार्तिक शुक्ल चतुर्थी सं सप्तमी • महापर्व 2026',
+      heading: 'छठि महापर्व 2026 — निष्ठा, आस्था ओ सूर्य उपासना',
+      subheading: 'पूजा विधि, अर्घ्य समय, सामग्री ओ घाटक जानकारी—एके स्थान पर।',
+      btnVidhi: 'पूजा विधि देखू',
+      btnArghya: 'अर्घ्य समय देखू',
+      btnSamagri: 'पूजा सामग्री',
+      btnThekua: 'ठेकुआ रेसिपी'
+    },
+    mag: {
+      badge: 'कार्तिक शुक्ल चतुर्थी से सप्तमी • महापर्व 2026',
+      heading: 'छठ महापर्व 2026 — श्रद्धा, आस्था आ सूर्य उपासना',
+      subheading: 'पूजा विधि, अर्घ्य समय, सामग्री आ घाट के जानकारी—एके जगह पर।',
+      btnVidhi: 'पूजा विधि देखी',
+      btnArghya: 'अर्घ्य समय देखी',
+      btnSamagri: 'पूजा सामग्री',
+      btnThekua: 'ठेकुआ रेसिपी'
     }
+  }[language] || {
+    badge: 'कार्तिक शुक्ल चतुर्थी से सप्तमी • महापर्व 2026',
+    heading: 'छठ महापर्व 2026 — श्रद्धा, आस्था और सूर्य उपासना',
+    subheading: 'पूजा विधि, अर्घ्य समय, सामग्री और घाट की जानकारी—एक ही जगह।',
+    btnVidhi: 'छठ पूजा विधि देखें',
+    btnArghya: 'अर्घ्य समय देखें',
+    btnSamagri: 'पूजा सामग्री',
+    btnThekua: 'ठेकुआ रेसिपी'
   };
 
   return (
@@ -43,18 +90,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             </div>
           </div>
           <span className="text-xs font-mukta font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
-            कार्तिक शुक्ल चतुर्थी से सप्तमी • महापर्व 2026
+            {heroContent.badge}
           </span>
         </div>
 
         {/* Clean Devotional Heading & Subheading */}
         <div className="space-y-3 max-w-3xl mx-auto">
-          <h1 className="font-rozha text-4xl sm:text-6xl md:text-7xl font-black text-stone-...">
-              छठ महापर्व 2026 — श्रद्धा, आस्था और सूर्य उपासना
+          <h1 className="font-rozha text-4xl sm:text-6xl md:text-7xl font-black text-stone-900 dark:text-stone-100 tracking-tight leading-tight">
+            {heroContent.heading}
           </h1>
 
           <p className="font-mukta text-lg sm:text-2xl text-stone-700 dark:text-stone-300 font-medium max-w-2xl mx-auto leading-relaxed">
-            पूजा विधि, अर्घ्य समय, सामग्री और घाट की जानकारी—एक ही जगह।
+            {heroContent.subheading}
           </p>
         </div>
 
@@ -69,7 +116,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             className="px-6 py-3.5 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm sm:text-base shadow-md transition-all flex items-center gap-2 text-decoration-none min-h-[44px]"
           >
             <BookOpen className="w-5 h-5 text-stone-950" />
-            <span>छठ पूजा विधि देखें</span>
+            <span>{heroContent.btnVidhi}</span>
           </a>
 
           <a
@@ -81,7 +128,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             className="px-6 py-3.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-900 dark:text-amber-300 font-bold text-sm sm:text-base transition-all flex items-center gap-2 text-decoration-none min-h-[44px]"
           >
             <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            <span>अर्घ्य समय देखें</span>
+            <span>{heroContent.btnArghya}</span>
           </a>
 
           <a
@@ -92,7 +139,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             }}
             className="px-5 py-3 rounded-full bg-stone-900/10 hover:bg-amber-500/15 dark:bg-stone-900 dark:hover:bg-stone-800 border border-amber-500/30 text-stone-800 dark:text-amber-200 font-bold text-xs sm:text-sm transition-all text-decoration-none min-h-[44px] flex items-center gap-1.5"
           >
-            <span>पूजा सामग्री</span>
+            <span>{heroContent.btnSamagri}</span>
           </a>
 
           <a
@@ -103,7 +150,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             }}
             className="px-5 py-3 rounded-full bg-stone-900/10 hover:bg-amber-500/15 dark:bg-stone-900 dark:hover:bg-stone-800 border border-amber-500/30 text-stone-800 dark:text-amber-200 font-bold text-xs sm:text-sm transition-all text-decoration-none min-h-[44px] flex items-center gap-1.5"
           >
-            <span>ठेकुआ रेसिपी</span>
+            <span>{heroContent.btnThekua}</span>
           </a>
         </div>
 
