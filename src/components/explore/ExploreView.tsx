@@ -3,8 +3,7 @@ import { Sparkles, Film, Heart, Award, HelpCircle, BookOpen, Layers, Compass, Im
 import { useReels } from '../../context/ReelsContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-// Lazy loaded heavy secondary components
-const Interactive3DGhat = lazy(() => import('../ghats/Interactive3DGhat').then(m => ({ default: m.Interactive3DGhat })));
+// Lazy loaded heavy secondary components (NO Interactive3DGhat - 3D Ghat excluded as requested)
 const VirtualArghyaSimulator = lazy(() => import('../spiritual/VirtualArghyaSimulator').then(m => ({ default: m.VirtualArghyaSimulator })));
 const VirtualDiyaExperience = lazy(() => import('../spiritual/VirtualDiyaExperience').then(m => ({ default: m.VirtualDiyaExperience })));
 const ChhathQuiz = lazy(() => import('../engagement/ChhathQuiz').then(m => ({ default: m.ChhathQuiz })));
@@ -30,7 +29,11 @@ const ComponentLoader: React.FC = () => (
 
 type ExploreTab = 'darshan' | 'mannat' | 'gallery' | 'gyan';
 
-export const ExploreView: React.FC = () => {
+interface ExploreViewProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
   const { openReelsPlatform } = useReels();
   const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState<ExploreTab>('darshan');
@@ -58,9 +61,10 @@ export const ExploreView: React.FC = () => {
     hi: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठ पावन सांस्कृतिक अनुभव',
-      subtitle: '3D घाट दर्शन, डिजिटल अर्घ्य, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
-      tabDarshan: '🌅 आभासी दर्शन',
-      tabDarshanSub: '3D घाट व अर्घ्य',
+      subtitle: 'डिजिटल अर्घ्य, दीप दान, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
+      detailedBtn: '📜 विस्तृत दृश्य (Full View)',
+      tabDarshan: '🌅 आभासी अर्घ्य व दीप',
+      tabDarshanSub: 'डिजिटल अर्घ्य व दीप दान',
       tabMannat: '📜 मन्नत व आशीष',
       tabMannatSub: 'संकल्प, पत्र व बधाई',
       tabGallery: '📸 संस्मरण व गैलरी',
@@ -71,9 +75,10 @@ export const ExploreView: React.FC = () => {
     en: {
       badge: 'Cultural Explore Hub',
       title: 'Chhath Devotional & Cultural Hub',
-      subtitle: '3D Ghat darshan, virtual Arghya, Sankalp wall, blessing certificates & trivia—elegantly categorized.',
-      tabDarshan: '🌅 Virtual Darshan',
-      tabDarshanSub: '3D Ghat & Arghya',
+      subtitle: 'Virtual Arghya, sacred diya, Sankalp wall, blessing certificates & trivia—elegantly categorized.',
+      detailedBtn: '📜 Detailed View (Full)',
+      tabDarshan: '🌅 Virtual Arghya & Diya',
+      tabDarshanSub: 'Sacred Arghya & Diya',
       tabMannat: '📜 Prayers & Blessings',
       tabMannatSub: 'Sankalp & Wishes',
       tabGallery: '📸 Memory Gallery',
@@ -84,9 +89,10 @@ export const ExploreView: React.FC = () => {
     bho: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठ पावन सांस्कृतिक अनुभव',
-      subtitle: '3D घाट दर्शन, डिजिटल अरघ, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
-      tabDarshan: '🌅 आभासी दर्शन',
-      tabDarshanSub: '3D घाट आ अरघ',
+      subtitle: 'डिजिटल अरघ, दीप दान, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
+      detailedBtn: '📜 विस्तृत दृश्य (Full View)',
+      tabDarshan: '🌅 आभासी अरघ आ दीप',
+      tabDarshanSub: 'डिजिटल अरघ आ दीप दान',
       tabMannat: '📜 मन्नत आ असीस',
       tabMannatSub: 'संकल्प, पत्र आ बधाई',
       tabGallery: '📸 संस्मरण व गैलरी',
@@ -97,9 +103,10 @@ export const ExploreView: React.FC = () => {
     mai: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठि पावन सांस्कृतिक अनुभव',
-      subtitle: '3D घाट दर्शन, डिजिटल अर्घ्य, मन्नत पट्टिका, आशीष पत्र ओ बाल वाटिका—सुव्यवस्थित रूप में।',
-      tabDarshan: '🌅 आभासी दर्शन',
-      tabDarshanSub: '3D घाट ओ अर्घ्य',
+      subtitle: 'डिजिटल अर्घ्य, दीप दान, मन्नत पट्टिका, आशीष पत्र ओ बाल वाटिका—सुव्यवस्थित रूप में।',
+      detailedBtn: '📜 विस्तृत दृश्य (Full View)',
+      tabDarshan: '🌅 आभासी अर्घ्य ओ दीप',
+      tabDarshanSub: 'डिजिटल अर्घ्य ओ दीप दान',
       tabMannat: '📜 मन्नत ओ आशीष',
       tabMannatSub: 'संकल्प, पत्र ओ बधाई',
       tabGallery: '📸 संस्मरण ओ गैलरी',
@@ -110,9 +117,10 @@ export const ExploreView: React.FC = () => {
     mag: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठ पावन सांस्कृतिक अनुभव',
-      subtitle: '3D घाट दर्शन, डिजिटल अरघ, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
-      tabDarshan: '🌅 आभासी दर्शन',
-      tabDarshanSub: '3D घाट आ अरघ',
+      subtitle: 'डिजिटल अरघ, दीप दान, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
+      detailedBtn: '📜 विस्तृत दृश्य (Full View)',
+      tabDarshan: '🌅 आभासी अरघ आ दीप',
+      tabDarshanSub: 'डिजिटल अरघ आ दीप दान',
       tabMannat: '📜 मन्नत आ असीस',
       tabMannatSub: 'संकल्प, पत्र आ बधाई',
       tabGallery: '📸 संस्मरण व गैलरी',
@@ -123,9 +131,10 @@ export const ExploreView: React.FC = () => {
   }[language] || {
     badge: 'सांस्कृतिक एक्सप्लोर हब',
     title: 'छठ पावन सांस्कृतिक अनुभव',
-    subtitle: '3D घाट दर्शन, डिजिटल अर्घ्य, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
-    tabDarshan: '🌅 आभासी दर्शन',
-    tabDarshanSub: '3D घाट व अर्घ्य',
+    subtitle: 'डिजिटल अर्घ्य, दीप दान, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
+    detailedBtn: '📜 विस्तृत दृश्य (Full View)',
+    tabDarshan: '🌅 आभासी अर्घ्य व दीप',
+    tabDarshanSub: 'डिजिटल अर्घ्य व दीप दान',
     tabMannat: '📜 मन्नत व आशीष',
     tabMannatSub: 'संकल्प, पत्र व बधाई',
     tabGallery: '📸 संस्मरण व गैलरी',
@@ -165,17 +174,32 @@ export const ExploreView: React.FC = () => {
     <div className="container-custom max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 sm:space-y-8">
       
       {/* Header */}
-      <div className="text-center space-y-2 max-w-2xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
-          <Compass className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-          <span>{exploreText.badge}</span>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
+            <Compass className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+            <span>{exploreText.badge}</span>
+          </div>
+
+          {onNavigate && (
+            <button
+              onClick={() => onNavigate('explore-detailed')}
+              className="px-3.5 py-1.5 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 text-xs font-bold font-mukta shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <span>{exploreText.detailedBtn}</span>
+              <span className="text-amber-500">→</span>
+            </button>
+          )}
         </div>
-        <h1 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
-          {exploreText.title}
-        </h1>
-        <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-          {exploreText.subtitle}
-        </p>
+
+        <div className="text-center space-y-2 max-w-2xl mx-auto pt-1">
+          <h1 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
+            {exploreText.title}
+          </h1>
+          <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
+            {exploreText.subtitle}
+          </p>
+        </div>
       </div>
 
       {/* Quick Reels Shortcut Ribbon */}
@@ -233,14 +257,9 @@ export const ExploreView: React.FC = () => {
       {/* Dynamic Tab Views with Suspense */}
       <Suspense fallback={<ComponentLoader />}>
         
-        {/* Tab 1: आभासी दर्शन (Virtual Darshan) */}
+        {/* Tab 1: आभासी अर्घ्य व दीप (Virtual Arghya & Diya - NO 3D Ghat) */}
         {activeTab === 'darshan' && (
           <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
-            {/* Interactive 3D Ghat */}
-            <section id="interactive-3d" className="scroll-mt-24">
-              <Interactive3DGhat />
-            </section>
-
             {/* Virtual Simulators */}
             <section className="space-y-6">
               <VirtualArghyaSimulator />

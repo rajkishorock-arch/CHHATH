@@ -213,14 +213,14 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
   };
 
   const services = [
-    // 1. Explore button FIRST (before Puja Vidhi) as explicitly requested
+    // 1. Explore button FIRST (before Puja Vidhi) as explicitly requested - opens detailed explore page
     {
       id: 'explore',
       label: hubText.explore,
       badge: hubText.exploreBadge,
       icon: Compass,
       gradient: 'from-amber-500 via-orange-500 to-red-500',
-      action: () => onNavigate('explore')
+      action: () => onNavigate('explore-detailed')
     },
     // 2. Puja Vidhi
     {

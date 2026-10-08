@@ -65,6 +65,7 @@ import { ChhathiAIPage } from './components/pages/ChhathiAIPage';
 
 // Lazy Loaded Heavy Secondary Modules
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
+const DetailedExploreView = lazy(() => import('./components/explore/DetailedExploreView').then(m => ({ default: m.DetailedExploreView })));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformModal').then(m => ({ default: m.ReelsPlatformModal })));
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
@@ -169,6 +170,7 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
   if (t === 'music' || t === 'songs' || t === 'song') return 'music';
+  if (t === 'explore-detailed' || t === 'detailed-explore' || t === 'explore-hub') return 'explore-detailed';
   if (t === 'explore') return 'explore';
   if (t === 'my-chhath') return 'my-chhath';
   if (t === 'home' || t === '') return 'home';
@@ -431,7 +433,7 @@ const MainContent: React.FC = () => {
       requestAnimationFrame(() => {
         window.scrollTo({ top: savedY, left: 0, behavior: 'instant' });
       });
-    } else if (targetTab === 'home' || targetTab === 'explore') {
+    } else if (targetTab === 'home' || targetTab === 'explore' || targetTab === 'explore-detailed') {
       if (!restoreHomeScroll()) {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       }
@@ -735,9 +737,15 @@ const MainContent: React.FC = () => {
             <ChhathiAIPage onNavigate={handleNavigate} />
           )}
 
+          {activeTab === 'explore-detailed' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <DetailedExploreView onNavigate={handleNavigate} />
+            </Suspense>
+          )}
+
           {activeTab === 'explore' && (
             <Suspense fallback={<ComponentLoader />}>
-              <ExploreView />
+              <ExploreView onNavigate={handleNavigate} />
             </Suspense>
           )}
 
@@ -758,7 +766,7 @@ const MainContent: React.FC = () => {
       <PlaybackQueueModal />
 
       {/* Footer Component - Visible on Desktop Home and on Explore */}
-      {(activeTab === 'home' || activeTab === 'explore') && (
+      {(activeTab === 'home' || activeTab === 'explore' || activeTab === 'explore-detailed') && (
         <div className={activeTab === 'home' ? 'hidden lg:block' : ''}>
           <Footer onNavigate={handleNavigate} />
         </div>

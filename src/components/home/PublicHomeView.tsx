@@ -820,7 +820,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
             </div>
 
             <button
-              onClick={() => onNavigate('explore')}
+              onClick={() => onNavigate('explore-detailed')}
               className="px-4 py-2 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta flex items-center gap-1.5 transition-all"
             >
               <span>{homeText.exploreAllBtn}</span>
