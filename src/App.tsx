@@ -582,9 +582,9 @@ const MainContent: React.FC = () => {
       />
 
       {/* Main Content Area based on destination tab */}
-      <main className={`flex-1 flex flex-col min-h-0 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-16 sm:pb-0' : 'pb-36 lg:pb-16'}`}>
+      <main className={`flex-1 ${activeTab === 'chat' || activeTab === 'chhath-chat' ? 'pb-16 sm:pb-0' : 'pb-36 lg:pb-16'}`}>
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
-          <div key={activeTab} className="page-transition-enter flex-1 flex flex-col min-h-0 w-full">
+          <div key={activeTab} className="page-transition-enter w-full">
             {/* Home Screen View */}
             {activeTab === 'home' && (
             <div>

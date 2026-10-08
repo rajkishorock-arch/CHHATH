@@ -94,6 +94,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
         }
       } else {
         setPullDistance(0);
+        isPullingRef.current = false;
       }
     };
 

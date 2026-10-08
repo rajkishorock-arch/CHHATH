@@ -86,8 +86,6 @@ html {
   overflow-x: hidden;
   max-width: 100%;
   width: 100%;
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
 }
 
 body {
@@ -100,8 +98,6 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.4s ease, color 0.4s ease;
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
 }
 
 #root {
@@ -723,25 +719,16 @@ body {
 @keyframes pageLuxurySlideUp {
   0% {
     opacity: 0;
-    transform: translate3d(0, 16px, 0) scale(0.994);
-    filter: blur(4px);
-  }
-  60% {
-    opacity: 0.98;
-    transform: translate3d(0, -1px, 0) scale(1.0005);
-    filter: blur(0px);
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-    filter: blur(0px);
+    transform: translateY(0);
   }
 }
 
 .page-transition-enter {
-  animation: pageLuxurySlideUp 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity, filter;
-  backface-visibility: hidden;
+  animation: pageLuxurySlideUp 240ms cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
 @keyframes callPulseWave {
