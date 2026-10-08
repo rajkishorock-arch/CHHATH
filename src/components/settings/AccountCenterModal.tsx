@@ -18,7 +18,9 @@ import {
   UserCheck,
   UserX,
   LogOut,
-  RefreshCw
+  RefreshCw,
+  Camera,
+  Upload
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AuthService } from '../../services/authService';
@@ -116,6 +118,49 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
   };
 
   if (!isOpen || !currentUser) return null;
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUri = event.target?.result as string;
+      if (!dataUri) return;
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 200;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            setAvatarUrl(canvas.toDataURL('image/jpeg', 0.82));
+          } else {
+            setAvatarUrl(dataUri);
+          }
+        } catch {
+          setAvatarUrl(dataUri);
+        }
+      };
+      img.src = dataUri;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Handle Profile Save
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -398,19 +443,41 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
 
               <form onSubmit={handleSaveProfile} className="space-y-4">
                 <div className="flex items-center gap-4 pb-4 border-b border-white/5">
-                  <img
-                    src={avatarUrl || currentUser.avatarUrl}
-                    alt={displayName}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-amber-500 shadow-md"
-                  />
-                  <div className="flex-1">
-                    <label className="block text-xs font-medium text-stone-300 mb-1">अवतार इमेज URL</label>
+                  <div className="relative group">
+                    <img
+                      src={avatarUrl || currentUser.avatarUrl}
+                      alt={displayName}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-amber-500 shadow-md"
+                    />
+                    <label className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <Camera className="w-5 h-5 text-white" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>गैलरी से फ़ोटो चुनें</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                     <input
                       type="url"
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-3 py-2 bg-black/40 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+                      placeholder="या इमेज URL दर्ज करें..."
+                      className="w-full px-3 py-1.5 bg-black/40 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>

@@ -29,7 +29,16 @@ interface AuthContextType {
   logout: () => void;
   updateProfile: (updates: Partial<ReelUser>) => boolean;
   updateInterests: (interests: string[]) => void;
-  completeOnboarding: (data: { language: Language; interests: string[]; country: string; state: string; city: string }) => Promise<void>;
+  completeOnboarding: (data: { 
+    language: Language; 
+    interests: string[]; 
+    country: string; 
+    state: string; 
+    city: string;
+    name?: string;
+    username?: string;
+    avatarUrl?: string;
+  }) => Promise<void>;
   resetPassword: (email: string, newPass?: string) => Promise<{ success: boolean; error?: string }>;
   toggleFollow: (targetUserId: string) => Promise<{ status: SocialFollowStatus | 'unfollowed'; success: boolean }>;
   isFollowing: (targetUserId: string) => boolean;
@@ -281,16 +290,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     country: string;
     state: string;
     city: string;
+    name?: string;
+    username?: string;
+    avatarUrl?: string;
   }) => {
     if (!currentUser) return;
-    updateProfile({
+    const updates: Partial<ReelUser> = {
       language: data.language,
       interests: data.interests,
       country: data.country,
       state: data.state,
       city: data.city,
       onboardingCompleted: true
-    });
+    };
+    if (data.name) updates.name = data.name;
+    if (data.username) updates.username = data.username;
+    if (data.avatarUrl) updates.avatarUrl = data.avatarUrl;
+
+    updateProfile(updates);
     setOnboardingModalOpen(false);
   };
 

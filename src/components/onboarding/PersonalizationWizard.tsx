@@ -11,7 +11,8 @@ import {
   Globe, 
   Flame, 
   ShieldCheck,
-  Compass
+  Compass,
+  Camera
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -78,6 +79,49 @@ export const PersonalizationWizard: React.FC<PersonalizationWizardProps> = ({ is
     setLanguage(lang);
   };
 
+  const handleCustomAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUri = event.target?.result as string;
+      if (!dataUri) return;
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 200;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            setSelectedAvatar(canvas.toDataURL('image/jpeg', 0.8));
+          } else {
+            setSelectedAvatar(dataUri);
+          }
+        } catch {
+          setSelectedAvatar(dataUri);
+        }
+      };
+      img.src = dataUri;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFinish = async () => {
     setIsFinishing(true);
 
@@ -85,7 +129,15 @@ export const PersonalizationWizard: React.FC<PersonalizationWizardProps> = ({ is
     setLanguage(selectedLang);
     setUserLocation({ state, city, isCustom: true });
 
+    let cleanUser = username.trim();
+    if (cleanUser && !cleanUser.startsWith('@')) {
+      cleanUser = `@${cleanUser}`;
+    }
+
     await completeOnboarding({
+      name: name.trim() || currentUser.name,
+      username: cleanUser || currentUser.username,
+      avatarUrl: selectedAvatar || currentUser.avatarUrl,
       language: selectedLang,
       interests: selectedInterests,
       country,
@@ -144,8 +196,8 @@ export const PersonalizationWizard: React.FC<PersonalizationWizardProps> = ({ is
 
             {/* Avatar Selection */}
             <div className="text-center space-y-2">
-              <span className="block text-xs font-bold text-stone-300">अपना पावन अवतार चुनें</span>
-              <div className="flex justify-center gap-2.5">
+              <span className="block text-xs font-bold text-stone-300">अपना पावन अवतार या फ़ोटो चुनें</span>
+              <div className="flex items-center justify-center gap-2.5 flex-wrap">
                 {PRESET_AVATARS.map((av, idx) => (
                   <button
                     key={idx}
@@ -160,7 +212,29 @@ export const PersonalizationWizard: React.FC<PersonalizationWizardProps> = ({ is
                     <img src={av} alt="Avatar" className="w-full h-full rounded-full object-cover" />
                   </button>
                 ))}
+
+                {/* Custom Photo Upload */}
+                <label className="w-12 h-12 rounded-full bg-stone-800 hover:bg-stone-700 border-2 border-dashed border-amber-400/60 flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-all text-amber-300" title="अपनी फ़ोटो अपलोड करें">
+                  <Camera className="w-4 h-4" />
+                  <span className="text-[8px] font-bold mt-0.5">अपलोड</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCustomAvatarUpload}
+                    className="hidden"
+                  />
+                </label>
               </div>
+
+              {/* Show preview if user uploaded a custom photo not in presets */}
+              {selectedAvatar && !PRESET_AVATARS.includes(selectedAvatar) && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="w-10 h-10 rounded-full p-[2px] bg-amber-400 shadow-md">
+                    <img src={selectedAvatar} alt="Custom Avatar" className="w-full h-full rounded-full object-cover" />
+                  </div>
+                  <span className="text-[11px] text-amber-300 font-bold">आपकी फ़ोटो चयनित है ✓</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 pt-2">

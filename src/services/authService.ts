@@ -348,6 +348,13 @@ export const AuthService = {
           console.warn('[AuthService] subscribeToAuthChanges cloud fetch notice:', e);
         }
 
+        if (!mapped.avatarUrl) {
+          try {
+            const localAv = localStorage.getItem(`chhath_avatar_${fbUser.uid}`);
+            if (localAv) mapped.avatarUrl = localAv;
+          } catch {}
+        }
+
         ReelsStorage.addUser(mapped);
         ReelsStorage.setSession(mapped);
         callback(mapped);
@@ -471,6 +478,13 @@ export const AuthService = {
           if (cloudData.state !== undefined) mapped.state = cloudData.state;
         }
       } catch (e) {}
+
+      if (!mapped.avatarUrl) {
+        try {
+          const localAv = localStorage.getItem(`chhath_avatar_${userCredential.user.uid}`);
+          if (localAv) mapped.avatarUrl = localAv;
+        } catch {}
+      }
 
       const settings = getDefaultSettings(mapped);
       const sessionToken = `fb_token_${userCredential.user.uid}`;

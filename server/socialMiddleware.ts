@@ -240,6 +240,43 @@ export async function handleSocialApiRequest(req: IncomingMessage, res: ServerRe
       return;
     }
 
+    // GET /api/v1/user/profile?uid=...
+    if (pathname === '/api/v1/user/profile' && method === 'GET') {
+      const uid = urlObj.searchParams.get('uid') || (authContext ? authContext.user.user_id : null);
+      if (!uid) {
+        sendJson(res, 400, { success: false, error: 'UID आवश्यक है।' });
+        return;
+      }
+      const profile = databaseEngine.getProfileById(uid);
+      sendJson(res, 200, { success: true, data: profile || null });
+      return;
+    }
+
+    // POST /api/v1/user/profile
+    if (pathname === '/api/v1/user/profile' && method === 'POST') {
+      const body = await readJsonBody(req);
+      const uid = body.uid || (authContext ? authContext.user.user_id : null);
+      if (!uid) {
+        sendJson(res, 400, { success: false, error: 'UID आवश्यक है।' });
+        return;
+      }
+      const updated = databaseEngine.updateProfile(uid, body.data || body);
+      sendJson(res, 200, { success: true, data: updated });
+      return;
+    }
+
+    // GET /api/v1/user/memories?uid=...
+    if (pathname === '/api/v1/user/memories' && method === 'GET') {
+      sendJson(res, 200, { success: true, memories: [] });
+      return;
+    }
+
+    // POST /api/v1/user/memories
+    if (pathname === '/api/v1/user/memories' && method === 'POST') {
+      sendJson(res, 200, { success: true });
+      return;
+    }
+
     // ==========================================
     // 3. SOCIAL GRAPH: FOLLOWS & REQUESTS
     // ==========================================

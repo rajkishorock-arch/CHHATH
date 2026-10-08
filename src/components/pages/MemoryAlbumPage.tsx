@@ -12,20 +12,15 @@ import {
   Calendar, 
   Check, 
   X,
-  Heart
+  Heart,
+  Loader2,
+  Cloud
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SeoHead } from '../seo/SeoHead';
+import { UserSyncService, type UserMemoryItem } from '../../services/userSyncService';
 
-interface MemoryItem {
-  id: string;
-  year: '2026' | '2025' | '2024';
-  title: string;
-  caption: string;
-  category: 'Family' | 'Ghat' | 'Prasad' | 'Arghya';
-  imageUrl: string;
-  date: string;
-}
+type MemoryItem = UserMemoryItem;
 
 interface MemoryAlbumPageProps {
   onNavigate: (tab: string) => void;
@@ -39,6 +34,8 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [lightboxItem, setLightboxItem] = useState<MemoryItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [isCompressing, setIsCompressing] = useState<boolean>(false);
 
   // Form states
   const [newTitle, setNewTitle] = useState('');
@@ -52,44 +49,106 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Load real user memories (Zero dummy data!)
+  // Load user memories: First from local cache, then sync from universal Cloud Storage
   useEffect(() => {
     if (currentUser?.id) {
+      // 1. Instant local render
       try {
         const saved = localStorage.getItem(`chhath_user_memories_${currentUser.id}`);
-        setMemories(saved ? JSON.parse(saved) : []);
+        if (saved) {
+          setMemories(JSON.parse(saved));
+        }
       } catch {
         setMemories([]);
       }
+
+      // 2. Fetch fresh from Cloud across all devices
+      setIsSyncing(true);
+      UserSyncService.fetchUserMemories(currentUser.id)
+        .then((cloudMemories) => {
+          if (Array.isArray(cloudMemories) && cloudMemories.length > 0) {
+            setMemories(cloudMemories);
+          }
+        })
+        .catch(err => console.warn('[Memories] Cloud fetch notice:', err))
+        .finally(() => setIsSyncing(false));
     } else {
       setMemories([]);
     }
-  }, [currentUser]);
+  }, [currentUser?.id]);
 
-  // Handle Photo File Upload
+  // Handle Photo File Upload with Canvas Compression (max 800px, 0.78 quality ~40-60KB HD)
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 8 * 1024 * 1024) {
-      showToast('कृपया 8MB से छोटी फोटो चुनें');
+    if (file.size > 12 * 1024 * 1024) {
+      showToast('कृपया 12MB से छोटी फोटो चुनें');
       return;
     }
 
+    setIsCompressing(true);
     const reader = new FileReader();
     reader.onload = (event) => {
-      if (event.target?.result) {
-        setNewImagePreview(event.target.result as string);
+      const dataUri = event.target?.result as string;
+      if (!dataUri) {
+        setIsCompressing(false);
+        return;
       }
+
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800; // Crisp HD retina quality, yet tiny byte size
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.78);
+            setNewImagePreview(compressed);
+          } else {
+            setNewImagePreview(dataUri);
+          }
+        } catch {
+          setNewImagePreview(dataUri);
+        } finally {
+          setIsCompressing(false);
+        }
+      };
+      img.onerror = () => {
+        setNewImagePreview(dataUri);
+        setIsCompressing(false);
+      };
+      img.src = dataUri;
     };
     reader.readAsDataURL(file);
   };
 
-  // Add Memory Handler
-  const handleAddMemory = (e: React.FormEvent) => {
+  // Add Memory Handler with Cross-Device Cloud Persistence
+  const handleAddMemory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newImagePreview) {
       showToast('कृपया शीर्षक और फोटो जोड़ें');
+      return;
+    }
+
+    if (!currentUser?.id) {
+      openAuthModal('login', 'संस्मरण को हमेशा के लिए सुरक्षित रखने हेतु लॉगिन करें');
       return;
     }
 
@@ -100,34 +159,46 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
       caption: newCaption.trim(),
       category: newCategory,
       imageUrl: newImagePreview,
-      date: new Date().toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      date: new Date().toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      createdAt: new Date().toISOString()
     };
 
     const nextMemories = [newItem, ...memories];
     setMemories(nextMemories);
 
-    if (currentUser?.id) {
-      try {
-        localStorage.setItem(`chhath_user_memories_${currentUser.id}`, JSON.stringify(nextMemories));
-      } catch {}
-    }
+    // Save locally
+    try {
+      localStorage.setItem(`chhath_user_memories_${currentUser.id}`, JSON.stringify(nextMemories));
+    } catch {}
 
     setShowAddForm(false);
     setNewTitle('');
     setNewCaption('');
     setNewImagePreview('');
-    showToast('✨ आपकी छठ यादें सुरक्षित जोड़ दी गईं!');
+    showToast('✨ आपकी छठ यादें क्लाउड में सुरक्षित सहेज दी गईं!');
+
+    // Persist to Cloud across all logged-in devices
+    setIsSyncing(true);
+    try {
+      await UserSyncService.saveUserMemories(currentUser.id, nextMemories);
+    } catch (err) {
+      console.warn('[Memories] Cloud save notice:', err);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  // Delete Memory
-  const handleDeleteMemory = (id: string, e?: React.MouseEvent) => {
+  // Delete Memory with Cloud Sync
+  const handleDeleteMemory = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const next = memories.filter(m => m.id !== id);
     setMemories(next);
+
     if (currentUser?.id) {
       try {
         localStorage.setItem(`chhath_user_memories_${currentUser.id}`, JSON.stringify(next));
       } catch {}
+      UserSyncService.saveUserMemories(currentUser.id, next).catch(() => {});
     }
     if (lightboxItem?.id === id) setLightboxItem(null);
     showToast('संस्मरण हटाया गया');
@@ -310,14 +381,22 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    छठ फोटो अपलोड करें *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-stone-700">
+                      छठ फोटो अपलोड करें *
+                    </label>
+                    {isCompressing && (
+                      <span className="text-[10px] text-amber-600 font-bold flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" /> फोटो ऑप्टिमाइज़ हो रही है...
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageFileChange}
-                    className="w-full text-xs text-stone-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-stone-100 file:text-stone-800 hover:file:bg-stone-200 cursor-pointer"
+                    disabled={isCompressing}
+                    className="w-full text-xs text-stone-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-stone-100 file:text-stone-800 hover:file:bg-stone-200 cursor-pointer disabled:opacity-50"
                   />
                 </div>
 
@@ -346,10 +425,20 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  disabled={isCompressing || isSyncing}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-stone-950 font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Check className="w-4 h-4" />
-                  <span>एल्बम में सुरक्षित करें</span>
+                  {isSyncing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>क्लाउड में सहेजा जा रहा है...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>एल्बम में सुरक्षित करें</span>
+                    </>
+                  )}
                 </button>
               </form>
             </div>
