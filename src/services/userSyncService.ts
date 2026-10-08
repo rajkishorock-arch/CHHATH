@@ -53,7 +53,29 @@ export const UserSyncService = {
   async fetchUserData(uid: string): Promise<UserCloudData | null> {
     if (!uid) return null;
 
-    // 1. Direct Cloud Bin (Fastest & Cross-device universal)
+    // 0. Direct Cloud Firestore (Active Google Cloud Database)
+    try {
+      const app = getFirebaseApp();
+      if (app) {
+        const { getFirestore, doc, getDoc } = await import('firebase/firestore');
+        const db = getFirestore(app);
+        const snap = await getDoc(doc(db, 'users', uid));
+        if (snap.exists()) {
+          const fsData = snap.data() as UserCloudData;
+          try {
+            localStorage.setItem(`chhath_cloud_user_${uid}`, JSON.stringify(fsData));
+            if (fsData.avatarUrl) {
+              localStorage.setItem(`chhath_avatar_${uid}`, fsData.avatarUrl);
+            }
+          } catch {}
+          return fsData;
+        }
+      }
+    } catch (e) {
+      console.warn('[UserSync] Firestore fetch notice:', e);
+    }
+
+    // 1. Direct Cloud Bin (Fastest & Cross-device universal fallback)
     try {
       const directRes = await fetch(CLOUD_STORAGE_URL, {
         headers: { 'Cache-Control': 'no-cache' }

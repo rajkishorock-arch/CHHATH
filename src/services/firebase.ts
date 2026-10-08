@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyDJCDLzfRLIuq5b_szHyeDIbvsPu91oz4Q',
@@ -22,6 +23,7 @@ export const isFirebaseConfigured = (): boolean => {
 let _app: FirebaseApp | null = null;
 let _auth: Auth | null = null;
 let _googleProvider: GoogleAuthProvider | null = null;
+let _firestore: Firestore | null = null;
 
 export const getFirebaseApp = (): FirebaseApp | null => {
   if (!isFirebaseConfigured()) return null;
@@ -49,6 +51,21 @@ export const getFirebaseAuth = (): Auth | null => {
     }
   }
   return _auth;
+};
+
+export const getFirebaseFirestore = (): Firestore | null => {
+  if (!isFirebaseConfigured()) return null;
+  if (!_firestore) {
+    const app = getFirebaseApp();
+    if (!app) return null;
+    try {
+      _firestore = getFirestore(app);
+    } catch (e) {
+      console.warn('[Firebase] Firestore initialization warning:', e);
+      return null;
+    }
+  }
+  return _firestore;
 };
 
 export const getGoogleProvider = (): GoogleAuthProvider | null => {
