@@ -30,14 +30,34 @@ interface PublicHomeViewProps {
   onOpenFeatureModal?: (modal: FeatureModalType) => void;
   onOpenAssistant?: () => void;
   onOpenChat?: () => void;
+  initialQuery?: string;
 }
 
 export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
   onNavigate,
   onOpenFeatureModal,
   onOpenAssistant,
-  onOpenChat
+  onOpenChat,
+  initialQuery
 }) => {
+  const [activeSearchQuery, setActiveSearchQuery] = React.useState<string>(initialQuery || '');
+
+  React.useEffect(() => {
+    if (initialQuery !== undefined) {
+      setActiveSearchQuery(initialQuery);
+    }
+  }, [initialQuery]);
+
+  React.useEffect(() => {
+    const handleMusicSearchEvent = (e: any) => {
+      const q = e.detail?.query;
+      if (q && q.trim()) {
+        setActiveSearchQuery(q.trim());
+      }
+    };
+    window.addEventListener('chhath_music_search', handleMusicSearchEvent);
+    return () => window.removeEventListener('chhath_music_search', handleMusicSearchEvent);
+  }, []);
   const utilityCards = [
     {
       id: 'arghya',
@@ -121,6 +141,13 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
             onOpenAssistant={onOpenAssistant}
             onOpenChat={onOpenChat}
           />
+        </section>
+      )}
+
+      {/* If a search is active, show the YouTube Results Feed right at the top of the Home page */}
+      {activeSearchQuery && (
+        <section id="search-results-top" className="container-custom max-w-6xl mx-auto px-1.5 sm:px-4 space-y-4">
+          <SongsSection initialQuery={activeSearchQuery} />
         </section>
       )}
 
@@ -567,10 +594,12 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
         </div>
       </section>
 
-      {/* Dedicated Chhath Music Studio */}
-      <section id="music" className="w-full max-w-6xl mx-auto px-0 sm:px-4 scroll-mt-24 space-y-6">
-        <SongsSection />
-      </section>
+      {/* Dedicated Chhath Music Studio (shown when not shown at top) */}
+      {!activeSearchQuery && (
+        <section id="music" className="w-full max-w-6xl mx-auto px-0 sm:px-4 scroll-mt-24 space-y-6">
+          <SongsSection initialQuery={initialQuery} />
+        </section>
+      )}
 
       {/* Trust & Safety Section */}
       <section className="container-custom max-w-5xl mx-auto px-1 sm:px-4">

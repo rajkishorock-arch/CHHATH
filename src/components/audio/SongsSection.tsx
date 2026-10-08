@@ -940,6 +940,17 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           cleanResults.push(r);
         }
 
+        if (cleanResults.length === 0 && isContinuation) {
+          searchFacetIndexRef.current += 1;
+          const isSongIntent = /song|geet|gana|गाना|गीत|भजन|bhajan|music|audio/i.test(currentSearchTermRef.current || trimmed);
+          const facets = isSongIntent
+            ? [`${currentSearchTermRef.current || trimmed} new songs`, `${currentSearchTermRef.current || trimmed} superhit`, `${currentSearchTermRef.current || trimmed} audio`]
+            : [`${currentSearchTermRef.current || trimmed} video`, `${currentSearchTermRef.current || trimmed} trending`];
+          const nextFacet = facets[searchFacetIndexRef.current % facets.length];
+          setTimeout(() => handleExecuteSearch(nextFacet, '', true), 200);
+          return;
+        }
+
         setYtSearchResults(prev => (token || isContinuation) ? [...prev, ...cleanResults] : cleanResults);
         setNextPageToken(response.nextPageToken);
         setSearchStatus('success');
@@ -948,6 +959,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           setYtSearchResults([]);
           setSearchStatus('no_results');
           setErrorMessage(response.error || 'कोई गाना या वीडियो नहीं मिला।');
+        } else if (isContinuation) {
+          searchFacetIndexRef.current += 1;
         }
       }
     } catch (err: any) {
@@ -1008,32 +1021,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     setNextPageToken(null);
     setErrorMessage(null);
     setActiveFilter('all');
-  };
-
-  const handleFilterSelect = (filterId: string) => {
-    setActiveFilter(filterId);
-    if (filterId === 'all') {
-      searchSeenIdsRef.current.clear();
-      currentSearchTermRef.current = '';
-      searchFacetIndexRef.current = 0;
-      setSearchQuery('');
-      setSearchStatus('idle');
-      setYtSearchResults([]);
-      setNextPageToken(null);
-      setErrorMessage(null);
-    } else {
-      const queryMap: Record<string, string> = {
-        sharda: 'शारदा सिन्हा छठ गीत',
-        pawan: 'पवन सिंह छठ गीत',
-        khesari: 'खेसारी लाल यादव छठ गीत',
-        anuradha: 'अनुराधा पौडवाल छठ पूजा',
-        maithili: 'मैथिली ठाकुर छठ गीत',
-        arghya: 'छठ पूजा अर्घ्य पारम्परिक'
-      };
-      const q = queryMap[filterId] || filterId;
-      setSearchQuery(q);
-      handleExecuteSearch(q);
-    }
+    window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -1103,13 +1091,26 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     }
   }, [initialQuery]);
 
-  // Listen for global custom search event dispatched from TopSongSearchBar
+  // Listen for global custom search event dispatched from TopSongSearchBar or SearchModal
   useEffect(() => {
     const handleMusicSearchEvent = (e: any) => {
       const q = e.detail?.query;
       if (q && q.trim()) {
         setSearchQuery(q.trim());
         handleExecuteSearch(q.trim());
+        setTimeout(() => {
+          searchContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else if (q === '') {
+        searchSeenIdsRef.current.clear();
+        currentSearchTermRef.current = '';
+        searchFacetIndexRef.current = 0;
+        setSearchQuery('');
+        setSearchStatus('idle');
+        setYtSearchResults([]);
+        setNextPageToken(null);
+        setErrorMessage(null);
+        setActiveFilter('all');
       }
     };
     window.addEventListener('chhath_music_search', handleMusicSearchEvent);
@@ -1187,7 +1188,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                   setSearchQuery(e.target.value);
                   setIsSearchFocused(true);
                 }}
-                placeholder="YouTube पर कोई भी छठ गीत, गायक या भजन खोजें..."
+                placeholder="YouTube पर कोई भी गाना, वीडियो या भजन खोजें..."
                 className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 outline-none pr-2 font-mukta"
               />
 
@@ -1331,6 +1332,24 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {/* SEARCH RESULTS */}
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
+            {/* Active Search Status Banner with Clear Button */}
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 dark:from-amber-500/20 dark:via-orange-500/10 dark:to-transparent border border-amber-500/30 rounded-2xl shadow-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <Search className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
+                  &ldquo;<span className="text-amber-600 dark:text-amber-400 font-extrabold">{currentSearchTermRef.current || searchQuery}</span>&rdquo; के YouTube परिणाम ({ytSearchResults.length}+)
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="px-3 py-1 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-stone-700 dark:text-stone-300 text-xs font-bold transition-all flex items-center gap-1 shrink-0 cursor-pointer shadow-xs active:scale-95"
+                title="सर्च हटाएं और मुख्य होम ट्रेंडिंग पर लौटें"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>साफ़ करें</span>
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
               {ytSearchResults.map((ytSong) => {

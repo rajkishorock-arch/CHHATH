@@ -617,6 +617,7 @@ const MainContent: React.FC = () => {
                   onOpenFeatureModal={setFeatureModal}
                   onOpenAssistant={() => handleNavigate('ai-pandit')}
                   onOpenChat={() => handleNavigate('chat')}
+                  initialQuery={musicInitialQuery}
                 />
               )}
             </div>
@@ -774,6 +775,11 @@ const MainContent: React.FC = () => {
           onClose={() => setSearchModalOpen(false)} 
           onNavigate={handleNavigate} 
           onSelectUser={handleSelectUserFromSearch}
+          onSearchSubmit={(q) => {
+            setMusicInitialQuery(q);
+            handleNavigate('home');
+            setSearchModalOpen(false);
+          }}
         />
       )}
 
