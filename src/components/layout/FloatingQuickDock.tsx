@@ -104,7 +104,7 @@ export const FloatingQuickDock: React.FC<FloatingQuickDockProps> = ({
 
           {/* Chhath Connect */}
           <button
-            onClick={() => openConnect()}
+            onClick={() => { window.location.hash = '#chat'; }}
             title="छठ कनेक्ट — सामाजिक संवाद (Chhath Connect)"
             className="p-2.5 rounded-full hover:bg-amber-500/20 text-amber-400 hover:text-amber-300 transition-all hover:scale-110 active:scale-95 relative"
           >

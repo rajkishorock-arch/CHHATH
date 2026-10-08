@@ -68,7 +68,6 @@ import { ChhathChatPage } from './components/pages/ChhathChatPage';
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformModal').then(m => ({ default: m.ReelsPlatformModal })));
-const ChhathConnectModal = lazy(() => import('./components/chat/ChhathConnectModal').then(m => ({ default: m.ChhathConnectModal })));
 const CallScreenModal = lazy(() => import('./components/chat/CallScreenModal').then(m => ({ default: m.CallScreenModal })));
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
 
@@ -729,7 +728,7 @@ const MainContent: React.FC = () => {
               onNavigate={handleNavigate}
               onOpenFeatureModal={setFeatureModal}
               onOpenAssistant={() => setAssistantModalOpen(true)}
-              onOpenChat={() => openConnect()}
+              onOpenChat={() => handleNavigate('chat')}
             />
           )}
 
@@ -782,7 +781,6 @@ const MainContent: React.FC = () => {
           <AdminDashboard isOpen={adminModalOpen} onClose={() => setAdminModalOpen(false)} />
         )}
         <ReelsPlatformModal />
-        <ChhathConnectModal />
         <CallScreenModal />
         <ShareToChatModal />
         <FeatureExperienceModal

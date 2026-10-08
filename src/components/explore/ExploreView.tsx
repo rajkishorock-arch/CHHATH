@@ -60,7 +60,7 @@ export const ExploreView: React.FC = () => {
         </button>
 
         <button
-          onClick={() => openConnect()}
+          onClick={() => { window.location.hash = '#chat'; }}
           className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-left font-bold hover:scale-[1.02] transition-all"
         >
           <MessageCircle className="w-6 h-6 mb-2 text-amber-600 dark:text-amber-400" />

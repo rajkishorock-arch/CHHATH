@@ -598,167 +598,27 @@ export const ChatStorage = {
   },
 
   /**
-   * Initial Devotee Seed Data Generation
+   * Initial Devotee Seed Data - Clean and Empty (Zero dummy / fake data)
    */
-  ensureInitialized(currentUserId?: string) {
-    if (localStorage.getItem(KEYS.INITIALIZED)) return;
-
-    const users = ReelsStorage.getUsers();
-    const shardaTrust = users.find(u => u.username === '@sharda_trust') || users[0];
-    const bihariVibes = users.find(u => u.username === '@bihari_vibes') || users[1];
-    const adminUser = users.find(u => u.username === '@admin_chhath') || users[2];
-
-    const meId = currentUserId || 'user_guest';
-
-    // 1. Direct Chat with Sharda Trust
-    const dmSharda: Conversation = {
-      id: `conv_dm_${[meId, shardaTrust.id].sort().join('_')}`,
-      type: 'direct',
-      participantIds: [meId, shardaTrust.id],
-      createdBy: shardaTrust.id,
-      lastMessageAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-      pinnedBy: [meId],
-      mutedBy: {},
-      isMessageRequest: false,
-      requestStatus: 'accepted',
-      theme: 'golden',
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    const shardaMsgs: ChatMessage[] = [
-      {
-        id: 'msg_sd_1',
-        conversationId: dmSharda.id,
-        senderId: shardaTrust.id,
-        senderName: shardaTrust.name,
-        senderUsername: shardaTrust.username,
-        senderAvatar: shardaTrust.avatarUrl,
-        type: 'text',
-        text: 'जय छठी मईया! 🙏 इस वर्ष छठ महापर्व पर शारदा सिन्हा जी के पावन अमर भजनों का संकलन जारी किया गया है।',
-        status: 'read',
-        readBy: { [meId]: new Date().toISOString() },
-        deliveredTo: { [meId]: new Date().toISOString() },
-        createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: 'msg_sd_2',
-        conversationId: dmSharda.id,
-        senderId: shardaTrust.id,
-        senderName: shardaTrust.name,
-        senderUsername: shardaTrust.username,
-        senderAvatar: shardaTrust.avatarUrl,
-        type: 'song',
-        text: 'कांच ही बांस के बहंगिया — अमर पारंपरिक छठ गीत',
-        metadata: {
-          songId: 'song-1',
-          songTitle: 'काँच ही बाँस के बहँगिया (Kanch Hi Baans Ke Bahangiya)',
-          songSinger: 'शारदा सिन्हा (Sharda Sinha)',
-          songThumbnail: getImageUrl('/images/daura_arghya.jpg')
-        },
-        status: 'read',
-        readBy: { [meId]: new Date().toISOString() },
-        deliveredTo: { [meId]: new Date().toISOString() },
-        createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString()
-      }
-    ];
-    dmSharda.lastMessage = shardaMsgs[1];
-
-    // 2. Direct Chat with Bihari Vibes (with Reel Card)
-    const dmBihari: Conversation = {
-      id: `conv_dm_${[meId, bihariVibes.id].sort().join('_')}`,
-      type: 'direct',
-      participantIds: [meId, bihariVibes.id],
-      createdBy: bihariVibes.id,
-      lastMessageAt: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
-      pinnedBy: [],
-      mutedBy: {},
-      isMessageRequest: false,
-      requestStatus: 'accepted',
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    const bihariMsgs: ChatMessage[] = [
-      {
-        id: 'msg_bv_1',
-        conversationId: dmBihari.id,
-        senderId: bihariVibes.id,
-        senderName: bihariVibes.name,
-        senderUsername: bihariVibes.username,
-        senderAvatar: bihariVibes.avatarUrl,
-        type: 'reel',
-        text: 'दीघा पाटीपुल घाट की लाइव ड्रोन झलकियां देखिए!',
-        metadata: {
-          reelId: 'demo-reel-004',
-          reelTitle: 'पटना दीघा घाट पर लाखों दीपों की अलौकिक गंगा आरती',
-          reelThumbnail: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=80',
-          reelCreator: 'Bihari Vibes Official'
-        },
-        status: 'read',
-        readBy: { [meId]: new Date().toISOString() },
-        deliveredTo: { [meId]: new Date().toISOString() },
-        reactions: { '❤️': [meId], '🙏': [bihariVibes.id] },
-        createdAt: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 40 * 60 * 1000).toISOString()
-      }
-    ];
-    dmBihari.lastMessage = bihariMsgs[0];
-
-    // 3. Community Group: "पटना छठ संगम परिवार"
-    const groupPatna: Conversation = {
-      id: `conv_grp_patna_chhath_2026`,
-      type: 'group',
-      name: 'पटना छठ संगम परिवार 🪔',
-      description: 'पटना दीघा, कलेक्ट्रेट व गांधी घाट पर अर्घ्य देने वाले श्रद्धालुओं का पावन समूह।',
-      avatar: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=200&q=80',
-      participantIds: [meId, shardaTrust.id, bihariVibes.id, adminUser.id],
-      admins: [adminUser.id],
-      createdBy: adminUser.id,
-      lastMessageAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-      pinnedBy: [meId],
-      mutedBy: {},
-      isMessageRequest: false,
-      requestStatus: 'accepted',
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    const groupMsgs: ChatMessage[] = [
-      {
-        id: 'msg_grp_1',
-        conversationId: groupPatna.id,
-        senderId: adminUser.id,
-        senderName: adminUser.name,
-        senderUsername: adminUser.username,
-        senderAvatar: adminUser.avatarUrl,
-        type: 'poll',
-        text: 'कल संध्या अर्घ्य हेतु आप किस घाट पर प्रस्थान करेंगे?',
-        metadata: {
-          pollId: 'poll-1',
-          pollQuestion: 'कल संध्या अर्घ्य हेतु आप किस घाट पर प्रस्थान करेंगे?',
-          pollOptions: [
-            { id: 'opt-1', text: 'दीघा पाटीपुल घाट 93', voterIds: [meId, bihariVibes.id] },
-            { id: 'opt-2', text: 'गांधी घाट (एनआईटी पटना)', voterIds: [shardaTrust.id] },
-            { id: 'opt-3', text: 'कलेक्ट्रेट एवं महेंद्रू घाट', voterIds: [] }
-          ]
-        },
-        status: 'read',
-        readBy: {},
-        deliveredTo: {},
-        createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString()
-      }
-    ];
-    groupPatna.lastMessage = groupMsgs[0];
-
-    const allConvs = [groupPatna, dmSharda, dmBihari];
-    localStorage.setItem(KEYS.CONVERSATIONS, JSON.stringify(allConvs));
-    localStorage.setItem(`${KEYS.MESSAGES_PREFIX}${dmSharda.id}`, JSON.stringify(shardaMsgs));
-    localStorage.setItem(`${KEYS.MESSAGES_PREFIX}${dmBihari.id}`, JSON.stringify(bihariMsgs));
-    localStorage.setItem(`${KEYS.MESSAGES_PREFIX}${groupPatna.id}`, JSON.stringify(groupMsgs));
+  ensureInitialized(_currentUserId?: string) {
+    // Clear out any legacy dummy conversations
+    const raw = localStorage.getItem(KEYS.CONVERSATIONS);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((c: any) => 
+            c.id && 
+            !c.id.includes('sharda') && 
+            !c.id.includes('bihari') && 
+            !c.id.includes('conv_grp_patna')
+          );
+          localStorage.setItem(KEYS.CONVERSATIONS, JSON.stringify(clean));
+        }
+      } catch {}
+    } else {
+      localStorage.setItem(KEYS.CONVERSATIONS, JSON.stringify([]));
+    }
     localStorage.setItem(KEYS.INITIALIZED, 'true');
   }
 };

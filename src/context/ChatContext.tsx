@@ -238,12 +238,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return conversations.find(c => c.id === activeConversationId) || null;
   }, [conversations, activeConversationId]);
 
-  // Open / Close modal
+  // Open / Close modal - now routes to full-page #chat view
   const openConnect = (convId?: string) => {
     if (convId) {
       setActiveConversationId(convId);
     }
-    setIsConnectOpen(true);
+    setIsConnectOpen(false);
+    window.location.hash = '#chat';
   };
 
   const closeConnect = () => {
@@ -254,7 +255,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setActiveConversationId(id);
   };
 
-  // Open Chat with a specific user (creates DM if not exists)
+  // Open Chat with a specific user (creates DM if not exists and routes to #chat)
   const openChatWithUser = async (targetUserId: string): Promise<string> => {
     if (!currentUser) {
       openAuthModal('login', 'संदेश भेजने के लिए कृपया लॉगिन करें।');
@@ -263,7 +264,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const conv = ChatStorage.getOrCreateDirectConversation(currentUser.id, targetUserId);
     refreshConversations();
     setActiveConversationId(conv.id);
-    setIsConnectOpen(true);
+    setIsConnectOpen(false);
+    window.location.hash = '#chat';
     return conv.id;
   };
 
