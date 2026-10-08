@@ -8,7 +8,6 @@ import {
   Moon, 
   Search, 
   BellRing, 
-  Languages, 
   Menu, 
   X, 
   Flame, 
@@ -48,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenMixer,
   onOpenAssistant
 }) => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { ringBell } = useAudio();
   const { openReelsPlatform, reelsPlatformOpen } = useReels();
@@ -66,17 +65,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const [sidebarDrawerOpen, setSidebarDrawerOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-
-  const langNames: Record<Language, string> = {
-    hi: 'हिंदी',
-    bho: 'भोजपुरी',
-    mai: 'मैथिली',
-    mag: 'मगही',
-    en: 'English'
-  };
 
   const navText = {
     hi: {
@@ -231,7 +221,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       if (e.key === 'Escape') {
         setSidebarDrawerOpen(false);
         setMobileSearchOpen(false);
-        setLangDropdownOpen(false);
         setUserMenuOpen(false);
       }
     };
@@ -295,7 +284,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         if (
           sidebarDrawerOpen ||
           mobileSearchOpen ||
-          langDropdownOpen ||
           userMenuOpen ||
           settingsModalOpen ||
           accountCenterModalOpen
@@ -338,7 +326,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [
     sidebarDrawerOpen,
     mobileSearchOpen,
-    langDropdownOpen,
     userMenuOpen,
     settingsModalOpen,
     accountCenterModalOpen
@@ -514,51 +501,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
           )}
 
-          {/* Language Selector Dropdown Button (1-Tap Fast Switcher) */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-              title="भाषा चुनें / Select Language"
-              aria-label="भाषा चुनें"
-              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 hover:bg-amber-500/25 border border-amber-500/30 text-xs font-bold font-mukta transition-all cursor-pointer shadow-xs active:scale-95"
-            >
-              <Languages className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span className="text-[11px] font-extrabold">{langNames[language]}</span>
-            </button>
-
-            {langDropdownOpen && (
-              <>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setLangDropdownOpen(false)} 
-                />
-                <div 
-                  className="absolute right-0 mt-2 w-36 bg-white dark:bg-stone-900 rounded-2xl shadow-xl border border-amber-500/30 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
-                >
-                  {(Object.keys(langNames) as Language[]).map((code) => (
-                    <button
-                      key={code}
-                      type="button"
-                      onClick={() => {
-                        setLanguage(code);
-                        setLangDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3.5 py-2 text-xs font-mukta flex items-center justify-between transition-colors ${
-                        language === code
-                          ? 'bg-amber-500 text-stone-950 font-black'
-                          : 'text-stone-800 dark:text-stone-200 hover:bg-amber-500/15'
-                      }`}
-                    >
-                      <span>{langNames[code]}</span>
-                      {language === code && <span className="text-xs font-bold">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
           {/* Dedicated Settings Button (Opens Full Page #settings) */}
           <button
             onClick={() => {
@@ -569,7 +511,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
             }}
             title={navText.settingsTitle}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all border shadow-sm ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all border shadow-sm shrink-0 cursor-pointer ${
               activeTab === 'settings'
                 ? 'bg-amber-500 text-stone-950 border-amber-500 shadow-md font-bold'
                 : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 border-amber-500/30'

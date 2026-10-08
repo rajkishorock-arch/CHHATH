@@ -18,7 +18,6 @@ const CulturalTimeline = lazy(() => import('../culture/CulturalTimeline').then(m
 const NRICreativeGuide = lazy(() => import('../nri/NRICreativeGuide').then(m => ({ default: m.NRICreativeGuide })));
 const EventDirectory = lazy(() => import('../events/EventDirectory').then(m => ({ default: m.EventDirectory })));
 const ChhathArchiveReport = lazy(() => import('../archive/ChhathArchiveReport').then(m => ({ default: m.ChhathArchiveReport })));
-const SankalpWall = lazy(() => import('../engagement/SankalpWall').then(m => ({ default: m.SankalpWall })));
 
 const ComponentLoader: React.FC = () => (
   <div className="p-8 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
@@ -39,7 +38,7 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
     hi: {
       badge: 'सांस्कृतिक एक्सप्लोर हब (विस्तृत रूप)',
       title: 'छठ सांस्कृतिक एवं सामुदायिक अनुभव',
-      subtitle: 'आभासी अर्घ्य, दीप दान, मन्नत पट्टिका, शुभकामना कार्ड, संस्मरण एल्बम एवं प्रश्नोत्तरी—एक ही जगह।',
+      subtitle: 'आभासी अर्घ्य, दीप दान, शुभकामना कार्ड, संस्मरण एल्बम एवं प्रश्नोत्तरी—एक ही जगह।',
       tabbedBtn: '📂 श्रेणीबद्ध दृश्य (Tabs)',
       reelsTitle: '🔥 छठ रील्स',
       reelsSub: 'शॉर्ट वीडियो एवं भक्ति झलकियाँ',
@@ -53,7 +52,7 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
     en: {
       badge: 'Cultural Explore Hub (Detailed)',
       title: 'Chhath Cultural & Devotional Experience',
-      subtitle: 'Virtual Arghya, holy diya, prayer wall, greeting cards, memory album, and trivia—all in one place.',
+      subtitle: 'Virtual Arghya, holy diya, greeting cards, memory album, and trivia—all in one place.',
       tabbedBtn: '📂 Categorized View (Tabs)',
       reelsTitle: '🔥 Chhath Reels',
       reelsSub: 'Short videos and devotional glimpses',
@@ -67,7 +66,7 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
     bho: {
       badge: 'सांस्कृतिक एक्सप्लोर हब (विस्तृत रूप)',
       title: 'छठ सांस्कृतिक आ सामुदायिक अनुभव',
-      subtitle: 'आभासी अरघ, दीप दान, मन्नत पट्टिका, असीस पत्र, संस्मरण आ सवाल-जवाब—एके जगह।',
+      subtitle: 'आभासी अरघ, दीप दान, असीस पत्र, संस्मरण आ सवाल-जवाब—एके जगह।',
       tabbedBtn: '📂 श्रेणीबद्ध दृश्य (Tabs)',
       reelsTitle: '🔥 छठ रील्स',
       reelsSub: 'छोट वीडियो आ भक्ति झलक',
@@ -81,7 +80,7 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
     mai: {
       badge: 'सांस्कृतिक एक्सप्लोर हब (विस्तृत रूप)',
       title: 'छठि सांस्कृतिक ओ सामुदायिक अनुभव',
-      subtitle: 'आभासी अर्घ्य, दीप दान, मन्नत पट्टिका, आशीष पत्र, संस्मरण ओ प्रश्नोत्तरी—एके स्थान पर।',
+      subtitle: 'आभासी अर्घ्य, दीप दान, आशीष पत्र, संस्मरण ओ प्रश्नोत्तरी—एके स्थान पर।',
       tabbedBtn: '📂 श्रेणीबद्ध दृश्य (Tabs)',
       reelsTitle: '🔥 छठि रील्स',
       reelsSub: 'लघु वीडियो ओ भक्ति झलक',
@@ -95,7 +94,7 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
     mag: {
       badge: 'सांस्कृतिक एक्सप्लोर हब (विस्तृत रूप)',
       title: 'छठ सांस्कृतिक आ सामुदायिक अनुभव',
-      subtitle: 'आभासी अरघ, दीप दान, मन्नत पट्टिका, असीस पत्र, संस्मरण आ सवाल-जवाब—एके जगह।',
+      subtitle: 'आभासी अरघ, दीप दान, असीस पत्र, संस्मरण आ सवाल-जवाब—एके जगह।',
       tabbedBtn: '📂 श्रेणीबद्ध दृश्य (Tabs)',
       reelsTitle: '🔥 छठ रील्स',
       reelsSub: 'छोट वीडियो आ भक्ति झलक',
@@ -109,7 +108,7 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
   }[language] || {
     badge: 'सांस्कृतिक एक्सप्लोर हब (विस्तृत रूप)',
     title: 'छठ सांस्कृतिक एवं सामुदायिक अनुभव',
-    subtitle: 'आभासी अर्घ्य, दीप दान, मन्नत पट्टिका, शुभकामना कार्ड, संस्मरण एल्बम एवं प्रश्नोत्तरी—एक ही जगह।',
+    subtitle: 'आभासी अर्घ्य, दीप दान, शुभकामना कार्ड, संस्मरण एल्बम एवं प्रश्नोत्तरी—एक ही जगह।',
     tabbedBtn: '📂 श्रेणीबद्ध दृश्य (Tabs)',
     reelsTitle: '🔥 छठ रील्स',
     reelsSub: 'शॉर्ट वीडियो एवं भक्ति झलकियाँ',
@@ -198,11 +197,6 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
         <section id="virtual-arghya" className="space-y-6 sm:space-y-8 scroll-mt-24">
           <VirtualArghyaSimulator />
           <VirtualDiyaExperience />
-        </section>
-
-        {/* Sankalp & Prayer Wall */}
-        <section id="sankalp-wall" className="scroll-mt-24">
-          <SankalpWall />
         </section>
 
         {/* Greetings, Wishes & Blessing Certificate */}

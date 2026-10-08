@@ -18,7 +18,6 @@ const CulturalTimeline = lazy(() => import('../culture/CulturalTimeline').then(m
 const NRICreativeGuide = lazy(() => import('../nri/NRICreativeGuide').then(m => ({ default: m.NRICreativeGuide })));
 const EventDirectory = lazy(() => import('../events/EventDirectory').then(m => ({ default: m.EventDirectory })));
 const ChhathArchiveReport = lazy(() => import('../archive/ChhathArchiveReport').then(m => ({ default: m.ChhathArchiveReport })));
-const SankalpWall = lazy(() => import('../engagement/SankalpWall').then(m => ({ default: m.SankalpWall })));
 
 const ComponentLoader: React.FC = () => (
   <div className="p-12 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
@@ -61,12 +60,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
     hi: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठ पावन सांस्कृतिक अनुभव',
-      subtitle: 'डिजिटल अर्घ्य, दीप दान, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
+      subtitle: 'डिजिटल अर्घ्य, दीप दान, आशीर्वाद पत्र, शुभकामना कार्ड एवं बाल वाटिका—सुव्यवस्थित रूप में।',
       detailedBtn: '📜 विस्तृत दृश्य (Full View)',
       tabDarshan: '🌅 आभासी अर्घ्य व दीप',
       tabDarshanSub: 'डिजिटल अर्घ्य व दीप दान',
-      tabMannat: '📜 मन्नत व आशीष',
-      tabMannatSub: 'संकल्प, पत्र व बधाई',
+      tabMannat: '📜 पावन आशीष व बधाई',
+      tabMannatSub: 'पत्र, बधाई व शुभकामनाएं',
       tabGallery: '📸 संस्मरण व गैलरी',
       tabGallerySub: 'फोटो, वीडियो व एल्बम',
       tabGyan: '🧠 ज्ञान व संस्कृति',
@@ -75,12 +74,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
     en: {
       badge: 'Cultural Explore Hub',
       title: 'Chhath Devotional & Cultural Hub',
-      subtitle: 'Virtual Arghya, sacred diya, Sankalp wall, blessing certificates & trivia—elegantly categorized.',
+      subtitle: 'Virtual Arghya, sacred diya, blessing certificates, greeting cards & trivia—elegantly categorized.',
       detailedBtn: '📜 Detailed View (Full)',
       tabDarshan: '🌅 Virtual Arghya & Diya',
       tabDarshanSub: 'Sacred Arghya & Diya',
-      tabMannat: '📜 Prayers & Blessings',
-      tabMannatSub: 'Sankalp & Wishes',
+      tabMannat: '📜 Blessings & Wishes',
+      tabMannatSub: 'Certificates & Greetings',
       tabGallery: '📸 Memory Gallery',
       tabGallerySub: 'Photos & Videos',
       tabGyan: '🧠 Sacred Trivia',
@@ -89,12 +88,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
     bho: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठ पावन सांस्कृतिक अनुभव',
-      subtitle: 'डिजिटल अरघ, दीप दान, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
+      subtitle: 'डिजिटल अरघ, दीप दान, असीस पत्र, शुभकामना कार्ड आ बाल वाटिका—सजावल रूप में।',
       detailedBtn: '📜 विस्तृत दृश्य (Full View)',
       tabDarshan: '🌅 आभासी अरघ आ दीप',
       tabDarshanSub: 'डिजिटल अरघ आ दीप दान',
-      tabMannat: '📜 मन्नत आ असीस',
-      tabMannatSub: 'संकल्प, पत्र आ बधाई',
+      tabMannat: '📜 पावन असीस आ बधाई',
+      tabMannatSub: 'पत्र, बधाई आ शुभकामना',
       tabGallery: '📸 संस्मरण व गैलरी',
       tabGallerySub: 'फोटो, वीडियो आ एल्बम',
       tabGyan: '🧠 ज्ञान व संस्कृति',
@@ -103,12 +102,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
     mai: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठि पावन सांस्कृतिक अनुभव',
-      subtitle: 'डिजिटल अर्घ्य, दीप दान, मन्नत पट्टिका, आशीष पत्र ओ बाल वाटिका—सुव्यवस्थित रूप में।',
+      subtitle: 'डिजिटल अर्घ्य, दीप दान, आशीष पत्र, शुभकामना कार्ड ओ बाल वाटिका—सुव्यवस्थित रूप में।',
       detailedBtn: '📜 विस्तृत दृश्य (Full View)',
       tabDarshan: '🌅 आभासी अर्घ्य ओ दीप',
       tabDarshanSub: 'डिजिटल अर्घ्य ओ दीप दान',
-      tabMannat: '📜 मन्नत ओ आशीष',
-      tabMannatSub: 'संकल्प, पत्र ओ बधाई',
+      tabMannat: '📜 पावन आशीष ओ बधाई',
+      tabMannatSub: 'पत्र, बधाई ओ शुभकामना',
       tabGallery: '📸 संस्मरण ओ गैलरी',
       tabGallerySub: 'फोटो, वीडियो ओ एल्बम',
       tabGyan: '🧠 ज्ञान ओ संस्कृति',
@@ -117,12 +116,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
     mag: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
       title: 'छठ पावन सांस्कृतिक अनुभव',
-      subtitle: 'डिजिटल अरघ, दीप दान, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
+      subtitle: 'डिजिटल अरघ, दीप दान, असीस पत्र, शुभकामना कार्ड आ बाल वाटिका—सजावल रूप में।',
       detailedBtn: '📜 विस्तृत दृश्य (Full View)',
       tabDarshan: '🌅 आभासी अरघ आ दीप',
       tabDarshanSub: 'डिजिटल अरघ आ दीप दान',
-      tabMannat: '📜 मन्नत आ असीस',
-      tabMannatSub: 'संकल्प, पत्र आ बधाई',
+      tabMannat: '📜 पावन असीस आ बधाई',
+      tabMannatSub: 'पत्र, बधाई आ शुभकामना',
       tabGallery: '📸 संस्मरण व गैलरी',
       tabGallerySub: 'फोटो, वीडियो आ एल्बम',
       tabGyan: '🧠 ज्ञान व संस्कृति',
@@ -131,12 +130,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
   }[language] || {
     badge: 'सांस्कृतिक एक्सप्लोर हब',
     title: 'छठ पावन सांस्कृतिक अनुभव',
-    subtitle: 'डिजिटल अर्घ्य, दीप दान, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
+    subtitle: 'डिजिटल अर्घ्य, दीप दान, आशीर्वाद पत्र, शुभकामना कार्ड एवं बाल वाटिका—सुव्यवस्थित रूप में।',
     detailedBtn: '📜 विस्तृत दृश्य (Full View)',
     tabDarshan: '🌅 आभासी अर्घ्य व दीप',
     tabDarshanSub: 'डिजिटल अर्घ्य व दीप दान',
-    tabMannat: '📜 मन्नत व आशीष',
-    tabMannatSub: 'संकल्प, पत्र व बधाई',
+    tabMannat: '📜 पावन आशीष व बधाई',
+    tabMannatSub: 'पत्र, बधाई व शुभकामनाएं',
     tabGallery: '📸 संस्मरण व गैलरी',
     tabGallerySub: 'फोटो, वीडियो व एल्बम',
     tabGyan: '🧠 ज्ञान व संस्कृति',
@@ -268,13 +267,9 @@ export const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
           </div>
         )}
 
-        {/* Tab 2: मन्नत व आशीष (Blessings & Wishes) */}
+        {/* Tab 2: पावन आशीष व बधाई (Blessings & Wishes) */}
         {activeTab === 'mannat' && (
           <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
-            <section id="sankalp-wall" className="scroll-mt-24">
-              <SankalpWall />
-            </section>
-
             <section id="blessing-certificate" className="scroll-mt-24">
               <BlessingCertificate />
             </section>

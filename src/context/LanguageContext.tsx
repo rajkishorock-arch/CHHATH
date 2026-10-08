@@ -12,13 +12,22 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('chhath_lang') as Language;
-    return saved && translations[saved] ? saved : 'hi';
+    try {
+      const explicit = localStorage.getItem('chhath_lang_explicit');
+      if (explicit === 'true') {
+        const saved = localStorage.getItem('chhath_lang') as Language;
+        if (saved && translations[saved]) return saved;
+      }
+    } catch {}
+    return 'hi';
   });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('chhath_lang', lang);
+    try {
+      localStorage.setItem('chhath_lang', lang);
+      localStorage.setItem('chhath_lang_explicit', 'true');
+    } catch {}
   };
 
   useEffect(() => {
