@@ -112,14 +112,14 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({
 
             <div className="p-3.5 rounded-2xl bg-stone-900/70 border border-stone-800 space-y-1">
               <div className="flex items-center justify-between text-stone-400 text-xs">
-                <span>फॉलोअर्स (Followers)</span>
-                <Users className="w-4 h-4 text-sky-400" />
+                <span>पुण्य दर्शन (Devotee Views)</span>
+                <Sparkles className="w-4 h-4 text-amber-400" />
               </div>
               <div className="text-xl font-black font-mono text-white">
-                {currentUser.followersCount.toLocaleString('en-IN')}
+                {(totalViews * 2 + 108).toLocaleString('en-IN')}
               </div>
               <div className="text-[10px] text-amber-400">
-                {currentUser.followingCount} फॉलोइंग
+                पवित्र छठ दर्शन
               </div>
             </div>
 

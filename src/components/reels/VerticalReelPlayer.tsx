@@ -66,7 +66,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
     markNotInterested
   } = useReels();
 
-  const { currentUser, toggleFollow, isFollowing, blockUser, openAuthModal } = useAuth();
+  const { currentUser, blockUser, openAuthModal } = useAuth();
   const { openShareModal } = useChat();
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -94,7 +94,6 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
 
   const liked = isLiked(reel.id);
   const saved = isSaved(reel.id);
-  const following = isFollowing(reel.creatorId);
   const isOwnReel = currentUser?.id === reel.creatorId;
 
   // Auto-play when visible, pause when scrolled away
@@ -415,7 +414,7 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
         {/* Right Vertical Action Rail (Compact & sleek on mobile) */}
         <div className="relative z-10 self-end mr-2 sm:mr-3.5 mb-20 sm:mb-8 flex flex-col items-center gap-2.5 sm:gap-3.5 pointer-events-auto">
           
-          {/* Creator Avatar with Follow Plus Badge */}
+          {/* Creator Avatar */}
           <div className="relative mb-0.5">
             <button
               onClick={() => onOpenProfile(reel.creatorUsername)}
@@ -428,20 +427,6 @@ const VerticalReelPlayerComponent: React.FC<VerticalReelPlayerProps> = ({
                 className="w-full h-full rounded-full object-cover"
               />
             </button>
-
-            {!isOwnReel && (
-              <button
-                onClick={e => { e.stopPropagation(); toggleFollow(reel.creatorId); }}
-                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-md transition-all ${
-                  following
-                    ? 'bg-stone-800 text-amber-400 border border-amber-500/40'
-                    : 'bg-red-600 text-white hover:scale-110'
-                }`}
-                title={following ? 'फॉलोइंग' : 'फॉलो करें'}
-              >
-                {following ? <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : '+'}
-              </button>
-            )}
           </div>
 
           {/* Like Button */}

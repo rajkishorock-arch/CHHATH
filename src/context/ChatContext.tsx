@@ -199,31 +199,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Subscribe to realtime broadcast events
     const unsub = realtimeEngine.subscribe(handleRealtimeEvent);
 
-    // Subscribe to WebRTC call state changes
-    const unsubCall = webrtcCallEngine.subscribe((session, local, remote) => {
-      setActiveCall(session);
-      setLocalStream(local);
-      setRemoteStream(remote);
-    });
-
-    // Subscribe to Firestore incoming calls across devices
-    let unsubFirestoreCall: (() => void) | undefined;
-    if (currentUser?.id) {
-      unsubFirestoreCall = FirestoreChatService.listenToIncomingCall(currentUser.id, (incomingCall) => {
-        if (incomingCall) {
-          realtimeEngine.broadcast('call_signal', {
-            callId: incomingCall.callId,
-            signalType: 'call_offer',
-            callSession: incomingCall
-          });
-        }
-      });
-    }
-
     return () => {
       unsub();
-      unsubCall();
-      if (unsubFirestoreCall) unsubFirestoreCall();
     };
   }, [currentUserId, currentUser?.id, handleRealtimeEvent, refreshConversations]);
 
@@ -507,33 +484,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     closeShareModal();
   };
 
-  // Call Engine Actions
-  const startCall = async (targetUser: ReelUser, type: CallType) => {
-    const caller = currentUser || DEFAULT_GUEST_USER;
-    return webrtcCallEngine.startCall(caller, targetUser, type);
-  };
-
-  const acceptCall = async () => {
-    await webrtcCallEngine.acceptCall();
-  };
-
-  const endCall = () => {
-    webrtcCallEngine.endCall();
-  };
-
-  const toggleCallAudio = () => {
-    const enabled = webrtcCallEngine.toggleAudio();
-    setIsAudioMuted(!enabled);
-  };
-
-  const toggleCallVideo = () => {
-    const enabled = webrtcCallEngine.toggleVideo();
-    setIsVideoOff(!enabled);
-  };
-
-  const flipCamera = async () => {
-    return webrtcCallEngine.flipCamera();
-  };
+  // Call Engine Actions (Disabled)
+  const startCall = async () => ({ success: false, error: 'Calling disabled' });
+  const acceptCall = async () => {};
+  const endCall = () => {};
+  const toggleCallAudio = () => {};
+  const toggleCallVideo = () => {};
+  const flipCamera = async () => false;
 
   return (
     <ChatContext.Provider

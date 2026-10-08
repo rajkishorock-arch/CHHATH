@@ -16,8 +16,6 @@ import {
   X, 
   Search, 
   Send, 
-  Phone, 
-  Video, 
   Users, 
   Pin, 
   BellOff, 
@@ -78,8 +76,7 @@ export const ChhathConnectModal: React.FC = () => {
     deleteConversation,
     setTyping,
     privacySettings,
-    updatePrivacySettings,
-    startCall
+    updatePrivacySettings
   } = useChat();
 
   const { currentUser, openAuthModal } = useAuth();
@@ -582,24 +579,6 @@ export const ChhathConnectModal: React.FC = () => {
 
                 {/* Call & Utility Actions */}
                 <div className="flex items-center space-x-1.5">
-                  {activeConversation.type === 'direct' && otherParticipant && (
-                    <>
-                      <button
-                        onClick={() => startCall(otherParticipant, 'voice')}
-                        className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-amber-400 hover:text-amber-300 border border-slate-700 transition-colors"
-                        title="वॉयस कॉल करें"
-                      >
-                        <Phone className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => startCall(otherParticipant, 'video')}
-                        className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-amber-400 hover:text-amber-300 border border-slate-700 transition-colors"
-                        title="वीडियो कॉल करें"
-                      >
-                        <Video className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
 
                   {activeConversation.type === 'group' && (
                     <button

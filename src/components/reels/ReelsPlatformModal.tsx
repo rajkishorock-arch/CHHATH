@@ -352,9 +352,7 @@ export const ReelsPlatformModal: React.FC = () => {
                 अभी इस घाट पर कोई Reel नहीं पहुँची है 🪔
               </h3>
               <p className="font-mukta text-xs sm:text-sm text-stone-300 leading-relaxed">
-                {feedType === 'following'
-                  ? 'जिन भक्तों को आप फॉलो करते हैं, उन्होंने अभी तक कोई रील साझा नहीं की है।'
-                  : 'सभी रील्स देखने के लिए नीचे दिए गए बटन पर टैप करें।'}
+                सभी रील्स देखने के लिए नीचे दिए गए बटन पर टैप करें।
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                 <button

@@ -68,7 +68,6 @@ import { ChhathChatPage } from './components/pages/ChhathChatPage';
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformModal').then(m => ({ default: m.ReelsPlatformModal })));
-const CallScreenModal = lazy(() => import('./components/chat/CallScreenModal').then(m => ({ default: m.CallScreenModal })));
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
 const UserProfileModal = lazy(() => import('./components/reels/UserProfileModal').then(m => ({ default: m.UserProfileModal })));
 import { ReelUser } from './types';
@@ -359,9 +358,7 @@ const MainContent: React.FC = () => {
       if (hash.startsWith('#reel/')) {
         const id = hash.replace('#reel/', '');
         openReelsPlatform('foryou', id);
-      } else if (hash === '#reels/following') {
-        openReelsPlatform('following');
-      } else if (hash === '#reels' || hash === '#reel') {
+      } else if (hash === '#reels/following' || hash === '#reels' || hash === '#reel') {
         openReelsPlatform('foryou');
       } else if (hash === '#login') {
         openAuthModal('login');
@@ -795,7 +792,6 @@ const MainContent: React.FC = () => {
           <AdminDashboard isOpen={adminModalOpen} onClose={() => setAdminModalOpen(false)} />
         )}
         <ReelsPlatformModal />
-        <CallScreenModal />
         <ShareToChatModal />
         <FeatureExperienceModal
           activeModal={featureModal}

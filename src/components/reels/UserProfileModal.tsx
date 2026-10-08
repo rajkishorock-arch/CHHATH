@@ -39,7 +39,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onSelectReel
 }) => {
   const { allReels, userDrafts } = useReels();
-  const { currentUser, toggleFollow, isFollowing, updateProfile, openAccountCenter, blockUser } = useAuth();
+  const { currentUser, updateProfile, openAccountCenter, blockUser } = useAuth();
   const { openChatWithUser } = useChat();
 
   const [activeTab, setActiveTab] = useState<'reels' | 'liked' | 'saved' | 'drafts'>('reels');
@@ -51,8 +51,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   if (!isOpen || !user) return null;
 
   const isOwnProfile = currentUser?.id === user.id;
-  const following = isFollowing(user.id);
-  const isPrivateLocked = Boolean(user.isPrivate || user.is_private) && !isOwnProfile && !following;
+  const isPrivateLocked = false;
 
   // Compute user reels
   const userReels = allReels.filter(r => r.creatorId === user.id && (r.status === 'approved' || isOwnProfile));
@@ -182,38 +181,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     </div>
                   ) : (
                     <>
-                      <button
-                        onClick={() => toggleFollow(user.id)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-1.5 ${
-                          following
-                            ? 'bg-stone-900 text-stone-300 border border-stone-700 hover:text-red-400'
-                            : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-stone-950'
-                        }`}
-                      >
-                        {following ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>फॉलोइंग</span>
-                          </>
-                        ) : (
-                          <>
-                            <UserPlus className="w-3.5 h-3.5" />
-                            <span>फॉलो करें</span>
-                          </>
-                        )}
-                      </button>
-
                       {/* Direct Message via Chhath Connect */}
                       <button
                         onClick={async () => {
                           await openChatWithUser(user.id);
                           onClose();
                         }}
-                        className="px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm"
-                        title="छठ कनेक्ट पर संदेश भेजें"
+                        className="px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-stone-950 transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+                        title="छठ संवाद पर संदेश भेजें"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
-                        <span>संदेश भेजें</span>
+                        <span>संदेश भेजें (Chat)</span>
                       </button>
 
                       {/* Block User Button */}
@@ -273,20 +251,6 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     {userReels.length}
                   </div>
                   <div className="text-[10px] text-stone-400 uppercase tracking-wider">रील्स</div>
-                </div>
-
-                <div className="text-center sm:text-left">
-                  <div className="font-mono text-sm sm:text-base font-bold text-white">
-                    {(user.followersCount + (following && !isOwnProfile ? 1 : 0)).toLocaleString('en-IN')}
-                  </div>
-                  <div className="text-[10px] text-stone-400 uppercase tracking-wider">फॉलोअर्स</div>
-                </div>
-
-                <div className="text-center sm:text-left">
-                  <div className="font-mono text-sm sm:text-base font-bold text-white">
-                    {user.followingCount.toLocaleString('en-IN')}
-                  </div>
-                  <div className="text-[10px] text-stone-400 uppercase tracking-wider">फॉलोइंग</div>
                 </div>
 
                 <div className="text-center sm:text-left">

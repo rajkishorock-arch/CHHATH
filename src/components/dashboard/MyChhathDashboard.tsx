@@ -22,21 +22,14 @@ import {
   Lock,
   Upload,
   ChevronRight,
-  Copy,
-  Users,
-  UserCheck,
-  UserPlus,
-  Eye,
-  Search
+  Copy
 } from 'lucide-react';
 import { useChhathData } from '../../context/ChhathDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useAudio } from '../../context/AudioContext';
 import { UserSyncService } from '../../services/userSyncService';
-import { FollowService } from '../../services/followService';
 import { ReelUser, Song } from '../../types';
 import { chhathGhatsData } from '../../data/ghats';
-import { UserProfileModal } from '../reels/UserProfileModal';
 
 interface MyChhathDashboardProps {
   onNavigate?: (tab: string) => void;
@@ -58,14 +51,6 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
   const [activeTab, setActiveTab] = useState<'vows' | 'favorites' | 'songs' | 'ghats' | 'credentials'>('vows');
   const [favSubFilter, setFavSubFilter] = useState<'all' | 'ghats' | 'songs'>('all');
 
-  // Instagram Followers & Following Modals State
-  const [followersModalOpen, setFollowersModalOpen] = useState(false);
-  const [followingModalOpen, setFollowingModalOpen] = useState(false);
-  const [followersList, setFollowersList] = useState<ReelUser[]>([]);
-  const [followingList, setFollowingList] = useState<ReelUser[]>([]);
-  const [followersSearch, setFollowersSearch] = useState('');
-  const [followingSearch, setFollowingSearch] = useState('');
-  const [inspectedUser, setInspectedUser] = useState<ReelUser | null>(null);
 
   // Edit Profile Modal
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -126,32 +111,6 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
     }
   }, [currentUser?.id]);
 
-  // Load real followers & following from Firestore & sync
-  const loadFollowData = useCallback(async () => {
-    if (!currentUser?.id) return;
-    try {
-      const [followers, following] = await Promise.all([
-        FollowService.getFollowers(currentUser.id),
-        FollowService.getFollowing(currentUser.id)
-      ]);
-      setFollowersList(followers);
-      setFollowingList(following);
-    } catch (e) {
-      console.warn('Error loading follow data:', e);
-    }
-  }, [currentUser?.id]);
-
-  useEffect(() => {
-    loadFollowData();
-    FollowService.syncAllRealUsers().catch(() => {});
-  }, [loadFollowData]);
-
-  const handleToggleFollowDevotee = async (targetUserId: string) => {
-    if (!currentUser?.id) return;
-    const res = await FollowService.toggleFollow(currentUser.id, targetUserId);
-    await loadFollowData();
-    showToast(res.isFollowing ? 'फॉलो कर लिया गया! ✨' : 'अनफॉलो कर दिया गया');
-  };
 
   useEffect(() => {
     if (currentUser) {
@@ -355,25 +314,6 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
 
   const totalFavoritesCount = myFavoriteGhatsList.length + myFavoriteSongsList.length;
 
-  const filteredFollowers = useMemo(() => {
-    if (!followersSearch.trim()) return followersList;
-    const q = followersSearch.toLowerCase().trim();
-    return followersList.filter(u => 
-      u.name.toLowerCase().includes(q) || 
-      u.username.toLowerCase().includes(q) ||
-      (u.city && u.city.toLowerCase().includes(q))
-    );
-  }, [followersList, followersSearch]);
-
-  const filteredFollowing = useMemo(() => {
-    if (!followingSearch.trim()) return followingList;
-    const q = followingSearch.toLowerCase().trim();
-    return followingList.filter(u => 
-      u.name.toLowerCase().includes(q) || 
-      u.username.toLowerCase().includes(q) ||
-      (u.city && u.city.toLowerCase().includes(q))
-    );
-  }, [followingList, followingSearch]);
 
   // User Initial Letter
   const userInitial = currentUser?.name ? currentUser.name.trim().charAt(0).toUpperCase() : '👤';
@@ -477,28 +417,34 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                 </div>
 
                 <div 
-                  onClick={() => setFollowersModalOpen(true)}
+                  onClick={() => {
+                    setActiveTab('favorites');
+                    setFavSubFilter('songs');
+                  }}
                   className="cursor-pointer hover:opacity-80 active:scale-95 transition-all p-1 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/50"
-                  title="फॉलोअर्स सूची देखें"
+                  title="पसंदीदा गीत देखें"
                 >
                   <div className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 font-sans">
-                    {followersList.length}
+                    {favoriteSongs.length}
                   </div>
                   <div className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
-                    फॉलोअर्स
+                    पसंदीदा गीत
                   </div>
                 </div>
 
                 <div 
-                  onClick={() => setFollowingModalOpen(true)}
+                  onClick={() => {
+                    setActiveTab('favorites');
+                    setFavSubFilter('ghats');
+                  }}
                   className="cursor-pointer hover:opacity-80 active:scale-95 transition-all p-1 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/50"
-                  title="फॉलोइंग सूची देखें"
+                  title="पसंदीदा घाट देखें"
                 >
                   <div className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 font-sans">
-                    {followingList.length}
+                    {favoriteGhats.length}
                   </div>
                   <div className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
-                    फॉलोइंग
+                    पसंदीदा घाट
                   </div>
                 </div>
               </div>
@@ -1164,243 +1110,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
         </div>
       )}
 
-      {/* 6. Instagram Followers Modal */}
-      {followersModalOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={() => setFollowersModalOpen(false)}
-        >
-          <div 
-            className="relative w-full max-w-md bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl p-5 shadow-2xl border border-stone-200 dark:border-stone-800 max-h-[85vh] flex flex-col overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800 shrink-0">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-amber-500" />
-                <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                  फॉलोअर्स ({followersList.length})
-                </h3>
-              </div>
-              <button
-                onClick={() => setFollowersModalOpen(false)}
-                className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            {/* Search Input */}
-            <div className="py-3 shrink-0">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-                <input
-                  type="text"
-                  value={followersSearch}
-                  onChange={(e) => setFollowersSearch(e.target.value)}
-                  placeholder="यूज़रनेम (@) या नाम से खोजें..."
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-transparent focus:border-amber-500 focus:bg-white dark:focus:bg-stone-850 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Followers List */}
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-              {filteredFollowers.length > 0 ? (
-                filteredFollowers.map((devotee) => {
-                  const amIFollowing = followingList.some(u => u.id === devotee.id);
-                  return (
-                    <div 
-                      key={devotee.id}
-                      className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-800/60 border border-stone-100 dark:border-stone-800/80 transition-all"
-                    >
-                      <div 
-                        onClick={() => {
-                          setFollowersModalOpen(false);
-                          setInspectedUser(devotee);
-                        }}
-                        className="flex items-center gap-3 min-w-0 cursor-pointer flex-1"
-                      >
-                        <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-stone-800 border border-amber-300 dark:border-stone-700 flex items-center justify-center overflow-hidden shrink-0">
-                          {devotee.avatarUrl ? (
-                            <img src={devotee.avatarUrl} alt={devotee.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="font-extrabold text-amber-900 dark:text-amber-200 text-sm">
-                              {devotee.name.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
-                            {devotee.name}
-                          </h4>
-                          <p className="text-[11px] font-mono text-amber-700 dark:text-amber-400 truncate">
-                            {devotee.username}
-                          </p>
-                          <p className="text-[10px] text-stone-400 truncate">
-                            {devotee.city || 'बिहार'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Follow back / Following toggle */}
-                      {currentUser?.id !== devotee.id && (
-                        <button
-                          onClick={() => handleToggleFollowDevotee(devotee.id)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1 cursor-pointer ${
-                            amIFollowing
-                              ? 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
-                              : 'bg-amber-500 hover:bg-amber-600 text-stone-950 shadow-xs'
-                          }`}
-                        >
-                          {amIFollowing ? (
-                            <>
-                              <UserCheck className="w-3.5 h-3.5" />
-                              <span>फॉलो कर रहे हैं</span>
-                            </>
-                          ) : (
-                            <>
-                              <UserPlus className="w-3.5 h-3.5" />
-                              <span>फॉलो करें</span>
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="py-10 text-center space-y-2">
-                  <Users className="w-8 h-8 text-stone-300 dark:text-stone-700 mx-auto" />
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    {followersSearch ? 'कोई श्रद्धालु नहीं मिला' : 'अभी कोई फॉलोअर्स नहीं हैं।'}
-                  </p>
-                  {!followersSearch && (
-                    <button
-                      onClick={handleShareProfile}
-                      className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs"
-                    >
-                      प्रोफ़ाइल शेयर करें
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 7. Instagram Following Modal */}
-      {followingModalOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={() => setFollowingModalOpen(false)}
-        >
-          <div 
-            className="relative w-full max-w-md bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl p-5 shadow-2xl border border-stone-200 dark:border-stone-800 max-h-[85vh] flex flex-col overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800 shrink-0">
-              <div className="flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-amber-500" />
-                <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                  फॉलोइंग ({followingList.length})
-                </h3>
-              </div>
-              <button
-                onClick={() => setFollowingModalOpen(false)}
-                className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Search Input */}
-            <div className="py-3 shrink-0">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-                <input
-                  type="text"
-                  value={followingSearch}
-                  onChange={(e) => setFollowingSearch(e.target.value)}
-                  placeholder="यूज़रनेम (@) या नाम से खोजें..."
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-transparent focus:border-amber-500 focus:bg-white dark:focus:bg-stone-850 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Following List */}
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-              {filteredFollowing.length > 0 ? (
-                filteredFollowing.map((devotee) => (
-                  <div 
-                    key={devotee.id}
-                    className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-800/60 border border-stone-100 dark:border-stone-800/80 transition-all"
-                  >
-                    <div 
-                      onClick={() => {
-                        setFollowingModalOpen(false);
-                        setInspectedUser(devotee);
-                      }}
-                      className="flex items-center gap-3 min-w-0 cursor-pointer flex-1"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-stone-800 border border-amber-300 dark:border-stone-700 flex items-center justify-center overflow-hidden shrink-0">
-                        {devotee.avatarUrl ? (
-                          <img src={devotee.avatarUrl} alt={devotee.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="font-extrabold text-amber-900 dark:text-amber-200 text-sm">
-                            {devotee.name.charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
-                          {devotee.name}
-                        </h4>
-                        <p className="text-[11px] font-mono text-amber-700 dark:text-amber-400 truncate">
-                          {devotee.username}
-                        </p>
-                        <p className="text-[10px] text-stone-400 truncate">
-                          {devotee.city || 'बिहार'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Unfollow button */}
-                    <button
-                      onClick={() => handleToggleFollowDevotee(devotee.id)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-100 dark:bg-stone-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 transition-all shrink-0 cursor-pointer"
-                    >
-                      फॉलो कर रहे हैं
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div className="py-10 text-center space-y-2">
-                  <UserCheck className="w-8 h-8 text-stone-300 dark:text-stone-700 mx-auto" />
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    {followingSearch ? 'कोई श्रद्धालु नहीं मिला' : 'आप अभी किसी को फॉलो नहीं कर रहे हैं।'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 8. Devotee Full Profile Modal when clicking any follower/following */}
-      {inspectedUser && (
-        <UserProfileModal
-          user={inspectedUser}
-          isOpen={Boolean(inspectedUser)}
-          onClose={() => setInspectedUser(null)}
-          onSelectReel={() => {
-            setInspectedUser(null);
-            if (onNavigate) onNavigate('reels');
-          }}
-        />
-      )}
     </section>
   );
 };

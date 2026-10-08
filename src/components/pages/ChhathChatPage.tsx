@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ArrowLeft,
-  Phone, 
-  Video, 
   Send, 
   Search, 
   Sparkles, 
@@ -10,12 +8,12 @@ import {
   Users, 
   X, 
   ShieldCheck, 
-  LogIn,
-  MessageCircle,
-  Share2,
-  Lock,
-  Loader2,
-  UserPlus
+  LogIn, 
+  MessageCircle, 
+  Share2, 
+  Lock, 
+  Loader2, 
+  UserPlus 
 } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useAuth } from '../../context/AuthContext';
@@ -29,7 +27,6 @@ interface ChhathChatPageProps {
 
 export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) => {
   const { 
-    startCall,
     activeConversationId,
     selectConversation
   } = useChat();
@@ -206,14 +203,6 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
     } catch {}
   };
 
-  // Initiate voice / video call
-  const handleTriggerCall = (type: 'voice' | 'video') => {
-    if (!activeOtherUser) {
-      showToast('कॉल के लिए श्रद्धालु उपलब्ध नहीं हैं');
-      return;
-    }
-    startCall(activeOtherUser, type);
-  };
 
   // Share App invite link
   const handleShareApp = async () => {
@@ -512,27 +501,10 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
                   </div>
                 </div>
 
-                {/* Right: Audio Call & Video Call Buttons */}
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleTriggerCall('voice')}
-                    className="p-2 sm:p-2.5 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-800 hover:text-amber-900 transition-all active:scale-95 cursor-pointer border border-stone-200"
-                    title="ऑडियो कॉल करें"
-                    aria-label="ऑडियो कॉल करें"
-                  >
-                    <Phone className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTriggerCall('video')}
-                    className="p-2 sm:p-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold transition-all active:scale-95 cursor-pointer shadow-xs"
-                    title="वीडियो कॉल करें"
-                    aria-label="वीडियो कॉल करें"
-                  >
-                    <Video className="w-4 h-4 fill-current ml-0.5" />
-                  </button>
+                {/* Right: End-to-end Encrypted Secure Chat Badge */}
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold shrink-0">
+                  <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>सुरक्षित चैट</span>
                 </div>
               </div>
 

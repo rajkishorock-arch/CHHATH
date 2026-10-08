@@ -558,32 +558,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                     </span>
 
                     <div className="flex items-center gap-2">
-                      {/* Follow Button */}
-                      <button
-                        onClick={() => {
-                          if (searchResponse.exactUser) {
-                            toggleFollow(searchResponse.exactUser.id);
-                          }
-                        }}
-                        className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow ${
-                          isFollowing(searchResponse.exactUser.id)
-                            ? 'bg-stone-800 text-stone-200 border border-stone-700'
-                            : 'bg-amber-500 text-stone-950 hover:bg-amber-400 shadow-amber-500/30'
-                        }`}
-                      >
-                        {isFollowing(searchResponse.exactUser.id) ? (
-                          <>
-                            <UserCheck className="w-3.5 h-3.5" />
-                            <span>फॉलो किया गया</span>
-                          </>
-                        ) : (
-                          <>
-                            <UserPlus className="w-3.5 h-3.5" />
-                            <span>फॉलो करें</span>
-                          </>
-                        )}
-                      </button>
-
                       {/* View Full Profile */}
                       {onSelectUser && searchResponse.exactUser.creatorHandle && (
                         <button
@@ -620,7 +594,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                         {searchResponse.exactUser.creatorHandle}
                       </div>
                       <div className="text-[11px] text-stone-400 font-mono mt-0.5">
-                        {(searchResponse.exactUser.metadata?.followersCount || 0).toLocaleString('en-IN')} फॉलोअर्स • {searchResponse.exactUser.metadata?.city || 'बिहार'}
+                        {searchResponse.exactUser.metadata?.city || 'बिहार'}
                       </div>
                     </div>
                   </div>
@@ -705,21 +679,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-stone-400 font-mono hidden sm:inline">
-                              {(u.metadata?.followersCount || 0).toLocaleString('en-IN')} फॉलोअर्स
-                            </span>
-                            <button
-                              onClick={() => toggleFollow(u.id)}
-                              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
-                                isFollowing(u.id)
-                                  ? 'bg-stone-800 text-stone-300'
-                                  : 'bg-amber-500 text-stone-950 hover:bg-amber-400'
-                              }`}
-                            >
-                              {isFollowing(u.id) ? 'Following' : 'Follow'}
-                            </button>
-                          </div>
                         </div>
                       ))}
                   </div>

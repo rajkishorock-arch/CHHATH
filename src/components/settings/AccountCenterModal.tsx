@@ -351,24 +351,6 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
               <span>गोपनीयता व संपर्क</span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('requests')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'requests'
-                  ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30 font-semibold'
-                  : 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Users className="w-4 h-4" />
-                <span>फॉलो अनुरोध</span>
-              </div>
-              {pendingFollowRequests.length > 0 && (
-                <span className="bg-amber-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">
-                  {pendingFollowRequests.length}
-                </span>
-              )}
-            </button>
 
             <button
               onClick={() => setActiveTab('blocked')}
@@ -712,7 +694,7 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
                 <div>
                   <h3 className="text-sm font-semibold text-stone-200">निजी खाता (Private Account)</h3>
                   <p className="text-xs text-stone-400 max-w-md">
-                    सक्रिय होने पर, केवल स्वीकृत फॉलोअर्स ही आपकी रील्स, पोस्ट व विवरण देख सकेंगे। नए अनुयायियों को आपका अनुमोदन चाहिए होगा।
+                    सक्रिय होने पर, आपकी रील्स व व्यक्तिगत विवरण केवल आपके खाते में सुरक्षित रहेंगे।
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -729,8 +711,8 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
               {/* Direct Messages Permission */}
               <div className="p-4 bg-black/30 border border-white/5 rounded-2xl space-y-2">
                 <h3 className="text-sm font-semibold text-stone-200">मुझे सीधे संदेश (Direct Messages) कौन भेज सकता है?</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['everyone', 'following', 'nobody'] as const).map((opt) => (
+                <div className="grid grid-cols-2 gap-2">
+                  {(['everyone', 'nobody'] as const).map((opt) => (
                     <button
                       key={opt}
                       onClick={() => updateUserSettings({ who_can_message: opt })}
@@ -740,27 +722,7 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
                           : 'bg-black/20 border-stone-800 text-stone-400 hover:text-stone-200'
                       }`}
                     >
-                      {opt === 'everyone' ? 'सभी भक्त' : opt === 'following' ? 'जिन्हें मैं फॉलो करता हूँ' : 'कोई नहीं'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Voice & Video Calls Permission */}
-              <div className="p-4 bg-black/30 border border-white/5 rounded-2xl space-y-2">
-                <h3 className="text-sm font-semibold text-stone-200">मुझे वॉइस व वीडियो कॉल कौन कर सकता है?</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['everyone', 'following', 'nobody'] as const).map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => updateUserSettings({ who_can_call: opt })}
-                      className={`py-2 px-3 rounded-xl text-xs font-medium border transition-all ${
-                        userSettings?.who_can_call === opt
-                          ? 'bg-amber-600/20 border-amber-500/50 text-amber-300'
-                          : 'bg-black/20 border-stone-800 text-stone-400 hover:text-stone-200'
-                      }`}
-                    >
-                      {opt === 'everyone' ? 'सभी' : opt === 'following' ? 'मेरे फॉलोअर्स' : 'कोई नहीं'}
+                      {opt === 'everyone' ? 'सभी श्रद्धालु' : 'संदेश बंद'}
                     </button>
                   ))}
                 </div>
@@ -769,8 +731,8 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
               {/* Comments Permission */}
               <div className="p-4 bg-black/30 border border-white/5 rounded-2xl space-y-2">
                 <h3 className="text-sm font-semibold text-stone-200">मेरी रील्स पर टिप्पणी कौन कर सकता है?</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['everyone', 'following', 'nobody'] as const).map((opt) => (
+                <div className="grid grid-cols-2 gap-2">
+                  {(['everyone', 'nobody'] as const).map((opt) => (
                     <button
                       key={opt}
                       onClick={() => updateUserSettings({ who_can_comment: opt })}
@@ -780,7 +742,7 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
                           : 'bg-black/20 border-stone-800 text-stone-400 hover:text-stone-200'
                       }`}
                     >
-                      {opt === 'everyone' ? 'सभी भक्त' : opt === 'following' ? 'केवल अनुयायी' : 'बंद'}
+                      {opt === 'everyone' ? 'सभी श्रद्धालु' : 'टिप्पणी बंद'}
                     </button>
                   ))}
                 </div>
@@ -805,59 +767,6 @@ export const AccountCenterModal: React.FC<AccountCenterModalProps> = ({
             </div>
           )}
 
-          {/* TAB 4: FOLLOW REQUESTS */}
-          {activeTab === 'requests' && (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-xl font-bold text-amber-300 mb-1">लंबित फॉलो अनुरोध</h2>
-                <p className="text-xs text-stone-400">यदि आपका खाता निजी है, तो नए उपयोगकर्ता आपसे जुड़ने के लिए अनुरोध भेजते हैं।</p>
-              </div>
-
-              {pendingFollowRequests.length === 0 ? (
-                <div className="p-8 text-center bg-black/20 rounded-2xl border border-white/5">
-                  <UserCheck className="w-10 h-10 text-stone-500 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-stone-300">कोई लंबित अनुरोध नहीं है</p>
-                  <p className="text-xs text-stone-500">जब कोई नया भक्त आपको फॉलो करना चाहेगा, वह यहाँ दिखाई देगा।</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {pendingFollowRequests.map((reqUser) => (
-                    <div
-                      key={reqUser.id}
-                      className="p-3 bg-black/30 border border-white/5 rounded-xl flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={reqUser.avatarUrl}
-                          alt={reqUser.name}
-                          className="w-10 h-10 rounded-full object-cover border border-amber-500/40"
-                        />
-                        <div>
-                          <p className="text-xs font-semibold text-stone-100">{reqUser.name}</p>
-                          <p className="text-[11px] text-amber-400/80">{reqUser.username} • {reqUser.city}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleAcceptRequest(reqUser.id)}
-                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold rounded-lg text-xs transition-colors"
-                        >
-                          स्वीकार करें
-                        </button>
-                        <button
-                          onClick={() => handleRejectRequest(reqUser.id)}
-                          className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-stone-300 rounded-lg text-xs transition-colors"
-                        >
-                          अस्वीकार
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* TAB 5: BLOCKED ACCOUNTS */}
           {activeTab === 'blocked' && (
