@@ -50,7 +50,7 @@ interface AudioContextType {
   seekTo: (seconds: number) => void;
   setCurrentTime: (time: number) => void;
   setVolume: (vol: number) => void;
-  toggleFavorite: (songId: string) => void;
+  toggleFavorite: (songId: string, songObj?: Song) => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
   setQueue: (songs: Song[]) => void;
@@ -498,7 +498,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Authoritative Play Song Implementation
   const playSong = (song: Song, contextQueue?: Song[], startSeconds?: number) => {
-    if (!song || !song.youtubeId) {
+    if (!song) return;
+
+    if (!song.youtubeId) {
+      if (song.id && song.id.startsWith('yt-live-')) {
+        song.youtubeId = song.id.replace('yt-live-', '');
+      } else if (song.id && song.id.startsWith('yt-')) {
+        song.youtubeId = song.id.replace('yt-', '');
+      } else if (song.audioUrl && song.audioUrl.includes('v=')) {
+        const match = song.audioUrl.match(/v=([a-zA-Z0-9_-]{11})/);
+        if (match) song.youtubeId = match[1];
+      }
+    }
+
+    if (!song.youtubeId) {
       console.warn('[MusicPlayer] Cannot play song without valid youtubeId:', song);
       return;
     }
@@ -844,8 +857,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const toggleFavorite = (songId: string) => {
-    toggleFavoriteSong(songId);
+  const toggleFavorite = (songId: string, songObj?: Song) => {
+    const resolvedSong = songObj || (currentSong?.id === songId ? currentSong : queue.find(s => s.id === songId));
+    if (resolvedSong) {
+      try {
+        localStorage.setItem(`chhath_song_metadata_${songId}`, JSON.stringify(resolvedSong));
+      } catch {}
+    }
+    toggleFavoriteSong(songId, resolvedSong);
   };
 
   const toggleShuffle = () => {

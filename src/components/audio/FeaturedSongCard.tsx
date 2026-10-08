@@ -122,7 +122,7 @@ export const FeaturedSongCard: React.FC<FeaturedSongCardProps> = ({ song }) => {
             </button>
 
             <button
-              onClick={() => toggleFavorite(song.id)}
+              onClick={() => toggleFavorite(song.id, song)}
               aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
               className={`p-3 rounded-2xl border transition-all flex items-center gap-2 text-sm font-semibold ${
                 isFav

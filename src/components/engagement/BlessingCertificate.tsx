@@ -183,34 +183,34 @@ export const BlessingCertificate: React.FC = () => {
   };
 
   return (
-    <section id="blessing-certificate" className="section-padding relative overflow-hidden bg-gradient-to-b from-stone-900 via-stone-950 to-stone-900">
+    <section id="blessing-certificate" className="py-8 relative overflow-hidden bg-transparent">
       
       <div className="container-custom relative z-10">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div className="badge-royal swarna-gold-sheen">
-            <Award className="w-3.5 h-3.5 text-yellow-300" />
+        <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
+            <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>शाही डिजिटल वंदना • ROYAL BLESSING CERTIFICATE</span>
           </div>
-          <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-100 gold-foil-text">
+          <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
             वीआईपी छठ महापर्व पुण्य-आशीष पत्र
           </h2>
-          <p className="font-mukta text-base sm:text-lg text-stone-300">
+          <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
             व्रती व श्रद्धालु जन अपना नाम दर्ज करके 24 कैरेट स्वर्ण बॉर्डर वाला पावन आशीष पत्र तैयार करें और व्हाट्सएप या सोशल मीडिया पर साझा करें।
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto items-center">
           
           {/* Controls Form */}
-          <div className="royal-card-luxury p-6 sm:p-7 rounded-3xl border-amber-400/40 shadow-2xl space-y-4 font-mukta">
-            <h3 className="font-rozha text-xl text-stone-100 font-bold border-b border-amber-500/25 pb-3">
+          <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm space-y-3.5 font-mukta">
+            <h3 className="font-rozha text-lg text-stone-900 dark:text-stone-100 font-bold border-b border-stone-200 dark:border-stone-800 pb-2.5">
               विवरण दर्ज करें
             </h3>
 
             <div>
-              <label className="text-xs font-bold text-amber-300 block mb-1">
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 block mb-1">
                 श्रद्धालु / व्रती का शुभ नाम
               </label>
               <input
@@ -218,12 +218,12 @@ export const BlessingCertificate: React.FC = () => {
                 value={devoteeName}
                 onChange={(e) => setDevoteeName(e.target.value)}
                 placeholder="उदा. आरती देवी"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-amber-500/30 text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-amber-300 block mb-1">
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 block mb-1">
                 शहर / गोत्र
               </label>
               <input
@@ -231,12 +231,12 @@ export const BlessingCertificate: React.FC = () => {
                 value={cityOrGotra}
                 onChange={(e) => setCityOrGotra(e.target.value)}
                 placeholder="उदा. पटना, बिहार / कश्यप गोत्र"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-900 border border-amber-500/30 text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-amber-300 block mb-1">
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 block mb-1">
                 भूमिका चयन
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -245,10 +245,10 @@ export const BlessingCertificate: React.FC = () => {
                     key={r}
                     type="button"
                     onClick={() => setRole(r)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       role === r
-                        ? 'bg-gradient-to-r from-amber-600 to-yellow-500 text-stone-950 shadow ring-1 ring-yellow-200'
-                        : 'bg-stone-900 text-stone-300 border border-amber-500/30'
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-xs ring-1 ring-amber-400 font-extrabold'
+                        : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:border-amber-400'
                     }`}
                   >
                     {r}
@@ -262,7 +262,7 @@ export const BlessingCertificate: React.FC = () => {
               <button
                 onClick={handleDownload}
                 disabled={downloading}
-                className="w-full btn-royal-gold py-3 text-sm flex items-center justify-center gap-2 shadow-xl"
+                className="w-full py-2.5 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:scale-[1.01] active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               >
                 <Download className="w-4 h-4" />
                 <span>{downloading ? 'तैयार हो रहा है...' : 'HD आशीष पत्र डाउनलोड करें'}</span>
@@ -270,9 +270,9 @@ export const BlessingCertificate: React.FC = () => {
 
               <button
                 onClick={handleShare}
-                className="w-full btn-royal-noir py-2.5 text-sm flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-xl font-bold bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors cursor-pointer"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4 text-amber-300" />}
+                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
                 <span>{copied ? 'लिंक कॉपी हो गया!' : 'व्हाट्सएप पर शेयर करें'}</span>
               </button>
             </div>

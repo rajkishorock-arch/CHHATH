@@ -37,33 +37,33 @@ export const WishesSection: React.FC = () => {
   };
 
   return (
-    <section id="wishes" className="section-padding bg-gradient-to-b from-amber-500/5 via-orange-500/5 to-transparent relative overflow-hidden">
+    <section id="wishes" className="py-8 bg-transparent relative overflow-hidden">
       <div className="container-custom">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div className="badge-saffron">
+        <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
             <Heart className="w-3.5 h-3.5 text-red-500" />
             <span>{t.wishesBadge}</span>
           </div>
-          <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-900 dark:text-stone-100">
+          <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
             {t.wishesTitle}
           </h2>
-          <p className="font-mukta text-base sm:text-lg text-stone-600 dark:text-stone-300">
+          <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
             {t.wishesSubtitle}
           </p>
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-none">
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-orange-500/10 border border-amber-500/20'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-xs font-extrabold ring-1 ring-amber-400'
+                  : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-800 hover:border-amber-400'
               }`}
             >
               {cat.label}
@@ -72,14 +72,14 @@ export const WishesSection: React.FC = () => {
         </div>
 
         {/* Wishes Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mb-8">
           {filteredWishes.map((item: WishItem) => {
             const isCopied = copiedId === item.id;
 
             return (
               <div
                 key={item.id}
-                className="chhath-card p-5 sm:p-6 flex flex-col justify-between border-amber-500/20 hover:border-amber-500/40 relative group"
+                className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:border-amber-400 transition-all relative group"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs font-semibold text-orange-600 dark:text-amber-400 mb-3">

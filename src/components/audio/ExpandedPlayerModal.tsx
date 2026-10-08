@@ -276,7 +276,7 @@ export const ExpandedPlayerModal: React.FC = () => {
       {/* Bottom Secondary Actions Bar */}
       <div className="flex items-center justify-around w-full max-w-md mx-auto pt-4 border-t border-stone-200 dark:border-amber-500/20">
         <button
-          onClick={() => toggleFavorite(currentSong.id)}
+          onClick={() => toggleFavorite(currentSong.id, currentSong)}
           className={`flex flex-col items-center gap-1 text-xs font-semibold ${
             isFav ? 'text-rose-500' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
           }`}

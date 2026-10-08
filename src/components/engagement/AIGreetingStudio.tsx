@@ -70,30 +70,30 @@ export const AIGreetingStudio: React.FC = () => {
   };
 
   return (
-    <section id="ai-greeting-generator" className="section-padding relative overflow-hidden bg-stone-50 dark:bg-stone-900/60 border-t border-amber-500/20">
+    <section id="ai-greeting-generator" className="py-8 relative overflow-hidden bg-transparent">
       <div className="container-custom max-w-5xl mx-auto">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div className="badge-saffron inline-flex items-center gap-1.5">
-            <Wand2 className="w-3.5 h-3.5 text-amber-500" />
+        <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
+            <Wand2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>एआई शुभकामना सृजन (AI Wishes Studio)</span>
           </div>
-          <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-900 dark:text-stone-100 gold-foil-text">
+          <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
             AI से अपनी छठ शुभकामना बनाएं ✨
           </h2>
-          <p className="font-mukta text-base sm:text-lg text-stone-600 dark:text-stone-300">
+          <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
             माता-पिता, मित्र या परिवार के लिए मनचाहे भाव (भावुक, पारंपरिक, भक्तिमय) में तुरंत व्यक्तिगत बधाई संदेश तैयार करें।
           </p>
         </div>
 
         {/* Studio Box */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Controls Form (5 cols) */}
-          <form onSubmit={handleGenerate} className="lg:col-span-5 p-6 rounded-3xl bg-white dark:bg-stone-800/90 border border-amber-500/30 shadow-xl space-y-4">
+          <form onSubmit={handleGenerate} className="lg:col-span-5 p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm space-y-3.5 font-mukta">
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-1">
                 1. शुभकामना पाने वाले का नाम (Recipient Name):
               </label>
               <input
@@ -101,18 +101,18 @@ export const AIGreetingStudio: React.FC = () => {
                 placeholder="उदा. माँ और पिताजी, रोहन भैया..."
                 value={recipientName}
                 onChange={e => setRecipientName(e.target.value)}
-                className="w-full px-4 py-2 text-xs rounded-xl bg-stone-100 dark:bg-stone-900 border border-amber-500/30 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-1">
                 2. संबंध (Relationship):
               </label>
               <select
                 value={relationship}
                 onChange={e => setRelationship(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl bg-stone-100 dark:bg-stone-900 border border-amber-500/30 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
               >
                 {RELATIONSHIPS.map(r => (
                   <option key={r.name} value={r.hindi}>
@@ -123,7 +123,7 @@ export const AIGreetingStudio: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-1">
                 3. आपका नाम (Your Name):
               </label>
               <input
@@ -131,12 +131,12 @@ export const AIGreetingStudio: React.FC = () => {
                 placeholder="उदा. आपका प्यारा बेटा विकास..."
                 value={senderName}
                 onChange={e => setSenderName(e.target.value)}
-                className="w-full px-4 py-2 text-xs rounded-xl bg-stone-100 dark:bg-stone-900 border border-amber-500/30 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-1.5">
                 4. भाव व शैली (Tone):
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -145,10 +145,10 @@ export const AIGreetingStudio: React.FC = () => {
                     key={t}
                     type="button"
                     onClick={() => setTone(t)}
-                    className={`py-1.5 px-2.5 rounded-xl text-xs font-mukta font-semibold border transition-all ${
+                    className={`py-2 px-2.5 rounded-xl text-xs font-mukta font-bold border transition-all cursor-pointer ${
                       tone === t
-                        ? 'bg-amber-500 text-stone-950 font-bold border-amber-400 shadow-sm'
-                        : 'bg-stone-50 dark:bg-stone-900 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700'
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-extrabold border-amber-400 shadow-xs'
+                        : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-amber-400'
                     }`}
                   >
                     {t === 'Devotional' && 'भक्तिमय'}
@@ -164,7 +164,7 @@ export const AIGreetingStudio: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl font-rozha text-sm sm:text-base font-bold bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-400 text-stone-950 shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 mt-2"
+              className="w-full py-2.5 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:scale-[1.01] active:scale-95 transition-all cursor-pointer mt-2"
             >
               <Wand2 className="w-4 h-4" />
               <span>AI शुभकामना तैयार करें</span>
@@ -172,7 +172,7 @@ export const AIGreetingStudio: React.FC = () => {
           </form>
 
           {/* Result Box (7 cols) */}
-          <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-800 border border-amber-500/30 shadow-xl flex flex-col justify-between min-h-[380px] paramprik-border relative">
+          <div className="lg:col-span-7 p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm flex flex-col justify-between min-h-[380px] relative">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-amber-500/20 mb-4">
                 <span className="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-amber-400">

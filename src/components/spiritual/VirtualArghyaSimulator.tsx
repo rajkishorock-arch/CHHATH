@@ -75,50 +75,47 @@ export const VirtualArghyaSimulator: React.FC = () => {
   };
 
   return (
-    <section id="virtual-arghya" className="section-padding relative overflow-hidden bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
+    <section id="virtual-arghya" className="py-8 relative overflow-hidden bg-transparent">
       
-      {/* Devotional Ambient Radial Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-b from-amber-500/15 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-
       <div className="container-custom relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div className="badge-royal swarna-gold-sheen">
-            <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-            <span>डिजिटल पावन अनुष्ठान • VIRTUAL ARGHya & DEEP DAAN</span>
+        <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+            <span>डिजिटल पावन अनुष्ठान • VIRTUAL ARGHYA & DEEP DAAN</span>
           </div>
-          <h2 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-100 gold-foil-text">
+          <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
             आभासी अर्घ्य व दीप दान सिमुलेटर
           </h2>
-          <p className="font-mukta text-base sm:text-lg text-stone-300">
+          <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
             जहाँ भी हों, पवित्र भाव से भगवान सूर्य को जल व दूध की धारा अर्पित करें और गंगा की लहरों पर अपना पावन दीप प्रवाहित करें।
           </p>
         </div>
 
         {/* Main Simulator Card */}
-        <div className="royal-card-luxury p-6 sm:p-10 rounded-3xl border-amber-400/40 shadow-2xl max-w-5xl mx-auto overflow-hidden">
+        <div className="p-5 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm max-w-5xl mx-auto overflow-hidden">
           
           {/* Top Bar: Devotee & Stats */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-amber-500/20">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center p-0.5 shadow-lg">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center p-0.5 shadow-xs">
                 <span className="text-xl">🪔</span>
               </div>
               <div>
-                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
                   भक्त संकल्प
                 </span>
-                <span className="font-rozha text-lg text-stone-100">
+                <span className="font-rozha text-base sm:text-lg text-stone-900 dark:text-stone-100">
                   {devoteeName ? `${devoteeName} जी द्वारा अर्घ्य` : 'समस्त श्रद्धालु व व्रती जन'}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 bg-stone-900/80 px-4 py-2 rounded-2xl border border-amber-500/30">
+            <div className="flex items-center gap-3 bg-stone-50 dark:bg-stone-800/80 px-4 py-2 rounded-2xl border border-stone-200 dark:border-stone-700">
               <div className="text-right">
-                <span className="text-[10px] text-stone-400 uppercase font-bold block">कुल अर्पित अर्घ्य</span>
-                <span className="font-rozha text-xl text-amber-300 font-black tracking-wider">
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold block">कुल अर्पित अर्घ्य</span>
+                <span className="font-rozha text-lg sm:text-xl text-amber-700 dark:text-amber-400 font-black tracking-wider">
                   {totalOfferings.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -244,54 +241,54 @@ export const VirtualArghyaSimulator: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setOfferingType('water')}
-                className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex items-center gap-3 cursor-pointer ${
                   offeringType === 'water'
-                    ? 'bg-amber-500/25 border-amber-400 shadow-lg ring-1 ring-amber-300'
-                    : 'bg-stone-900/60 border-amber-500/20 hover:border-amber-500/40'
+                    ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs ring-1 ring-amber-400'
+                    : 'bg-stone-50 dark:bg-stone-800/60 border-stone-200 dark:border-stone-700 hover:border-amber-400'
                 }`}
               >
-                <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                   <Droplet className="w-5 h-5" />
                 </div>
                 <div>
-                  <strong className="text-sm text-stone-100 block">पवित्र गंगाजल अर्घ्य</strong>
-                  <span className="text-[11px] text-stone-400 font-mukta">ताम्र पात्र से सूर्य अर्घ्य</span>
+                  <strong className="text-xs sm:text-sm text-stone-900 dark:text-stone-100 block font-bold">पवित्र गंगाजल अर्घ्य</strong>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 font-mukta">ताम्र पात्र से सूर्य अर्घ्य</span>
                 </div>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOfferingType('milk')}
-                className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex items-center gap-3 cursor-pointer ${
                   offeringType === 'milk'
-                    ? 'bg-amber-500/25 border-amber-400 shadow-lg ring-1 ring-amber-300'
-                    : 'bg-stone-900/60 border-amber-500/20 hover:border-amber-500/40'
+                    ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs ring-1 ring-amber-400'
+                    : 'bg-stone-50 dark:bg-stone-800/60 border-stone-200 dark:border-stone-700 hover:border-amber-400'
                 }`}
               >
-                <div className="w-10 h-10 rounded-xl bg-stone-100/20 text-stone-200 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
                   <span className="text-lg">🥛</span>
                 </div>
                 <div>
-                  <strong className="text-sm text-stone-100 block">कच्चा गो-दुग्ध अर्घ्य</strong>
-                  <span className="text-[11px] text-stone-400 font-mukta">गौ-माता के दुग्ध की धारा</span>
+                  <strong className="text-xs sm:text-sm text-stone-900 dark:text-stone-100 block font-bold">कच्चा गो-दुग्ध अर्घ्य</strong>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 font-mukta">गौ-माता के दुग्ध की धारा</span>
                 </div>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOfferingType('diya')}
-                className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all flex items-center gap-3 cursor-pointer ${
                   offeringType === 'diya'
-                    ? 'bg-amber-500/25 border-amber-400 shadow-lg ring-1 ring-amber-300'
-                    : 'bg-stone-900/60 border-amber-500/20 hover:border-amber-500/40'
+                    ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs ring-1 ring-amber-400'
+                    : 'bg-stone-50 dark:bg-stone-800/60 border-stone-200 dark:border-stone-700 hover:border-amber-400'
                 }`}
               >
-                <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
                   <Flame className="w-5 h-5 animate-diya-flicker" />
                 </div>
                 <div>
-                  <strong className="text-sm text-stone-100 block">अखंड दीप दान (दीप प्रवाह)</strong>
-                  <span className="text-[11px] text-stone-400 font-mukta">गंगाजी में मिट्टी का दीप</span>
+                  <strong className="text-xs sm:text-sm text-stone-900 dark:text-stone-100 block font-bold">अखंड दीप दान (दीप प्रवाह)</strong>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 font-mukta">गंगाजी में मिट्टी का दीप</span>
                 </div>
               </button>
             </div>
@@ -303,17 +300,17 @@ export const VirtualArghyaSimulator: React.FC = () => {
                 value={devoteeName}
                 onChange={(e) => setDevoteeName(e.target.value)}
                 placeholder="अपना शुभ नाम दर्ज करें (वैकल्पिक)..."
-                className="w-full sm:flex-1 px-4 py-3 rounded-full bg-stone-900 border border-amber-500/30 text-stone-100 font-mukta placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full sm:flex-1 px-4 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 font-mukta placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
               />
 
               <button
                 onClick={handlePerformOffering}
                 disabled={isOffering}
-                className="w-full sm:w-auto btn-royal-gold py-3 px-8 text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shrink-0 disabled:opacity-50"
+                className="w-full sm:w-auto py-2.5 px-7 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs shrink-0 disabled:opacity-50 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
               >
                 {isOffering ? (
                   <>
-                    <span className="animate-spin text-lg">⚙️</span>
+                    <span className="animate-spin text-base">⚙️</span>
                     <span>अर्घ्य धारा अर्पित हो रही है...</span>
                   </>
                 ) : (

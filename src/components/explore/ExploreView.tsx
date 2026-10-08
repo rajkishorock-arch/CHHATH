@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { Sparkles, Film, Heart, Award, HelpCircle, BookOpen, Layers, Compass, Image } from 'lucide-react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { Sparkles, Film, Heart, Award, HelpCircle, BookOpen, Layers, Compass, Image, Sun, Flame, MessageSquare } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -22,196 +22,299 @@ const ChhathArchiveReport = lazy(() => import('../archive/ChhathArchiveReport').
 const SankalpWall = lazy(() => import('../engagement/SankalpWall').then(m => ({ default: m.SankalpWall })));
 
 const ComponentLoader: React.FC = () => (
-  <div className="p-8 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
+  <div className="p-12 text-center font-mukta text-stone-500 flex flex-col items-center justify-center">
     <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin"></div>
+    <span className="text-xs text-stone-400 mt-3">पवित्र अनुभव लोड हो रहा है...</span>
   </div>
 );
+
+type ExploreTab = 'darshan' | 'mannat' | 'gallery' | 'gyan';
 
 export const ExploreView: React.FC = () => {
   const { openReelsPlatform } = useReels();
   const { language } = useLanguage();
+  const [activeTab, setActiveTab] = useState<ExploreTab>('darshan');
+
+  // Sync tab with URL hash if opened via shortcut link
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash.includes('interactive-3d') || hash.includes('virtual-arghya') || hash.includes('diya')) {
+        setActiveTab('darshan');
+      } else if (hash.includes('blessing') || hash.includes('sankalp') || hash.includes('wishes') || hash.includes('greeting')) {
+        setActiveTab('mannat');
+      } else if (hash.includes('photo') || hash.includes('memory') || hash.includes('video')) {
+        setActiveTab('gallery');
+      } else if (hash.includes('quiz') || hash.includes('kids') || hash.includes('timeline') || hash.includes('nri') || hash.includes('event')) {
+        setActiveTab('gyan');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   const exploreText = {
     hi: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
-      title: 'छठ सांस्कृतिक एवं सामुदायिक अनुभव',
-      subtitle: 'रील्स, 3D घाट अनुभव, शुभकामना कार्ड, संस्मरण एल्बम एवं प्रश्नोत्तरी—एक ही जगह।',
-      reelsTitle: '🔥 छठ रील्स',
-      reelsSub: 'शॉर्ट वीडियो एवं भक्ति झलकियाँ',
-      certTitle: '📜 आशीर्वाद पत्र',
-      certSub: 'व्यक्तिगत HD डिजिटल प्रमाण पत्र',
-      ghatTitle: '🌅 3D घाट अनुभव',
-      ghatSub: 'आभासी अर्घ्य व नदी तट दृश्य',
-      quizTitle: '❓ छठ प्रश्नोत्तरी',
-      quizSub: 'ज्ञान परीक्षण व बाल वाटिका'
+      title: 'छठ पावन सांस्कृतिक अनुभव',
+      subtitle: '3D घाट दर्शन, डिजिटल अर्घ्य, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
+      tabDarshan: '🌅 आभासी दर्शन',
+      tabDarshanSub: '3D घाट व अर्घ्य',
+      tabMannat: '📜 मन्नत व आशीष',
+      tabMannatSub: 'संकल्प, पत्र व बधाई',
+      tabGallery: '📸 संस्मरण व गैलरी',
+      tabGallerySub: 'फोटो, वीडियो व एल्बम',
+      tabGyan: '🧠 ज्ञान व संस्कृति',
+      tabGyanSub: 'क्विज, बाल वाटिका व इतिहास'
     },
     en: {
       badge: 'Cultural Explore Hub',
-      title: 'Chhath Cultural & Devotional Experience',
-      subtitle: 'Reels, 3D Ghat darshan, blessing certificates, memory album, and quiz—all in one hub.',
-      reelsTitle: '🔥 Chhath Reels',
-      reelsSub: 'Short videos and devotional glimpses',
-      certTitle: '📜 Blessing Certificate',
-      certSub: 'Personalized HD digital certificate',
-      ghatTitle: '🌅 3D Ghat Experience',
-      ghatSub: 'Virtual Arghya & riverfront visual',
-      quizTitle: '❓ Chhath Quiz',
-      quizSub: 'Sacred trivia & kids zone'
+      title: 'Chhath Devotional & Cultural Hub',
+      subtitle: '3D Ghat darshan, virtual Arghya, Sankalp wall, blessing certificates & trivia—elegantly categorized.',
+      tabDarshan: '🌅 Virtual Darshan',
+      tabDarshanSub: '3D Ghat & Arghya',
+      tabMannat: '📜 Prayers & Blessings',
+      tabMannatSub: 'Sankalp & Wishes',
+      tabGallery: '📸 Memory Gallery',
+      tabGallerySub: 'Photos & Videos',
+      tabGyan: '🧠 Sacred Trivia',
+      tabGyanSub: 'Quiz, Kids & Heritage'
     },
     bho: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
-      title: 'छठ सांस्कृतिक आ सामुदायिक अनुभव',
-      subtitle: 'रील्स, 3D घाट अनुभव, असीस पत्र, संस्मरण आ सवाल-जवाब—एके जगह।',
-      reelsTitle: '🔥 छठ रील्स',
-      reelsSub: 'छोट वीडियो आ भक्ति झलक',
-      certTitle: '📜 असीस पत्र',
-      certSub: 'व्यक्तिगत HD डिजिटल प्रमाण पत्र',
-      ghatTitle: '🌅 3D घाट अनुभव',
-      ghatSub: 'आभासी अरघ आ नदी तट दर्शन',
-      quizTitle: '❓ छठ क्विज',
-      quizSub: 'ज्ञान परीक्षण आ बाल वाटिका'
+      title: 'छठ पावन सांस्कृतिक अनुभव',
+      subtitle: '3D घाट दर्शन, डिजिटल अरघ, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
+      tabDarshan: '🌅 आभासी दर्शन',
+      tabDarshanSub: '3D घाट आ अरघ',
+      tabMannat: '📜 मन्नत आ असीस',
+      tabMannatSub: 'संकल्प, पत्र आ बधाई',
+      tabGallery: '📸 संस्मरण व गैलरी',
+      tabGallerySub: 'फोटो, वीडियो आ एल्बम',
+      tabGyan: '🧠 ज्ञान व संस्कृति',
+      tabGyanSub: 'क्विज, बाल वाटिका आ इतिहास'
     },
     mai: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
-      title: 'छठि सांस्कृतिक ओ सामुदायिक अनुभव',
-      subtitle: 'रील्स, 3D घाट अनुभव, आशीष पत्र, संस्मरण ओ प्रश्नोत्तरी—एके स्थान पर।',
-      reelsTitle: '🔥 छठि रील्स',
-      reelsSub: 'लघु वीडियो ओ भक्ति झलक',
-      certTitle: '📜 आशीष पत्र',
-      certSub: 'व्यक्तिगत HD डिजिटल प्रमाण पत्र',
-      ghatTitle: '🌅 3D घाट अनुभव',
-      ghatSub: 'आभासी अर्घ्य ओ नदी तट दर्शन',
-      quizTitle: '❓ छठि प्रश्नोत्तरी',
-      quizSub: 'ज्ञान परीक्षा ओ बाल वाटिका'
+      title: 'छठि पावन सांस्कृतिक अनुभव',
+      subtitle: '3D घाट दर्शन, डिजिटल अर्घ्य, मन्नत पट्टिका, आशीष पत्र ओ बाल वाटिका—सुव्यवस्थित रूप में।',
+      tabDarshan: '🌅 आभासी दर्शन',
+      tabDarshanSub: '3D घाट ओ अर्घ्य',
+      tabMannat: '📜 मन्नत ओ आशीष',
+      tabMannatSub: 'संकल्प, पत्र ओ बधाई',
+      tabGallery: '📸 संस्मरण ओ गैलरी',
+      tabGallerySub: 'फोटो, वीडियो ओ एल्बम',
+      tabGyan: '🧠 ज्ञान ओ संस्कृति',
+      tabGyanSub: 'क्विज, बाल वाटिका ओ इतिहास'
     },
     mag: {
       badge: 'सांस्कृतिक एक्सप्लोर हब',
-      title: 'छठ सांस्कृतिक आ सामुदायिक अनुभव',
-      subtitle: 'रील्स, 3D घाट अनुभव, असीस पत्र, संस्मरण आ सवाल-जवाब—एके जगह।',
-      reelsTitle: '🔥 छठ रील्स',
-      reelsSub: 'छोट वीडियो आ भक्ति झलक',
-      certTitle: '📜 असीस पत्र',
-      certSub: 'व्यक्तिगत HD डिजिटल प्रमाण पत्र',
-      ghatTitle: '🌅 3D घाट अनुभव',
-      ghatSub: 'आभासी अरघ व नदी तट दृश्य',
-      quizTitle: '❓ छठ क्विज',
-      quizSub: 'ज्ञान परीक्षण आ बाल वाटिका'
+      title: 'छठ पावन सांस्कृतिक अनुभव',
+      subtitle: '3D घाट दर्शन, डिजिटल अरघ, मन्नत पट्टिका, असीस पत्र आ बाल वाटिका—सजावल रूप में।',
+      tabDarshan: '🌅 आभासी दर्शन',
+      tabDarshanSub: '3D घाट आ अरघ',
+      tabMannat: '📜 मन्नत आ असीस',
+      tabMannatSub: 'संकल्प, पत्र आ बधाई',
+      tabGallery: '📸 संस्मरण व गैलरी',
+      tabGallerySub: 'फोटो, वीडियो आ एल्बम',
+      tabGyan: '🧠 ज्ञान व संस्कृति',
+      tabGyanSub: 'क्विज, बाल वाटिका आ इतिहास'
     }
   }[language] || {
     badge: 'सांस्कृतिक एक्सप्लोर हब',
-    title: 'छठ सांस्कृतिक एवं सामुदायिक अनुभव',
-    subtitle: 'रील्स, 3D घाट अनुभव, शुभकामना कार्ड, संस्मरण एल्बम एवं प्रश्नोत्तरी—एक ही जगह।',
-    reelsTitle: '🔥 छठ रील्स',
-    reelsSub: 'शॉर्ट वीडियो एवं भक्ति झलकियाँ',
-    certTitle: '📜 आशीर्वाद पत्र',
-    certSub: 'व्यक्तिगत HD डिजिटल प्रमाण पत्र',
-    ghatTitle: '🌅 3D घाट अनुभव',
-    ghatSub: 'आभासी अर्घ्य व नदी तट दृश्य',
-    quizTitle: '❓ छठ प्रश्नोत्तरी',
-    quizSub: 'ज्ञान परीक्षण व बाल वाटिका'
+    title: 'छठ पावन सांस्कृतिक अनुभव',
+    subtitle: '3D घाट दर्शन, डिजिटल अर्घ्य, मन्नत पट्टिका, आशीर्वाद पत्र एवं बाल वाटिका—सुव्यवस्थित रूप में।',
+    tabDarshan: '🌅 आभासी दर्शन',
+    tabDarshanSub: '3D घाट व अर्घ्य',
+    tabMannat: '📜 मन्नत व आशीष',
+    tabMannatSub: 'संकल्प, पत्र व बधाई',
+    tabGallery: '📸 संस्मरण व गैलरी',
+    tabGallerySub: 'फोटो, वीडियो व एल्बम',
+    tabGyan: '🧠 ज्ञान व संस्कृति',
+    tabGyanSub: 'क्विज, बाल वाटिका व इतिहास'
   };
 
+  const tabs = [
+    {
+      id: 'darshan' as ExploreTab,
+      label: exploreText.tabDarshan,
+      sub: exploreText.tabDarshanSub,
+      icon: Sparkles
+    },
+    {
+      id: 'mannat' as ExploreTab,
+      label: exploreText.tabMannat,
+      sub: exploreText.tabMannatSub,
+      icon: Award
+    },
+    {
+      id: 'gallery' as ExploreTab,
+      label: exploreText.tabGallery,
+      sub: exploreText.tabGallerySub,
+      icon: Film
+    },
+    {
+      id: 'gyan' as ExploreTab,
+      label: exploreText.tabGyan,
+      sub: exploreText.tabGyanSub,
+      icon: BookOpen
+    }
+  ];
+
   return (
-    <div className="container-custom max-w-5xl mx-auto px-4 py-8 space-y-12">
+    <div className="container-custom max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 sm:space-y-8">
       
       {/* Header */}
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-2 max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
-          <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <Compass className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
           <span>{exploreText.badge}</span>
         </div>
-        <h1 className="font-rozha text-3xl sm:text-5xl font-bold text-stone-900 dark:text-amber-100">
+        <h1 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
           {exploreText.title}
         </h1>
-        <p className="font-mukta text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-2xl mx-auto">
+        <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
           {exploreText.subtitle}
         </p>
       </div>
 
-      {/* Quick Launch Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Quick Reels Shortcut Ribbon */}
+      <div className="flex items-center justify-between p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-500/30">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center font-bold shadow-xs">
+            🔥
+          </div>
+          <div>
+            <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
+              छठ भक्ति रील्स व वीडियो
+            </div>
+            <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mukta">
+              श्रद्धालुओं द्वारा साझा की गई पवित्र झलकियां
+            </div>
+          </div>
+        </div>
         <button
           onClick={() => openReelsPlatform('foryou')}
-          className="p-4 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 text-left font-bold shadow-md hover:scale-[1.02] transition-all"
+          className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer"
         >
-          <Film className="w-6 h-6 mb-2" />
-          <div className="font-rozha text-base">{exploreText.reelsTitle}</div>
-          <div className="font-mukta text-[11px] font-medium opacity-90">{exploreText.reelsSub}</div>
+          रील्स देखें →
         </button>
-
-        <a
-          href="#blessing-certificate"
-          className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-left font-bold text-decoration-none hover:scale-[1.02] transition-all"
-        >
-          <Award className="w-6 h-6 mb-2 text-amber-600 dark:text-amber-400" />
-          <div className="font-rozha text-base">{exploreText.certTitle}</div>
-          <div className="font-mukta text-[11px] font-medium opacity-80">{exploreText.certSub}</div>
-        </a>
-
-        <a
-          href="#interactive-3d"
-          className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-left font-bold text-decoration-none hover:scale-[1.02] transition-all"
-        >
-          <Sparkles className="w-6 h-6 mb-2 text-amber-600 dark:text-amber-400" />
-          <div className="font-rozha text-base">{exploreText.ghatTitle}</div>
-          <div className="font-mukta text-[11px] font-medium opacity-80">{exploreText.ghatSub}</div>
-        </a>
-
-        <a
-          href="#quiz"
-          className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-left font-bold text-decoration-none hover:scale-[1.02] transition-all"
-        >
-          <HelpCircle className="w-6 h-6 mb-2 text-amber-600 dark:text-amber-400" />
-          <div className="font-rozha text-base">{exploreText.quizTitle}</div>
-          <div className="font-mukta text-[11px] font-medium opacity-80">{exploreText.quizSub}</div>
-        </a>
       </div>
 
+      {/* Curated 4-Category Segmented Tab Switcher */}
+      <div className="bg-white dark:bg-stone-900/90 p-1.5 sm:p-2 rounded-2xl sm:rounded-3xl border border-stone-200/90 dark:border-stone-800 shadow-sm flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none sticky top-16 z-30 backdrop-blur-md">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+              }}
+              className={`flex-1 min-w-[130px] sm:min-w-0 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-2xl transition-all cursor-pointer text-left sm:text-center flex sm:flex-col items-center sm:justify-center gap-1 sm:gap-1.5 ${
+                isActive
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold shadow-xs ring-1 ring-amber-400 font-extrabold'
+                  : 'bg-stone-50 dark:bg-stone-800/60 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 border border-transparent'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-stone-950' : 'text-amber-600 dark:text-amber-400'}`} />
+                <span className="text-xs sm:text-sm font-bold truncate">{tab.label}</span>
+              </div>
+              <span className={`text-[10px] hidden sm:block ${isActive ? 'text-stone-900/80 font-semibold' : 'text-stone-500 dark:text-stone-400 font-mukta'}`}>
+                {tab.sub}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Dynamic Tab Views with Suspense */}
       <Suspense fallback={<ComponentLoader />}>
         
-        {/* Interactive 3D Ghat */}
-        <section id="interactive-3d" className="scroll-mt-24">
-          <Interactive3DGhat />
-        </section>
+        {/* Tab 1: आभासी दर्शन (Virtual Darshan) */}
+        {activeTab === 'darshan' && (
+          <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+            {/* Interactive 3D Ghat */}
+            <section id="interactive-3d" className="scroll-mt-24">
+              <Interactive3DGhat />
+            </section>
 
-        {/* Virtual Simulators */}
-        <section className="space-y-8">
-          <VirtualArghyaSimulator />
-          <VirtualDiyaExperience />
-        </section>
+            {/* Virtual Simulators */}
+            <section className="space-y-6">
+              <VirtualArghyaSimulator />
+              <VirtualDiyaExperience />
+            </section>
+          </div>
+        )}
 
-        {/* Sankalp & Prayer Wall */}
-        <section>
-          <SankalpWall />
-        </section>
+        {/* Tab 2: मन्नत व आशीष (Blessings & Wishes) */}
+        {activeTab === 'mannat' && (
+          <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+            <section id="sankalp-wall" className="scroll-mt-24">
+              <SankalpWall />
+            </section>
 
-        {/* Greetings & Blessing Certificate */}
-        <section className="space-y-8">
-          <AIGreetingStudio />
-          <WishesSection />
-          <BlessingCertificate />
-        </section>
+            <section id="blessing-certificate" className="scroll-mt-24">
+              <BlessingCertificate />
+            </section>
 
-        {/* Memories & Photo/Video Gallery */}
-        <section className="space-y-8">
-          <MemoryAlbum />
-          <PhotoGallery />
-          <VideoSection />
-        </section>
+            <section id="ai-greeting-generator" className="scroll-mt-24">
+              <AIGreetingStudio />
+            </section>
 
-        {/* Quiz & Kids Zone */}
-        <section id="quiz" className="space-y-8 scroll-mt-24">
-          <ChhathQuiz />
-          <ChhathKids />
-        </section>
+            <section id="wishes" className="scroll-mt-24">
+              <WishesSection />
+            </section>
+          </div>
+        )}
 
-        {/* Cultural Timeline & NRI Guide */}
-        <section className="space-y-8">
-          <CulturalTimeline />
-          <NRICreativeGuide />
-          <EventDirectory />
-          <ChhathArchiveReport />
-        </section>
+        {/* Tab 3: संस्मरण व गैलरी (Memories & Gallery) */}
+        {activeTab === 'gallery' && (
+          <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+            <section className="scroll-mt-24">
+              <MemoryAlbum />
+            </section>
+
+            <section className="scroll-mt-24">
+              <PhotoGallery />
+            </section>
+
+            <section className="scroll-mt-24">
+              <VideoSection />
+            </section>
+          </div>
+        )}
+
+        {/* Tab 4: ज्ञान व संस्कृति (Trivia, Kids & Heritage) */}
+        {activeTab === 'gyan' && (
+          <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+            <section id="quiz" className="scroll-mt-24">
+              <ChhathQuiz />
+            </section>
+
+            <section className="scroll-mt-24">
+              <ChhathKids />
+            </section>
+
+            <section className="scroll-mt-24">
+              <CulturalTimeline />
+            </section>
+
+            <section className="scroll-mt-24">
+              <NRICreativeGuide />
+            </section>
+
+            <section className="scroll-mt-24">
+              <EventDirectory />
+            </section>
+
+            <section className="scroll-mt-24">
+              <ChhathArchiveReport />
+            </section>
+          </div>
+        )}
 
       </Suspense>
 

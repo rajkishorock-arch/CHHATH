@@ -72,7 +72,7 @@ export const AdvancedSubNav: React.FC = () => {
       className={`transition-all duration-300 z-40 ${
         isSticky
           ? 'sticky top-20 chhath-glass backdrop-blur-xl border-b border-amber-500/20 py-2.5 shadow-lg shadow-black/10'
-          : 'relative bg-gradient-to-b from-stone-950 to-transparent py-3'
+          : 'relative bg-transparent py-2.5'
       }`}
     >
       <div className="container-custom">

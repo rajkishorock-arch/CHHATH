@@ -56,7 +56,7 @@ interface ChhathDataContextType {
   familyTasks: FamilyTask[];
   familyName: string;
   setUserLocation: (loc: UserLocationPreference) => void;
-  toggleFavoriteSong: (id: string) => void;
+  toggleFavoriteSong: (id: string, songObj?: Song) => void;
   toggleFavoriteGhat: (id: string) => void;
   lightVirtualDiya: (diya: { dedicationFor: string; senderName: string; city: string }) => void;
   addFamilyTask: (task: Omit<FamilyTask, 'id' | 'completed'>) => void;
@@ -289,8 +289,20 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setUserLocationState(loc);
   };
 
-  const toggleFavoriteSong = (id: string) => {
-    setFavoriteSongs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleFavoriteSong = (id: string, songObj?: Song) => {
+    setFavoriteSongs(prev => {
+      const isFav = prev.includes(id);
+      if (isFav) {
+        return prev.filter(x => x !== id);
+      } else {
+        if (songObj) {
+          try {
+            localStorage.setItem(`chhath_song_metadata_${id}`, JSON.stringify(songObj));
+          } catch {}
+        }
+        return [...prev, id];
+      }
+    });
   };
 
   const toggleFavoriteGhat = (id: string) => {

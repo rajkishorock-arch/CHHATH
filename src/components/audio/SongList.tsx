@@ -157,7 +157,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleFavorite(song.id);
+                  toggleFavorite(song.id, song);
                 }}
                 className={`p-2 rounded-xl transition-colors ${
                   isFav 

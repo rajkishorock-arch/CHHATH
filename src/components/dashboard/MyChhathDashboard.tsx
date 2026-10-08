@@ -293,24 +293,103 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
     return allGhatsList.filter(g => favoriteGhats.includes(g.id));
   }, [allGhatsList, favoriteGhats]);
 
+  // Cached and dynamically resolved song metadata map
+  const [resolvedSongMap, setResolvedSongMap] = useState<Record<string, Song>>(() => {
+    const initialMap: Record<string, Song> = {};
+    try {
+      favoriteSongs.forEach(id => {
+        const cached = localStorage.getItem(`chhath_song_metadata_${id}`);
+        if (cached) {
+          initialMap[id] = JSON.parse(cached);
+        }
+      });
+    } catch {}
+    return initialMap;
+  });
+
+  // Asynchronously resolve YouTube song metadata (real title, singer, thumbnail)
+  useEffect(() => {
+    favoriteSongs.forEach(async (id) => {
+      if (resolvedSongMap[id]?.title && !resolvedSongMap[id]?.title.includes('yt-live-')) return;
+      const foundInContext = songs.find(s => s.id === id);
+      if (foundInContext) {
+        setResolvedSongMap(prev => ({ ...prev, [id]: foundInContext }));
+        try {
+          localStorage.setItem(`chhath_song_metadata_${id}`, JSON.stringify(foundInContext));
+        } catch {}
+        return;
+      }
+
+      // Check if YouTube video ID
+      const ytId = id.startsWith('yt-live-')
+        ? id.replace('yt-live-', '')
+        : id.startsWith('yt-')
+          ? id.replace('yt-', '')
+          : (id.length === 11 ? id : null);
+
+      if (ytId) {
+        try {
+          const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.title) {
+              const songObj: Song = {
+                id,
+                youtubeId: ytId,
+                title: data.title,
+                singer: data.author_name || 'पारंपरिक भक्ति स्वर',
+                thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
+                audioUrl: `https://www.youtube.com/watch?v=${ytId}`,
+                duration: '05:00',
+                language: 'भोजपुरी'
+              };
+              setResolvedSongMap(prev => ({ ...prev, [id]: songObj }));
+              try {
+                localStorage.setItem(`chhath_song_metadata_${id}`, JSON.stringify(songObj));
+              } catch {}
+              return;
+            }
+          }
+        } catch {}
+
+        // Fallback with valid youtubeId and thumbnail
+        const fallbackSong: Song = {
+          id,
+          youtubeId: ytId,
+          title: 'छठी मईया पावन भक्ति गीत',
+          singer: 'पारंपरिक भक्ति रस',
+          thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
+          audioUrl: `https://www.youtube.com/watch?v=${ytId}`,
+          duration: '04:30',
+          language: 'भोजपुरी'
+        };
+        setResolvedSongMap(prev => ({ ...prev, [id]: fallbackSong }));
+      }
+    });
+  }, [favoriteSongs, songs]);
+
   const myFavoriteSongsList = useMemo(() => {
     return favoriteSongs.map(id => {
+      if (resolvedSongMap[id]) return resolvedSongMap[id];
       const found = songs.find(s => s.id === id);
       if (found) return found;
       try {
         const cached = localStorage.getItem(`chhath_song_metadata_${id}`);
         if (cached) return JSON.parse(cached);
       } catch {}
+      const ytId = id.startsWith('yt-live-') ? id.replace('yt-live-', '') : id.startsWith('yt-') ? id.replace('yt-', '') : (id.length === 11 ? id : '');
       return {
         id,
-        title: `छठ पावन गीत (${id.slice(0, 8)})`,
+        youtubeId: ytId || undefined,
+        title: 'छठी मईया पावन गीत',
         singer: 'पारंपरिक भक्ति रस',
         duration: '04:30',
-        audioUrl: '',
-        language: 'भोजपुरी / मैथिली'
+        thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '',
+        audioUrl: ytId ? `https://www.youtube.com/watch?v=${ytId}` : '',
+        language: 'भोजपुरी'
       } as Song;
     });
-  }, [favoriteSongs, songs]);
+  }, [favoriteSongs, songs, resolvedSongMap]);
 
   const totalFavoritesCount = myFavoriteGhatsList.length + myFavoriteSongsList.length;
 
@@ -809,25 +888,45 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2">
+                    <div className="grid grid-cols-1 gap-2.5">
                       {myFavoriteSongsList.map((song) => (
                         <div
                           key={song.id}
-                          className="p-3 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 flex items-center justify-between gap-3 shadow-2xs hover:border-amber-300 dark:hover:border-amber-500/50 transition-all"
+                          className="p-3 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 flex items-center justify-between gap-3 shadow-xs hover:border-amber-400 dark:hover:border-amber-500/50 transition-all group"
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <button
-                              onClick={() => playSong(song)}
-                              className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center shrink-0 shadow-xs hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-                              title="गीत बजाएं"
-                            >
-                              <Play className="w-4 h-4 fill-current ml-0.5" />
-                            </button>
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-800 shrink-0 border border-stone-200 dark:border-stone-700 shadow-2xs">
+                              {song.thumbnail ? (
+                                <img
+                                  src={song.thumbnail}
+                                  alt={song.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-stone-950 font-bold">
+                                  🪔
+                                </div>
+                              )}
+                              <button
+                                onClick={() => playSong(song)}
+                                className="absolute inset-0 bg-stone-950/30 hover:bg-stone-950/50 flex items-center justify-center text-white transition-colors cursor-pointer"
+                                title="गीत बजाएं"
+                              >
+                                <Play className="w-4 h-4 fill-white ml-0.5" />
+                              </button>
+                            </div>
+
                             <div className="truncate">
-                              <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
+                              <h4 
+                                onClick={() => playSong(song)}
+                                className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 truncate cursor-pointer hover:text-amber-600 transition-colors"
+                              >
                                 {song.title}
                               </h4>
-                              <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
+                              <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate mt-0.5">
                                 {song.singer} • {song.language || 'भोजपुरी'}
                               </p>
                             </div>
@@ -842,7 +941,7 @@ export const MyChhathDashboard: React.FC<MyChhathDashboardProps> = ({ onNavigate
                                 toggleFavoriteSong(song.id);
                                 showToast('गीत पसंदीदा सूची से हटा दिया गया');
                               }}
-                              className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                              className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                               title="पसंदीदा से हटाएं"
                             >
                               <Heart className="w-4 h-4 fill-current" />

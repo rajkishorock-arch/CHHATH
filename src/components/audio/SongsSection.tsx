@@ -1161,7 +1161,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                     onToggleQueue={() => {
                       if (!inQueue) addToQueue(songObj);
                     }}
-                    onToggleFav={() => toggleFavorite(songObj.id)}
+                    onToggleFav={() => toggleFavorite(songObj.id, songObj)}
                     onShareSong={() => handleShareSong(songObj)}
                     isLiveApi={isLiveApi}
                   />
@@ -1231,7 +1231,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       onToggleQueue={() => {
                         if (!inQueue) addToQueue(song);
                       }}
-                      onToggleFav={() => toggleFavorite(song.id)}
+                      onToggleFav={() => toggleFavorite(song.id, song)}
                       onShareSong={() => handleShareSong(song)}
                     />
                   );
