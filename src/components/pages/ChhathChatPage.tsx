@@ -58,12 +58,15 @@ export const ChhathChatPage: React.FC<ChhathChatPageProps> = ({ onNavigate }) =>
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // If user lands unauthenticated, automatically trigger login modal once
+  const hasPromptedRef = useRef<boolean>(false);
+
+  // If user lands unauthenticated, trigger login modal once on mount; never loop if user dismisses
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !hasPromptedRef.current) {
+      hasPromptedRef.current = true;
       const timer = setTimeout(() => {
         openAuthModal('login', 'छठ संवाद में प्रवेश करने के लिए कृपया पहले लॉगिन करें');
-      }, 500);
+      }, 400);
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, openAuthModal]);

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ReelUser, Language, UserSettings, ActiveSession, SocialFollowStatus } from '../types';
 import { ReelsStorage } from '../services/reelsStorage';
 import { AuthService } from '../services/authService';
@@ -167,16 +167,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const openOnboarding = () => setOnboardingModalOpen(true);
   const closeOnboarding = () => setOnboardingModalOpen(false);
 
-  const openAuthModal = (tab: 'login' | 'signup' | 'quick_devotee' = 'login', promptMessage?: string) => {
+  const openAuthModal = useCallback((tab: 'login' | 'signup' | 'quick_devotee' = 'login', promptMessage?: string) => {
     setAuthModalTab(tab);
     setAuthPromptMessage(promptMessage || null);
     setAuthModalOpen(true);
-  };
+  }, []);
 
-  const closeAuthModal = () => {
+  const closeAuthModal = useCallback(() => {
     setAuthModalOpen(false);
     setAuthPromptMessage(null);
-  };
+  }, []);
 
   const openAccountCenter = (tab: string = 'profile') => {
     setAccountCenterTab(tab);
