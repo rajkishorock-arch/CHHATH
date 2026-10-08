@@ -177,12 +177,17 @@ export const searchYouTubeVideos = async (
     }
   }
 
+  // Contextualize query with Chhath devotion if generic singer or title
+  const lowerQ = trimmed.toLowerCase();
+  const isChhathContext = lowerQ.includes('chhath') || lowerQ.includes('chhat') || lowerQ.includes('छठ') || lowerQ.includes('argh') || lowerQ.includes('अरघ') || lowerQ.includes('सुरुज') || lowerQ.includes('सूरज') || lowerQ.includes('भक्ति');
+  const optimizedQuery = isChhathContext ? trimmed : `${trimmed} छठ गीत`;
+
   // 2. TIER 1: Dedicated High-Speed Live API (Local Vercel Serverless First -> Vercel Production -> Worker)
   const workerBase = getWorkerUrl().replace(/\/+$/, '');
   const searchEndpoints = [
-    `/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
-    `${workerBase}/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
-    `https://chhathvibes.vercel.app/api/yt-search?q=${encodeURIComponent(trimmed)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`
+    `/api/yt-search?q=${encodeURIComponent(optimizedQuery)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
+    `${workerBase}/api/yt-search?q=${encodeURIComponent(optimizedQuery)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`,
+    `https://chhathvibes.vercel.app/api/yt-search?q=${encodeURIComponent(optimizedQuery)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}&type=${type}`
   ];
 
   for (const endpointUrl of searchEndpoints) {
@@ -236,8 +241,11 @@ export const searchYouTubeVideos = async (
       bodyPayload.continuation = pageToken;
     } else {
       bodyPayload.query = type === 'shorts'
-        ? (trimmed.toLowerCase().includes('short') ? trimmed : `${trimmed} #shorts`)
-        : trimmed;
+        ? (optimizedQuery.toLowerCase().includes('short') ? optimizedQuery : `${optimizedQuery} #shorts`)
+        : optimizedQuery;
+      if (type === 'video') {
+        bodyPayload.params = 'EgIQAQ==';
+      }
     }
 
     const controller = new AbortController();

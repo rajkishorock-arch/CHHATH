@@ -216,7 +216,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   // Global listener to open sidebar drawer from any feature or button
   React.useEffect(() => {
     const handleOpenDrawer = () => setSidebarDrawerOpen(true);
-    const handleOpenMobileSearch = () => setMobileSearchOpen(true);
+    const handleOpenMobileSearch = () => onOpenSearch();
     window.addEventListener('open_sidebar_drawer', handleOpenDrawer);
     window.addEventListener('open_mobile_search', handleOpenMobileSearch);
     return () => {
@@ -397,7 +397,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Center: YouTube Top Song Search Bar (Desktop / Large Tablet) */}
         <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-3">
-          <TopSongSearchBar onNavigateToMusic={handleSearchNavigate} />
+          <TopSongSearchBar 
+            onNavigateToMusic={handleSearchNavigate} 
+            onOpenFullSearch={onOpenSearch}
+          />
         </div>
 
         {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Drawer Button */}
@@ -459,13 +462,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right Header Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           
-          {/* Mobile Song Search Toggle Button */}
+          {/* Top YouTube Search Button (Mobile & Desktop) */}
           <button
-            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            onClick={onOpenSearch}
             title={navText.searchTitle}
-            className="md:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex md:hidden items-center justify-center bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 transition-all border border-amber-500/30 shadow-sm cursor-pointer active:scale-95"
+            aria-label="यूट्यूब सर्च खोलें"
           >
-            {mobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4 text-amber-500" />}
+            <Search className="w-4 h-4 text-amber-500" />
           </button>
 
           {/* Web-Only Direct APK Download Button (Hidden inside installed Native App) */}

@@ -178,10 +178,10 @@ export default async function handler(req, res) {
           : q;
         if (type === 'video') {
           // Strictly filter for Video type in YouTube to exclude channel cards and get full video results
-          bodyPayload.params = 'EgIQAQ%3D%3D';
+          bodyPayload.params = 'EgIQAQ==';
         } else if (type === 'playlist') {
           // Strictly filter for Playlist type in YouTube
-          bodyPayload.params = 'EgIQAw%3D%3D';
+          bodyPayload.params = 'EgIQAw==';
         }
       }
 

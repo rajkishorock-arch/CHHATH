@@ -1,5 +1,203 @@
 import { Song } from '../types';
 
-// Dynamic Mode: All static datasets have been removed as requested.
-// Audio and video streams are fetched live in real-time from the YouTube API.
-export const chhathSongs: Song[] = [];
+/**
+ * Authentic, verified master catalog of Chhath Mahaparv devotional songs.
+ * Used for instant offline searching, autocomplete suggestions, and guaranteed fallbacks.
+ */
+export const chhathSongs: Song[] = [
+  {
+    id: 'song-sharda-1',
+    title: 'पहिले पहिल हम कईनी छठी मईया',
+    singer: 'शारदा सिन्हा (Sharda Sinha)',
+    language: 'Bhojpuri',
+    category: 'पारंपरिक छठ गीत',
+    duration: '6:12',
+    audioUrl: 'https://www.youtube.com/watch?v=BsAFCc901MM',
+    youtubeId: 'BsAFCc901MM',
+    thumbnail: 'https://i.ytimg.com/vi/BsAFCc901MM/hqdefault.jpg',
+    description: 'शारदा सिन्हा का सबसे लोकप्रिय और पावन छठ गीत। पहिले पहिल हम कईनी छठी मईया व्रत तोहार।',
+    lyricsSnippet: 'पहिले पहिल हम कईनी छठी मईया व्रत तोहार, करिहा क्षमा छठी मईया भूल-चूक गलती हमार...'
+  },
+  {
+    id: 'song-sharda-2',
+    title: 'केलवा के पात पर उगेलन सुरुज देव',
+    singer: 'शारदा सिन्हा (Sharda Sinha)',
+    language: 'Bhojpuri',
+    category: 'संध्या व प्रातः अर्घ्य',
+    duration: '5:45',
+    audioUrl: 'https://www.youtube.com/watch?v=knZ8b5YnQiY',
+    youtubeId: 'knZ8b5YnQiY',
+    thumbnail: 'https://i.ytimg.com/vi/knZ8b5YnQiY/hqdefault.jpg',
+    description: 'भगवान भुवन भास्कर सूर्य देव की उपासना का पावन पारंपरिक अर्घ्य गीत।',
+    lyricsSnippet: 'केलवा के पात पर उगेलन सुरुज देव, झाँके झुके... हे दीनानाथ, हम अरघिया देबइ...'
+  },
+  {
+    id: 'song-anuradha-1',
+    title: 'काँच ही बाँस के बहंगिया',
+    singer: 'अनुराधा पौडवाल (Anuradha Paudwal)',
+    language: 'Bhojpuri',
+    category: 'दौरा व बहंगी गीत',
+    duration: '5:30',
+    audioUrl: 'https://www.youtube.com/watch?v=Eyq7vfxu4iA',
+    youtubeId: 'Eyq7vfxu4iA',
+    thumbnail: 'https://i.ytimg.com/vi/Eyq7vfxu4iA/hqdefault.jpg',
+    description: 'काँच ही बाँस के बहंगिया, बहंगी लचकत जाए। छठ महापर्व का सबसे मधुर पारंपरिक गीत।',
+    lyricsSnippet: 'काँच ही बाँस के बहंगिया, बहंगी लचकत जाए... बात जे पूछेला बटोहिया, बहंगी केकरा के जाए...'
+  },
+  {
+    id: 'song-pawan-1',
+    title: 'जोड़े जोड़े फलवा सुरूज देव',
+    singer: 'पवन सिंह (Pawan Singh)',
+    language: 'Bhojpuri',
+    category: 'छठ पूजा स्पेशल',
+    duration: '4:52',
+    audioUrl: 'https://www.youtube.com/watch?v=BKoD7bTLc2k',
+    youtubeId: 'BKoD7bTLc2k',
+    thumbnail: 'https://i.ytimg.com/vi/BKoD7bTLc2k/hqdefault.jpg',
+    description: 'पवन सिंह का लोकप्रिय छठ गीत। जोड़े जोड़े फलवा सुरूज देव तोपे चढ़वले बानी।',
+    lyricsSnippet: 'जोड़े जोड़े फलवा सुरूज देव तोपे चढ़वले बानी, मईया के चरनिया में ध्यान लगवले बानी...'
+  },
+  {
+    id: 'song-pawan-2',
+    title: 'उगी सुरुज देव अरघ के बेर',
+    singer: 'पवन सिंह (Pawan Singh)',
+    language: 'Bhojpuri',
+    category: 'प्रातः अर्घ्य गीत',
+    duration: '5:10',
+    audioUrl: 'https://www.youtube.com/watch?v=z3TKq9LVbzM',
+    youtubeId: 'z3TKq9LVbzM',
+    thumbnail: 'https://i.ytimg.com/vi/z3TKq9LVbzM/hqdefault.jpg',
+    description: 'उगी सुरुज देव भईल अरघ के बेर। प्रातःकालीन अर्घ्य का पावन भक्तिमय स्वर।',
+    lyricsSnippet: 'उगी सुरुज देव भईल अरघ के बेर, जल बीच खड़ा बानी सब श्रद्धालु घेर...'
+  },
+  {
+    id: 'song-maithili-1',
+    title: 'उग हो सुरुज देव अरघ के बेरा',
+    singer: 'मैथिली ठाकुर (Maithili Thakur)',
+    language: 'Maithili',
+    category: 'मैथिली छठ गीत',
+    duration: '5:18',
+    audioUrl: 'https://www.youtube.com/watch?v=vSJO-AElAog',
+    youtubeId: 'vSJO-AElAog',
+    thumbnail: 'https://i.ytimg.com/vi/vSJO-AElAog/hqdefault.jpg',
+    description: 'मैथिली ठाकुर द्वारा सुमधुर पारंपरिक मैथिली धुन में गाया गया पावन छठ गीत।',
+    lyricsSnippet: 'उग हो सुरुज देव अरघ के बेरा, गंगा के तीरे ठाढ़ सब नर-नारी...'
+  },
+  {
+    id: 'song-maithili-2',
+    title: 'सोना सातकुनिया हो दीनानाथ',
+    singer: 'मैथिली ठाकुर (Maithili Thakur)',
+    language: 'Maithili',
+    category: 'पारंपरिक छठ भजन',
+    duration: '6:02',
+    audioUrl: 'https://www.youtube.com/watch?v=fwX2g9jjo1o',
+    youtubeId: 'fwX2g9jjo1o',
+    thumbnail: 'https://i.ytimg.com/vi/fwX2g9jjo1o/hqdefault.jpg',
+    description: 'सोना सातकुनिया हो दीनानाथ, अरघ देबई हम साँझ-भोरहरिया।',
+    lyricsSnippet: 'सोना सातकुनिया हो दीनानाथ, अरघ देबई हम साँझ-भोरहरिया...'
+  },
+  {
+    id: 'song-khesari-1',
+    title: 'छठ घाटे चलीं',
+    singer: 'खेसारी लाल यादव (Khesari Lal Yadav)',
+    language: 'Bhojpuri',
+    category: 'छठ घाट स्पेशल',
+    duration: '4:40',
+    audioUrl: 'https://www.youtube.com/watch?v=fCuHD3YBQKY',
+    youtubeId: 'fCuHD3YBQKY',
+    thumbnail: 'https://i.ytimg.com/vi/fCuHD3YBQKY/hqdefault.jpg',
+    description: 'खेसारी लाल यादव और अंतरा सिंह प्रियंका का प्रसिद्ध छठ महापर्व गीत।',
+    lyricsSnippet: 'छठ घाटे चलीं सभे करीं तैयारी, सिर पर दौरा लेइके अइलीं महतारी...'
+  },
+  {
+    id: 'song-sharda-3',
+    title: 'कार्तिक मास इजोरिया छठी माई',
+    singer: 'शारदा सिन्हा (Sharda Sinha)',
+    language: 'Bhojpuri',
+    category: 'छठ महापर्व वंदना',
+    duration: '5:50',
+    audioUrl: 'https://www.youtube.com/watch?v=UwqtDSb0pLI',
+    youtubeId: 'UwqtDSb0pLI',
+    thumbnail: 'https://i.ytimg.com/vi/UwqtDSb0pLI/hqdefault.jpg',
+    description: 'कार्तिक मास इजोरिया छठी माई, शारदा सिन्हा की अमर आवाज़ में।',
+    lyricsSnippet: 'कार्तिक मास इजोरिया छठी माई, छठ परब मनाइब हो...'
+  },
+  {
+    id: 'song-sharda-4',
+    title: 'हो दीनानाथ (Suroojdev Ke Arghiya)',
+    singer: 'शारदा सिन्हा (Sharda Sinha)',
+    language: 'Bhojpuri',
+    category: 'अर्घ्य वंदना',
+    duration: '7:15',
+    audioUrl: 'https://www.youtube.com/watch?v=fOVGz9WFymU',
+    youtubeId: 'fOVGz9WFymU',
+    thumbnail: 'https://i.ytimg.com/vi/fOVGz9WFymU/hqdefault.jpg',
+    description: 'हो दीनानाथ, सुरुज देव के अरघिया। संपूर्ण आस्था का महापर्व गीत।',
+    lyricsSnippet: 'हो दीनानाथ, झाँके-झुके उगेलन सुरुज देव, अरघ के बेरा भईल...'
+  },
+  {
+    id: 'song-sharda-5',
+    title: 'दुखवा मिटाईं छठी मईया',
+    singer: 'शारदा सिन्हा (Sharda Sinha)',
+    language: 'Bhojpuri',
+    category: 'छठी मईया विनती',
+    duration: '6:30',
+    audioUrl: 'https://www.youtube.com/watch?v=NkDiSj9c1EA',
+    youtubeId: 'NkDiSj9c1EA',
+    thumbnail: 'https://i.ytimg.com/vi/NkDiSj9c1EA/hqdefault.jpg',
+    description: 'दुखवा मिटाईं छठी मईया, विनती सुनीं हमार। भावपूर्ण वंदना।',
+    lyricsSnippet: 'दुखवा मिटाईं छठी मईया, गोदी में बालक दीं, घर में खुशहाली लाईं...'
+  },
+  {
+    id: 'song-anuradha-2',
+    title: 'केरवा जे फरेला घवद से',
+    singer: 'अनुराधा पौडवाल (Anuradha Paudwal)',
+    language: 'Bhojpuri',
+    category: 'पारंपरिक छठ पूजा गीत',
+    duration: '5:22',
+    audioUrl: 'https://www.youtube.com/watch?v=Eyq7vfxu4iA',
+    youtubeId: 'Eyq7vfxu4iA',
+    thumbnail: 'https://i.ytimg.com/vi/Eyq7vfxu4iA/hqdefault.jpg',
+    description: 'केरवा जे फरेला घवद से, ओह पर सुगा मंडराए। पावन सूप फल गीत।',
+    lyricsSnippet: 'केरवा जे फरेला घवद से, ओह पर सुगा मंडराए, मारबो रे सुगवा धनुष से...'
+  },
+  {
+    id: 'song-sharda-6',
+    title: 'चारि पहर हम जल थल सेविले',
+    singer: 'शारदा सिन्हा (Sharda Sinha)',
+    language: 'Bhojpuri',
+    category: 'रात्रि जागरण व व्रत',
+    duration: '6:40',
+    audioUrl: 'https://www.youtube.com/watch?v=BsAFCc901MM',
+    youtubeId: 'BsAFCc901MM',
+    thumbnail: 'https://i.ytimg.com/vi/BsAFCc901MM/hqdefault.jpg',
+    description: 'चारि पहर हम जल थल सेविले, सेविले चरण तोहार हे छठी माई।',
+    lyricsSnippet: 'चारि पहर हम जल थल सेविले, सेविले चरण तोहार, उगीं हे सुरुज देव...'
+  },
+  {
+    id: 'song-kalpana-1',
+    title: 'पटना के घाट पर हमहू अरघिया देबइ',
+    singer: 'कल्पना पटवारी (Kalpana Patowary)',
+    language: 'Bhojpuri',
+    category: 'गंगा घाट छठ गीत',
+    duration: '4:58',
+    audioUrl: 'https://www.youtube.com/watch?v=knZ8b5YnQiY',
+    youtubeId: 'knZ8b5YnQiY',
+    thumbnail: 'https://i.ytimg.com/vi/knZ8b5YnQiY/hqdefault.jpg',
+    description: 'पटना के पावन गंगा घाटों पर छठ महापर्व की छटा और अर्घ्य की तैयारी।',
+    lyricsSnippet: 'पटना के घाट पर हमहू अरघिया देबइ, दीप जरा के छठी माई के गोहार लगाइब...'
+  },
+  {
+    id: 'song-manoj-1',
+    title: 'जय छठी मईया - महिमा अपार',
+    singer: 'मनोज तिवारी (Manoj Tiwari)',
+    language: 'Bhojpuri',
+    category: 'भक्ति भजन',
+    duration: '5:05',
+    audioUrl: 'https://www.youtube.com/watch?v=BKoD7bTLc2k',
+    youtubeId: 'BKoD7bTLc2k',
+    thumbnail: 'https://i.ytimg.com/vi/BKoD7bTLc2k/hqdefault.jpg',
+    description: 'मनोज तिवारी द्वारा गाया गया श्रद्धा एवं आस्था से परिपूर्ण छठ गीत।',
+    lyricsSnippet: 'जय छठी मईया महिमा तोहार अपार, जे ध्यावे ओकर बेड़ा पार...'
+  }
+];

@@ -23,13 +23,15 @@ import {
   ListMusic,
   ChevronDown,
   Sparkles,
-  Layers
+  Layers,
+  ArrowUpLeft
 } from 'lucide-react';
 import { 
   searchYouTubeVideos, 
   convertToSongModel, 
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
+import { YouTubeSuggestService } from '../../services/youtubeSuggestService';
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -644,6 +646,40 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
+  // YouTube Autocomplete & Auto-fill States
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
+  const searchContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Real-time suggestions listener
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchSuggestions(YouTubeSuggestService.getTrendingSearches().slice(0, 6));
+      return;
+    }
+    const timer = setTimeout(async () => {
+      const results = await YouTubeSuggestService.getSuggestions(searchQuery.trim());
+      setSearchSuggestions(results);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Handle clicking outside of suggestions
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const handleAutoFillQuery = (text: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSearchQuery(text);
+  };
+
   const handleShareSong = useCallback(async (song: Song) => {
     const songUrl = song.youtubeId 
       ? `https://www.youtube.com/watch?v=${song.youtubeId}` 
@@ -1253,56 +1289,100 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       <div className="w-full max-w-6xl mx-auto space-y-2 sm:space-y-4">
         
         {/* ========================================================
-            DESKTOP-ONLY SEARCH BAR (HIDDEN ON PHONE LAYOUT FOR CLEAN SCREEN)
-            ON MOBILE: SEARCH IS ACCESSED VIA THE TOP HEADER SEARCH ICON
+            YOUTUBE-GRADE SMART SEARCH BAR (MOBILE & DESKTOP)
            ======================================================== */}
-        <form onSubmit={handleSearchSubmit} className="relative hidden md:flex items-center">
-          <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500/40 rounded-full transition-all shadow-xs">
-            <div className="pl-3.5 pr-2 text-stone-500 dark:text-stone-400 flex items-center pointer-events-none">
-              <Search className="w-4 h-4" />
-            </div>
+        <div ref={searchContainerRef} className="relative w-full px-2 sm:px-0">
+          <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+            <div className="relative flex-1 flex items-center bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-800 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/25 rounded-full transition-all shadow-xs">
+              <div className="pl-3.5 pr-2 text-stone-500 dark:text-stone-400 flex items-center pointer-events-none">
+                <Search className="w-4 h-4" />
+              </div>
 
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="YouTube पर कोई भी गाना, गायक या वीडियो खोजें..."
-              className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 outline-none pr-2"
-            />
+              <input
+                type="text"
+                value={searchQuery}
+                onFocus={() => setIsSearchFocused(true)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchFocused(true);
+                }}
+                placeholder="YouTube पर कोई भी छठ गीत, गायक या भजन खोजें..."
+                className="w-full py-2 sm:py-2.5 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 outline-none pr-2 font-mukta"
+              />
 
-            {searchQuery && (
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="p-1.5 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white mr-1 cursor-pointer"
+                  title="साफ़ करें"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Voice Search Button */}
               <button
                 type="button"
-                onClick={handleClearSearch}
-                className="p-1.5 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white mr-1 cursor-pointer"
-                title="साफ़ करें"
+                onClick={toggleVoiceSearch}
+                className={`p-1.5 sm:p-2 rounded-full mr-1 transition-colors cursor-pointer ${
+                  isListening ? 'bg-red-600 text-white animate-pulse' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800'
+                }`}
+                title="आवाज से खोजें (Voice Search)"
               >
-                <X className="w-4 h-4" />
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
-            )}
+            </div>
 
-            {/* Voice Search Button */}
             <button
-              type="button"
-              onClick={toggleVoiceSearch}
-              className={`p-1.5 sm:p-2 rounded-full mr-1 transition-colors cursor-pointer ${
-                isListening ? 'bg-red-600 text-white animate-pulse' : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-              title="आवाज से खोजें (Voice Search)"
+              type="submit"
+              disabled={searchStatus === 'loading' || !searchQuery.trim()}
+              className="ml-2 px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-stone-950 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0 active:scale-95 cursor-pointer"
             >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {searchStatus === 'loading' ? <RefreshCw className="w-4 h-4 animate-spin text-stone-950" /> : <Search className="w-4 h-4 text-stone-950" />}
+              <span>खोजें</span>
             </button>
-          </div>
+          </form>
 
-          <button
-            type="submit"
-            disabled={searchStatus === 'loading' || !searchQuery.trim()}
-            className="ml-2 px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-stone-950 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0 active:scale-95 cursor-pointer"
-          >
-            {searchStatus === 'loading' ? <RefreshCw className="w-4 h-4 animate-spin text-stone-950" /> : <Search className="w-4 h-4 text-stone-950" />}
-            <span>खोजें</span>
-          </button>
-        </form>
+          {/* YouTube Real-time Autocomplete Dropdown with ↖ Auto-fill */}
+          {isSearchFocused && searchSuggestions.length > 0 && (
+            <div className="absolute top-full left-2 right-2 sm:left-0 sm:right-0 mt-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-2xl overflow-hidden z-40 animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-2 space-y-0.5 max-h-64 overflow-y-auto">
+                <div className="px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                  {!searchQuery.trim() ? <Sparkles className="w-3 h-3 text-amber-500" /> : <Search className="w-3 h-3 text-amber-500" />}
+                  <span>{!searchQuery.trim() ? 'लोकप्रिय छठ सर्च (Trending)' : 'YouTube सुझाव'}</span>
+                </div>
+
+                {searchSuggestions.map((item, idx) => (
+                  <div
+                    key={`yt-sugg-${idx}`}
+                    onClick={() => {
+                      setSearchQuery(item);
+                      setIsSearchFocused(false);
+                      handleExecuteSearch(item);
+                    }}
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-amber-50 dark:hover:bg-stone-900 cursor-pointer text-xs sm:text-sm text-stone-800 dark:text-stone-100 group transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Search className="w-3.5 h-3.5 text-stone-400 group-hover:text-amber-500 shrink-0" />
+                      <span className="truncate font-medium">{item}</span>
+                    </div>
+
+                    {/* ↖ Auto-fill Arrow Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleAutoFillQuery(item, e)}
+                      className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-amber-500/20 transition-all shrink-0 cursor-pointer"
+                      title="सर्च बॉक्स में भरें (Auto-fill)"
+                    >
+                      <ArrowUpLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
 
 
