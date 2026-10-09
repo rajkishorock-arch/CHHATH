@@ -667,8 +667,9 @@ const MainContent: React.FC = () => {
   }, []);
 
   return (
-    <PullToRefresh>
-      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col relative transition-colors duration-300">
+    <>
+      <PullToRefresh>
+        <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col relative transition-colors duration-300">
       {/* Cinematic Intro Splash (shown once per session) */}
       {showCinematicIntro && (
         <CinematicIntro onComplete={() => setShowCinematicIntro(false)} />
@@ -969,13 +970,6 @@ const MainContent: React.FC = () => {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation */}
-      <MobileNav 
-        activeTab={activeTab} 
-        onNavigate={handleNavigate} 
-        onOpenJapMala={() => handleNavigate('jap-mala')} 
-      />
-
       {/* Global Modals */}
       {locationModalOpen && (
         <LocationOnboardingModal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)} />
@@ -1037,6 +1031,14 @@ const MainContent: React.FC = () => {
       )}
     </div>
     </PullToRefresh>
+
+    {/* Mobile Bottom Navigation - Mounted directly to viewport edge */}
+    <MobileNav 
+      activeTab={activeTab} 
+      onNavigate={handleNavigate} 
+      onOpenJapMala={() => handleNavigate('jap-mala')} 
+    />
+  </>
   );
 };
 

@@ -523,8 +523,51 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
 
       <div className="w-full max-w-5xl mx-auto px-2 sm:px-4 md:px-6">
 
-        {/* 1. Header Bar with Back Button & Devotee Account Pill */}
-        <div className="flex items-center justify-between py-2 mb-4">
+        {/* Mobile Phone Layout Only: Top Sadhna Status Header Strip (Replaces Back button on phone) */}
+        <div className="sm:hidden mb-3 p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-500/30 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-sm">📿</span>
+            <div className="min-w-0">
+              <span className="text-[11px] font-bold text-amber-950 dark:text-amber-200 block leading-tight truncate">साधना स्टेटस</span>
+              <span className="text-[9px] text-stone-500 dark:text-stone-400 block leading-none">दैनिक जप प्रगति</span>
+            </div>
+          </div>
+
+          {/* Quick Counter Badges */}
+          <div className="flex items-center gap-1 font-sans">
+            <div className="px-2 py-0.5 rounded-lg bg-orange-500/15 border border-orange-500/25 text-center">
+              <span className="text-[9px] text-stone-500 dark:text-stone-400 block leading-none font-mukta">माला</span>
+              <span className="text-xs font-black text-orange-600 dark:text-orange-400 leading-none">{completedMalas}</span>
+            </div>
+            <div className="px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/25 text-center">
+              <span className="text-[9px] text-stone-500 dark:text-stone-400 block leading-none font-mukta">जप</span>
+              <span className="text-xs font-black text-amber-600 dark:text-amber-400 leading-none">{totalChants}</span>
+            </div>
+            <div className="px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/25 text-center">
+              <span className="text-[9px] text-stone-500 dark:text-stone-400 block leading-none font-mukta">आज</span>
+              <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 leading-none">{todayChants}</span>
+            </div>
+          </div>
+
+          {/* Cloud Sync or Login */}
+          {isAuthenticated && currentUser ? (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold shrink-0">
+              <Cloud className="w-3 h-3" />
+              <span className="max-w-[45px] truncate">{currentUser.name?.split(' ')[0] || 'सिंक'}</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => openAuthModal('login', '108 जप माला साधना शुरू करने और अपने सभी जप को अपने अकाउंट में सुरक्षित रखने के लिए कृपया लॉगिन करें।')}
+              className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-[10px] font-bold shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              <User className="w-3 h-3" />
+              <span>लॉगिन</span>
+            </button>
+          )}
+        </div>
+
+        {/* Desktop / Tablet Header Bar (Includes Back Button and Full Title) */}
+        <div className="hidden sm:flex items-center justify-between py-2 mb-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => onNavigate('home')}

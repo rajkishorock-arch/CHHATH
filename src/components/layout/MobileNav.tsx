@@ -58,7 +58,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <nav 
       aria-label="सनातन मोबाइल मुख्य नेविगेशन"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#fde6cf] via-[#fdf2e4]/98 to-[#fffaf3]/95 backdrop-blur-xl border-t border-x border-[#fed7aa] rounded-t-[26px] py-1.5 px-3 shadow-[0_-8px_25px_rgba(120,53,15,0.12)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 w-full m-0 bg-gradient-to-t from-[#fde6cf] via-[#fdf2e4]/98 to-[#fffaf3]/95 backdrop-blur-xl border-t border-[#fed7aa] rounded-t-[24px] rounded-b-none py-1.5 px-3 shadow-[0_-8px_25px_rgba(120,53,15,0.12)]"
+      style={{
+        bottom: 0,
+        marginBottom: 0,
+        paddingBottom: 'max(0.35rem, env(safe-area-inset-bottom, 0px))'
+      }}
     >
       <div className="flex items-center justify-between max-w-md mx-auto relative">
         
