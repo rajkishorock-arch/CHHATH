@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Sun, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
+import { Home, Music, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 // Sacred Golden Lotus ॐ Icon for the floating center button (Screenshot 2)
@@ -34,12 +34,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const { language } = useLanguage();
 
   const labels = {
-    hi: { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' },
-    en: { home: 'Home', chhath: 'Chhath', vichar: 'Wisdom', paath: 'Paath' },
-    bho: { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' },
-    mai: { home: 'होम', chhath: 'छठि', vichar: 'विचार', paath: 'पाठ' },
-    mag: { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' },
-  }[language] || { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' };
+    hi: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
+    en: { home: 'Home', music: 'Music', vichar: 'Wisdom', paath: 'Paath' },
+    bho: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
+    mai: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
+    mag: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
+  }[language] || { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' };
 
   const handleNav = (tab: string) => {
     if (onNavigate) {
@@ -61,7 +61,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#fdf6ee] via-[#fffaf5] to-[#fdf6ee]/95 backdrop-blur-xl border-t border-[#fed7aa]/80 py-1.5 px-3 shadow-2xl"
     >
       <div className="flex items-center justify-between max-w-md mx-auto relative">
-        {/* Tab 1: होम (Screenshot 2) */}
+        {/* Tab 1: होम */}
         <button
           onClick={() => handleNav('home')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
@@ -77,18 +77,18 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           )}
         </button>
 
-        {/* Tab 2: छठ (Previous home setup shifted here next to home!) */}
+        {/* Tab 2: संगीत (Devotional Songs & Music with Music Icon, NOT Chhath) */}
         <button
-          onClick={() => handleNav('chhath')}
+          onClick={() => handleNav('music')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
-            activeTab === 'chhath' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+            activeTab === 'music' || activeTab === 'chhath' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
           }`}
         >
-          <Sun className={`w-5 h-5 ${activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2'}`} />
+          <Music className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
-            {labels.chhath}
+            {labels.music}
           </span>
-          {activeTab === 'chhath' && (
+          {(activeTab === 'music' || activeTab === 'chhath') && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
           )}
         </button>

@@ -47,6 +47,21 @@
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@keyframes iosSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0.92;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-ios-slide-in {
+  animation: iosSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 [data-theme="dark"], .dark {
   --bg-primary: #0b0c13;
   --bg-secondary: #131522;

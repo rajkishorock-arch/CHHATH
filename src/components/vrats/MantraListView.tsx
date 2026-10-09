@@ -3,13 +3,13 @@ import { ArrowLeft, Home, ChevronRight, Search, X } from 'lucide-react';
 import { VRAT_DIRECTORY_LIST, VratDirectoryEntry } from '../../data/vratDirectoryList';
 import { VratReadingPageView } from './VratReadingPageView';
 
-interface AartiSangrahListViewProps {
+interface MantraListViewProps {
   onBack: () => void;
   onGoHome?: () => void;
   initialSelectedId?: string;
 }
 
-export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
+export const MantraListView: React.FC<MantraListViewProps> = ({
   onBack,
   onGoHome = onBack,
   initialSelectedId
@@ -25,16 +25,16 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
 
   const filteredList = VRAT_DIRECTORY_LIST.filter(item =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.aartiTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.mantra.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.deity.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // If an aarti is selected, render dedicated full-page reader with iOS slide-in animation
+  // If a mantra is selected, render dedicated full-page reader with iOS slide-in animation
   if (selectedEntry) {
     return (
       <VratReadingPageView
         entry={selectedEntry}
-        initialTab="aarti"
+        initialTab="mantra"
         onBack={() => setSelectedEntry(null)}
         onGoHome={onGoHome}
       />
@@ -56,7 +56,7 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
           </button>
 
           <h1 className="font-serif font-black text-xl sm:text-2xl text-[#78350f] tracking-wide">
-            आरती
+            मंत्र
           </h1>
 
           <button
@@ -78,7 +78,7 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            placeholder="आरती या ईष्ट देव का नाम खोजें..."
+            placeholder="मंत्र या देवता का नाम खोजें..."
             className="w-full pl-9 pr-8 py-2 bg-white/90 border border-[#fed7aa] rounded-full text-xs sm:text-sm text-[#451a03] placeholder-[#9a3412]/60 focus:outline-none focus:ring-2 focus:ring-[#f59e0b] shadow-xs"
           />
           {searchTerm && (

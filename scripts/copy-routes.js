@@ -41,6 +41,9 @@ const routes = [
   'paath-chalisa',
   'shubh-vichar',
   'famous-temples',
+  'puja-vidhi',
+  'samagri-list',
+  'mantra-list',
   'chhath'
 ];
 

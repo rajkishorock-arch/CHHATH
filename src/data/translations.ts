@@ -126,7 +126,7 @@ export interface TranslationDict {
 
 export const translations: Record<Language, TranslationDict> = {
   hi: {
-    siteTitle: "छठ महापर्व",
+    siteTitle: "पूजा विधि",
     siteSubtitle: "आस्था, श्रद्धा और सूर्य उपासना का महापर्व",
     heroHeading: "जय छठी मईया 🙏",
     heroSubheading: "लोक आस्था, पवित्रता और सूर्य उपासना का पावन महापर्व — बिहार, झारखंड और पूर्वांचल की अमिट सांस्कृतिक विरासत",
@@ -236,7 +236,7 @@ export const translations: Record<Language, TranslationDict> = {
   },
 
   bho: {
-    siteTitle: "छठ महापर्व",
+    siteTitle: "पूजा विधि",
     siteSubtitle: "आस्था, नेह आ सुरुज गोसांईं के उपासना के महापर्व",
     heroHeading: "जय छठी मईया 🙏",
     heroSubheading: "हमार लोक आस्था, नेह आ सुरुज देव के पावन बरत — भोजपुरिया माटी के सबसे पावन परब",
@@ -346,7 +346,7 @@ export const translations: Record<Language, TranslationDict> = {
   },
 
   mai: {
-    siteTitle: "छठ महापर्व",
+    siteTitle: "पूजा विधि",
     siteSubtitle: "आस्था, निष्ठा ओ सूर्य उपासना केर महापर्व",
     heroHeading: "जय छठी मइया 🙏",
     heroSubheading: "मिथिला ओ समस्त पूर्वांचल केर परम पावन लोक महापर्व — सूर्य नारायण ओ छठी मइया केर अनुग्रह",
@@ -456,7 +456,7 @@ export const translations: Record<Language, TranslationDict> = {
   },
 
   en: {
-    siteTitle: "Chhath Mahaparv",
+    siteTitle: "Puja Vidhi",
     siteSubtitle: "The Supreme Vedic Festival of Devotion & Sun Worship",
     heroHeading: "Jai Chhathi Maiya 🙏",
     heroSubheading: "The supreme festival of purity, austere devotion, and nature thanksgiving — celebrating Surya Dev & Chhathi Maiya across Bihar, Jharkhand, Eastern UP & the world",
@@ -565,7 +565,7 @@ export const translations: Record<Language, TranslationDict> = {
     copyright: "All rights reserved. Jai Chhathi Maiya 🙏"
   },
   mag: {
-    siteTitle: "छठ महापर्व — आस्था आ भक्ति के महासंगम",
+    siteTitle: "पूजा विधि",
     siteSubtitle: "सूर्य देव आ छठी मईया के पावन महाव्रत के डिजिटल संगम",
     heroHeading: "जय छठी मईया",
     heroSubheading: "लोक आस्था, सात्विकता आ प्रकृति पूजा के महापर्व पर रउआ सब के हार्दिक जोहार।",

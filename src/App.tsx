@@ -71,8 +71,11 @@ const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformMo
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
 const UserProfileModal = lazy(() => import('./components/reels/UserProfileModal').then(m => ({ default: m.UserProfileModal })));
 const AllVratsHub = lazy(() => import('./components/vrats/AllVratsHub').then(m => ({ default: m.AllVratsHub })));
+const PujaVidhiListView = lazy(() => import('./components/vrats/PujaVidhiListView').then(m => ({ default: m.PujaVidhiListView })));
 const VratKathaListView = lazy(() => import('./components/vrats/VratKathaListView').then(m => ({ default: m.VratKathaListView })));
 const AartiSangrahListView = lazy(() => import('./components/vrats/AartiSangrahListView').then(m => ({ default: m.AartiSangrahListView })));
+const SamagriListView = lazy(() => import('./components/vrats/SamagriListView').then(m => ({ default: m.SamagriListView })));
+const MantraListView = lazy(() => import('./components/vrats/MantraListView').then(m => ({ default: m.MantraListView })));
 const PaathChalisaListView = lazy(() => import('./components/vrats/PaathChalisaListView').then(m => ({ default: m.PaathChalisaListView })));
 const ShubhVicharView = lazy(() => import('./components/vrats/ShubhVicharView').then(m => ({ default: m.ShubhVicharView })));
 const FamousTemplesListView = lazy(() => import('./components/vrats/FamousTemplesListView').then(m => ({ default: m.FamousTemplesListView })));
@@ -179,8 +182,11 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
   if (t === 'music' || t === 'songs' || t === 'song') return 'music';
   if (t === 'all-vrats' || t === 'vrats' || t === 'vrat' || t === 'all-vrat' || t === 'festivals' || t === 'festival' || t === 'parav') return 'all-vrats';
+  if (t === 'puja-vidhi' || t === 'all-puja-vidhi' || t === 'vidhi-list') return 'puja-vidhi';
   if (t === 'vrat-katha' || t === 'kathas' || t === 'vrat-kathayein') return 'vrat-katha';
   if (t === 'aarti-sangrah' || t === 'aartis' || t === 'all-aarti') return 'aarti-sangrah';
+  if (t === 'samagri-list' || t === 'all-samagri' || t === 'pujan-samagri') return 'samagri-list';
+  if (t === 'mantra-list' || t === 'mantras-list' || t === 'all-mantras') return 'mantra-list';
   if (t === 'paath-chalisa' || t === 'chalisa' || t === 'chalisas' || t === 'paath') return 'paath-chalisa';
   if (t === 'shubh-vichar' || t === 'vichar' || t === 'suvichar') return 'shubh-vichar';
   if (t === 'famous-temples' || t === 'temples' || t === 'mandir') return 'famous-temples';
@@ -519,9 +525,9 @@ const MainContent: React.FC = () => {
     if (featureModal) { setFeatureModal(null); return 'handled'; }
     if (japMalaModalOpen) { setJapMalaModalOpen(false); return 'handled'; }
 
-    // 5. Navigation: If user is on any vrat sub-page, return to all-vrats first!
-    if (['vrat-katha', 'aarti-sangrah', 'paath-chalisa', 'shubh-vichar', 'famous-temples'].includes(activeTab)) {
-      handleNavigate('all-vrats');
+    // 5. Navigation: If user is on any vrat/puja section, return to home
+    if (['puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples', 'paath-chalisa', 'shubh-vichar', 'all-vrats'].includes(activeTab)) {
+      handleNavigate('home');
       return 'handled';
     }
 
@@ -808,11 +814,20 @@ const MainContent: React.FC = () => {
             </Suspense>
           )}
 
+          {activeTab === 'puja-vidhi' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <PujaVidhiListView
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
+              />
+            </Suspense>
+          )}
+
           {activeTab === 'vrat-katha' && (
             <Suspense fallback={<ComponentLoader />}>
               <VratKathaListView
-                onBack={() => handleNavigate('all-vrats')}
-                onOpenAarti={() => handleNavigate('aarti-sangrah')}
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
           )}
@@ -820,7 +835,26 @@ const MainContent: React.FC = () => {
           {activeTab === 'aarti-sangrah' && (
             <Suspense fallback={<ComponentLoader />}>
               <AartiSangrahListView
-                onBack={() => handleNavigate('all-vrats')}
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'samagri-list' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <SamagriListView
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'mantra-list' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <MantraListView
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
           )}
@@ -828,8 +862,8 @@ const MainContent: React.FC = () => {
           {activeTab === 'paath-chalisa' && (
             <Suspense fallback={<ComponentLoader />}>
               <PaathChalisaListView
-                onBack={() => handleNavigate('all-vrats')}
-                onOpenJapMala={() => handleNavigate('all-vrats')}
+                onBack={() => handleNavigate('home')}
+                onOpenJapMala={() => handleNavigate('home')}
               />
             </Suspense>
           )}
@@ -837,7 +871,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'shubh-vichar' && (
             <Suspense fallback={<ComponentLoader />}>
               <ShubhVicharView
-                onBack={() => handleNavigate('all-vrats')}
+                onBack={() => handleNavigate('home')}
               />
             </Suspense>
           )}
@@ -845,7 +879,8 @@ const MainContent: React.FC = () => {
           {activeTab === 'famous-temples' && (
             <Suspense fallback={<ComponentLoader />}>
               <FamousTemplesListView
-                onBack={() => handleNavigate('all-vrats')}
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
           )}

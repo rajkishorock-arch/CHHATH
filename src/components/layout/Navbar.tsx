@@ -399,8 +399,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="font-rozha text-lg sm:text-2xl font-black text-amber-900 dark:text-amber-100 leading-tight drop-shadow-sm truncate">
-                    {t.siteTitle}
+                  <span className="font-rozha text-xl sm:text-2xl font-black bg-gradient-to-r from-amber-800 via-orange-600 to-amber-600 dark:from-amber-100 dark:via-orange-300 dark:to-amber-200 bg-clip-text text-transparent leading-tight drop-shadow-sm tracking-wide truncate">
+                    पूजा विधि
                   </span>
                   <span className="hidden xl:block text-[10px] font-mukta font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
                     {navText.subtitle}
