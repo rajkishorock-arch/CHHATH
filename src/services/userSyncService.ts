@@ -99,9 +99,9 @@ export const UserSyncService = {
     try {
       const directRes = await fetch(CLOUD_STORAGE_URL, {
         headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (directRes.ok) {
-        const data = await directRes.json();
+      }).catch(() => null);
+      if (directRes && directRes.ok) {
+        const data = await directRes.json().catch(() => null);
         const userRec = data?.users?.[uid];
         if (userRec) {
           // Update local cache
@@ -114,9 +114,7 @@ export const UserSyncService = {
           return userRec;
         }
       }
-    } catch (e) {
-      console.warn('[UserSync] Cloud fetch notice:', e);
-    }
+    } catch {}
 
     // 2. Server API Fallback (if running locally or serverless backend)
     try {
@@ -187,34 +185,35 @@ export const UserSyncService = {
         console.warn('[UserSync] Firebase native profile sync notice:', e);
       }
 
-      // 3. Save to Master Cloud Bin with retry
-      let cloudSaved = false;
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const directRes = await fetch(CLOUD_STORAGE_URL, {
-            headers: { 'Cache-Control': 'no-cache' }
-          });
-          if (directRes.ok) {
-            const data = await directRes.json();
-            if (!data.users) data.users = {};
-            data.users[uid] = { 
-              ...(data.users[uid] || {}), 
-              ...updates, 
-              uid, 
-              updatedAt: new Date().toISOString() 
-            };
-            const putRes = await fetch(CLOUD_STORAGE_URL, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-            });
-            if (putRes.ok) {
-              cloudSaved = true;
-              break;
+      // 3. Save to Master Cloud Bin with retry (skip external PUT on web origins where third-party CORS preflight fails)
+      const isExternalBrowserOrigin = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+      if (!isExternalBrowserOrigin) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const directRes = await fetch(CLOUD_STORAGE_URL, {
+              headers: { 'Cache-Control': 'no-cache' }
+            }).catch(() => null);
+            if (directRes && directRes.ok) {
+              const data = await directRes.json().catch(() => null);
+              if (data) {
+                if (!data.users) data.users = {};
+                data.users[uid] = { 
+                  ...(data.users[uid] || {}), 
+                  ...updates, 
+                  uid, 
+                  updatedAt: new Date().toISOString() 
+                };
+                const putRes = await fetch(CLOUD_STORAGE_URL, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                }).catch(() => null);
+                if (putRes && putRes.ok) {
+                  break;
+                }
+              }
             }
-          }
-        } catch (err) {
-          console.warn(`[UserSync] Cloud save attempt ${attempt + 1} notice:`, err);
+          } catch {}
         }
       }
 
@@ -260,9 +259,9 @@ export const UserSyncService = {
     try {
       const res = await fetch(CLOUD_STORAGE_URL, {
         headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (res.ok) {
-        const data = await res.json();
+      }).catch(() => null);
+      if (res && res.ok) {
+        const data = await res.json().catch(() => null);
         const userMemories = data?.users?.[uid]?.memories;
         if (Array.isArray(userMemories)) {
           // Update local cache
@@ -272,9 +271,7 @@ export const UserSyncService = {
           return userMemories;
         }
       }
-    } catch (e) {
-      console.warn('[UserSync] Cloud memories fetch notice:', e);
-    }
+    } catch {}
 
     // 3. Fallback to Firestore if enabled
     try {

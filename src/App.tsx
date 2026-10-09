@@ -546,6 +546,12 @@ const MainContent: React.FC = () => {
       return 'handled';
     }
 
+    // 3. If Shubh Vichar full-screen page is open, pop history back to feed
+    if (activeTab === 'shubh-vichar' && window.location.hash.includes('?id=')) {
+      window.history.back();
+      return 'handled';
+    }
+
     // 4. Close any active overlay/modal
     if (isExpandedOpen) { setIsExpandedOpen(false); return 'handled'; }
     if (isQueueOpen) { setIsQueueOpen(false); return 'handled'; }

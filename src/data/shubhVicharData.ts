@@ -621,3 +621,14 @@ export async function getNextUniqueVicharBatch(
 
   return newCards;
 }
+
+/**
+ * 5. PULL-TO-REFRESH: FRESH BATCH OF QUOTES
+ * Clears seen quote cache, shuffles photos, and generates brand new quotes
+ */
+export async function getFreshRefreshedVicharBatch(count: number = 8): Promise<ShubhVicharCardItem[]> {
+  sessionSeenQuoteKeys.clear();
+  // Jump photo cursor to guarantee different images on refresh
+  globalDevotionalImagePointer = (globalDevotionalImagePointer + 11) % SACRED_DEVOTIONAL_IMAGES.length;
+  return getNextUniqueVicharBatch(count);
+}
