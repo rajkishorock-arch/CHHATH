@@ -887,6 +887,7 @@ const MainContent: React.FC = () => {
             <Suspense fallback={<ComponentLoader />}>
               <ShubhVicharView
                 onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
           )}

@@ -43,67 +43,66 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({ onBa
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-gray-900 pb-24">
-      {/* Top Header */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-amber-100 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors"
-                aria-label="Back"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            )}
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold font-serif text-gray-900 flex items-center">
-                <BookOpen className="w-6 h-6 mr-2 text-amber-600" />
-                नित्य पाठ व चालीसा संग्रह
-              </h1>
-              <p className="text-xs text-gray-500">हनुमान चालीसा, शिव चालीसा, देवी कवच एवं मंगल स्तोत्र</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in pb-24 flex flex-col">
+      {/* 1. TOP HEADER (Exact Screenshot 1: Circular Back, Centered "पाठ व चालीसा", Circular Home) */}
+      <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a] cursor-pointer"
+              aria-label="वापस जाएं"
+              title="वापस"
+            >
+              <ArrowLeft className="w-5 h-5 text-[#9a3412]" />
+            </button>
+          )}
 
-          {onOpenJapMala && (
+          <h1 className="font-serif font-black text-xl sm:text-2xl text-[#78350f] tracking-wide text-center flex-1">
+            पाठ व चालीसा
+          </h1>
+
+          {onOpenJapMala ? (
             <button
               onClick={onOpenJapMala}
-              className="px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 text-xs font-bold transition-all shadow-sm flex items-center space-x-1.5"
+              className="px-3 py-1.5 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] text-[#9a3412] text-xs font-bold transition-all shadow-xs border border-[#fde68a] flex items-center space-x-1 cursor-pointer"
+              title="जप माला खोलें"
             >
               <span>📿 जप माला</span>
             </button>
+          ) : (
+            <div className="w-10" />
           )}
         </div>
-      </div>
+      </header>
 
       {/* Grid */}
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <main className="max-w-md mx-auto w-full px-3 sm:px-4 py-3 space-y-3">
+        <div className="space-y-2.5">
           {CHALISA_PAATH_DATA.map(item => (
             <div
               key={item.id}
               onClick={() => setSelectedItem(item)}
-              className="group p-5 bg-white rounded-3xl border border-gray-200/90 hover:border-amber-400 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+              className="group p-3.5 sm:p-4 bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] rounded-2xl border border-[#fbd8b3]/90 hover:border-[#ea580c]/60 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#9a3412] border border-[#fed7aa]">
                     {item.versesCount} • {item.estimatedTime}
                   </span>
-                  <span className="text-xs text-amber-600 group-hover:translate-x-1 transition-transform">
+                  <span className="text-xs font-bold text-[#ea580c] group-hover:translate-x-0.5 transition-transform">
                     पाठ करें →
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold font-serif text-gray-900 group-hover:text-amber-600 transition-colors">
+                <h3 className="text-base sm:text-lg font-black font-serif text-[#78350f] group-hover:text-[#ea580c] transition-colors">
                   {item.hindiTitle}
                 </h3>
-                <p className="text-xs text-amber-700 mt-0.5 font-medium">
+                <p className="text-[11px] text-[#9a3412] mt-0.5 font-bold font-mukta">
                   ईष्ट देव: {item.deity}
                 </p>
 
-                <p className="text-xs text-gray-600 mt-2 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-[#78350f]/80 mt-1.5 line-clamp-2 leading-relaxed font-mukta">
                   {item.significance}
                 </p>
 
@@ -129,7 +128,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({ onBa
             </div>
           ))}
         </div>
-      </div>
+      </main>
 
       {/* Reader Modal */}
       {selectedItem && (

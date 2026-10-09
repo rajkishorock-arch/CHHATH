@@ -1,8 +1,8 @@
 import React from 'react';
-import { Home, Music, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
+import { Home, Image as ImageIcon, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
-// Sacred Golden Lotus ॐ Icon for the floating center button (Screenshot 2)
+// Sacred Golden Lotus ॐ Icon for the floating center button (Matches Screenshots)
 const LotusOmIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
   <svg viewBox="0 0 100 100" className={className}>
     {/* Lotus Petals Base Glow */}
@@ -34,12 +34,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const { language } = useLanguage();
 
   const labels = {
-    hi: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
-    en: { home: 'Home', music: 'Music', vichar: 'Wisdom', paath: 'Paath' },
-    bho: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
-    mai: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
-    mag: { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' },
-  }[language] || { home: 'होम', music: 'संगीत', vichar: 'विचार', paath: 'पाठ' };
+    hi: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
+    en: { home: 'Home', photo: 'Media', vichar: 'Vichar', paath: 'Paath' },
+    bho: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
+    mai: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
+    mag: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
+  }[language] || { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' };
 
   const handleNav = (tab: string) => {
     if (onNavigate) {
@@ -58,17 +58,18 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <nav 
       aria-label="सनातन मोबाइल मुख्य नेविगेशन"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#fdf6ee] via-[#fffaf5] to-[#fdf6ee]/95 backdrop-blur-xl border-t border-[#fed7aa]/80 py-1.5 px-3 shadow-2xl"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#fde6cf] via-[#fdf2e4]/98 to-[#fffaf3]/95 backdrop-blur-xl border-t border-[#fed7aa] py-1 px-3 shadow-2xl"
     >
       <div className="flex items-center justify-between max-w-md mx-auto relative">
-        {/* Tab 1: होम */}
+        
+        {/* Tab 1: होम (Screenshot 1 & 2) */}
         <button
           onClick={() => handleNav('home')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
-            activeTab === 'home' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+            activeTab === 'home' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <Home className={`w-5 h-5 ${activeTab === 'home' ? 'stroke-[2.5] scale-105 text-[#9a3412]' : 'stroke-2'}`} />
+          <Home className={`w-5 h-5 ${activeTab === 'home' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
             {labels.home}
           </span>
@@ -77,42 +78,44 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           )}
         </button>
 
-        {/* Tab 2: संगीत (Devotional Songs & Music with Music Icon, NOT Chhath) */}
+        {/* Tab 2: फोटो / मीडिया (Screenshot 1 & 2 - Image Icon) */}
         <button
           onClick={() => handleNav('music')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
-            activeTab === 'music' || activeTab === 'chhath' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+            activeTab === 'music' || activeTab === 'chhath' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <Music className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2'}`} />
+          <ImageIcon className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
-            {labels.music}
+            {labels.photo}
           </span>
           {(activeTab === 'music' || activeTab === 'chhath') && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
           )}
         </button>
 
-        {/* Center Floating Lotus ॐ Button (Screenshot 2) */}
-        <div className="relative -top-5 flex flex-col items-center">
-          <button
-            type="button"
-            onClick={handleLotusClick}
-            className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-200 p-0.5 shadow-xl flex items-center justify-center border-2 border-white ring-4 ring-amber-100/70 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            title="108 डिजिटल जप माला"
-          >
-            <LotusOmIcon className="w-10 h-10 drop-shadow-sm" />
-          </button>
+        {/* Center: Floating Lotus ॐ Button with Scalloped Curved Cradle (Screenshot 1 & 2) */}
+        <div className="relative -top-4 flex flex-col items-center">
+          <div className="w-15 h-15 rounded-full bg-gradient-to-b from-[#fffaf3] via-[#fdf2e4] to-[#fde6cf] p-1 shadow-lg border border-[#fed7aa] flex items-center justify-center">
+            <button
+              type="button"
+              onClick={handleLotusClick}
+              className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-200 p-0.5 shadow-md flex items-center justify-center border-2 border-white ring-2 ring-orange-200/70 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              title="108 डिजिटल जप माला"
+            >
+              <LotusOmIcon className="w-9 h-9 drop-shadow-xs" />
+            </button>
+          </div>
         </div>
 
-        {/* Tab 3: विचार (Screenshot 2) */}
+        {/* Tab 3: विचार (Screenshot 1 & 2) */}
         <button
           onClick={() => handleNav('shubh-vichar')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
-            activeTab === 'shubh-vichar' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+            activeTab === 'shubh-vichar' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <MessageSquareQuote className={`w-5 h-5 ${activeTab === 'shubh-vichar' ? 'stroke-[2.5] scale-105 text-[#9a3412]' : 'stroke-2'}`} />
+          <MessageSquareQuote className={`w-5 h-5 ${activeTab === 'shubh-vichar' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
             {labels.vichar}
           </span>
@@ -121,14 +124,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           )}
         </button>
 
-        {/* Tab 4: पाठ (Screenshot 2) */}
+        {/* Tab 4: पाठ (Screenshot 1 & 2) */}
         <button
           onClick={() => handleNav('paath-chalisa')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
-            activeTab === 'paath-chalisa' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+            activeTab === 'paath-chalisa' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <BookOpenCheck className={`w-5 h-5 ${activeTab === 'paath-chalisa' ? 'stroke-[2.5] scale-105 text-[#9a3412]' : 'stroke-2'}`} />
+          <BookOpenCheck className={`w-5 h-5 ${activeTab === 'paath-chalisa' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
             {labels.paath}
           </span>

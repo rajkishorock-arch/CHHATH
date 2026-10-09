@@ -462,9 +462,9 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
         </div>
       )}
 
-      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Matches Screenshot 1 - Festive Card Feel with Clear Recognition) */}
+      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Ultra-Clean: ONLY Festival Name, Status Indicator, When it Occurs & Photo) */}
       <div className="max-w-md mx-auto w-full px-3 sm:px-4 pt-2">
-        <div className="relative rounded-2xl overflow-hidden border border-[#fed7aa] shadow-sm bg-gradient-to-r from-[#fffbeb] via-[#fff7ed] to-[#fef3c7] h-36 sm:h-40">
+        <div className="relative rounded-2xl overflow-hidden border border-[#fed7aa] shadow-xs bg-gradient-to-r from-[#fffbeb] via-[#fff7ed] to-[#fef3c7] h-32 sm:h-36">
           {calendarBanners.map((banner, idx) => {
             const isActive = idx === currentSlideIndex;
             const isPast = banner.status === 'past';
@@ -474,58 +474,43 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
               <div
                 key={banner.id}
                 onClick={() => handleBannerClick(banner)}
-                className={`absolute inset-0 transition-all duration-700 cursor-pointer flex items-center justify-between p-3 sm:p-4 ${
+                className={`absolute inset-0 transition-all duration-700 cursor-pointer flex items-center justify-between p-3.5 sm:p-4.5 ${
                   isActive ? 'opacity-100 scale-100 z-10 pointer-events-auto' : 'opacity-0 scale-98 z-0 pointer-events-none'
                 }`}
               >
-                {/* Traditional Festive Floral Background Glow */}
+                {/* Traditional Festive Background Glow */}
                 <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-amber-400/20 blur-2xl pointer-events-none" />
                 <div className="absolute -left-8 -bottom-8 w-36 h-36 rounded-full bg-orange-400/20 blur-xl pointer-events-none" />
 
-                {/* Left Side: Festival Title, Badges, Tagline */}
-                <div className="relative z-10 space-y-1 max-w-[62%] sm:max-w-[66%]">
-                  {/* Status & Date Badge */}
-                  <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow-2xs ${
+                {/* Left Side: ONLY Status Indicator, Festival Name, and When It Occurs */}
+                <div className="relative z-10 space-y-1.5 max-w-[62%] sm:max-w-[65%]">
+                  {/* Status Indicator Badge (आज है / आगामी पर्व / सम्पन्न) */}
+                  <div>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shadow-2xs ${
                       isToday
                         ? 'bg-emerald-600 text-white animate-pulse'
                         : isPast
                         ? 'bg-stone-600 text-amber-200'
                         : 'bg-[#ea580c] text-white'
                     }`}>
-                      {isPast ? <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 text-emerald-300" /> : <Sparkles className="w-2.5 h-2.5 mr-0.5 text-amber-200" />}
-                      <span>{banner.badge}</span>
-                    </span>
-
-                    <span className="text-[10px] font-bold text-[#9a3412] font-mukta">
-                      {banner.formattedDate}
+                      {isPast ? <CheckCircle2 className="w-2.5 h-2.5 mr-1 text-emerald-300" /> : <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-200" />}
+                      <span>{isToday ? '🌟 आज है' : isPast ? 'हाल ही में सम्पन्न' : '✨ आगामी पर्व'}</span>
                     </span>
                   </div>
 
-                  {/* Big Prominent Calligraphic Festival Title (Instant Recognition like Screenshot 1) */}
-                  <h2 className="text-base sm:text-xl font-black font-serif text-[#78350f] tracking-wide leading-tight drop-shadow-2xs">
+                  {/* Big, Clean Festival Name */}
+                  <h2 className="text-lg sm:text-2xl font-black font-serif text-[#78350f] tracking-wide leading-tight drop-shadow-2xs">
                     {banner.title}
                   </h2>
 
-                  {/* Subtitle / Significance */}
-                  <p className="text-[10px] sm:text-[11px] text-[#9a3412]/90 line-clamp-2 leading-tight font-mukta">
-                    {banner.subtitle}
+                  {/* When it occurs (Date) */}
+                  <p className="text-xs sm:text-sm font-bold text-[#9a3412] font-mukta flex items-center space-x-1">
+                    <span>🗓️ {banner.formattedDate}</span>
                   </p>
-
-                  {/* Action Pill */}
-                  <div className="flex items-center space-x-1.5 pt-0.5">
-                    <span className="text-[9px] sm:text-[10px] font-bold text-[#b45309] truncate">
-                      {banner.tithi}
-                    </span>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-white bg-gradient-to-r from-[#ea580c] to-[#d97706] px-2 py-0.5 rounded-full shadow-2xs inline-flex items-center shrink-0">
-                      <span>{banner.isChhath ? 'छठ ऐप' : 'कथा व विधि'}</span>
-                      <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
-                    </span>
-                  </div>
                 </div>
 
-                {/* Right Side: High Quality Festival Visual Artwork */}
-                <div className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center p-1">
+                {/* Right Side: Festival Visual Artwork */}
+                <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center p-1">
                   <img
                     src={banner.image}
                     alt={banner.title}
@@ -537,8 +522,8 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             );
           })}
 
-          {/* Carousel Indicator Dots (Centered at bottom like Screenshot 1) */}
-          <div className="absolute bottom-1.5 left-0 right-0 flex items-center justify-center space-x-1 z-20 pointer-events-none">
+          {/* Centered Indicator Dots */}
+          <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center space-x-1.5 z-20 pointer-events-none">
             {calendarBanners.map((_, i) => (
               <div
                 key={i}

@@ -18,20 +18,20 @@
   --sacred-red: #b91c1c;
   --sacred-turmeric: #d97706;
 
-  /* Surfaces & Canvas */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-surface: #ffffff;
+  /* Surfaces & Canvas (Unified Warm Devotional Peach Palette matching Screenshots) */
+  --bg-primary: #fdf6ee;
+  --bg-secondary: #fffaf5;
+  --bg-surface: #fffdfa;
   --bg-card: #ffffff;
-  --card-border: #e2e8f0;
-  --card-border-gold: rgba(245, 158, 11, 0.28);
-  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-  --card-shadow-hover: 0 12px 28px -4px rgba(0, 0, 0, 0.08);
+  --card-border: #fed7aa;
+  --card-border-gold: rgba(245, 158, 11, 0.4);
+  --card-shadow: 0 4px 20px -2px rgba(120, 53, 15, 0.05), 0 2px 6px -1px rgba(120, 53, 15, 0.02);
+  --card-shadow-hover: 0 12px 28px -4px rgba(120, 53, 15, 0.1);
 
   /* Typography */
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-tertiary: #64748b;
+  --text-primary: #451a03;
+  --text-secondary: #78350f;
+  --text-tertiary: #9a3412;
   --text-inverse: #ffffff;
   
   --font-display: 'Rozha One', 'Yatra One', serif;
