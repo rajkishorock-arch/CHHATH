@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, Bell, Heart, X, 
-  ChevronRight, ArrowRight, Sparkles, CheckCircle2 
+  ChevronLeft, ChevronRight, ArrowRight, Sparkles, CheckCircle2 
 } from 'lucide-react';
 import { ALL_VRATS_DATA } from '../../data/allVratsData';
 import { ALL_AARTIS_DATA } from '../../data/allAartisData';
@@ -11,6 +11,7 @@ import { getDynamicCalendarBanners, DynamicBannerItem } from '../../data/panchan
 interface VratHomeViewProps {
   onNavigate: (tab: string) => void;
   onOpenSidebarMenu: () => void;
+  onSelectFestival?: (banner: DynamicBannerItem) => void;
 }
 
 /**
@@ -276,11 +277,14 @@ const renderCardVisual = (card: typeof HOME_6_FEATURE_CARDS[0]) => {
 
 export const VratHomeView: React.FC<VratHomeViewProps> = ({
   onNavigate,
-  onOpenSidebarMenu
+  onOpenSidebarMenu,
+  onSelectFestival
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isAlarmModalOpen, setIsAlarmModalOpen] = useState(false);
+  const [isBannerPaused, setIsBannerPaused] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   // Read saved alarm status from localStorage
   const [alarmText, setAlarmText] = useState('अभी कोई अलार्म नहीं • सेट करें');
@@ -312,21 +316,60 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
     return getDynamicCalendarBanners(new Date());
   }, []);
 
-  // Moving banner timer - rotates every 4.5 seconds
+  // Moving banner timer - rotates every 4.5 seconds (pauses when user touches or hovers)
   useEffect(() => {
-    if (calendarBanners.length === 0) return;
+    if (calendarBanners.length === 0 || isBannerPaused) return;
     const timer = setInterval(() => {
       setCurrentSlideIndex(prev => (prev + 1) % calendarBanners.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, [calendarBanners.length]);
+  }, [calendarBanners.length, isBannerPaused]);
 
-  // Handle clicking on any festival banner -> open dedicated clean page
+  // Manual Previous Slide
+  const handlePrevSlide = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentSlideIndex(prev => (prev - 1 + calendarBanners.length) % calendarBanners.length);
+  };
+
+  // Manual Next Slide
+  const handleNextSlide = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentSlideIndex(prev => (prev + 1) % calendarBanners.length);
+  };
+
+  // Touch Swipe Handlers for Mobile Phone Gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+    setIsBannerPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX !== null) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+
+      // Swipe sensitivity threshold (40px)
+      if (diff > 40) {
+        // Swiped Left -> Advance to next banner
+        handleNextSlide();
+      } else if (diff < -40) {
+        // Swiped Right -> Go to previous banner
+        handlePrevSlide();
+      }
+    }
+    setTouchStartX(null);
+    setIsBannerPaused(false);
+  };
+
+  // Handle clicking on ANY festival banner -> Opens dedicated full-featured app section!
   const handleBannerClick = (banner: DynamicBannerItem) => {
-    if (banner.isChhath) {
+    if (banner.isChhath || banner.id.startsWith('chhath')) {
       onNavigate('chhath');
     } else {
-      onNavigate('puja-vidhi');
+      if (onSelectFestival) {
+        onSelectFestival(banner);
+      }
+      onNavigate('festival-detail');
     }
   };
 
@@ -462,9 +505,37 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
         </div>
       )}
 
-      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Ultra-Clean: ONLY Festival Name, Status Indicator, When it Occurs & Photo) */}
+      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Ultra-Clean + Touch Swipe + Manual Left/Right Controls + Clickable Dots) */}
       <div className="max-w-md mx-auto w-full px-3 sm:px-4 pt-2">
-        <div className="relative rounded-2xl overflow-hidden border border-[#fed7aa] shadow-xs bg-gradient-to-r from-[#fffbeb] via-[#fff7ed] to-[#fef3c7] h-32 sm:h-36">
+        <div 
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseEnter={() => setIsBannerPaused(true)}
+          onMouseLeave={() => setIsBannerPaused(false)}
+          className="relative rounded-2xl overflow-hidden border border-[#fed7aa] shadow-xs bg-gradient-to-r from-[#fffbeb] via-[#fff7ed] to-[#fef3c7] h-32 sm:h-36 group select-none"
+        >
+          {/* Left Arrow: Manual Previous Festival */}
+          <button
+            type="button"
+            onClick={handlePrevSlide}
+            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/80 hover:bg-white text-[#78350f] flex items-center justify-center shadow-xs border border-amber-200 cursor-pointer backdrop-blur-xs transition-all active:scale-90 opacity-70 group-hover:opacity-100"
+            aria-label="पिछला पर्व"
+            title="पिछला पर्व"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          {/* Right Arrow: Manual Next Festival */}
+          <button
+            type="button"
+            onClick={handleNextSlide}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/80 hover:bg-white text-[#78350f] flex items-center justify-center shadow-xs border border-amber-200 cursor-pointer backdrop-blur-xs transition-all active:scale-90 opacity-70 group-hover:opacity-100"
+            aria-label="अगला पर्व"
+            title="अगला पर्व"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
           {calendarBanners.map((banner, idx) => {
             const isActive = idx === currentSlideIndex;
             const isPast = banner.status === 'past';
@@ -474,7 +545,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
               <div
                 key={banner.id}
                 onClick={() => handleBannerClick(banner)}
-                className={`absolute inset-0 transition-all duration-700 cursor-pointer flex items-center justify-between p-3.5 sm:p-4.5 ${
+                className={`absolute inset-0 transition-all duration-700 cursor-pointer flex items-center justify-between px-7 py-3 sm:px-8 sm:py-3.5 ${
                   isActive ? 'opacity-100 scale-100 z-10 pointer-events-auto' : 'opacity-0 scale-98 z-0 pointer-events-none'
                 }`}
               >
@@ -522,14 +593,20 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             );
           })}
 
-          {/* Centered Indicator Dots */}
-          <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center space-x-1.5 z-20 pointer-events-none">
+          {/* Clickable Indicator Dots */}
+          <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center space-x-1.5 z-20">
             {calendarBanners.map((_, i) => (
-              <div
+              <button
                 key={i}
-                className={`h-1.5 rounded-full transition-all ${
-                  i === currentSlideIndex ? 'w-4 bg-[#ea580c]' : 'w-1.5 bg-[#fed7aa]'
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentSlideIndex(i);
+                }}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  i === currentSlideIndex ? 'w-4 bg-[#ea580c]' : 'w-1.5 bg-[#fed7aa] hover:bg-amber-400'
                 }`}
+                aria-label={`पर्व ${i + 1}`}
               />
             ))}
           </div>

@@ -79,6 +79,9 @@ const MantraListView = lazy(() => import('./components/vrats/MantraListView').th
 const PaathChalisaListView = lazy(() => import('./components/vrats/PaathChalisaListView').then(m => ({ default: m.PaathChalisaListView })));
 const ShubhVicharView = lazy(() => import('./components/vrats/ShubhVicharView').then(m => ({ default: m.ShubhVicharView })));
 const FamousTemplesListView = lazy(() => import('./components/vrats/FamousTemplesListView').then(m => ({ default: m.FamousTemplesListView })));
+const DedicatedFestivalHubView = lazy(() => import('./components/vrats/DedicatedFestivalHubView').then(m => ({ default: m.DedicatedFestivalHubView })));
+import { getCompleteFestivalHubData } from './data/festivalHubDetailsData';
+import { DynamicBannerItem, getDynamicCalendarBanners } from './data/panchangCalendarEvents';
 import { VratHomeView } from './components/home/VratHomeView';
 import { DigitalJapMalaModal } from './components/vrats/DigitalJapMalaModal';
 import { ReelUser } from './types';
@@ -194,6 +197,7 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'explore') return 'explore';
   if (t === 'my-chhath') return 'my-chhath';
   if (t === 'chhath' || t === 'chhath-mahaparv' || t === 'chhath-puja' || t === 'reels') return 'chhath';
+  if (t === 'festival-detail' || t === 'festival-hub' || t === 'festival' || t === 'parv') return 'festival-detail';
   if (t === 'home' || t === '') return 'home';
 
   return t;
@@ -308,12 +312,26 @@ const MainContent: React.FC = () => {
   const [featureModal, setFeatureModal] = useState<FeatureModalType>(null);
   const [japMalaModalOpen, setJapMalaModalOpen] = useState(false);
   const [selectedDevoteeUser, setSelectedDevoteeUser] = useState<ReelUser | null>(null);
+  const [selectedFestivalBanner, setSelectedFestivalBanner] = useState<DynamicBannerItem | null>(() => {
+    const banners = getDynamicCalendarBanners(new Date());
+    return banners[0] || null;
+  });
   const { openConnect } = useChat();
 
   useEffect(() => {
     const handleOpenMala = () => setJapMalaModalOpen(true);
+    const handleOpenHub = (e: any) => {
+      if (e.detail) {
+        setSelectedFestivalBanner(e.detail);
+        setActiveTab('festival-detail');
+      }
+    };
     window.addEventListener('open_jap_mala', handleOpenMala);
-    return () => window.removeEventListener('open_jap_mala', handleOpenMala);
+    window.addEventListener('open_festival_hub', handleOpenHub);
+    return () => {
+      window.removeEventListener('open_jap_mala', handleOpenMala);
+      window.removeEventListener('open_festival_hub', handleOpenHub);
+    };
   }, []);
 
   // When any top search occurs, switch immediately to music tab and show results
@@ -653,6 +671,7 @@ const MainContent: React.FC = () => {
       {/* Header Navigation (Hidden on mobile dedicated views to avoid double headers and viewport squeeze) */}
       {(!isMobileScreen || ![
         'home',
+        'festival-detail',
         'shubh-vichar', 
         'paath-chalisa', 
         'puja-vidhi', 
@@ -681,6 +700,9 @@ const MainContent: React.FC = () => {
             <div style={{ display: activeTab === 'home' ? 'block' : 'none' }}>
               <VratHomeView
                 onNavigate={handleNavigate}
+                onSelectFestival={(banner) => {
+                  setSelectedFestivalBanner(banner);
+                }}
                 onOpenSidebarMenu={() => {
                   window.dispatchEvent(new CustomEvent('open_sidebar_drawer'));
                 }}
@@ -910,6 +932,17 @@ const MainContent: React.FC = () => {
               <FamousTemplesListView
                 onBack={() => handleNavigate('home')}
                 onGoHome={() => handleNavigate('home')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'festival-detail' && selectedFestivalBanner && (
+            <Suspense fallback={<ComponentLoader />}>
+              <DedicatedFestivalHubView
+                festival={getCompleteFestivalHubData(selectedFestivalBanner)}
+                onBack={() => handleNavigate('home')}
+                onGoHome={() => handleNavigate('home')}
+                onOpenJapMala={() => setJapMalaModalOpen(true)}
               />
             </Suspense>
           )}
