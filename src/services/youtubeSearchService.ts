@@ -263,80 +263,105 @@ export const searchYouTubeVideos = async (
       const rawList: any[] = [];
       let nextToken: string | null = null;
 
-      const sectionList = itData.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
-      for (const section of sectionList) {
-        if (section.continuationItemRenderer) {
-          nextToken = section.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null;
-        }
-        if (section.itemSectionRenderer?.contents) {
-          for (const item of section.itemSectionRenderer.contents) {
-            if (item.videoRenderer?.videoId) {
-              const v = item.videoRenderer;
-              const title = v.title?.runs?.map((r: any) => r.text).join('') || v.title?.simpleText || '';
-              const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel');
-              if (type === 'video' && isShort) continue;
-              if (type === 'shorts' && !isShort) continue;
+      const processItem = (item: any) => {
+        if (item.videoRenderer?.videoId) {
+          const v = item.videoRenderer;
+          const title = v.title?.runs?.map((r: any) => r.text).join('') || v.title?.simpleText || '';
+          const isShort = title.toLowerCase().includes('#short') || title.toLowerCase().includes('#reel');
+          if (type === 'video' && isShort) return;
+          if (type === 'shorts' && !isShort) return;
 
+          rawList.push({
+            youtubeId: v.videoId,
+            title,
+            channelTitle: v.ownerText?.runs?.[0]?.text || 'YouTube Creator',
+            thumbnailUrl: `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
+            duration: v.lengthText?.simpleText || (type === 'shorts' ? '0:45' : '5:00'),
+            description: `${title}`
+          });
+        }
+
+        if (type === 'shorts' && item.reelShelfRenderer?.items) {
+          for (const sub of item.reelShelfRenderer.items) {
+            const r = sub.reelItemRenderer;
+            if (r?.videoId) {
+              const title = r.headline?.simpleText || r.headline?.runs?.map((x: any) => x.text).join('') || 'Trending Reel';
+              const channel = r.ownerText?.runs?.[0]?.text || 'YouTube Creator';
               rawList.push({
-                youtubeId: v.videoId,
+                youtubeId: r.videoId,
                 title,
-                channelTitle: v.ownerText?.runs?.[0]?.text || 'YouTube Creator',
-                thumbnailUrl: `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
-                duration: v.lengthText?.simpleText || (type === 'shorts' ? '0:45' : '5:00'),
-                description: `${title}`
+                channelTitle: channel,
+                thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`,
+                duration: '0:45',
+                description: title
               });
             }
+          }
+        }
 
-            if (type === 'shorts' && item.reelShelfRenderer?.items) {
-              for (const sub of item.reelShelfRenderer.items) {
-                const r = sub.reelItemRenderer;
-                if (r?.videoId) {
-                  const title = r.headline?.simpleText || r.headline?.runs?.map((x: any) => x.text).join('') || 'Trending Reel';
-                  const channel = r.ownerText?.runs?.[0]?.text || 'YouTube Creator';
-                  rawList.push({
-                    youtubeId: r.videoId,
-                    title,
-                    channelTitle: channel,
-                    thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`,
-                    duration: '0:45',
-                    description: title
-                  });
+        if (type === 'shorts' && item.gridShelfViewModel?.contents) {
+          for (const sub of item.gridShelfViewModel.contents) {
+            const sl = sub.shortsLockupViewModel;
+            if (sl) {
+              let vId = sl.onTap?.innertubeCommand?.reelWatchEndpoint?.videoId;
+              if (!vId && sl.entityId) {
+                vId = sl.entityId.replace('shorts-shelf-item-', '');
+              }
+              if (!vId && sl.inlinePopStateEntityKey) {
+                const match = sl.inlinePopStateEntityKey.match(/shorts-shelf-item-([A-Za-z0-9_-]+)/);
+                if (match) vId = match[1];
+              }
+              const title = sl.overlayMetadata?.primaryText?.content || sl.accessibilityText?.split(',')?.[0] || 'Trending Reel';
+              let channel = 'YouTube Creator';
+              if (sl.accessibilityText) {
+                const atMatch = sl.accessibilityText.match(/@([a-zA-Z0-9_.-]+)/);
+                if (atMatch) {
+                  channel = `@${atMatch[1]}`;
                 }
+              }
+              if (vId) {
+                rawList.push({
+                  youtubeId: vId,
+                  title,
+                  channelTitle: channel,
+                  thumbnailUrl: `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
+                  duration: '0:45',
+                  description: title
+                });
               }
             }
+          }
+        }
+      };
 
-            if (type === 'shorts' && item.gridShelfViewModel?.contents) {
-              for (const sub of item.gridShelfViewModel.contents) {
-                const sl = sub.shortsLockupViewModel;
-                if (sl) {
-                  let vId = sl.onTap?.innertubeCommand?.reelWatchEndpoint?.videoId;
-                  if (!vId && sl.entityId) {
-                    vId = sl.entityId.replace('shorts-shelf-item-', '');
-                  }
-                  if (!vId && sl.inlinePopStateEntityKey) {
-                    const match = sl.inlinePopStateEntityKey.match(/shorts-shelf-item-([A-Za-z0-9_-]+)/);
-                    if (match) vId = match[1];
-                  }
-                  const title = sl.overlayMetadata?.primaryText?.content || sl.accessibilityText?.split(',')?.[0] || 'Trending Reel';
-                  let channel = 'YouTube Creator';
-                  if (sl.accessibilityText) {
-                    const atMatch = sl.accessibilityText.match(/@([a-zA-Z0-9_.-]+)/);
-                    if (atMatch) {
-                      channel = `@${atMatch[1]}`;
-                    }
-                  }
-                  if (vId) {
-                    rawList.push({
-                      youtubeId: vId,
-                      title,
-                      channelTitle: channel,
-                      thumbnailUrl: `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
-                      duration: '0:45',
-                      description: title
-                    });
-                  }
-                }
+      if (pageToken) {
+        // Page 2+ format (actions / appendContinuationItemsAction)
+        const actions = itData.onResponseReceivedCommands || [];
+        for (const a of actions) {
+          const items = a.appendContinuationItemsAction?.continuationItems || [];
+          for (const item of items) {
+            if (item.continuationItemRenderer) {
+              nextToken = item.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null;
+            }
+            if (item.itemSectionRenderer?.contents) {
+              for (const sub of item.itemSectionRenderer.contents) {
+                processItem(sub);
               }
+            } else {
+              processItem(item);
+            }
+          }
+        }
+      } else {
+        // Initial search results format
+        const sectionList = itData.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
+        for (const section of sectionList) {
+          if (section.continuationItemRenderer) {
+            nextToken = section.continuationItemRenderer.continuationEndpoint?.continuationCommand?.token || null;
+          }
+          if (section.itemSectionRenderer?.contents) {
+            for (const item of section.itemSectionRenderer.contents) {
+              processItem(item);
             }
           }
         }

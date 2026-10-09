@@ -83,7 +83,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     if (onSearchSubmit) {
       onSearchSubmit(clean);
     } else if (onNavigate) {
-      onNavigate('music');
+      onNavigate('home');
     }
   };
 

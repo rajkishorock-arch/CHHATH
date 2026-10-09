@@ -62,7 +62,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
       
       {/* 1. TOP DEDICATED HEADER */}
       <header className="sticky top-0 z-40 bg-[#fdf6ee]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/60 shadow-xs">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+        <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">
           {/* Back Button */}
           <button
             onClick={onBack}
@@ -75,10 +75,10 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
 
           {/* Title */}
           <div className="text-center min-w-0 px-2 flex-1">
-            <h1 className="font-serif font-black text-lg sm:text-xl text-[#78350f] truncate leading-tight">
+            <h1 className="font-serif font-black text-lg sm:text-xl md:text-2xl text-[#78350f] truncate leading-tight">
               {festival.hindiTitle}
             </h1>
-            <p className="text-[10px] text-[#9a3412] font-mukta font-bold truncate">
+            <p className="text-[10px] sm:text-xs text-[#9a3412] font-mukta font-bold truncate">
               {festival.dateStr}
             </p>
           </div>
@@ -87,7 +87,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
           <div className="flex items-center space-x-1.5">
             <button
               onClick={handleShare}
-              className="w-9 h-9 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a] cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a] cursor-pointer"
               aria-label="शेयर करें"
               title="व्हाट्सएप शेयर"
             >
@@ -95,7 +95,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
             </button>
             <button
               onClick={onGoHome}
-              className="w-9 h-9 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a] cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a] cursor-pointer"
               aria-label="होम"
               title="होम स्क्रीन"
             >
@@ -106,8 +106,8 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
       </header>
 
       {/* 2. FESTIVAL HERO BANNER */}
-      <div className="max-w-md mx-auto w-full px-3 sm:px-4 pt-3">
-        <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#fed7aa] bg-stone-900 min-h-[170px] flex flex-col justify-end p-4">
+      <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-3 sm:px-4 pt-3 md:pt-5">
+        <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#fed7aa] bg-stone-900 min-h-[170px] sm:min-h-[220px] md:min-h-[280px] lg:min-h-[320px] flex flex-col justify-end p-4 sm:p-6 md:p-8">
           <img
             src={festival.image}
             alt={festival.hindiTitle}
@@ -116,26 +116,26 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
 
           {/* Hero Content */}
-          <div className="relative z-10 space-y-1.5">
+          <div className="relative z-10 space-y-1.5 sm:space-y-2 max-w-3xl">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-stone-950 font-mukta shadow-xs">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider bg-amber-500 text-stone-950 font-mukta shadow-xs">
                 {festival.badge}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-amber-100 font-mukta border border-white/20">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-white/20 backdrop-blur-md text-amber-100 font-mukta border border-white/20">
                 {festival.tithi}
               </span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-black font-serif text-white leading-tight drop-shadow-md">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black font-serif text-white leading-tight drop-shadow-md">
               {festival.hindiTitle}
             </h2>
 
-            <p className="text-xs text-amber-200 font-mukta font-bold flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-amber-200 font-mukta font-bold flex items-center gap-1">
               <span>🪔 इष्ट देव:</span>
               <span className="text-white">{festival.deity}</span>
             </p>
 
-            <p className="text-[11px] text-amber-100/90 font-mukta leading-relaxed line-clamp-2 pt-0.5">
+            <p className="text-[11px] sm:text-xs md:text-sm text-amber-100/90 font-mukta leading-relaxed line-clamp-2 pt-0.5">
               {festival.significance || festival.shortDesc}
             </p>
           </div>
@@ -143,8 +143,8 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
       </div>
 
       {/* 3. INTERACTIVE FEATURE TABS (Chhath-style Quick Navigation) */}
-      <div className="max-w-md mx-auto w-full px-3 sm:px-4 pt-3.5">
-        <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar pb-1">
+      <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-3 sm:px-4 pt-3.5">
+        <div className="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto no-scrollbar pb-1">
           {[
             { id: 'vidhi', label: 'पूजा विधि', icon: '🪔' },
             { id: 'katha', label: 'व्रत कथा', icon: '📜' },
@@ -157,7 +157,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3 py-1.5 rounded-2xl text-xs font-bold font-mukta whitespace-nowrap transition-all flex items-center space-x-1 cursor-pointer shrink-0 ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl text-xs sm:text-sm font-bold font-mukta whitespace-nowrap transition-all flex items-center space-x-1 cursor-pointer shrink-0 ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-[#ea580c] to-[#d97706] text-white shadow-xs scale-[1.02]'
                   : 'bg-[#fffaf3] text-[#78350f] border border-[#fed7aa] hover:bg-[#fed7aa]/40'
@@ -171,51 +171,51 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
       </div>
 
       {/* 4. TAB CONTENT CONTAINER */}
-      <main className="max-w-md mx-auto w-full px-3 sm:px-4 pt-3 flex-1">
+      <main className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-3 sm:px-4 pt-3 flex-1">
         
         {/* TAB 1: PUJA VIDHI & FASTING RULES */}
         {activeTab === 'vidhi' && (
-          <div className="space-y-3 animate-fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
             {/* Fasting Rules Card */}
-            <div className="p-3.5 bg-gradient-to-br from-[#fffaf3] to-[#fdeddc] rounded-2xl border border-[#fed7aa] shadow-xs space-y-2">
+            <div className="p-4 bg-gradient-to-br from-[#fffaf3] to-[#fdeddc] rounded-2xl md:rounded-3xl border border-[#fed7aa] shadow-xs space-y-2.5">
               <div className="flex items-center space-x-2 border-b border-[#fed7aa] pb-1.5">
                 <span className="text-base">📋</span>
-                <h3 className="font-serif font-black text-sm text-[#78350f]">
+                <h3 className="font-serif font-black text-sm md:text-base text-[#78350f]">
                   उपवास व नियम विधान
                 </h3>
               </div>
-              <p className="text-xs font-bold text-[#9a3412]">
+              <p className="text-xs sm:text-sm font-bold text-[#9a3412]">
                 व्रत का प्रकार: <span className="text-[#451a03] font-normal">{festival.fastingRules.type}</span>
               </p>
-              <div className="space-y-1 text-xs">
-                <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+              <div className="space-y-1.5 text-xs sm:text-sm">
+                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
                   <span className="font-bold text-emerald-700">✓ फलाहार / अनुमत: </span>
                   {festival.fastingRules.foodsAllowed.join(', ')}
                 </div>
-                <div className="p-2 rounded-xl bg-red-50 border border-red-200 text-red-900">
+                <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-900">
                   <span className="font-bold text-red-700">✕ वर्जित वस्तुएं: </span>
                   {festival.fastingRules.foodsProhibited.join(', ')}
                 </div>
               </div>
               {festival.fastingRules.specialInstructions && (
-                <p className="text-[11px] text-[#78350f] bg-amber-50 p-2 rounded-xl border border-amber-200">
+                <p className="text-xs text-[#78350f] bg-amber-50 p-2.5 rounded-xl border border-amber-200">
                   💡 <strong>विशेष निर्देश:</strong> {festival.fastingRules.specialInstructions}
                 </p>
               )}
             </div>
 
             {/* Step-by-Step Puja Steps */}
-            <div className="p-3.5 bg-white rounded-2xl border border-[#fed7aa] shadow-xs space-y-2.5">
+            <div className="p-4 bg-white rounded-2xl md:rounded-3xl border border-[#fed7aa] shadow-xs space-y-3">
               <div className="flex items-center space-x-2 border-b border-[#fed7aa] pb-1.5">
                 <span className="text-base">✨</span>
-                <h3 className="font-serif font-black text-sm text-[#78350f]">
+                <h3 className="font-serif font-black text-sm md:text-base text-[#78350f]">
                   क्रमबद्ध पावन पूजा विधि
                 </h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {festival.pujaVidhiSteps.map((step, idx) => (
-                  <div key={idx} className="flex items-start space-x-2.5 text-xs text-[#451a03]">
-                    <span className="w-5 h-5 rounded-full bg-[#fef3c7] text-[#9a3412] font-black font-mukta flex items-center justify-center shrink-0 border border-[#fed7aa] text-[11px]">
+                  <div key={idx} className="flex items-start space-x-2.5 text-xs sm:text-sm text-[#451a03]">
+                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#fef3c7] text-[#9a3412] font-black font-mukta flex items-center justify-center shrink-0 border border-[#fed7aa] text-[11px] sm:text-xs">
                       {idx + 1}
                     </span>
                     <p className="flex-1 leading-relaxed pt-0.5">{step}</p>
@@ -228,11 +228,11 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
 
         {/* TAB 2: VRAT KATHA */}
         {activeTab === 'katha' && (
-          <div className="p-4 bg-white rounded-2xl border border-[#fed7aa] shadow-xs space-y-3 animate-fade-in">
+          <div className="p-4 sm:p-6 bg-white rounded-2xl md:rounded-3xl border border-[#fed7aa] shadow-xs space-y-3 animate-fade-in">
             <div className="flex items-center justify-between border-b border-[#fed7aa] pb-2">
               <div className="flex items-center space-x-2">
                 <span className="text-lg">📜</span>
-                <h3 className="font-serif font-black text-base text-[#78350f]">
+                <h3 className="font-serif font-black text-base sm:text-lg text-[#78350f]">
                   {festival.vratKatha.title}
                 </h3>
               </div>
@@ -245,11 +245,11 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
               </button>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#451a03] font-mukta leading-relaxed whitespace-pre-line text-justify">
+            <p className="text-xs sm:text-sm md:text-base text-[#451a03] font-mukta leading-relaxed whitespace-pre-line text-justify">
               {festival.vratKatha.story}
             </p>
 
-            <div className="p-3 bg-gradient-to-r from-[#fef3c7] to-[#fed7aa]/50 rounded-xl border border-amber-300 text-xs text-[#78350f]">
+            <div className="p-3 sm:p-4 bg-gradient-to-r from-[#fef3c7] to-[#fed7aa]/50 rounded-xl md:rounded-2xl border border-amber-300 text-xs sm:text-sm text-[#78350f]">
               <span className="font-bold">🌟 कथा का पावन फल: </span>
               {festival.vratKatha.moral}
             </div>
@@ -258,9 +258,9 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
 
         {/* TAB 3: AARTI & STUTI */}
         {activeTab === 'aarti' && (
-          <div className="p-4 bg-white rounded-2xl border border-[#fed7aa] shadow-xs space-y-3 animate-fade-in text-center">
+          <div className="p-4 sm:p-6 bg-white rounded-2xl md:rounded-3xl border border-[#fed7aa] shadow-xs space-y-3 animate-fade-in text-center">
             <div className="flex items-center justify-between border-b border-[#fed7aa] pb-2">
-              <h3 className="font-serif font-black text-base text-[#78350f]">
+              <h3 className="font-serif font-black text-base sm:text-lg text-[#78350f]">
                 🔔 {festival.aarti.title}
               </h3>
               <button
@@ -272,9 +272,9 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
               </button>
             </div>
 
-            <div className="space-y-2 py-2">
+            <div className="space-y-2 py-2 max-w-2xl mx-auto">
               {festival.aarti.lyrics.map((line, idx) => (
-                <p key={idx} className="font-mukta font-bold text-xs sm:text-sm text-[#78350f] leading-relaxed">
+                <p key={idx} className="font-mukta font-bold text-xs sm:text-sm md:text-base text-[#78350f] leading-relaxed">
                   {line}
                 </p>
               ))}
@@ -284,33 +284,33 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
 
         {/* TAB 4: SAMAGRI CHECKLIST */}
         {activeTab === 'samagri' && (
-          <div className="p-4 bg-white rounded-2xl border border-[#fed7aa] shadow-xs space-y-3 animate-fade-in">
+          <div className="p-4 sm:p-6 bg-white rounded-2xl md:rounded-3xl border border-[#fed7aa] shadow-xs space-y-3 animate-fade-in">
             <div className="flex items-center justify-between border-b border-[#fed7aa] pb-2">
               <div>
-                <h3 className="font-serif font-black text-sm text-[#78350f]">
+                <h3 className="font-serif font-black text-sm sm:text-base text-[#78350f]">
                   पूजन सामग्री चेकलिस्ट ({festival.samagriList.length})
                 </h3>
-                <p className="text-[10px] text-gray-500 font-mukta">सामग्री जुटाते समय टिक करें</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 font-mukta">सामग्री जुटाते समय टिक करें</p>
               </div>
               <button
                 onClick={() => {
                   const list = festival.samagriList.map((item, i) => `${i + 1}. ${item}`).join('\n');
                   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`🧺 *${festival.hindiTitle} - पूजन सामग्री सूची*\n\n${list}`)}`, '_blank');
                 }}
-                className="px-2.5 py-1 bg-emerald-600 text-white rounded-xl text-xs font-bold font-mukta flex items-center space-x-1"
+                className="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-bold font-mukta flex items-center space-x-1"
               >
                 <span>व्हाट्सएप भेजें</span>
               </button>
             </div>
 
-            <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[460px] overflow-y-auto pr-1">
               {festival.samagriList.map((item, idx) => {
                 const isChecked = checkedSamagri.has(idx);
                 return (
                   <div
                     key={idx}
                     onClick={() => toggleSamagri(idx)}
-                    className={`p-2.5 rounded-xl border flex items-center space-x-2.5 transition-all cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-xl border flex items-center space-x-2.5 transition-all cursor-pointer ${
                       isChecked 
                         ? 'bg-emerald-50/60 border-emerald-300 text-gray-400 line-through' 
                         : 'bg-[#fffaf3] border-[#fed7aa] text-[#451a03] hover:border-[#ea580c]'
@@ -321,7 +321,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
                     ) : (
                       <Circle className="w-4 h-4 text-amber-500 shrink-0" />
                     )}
-                    <span className="text-xs font-mukta font-medium flex-1">{item}</span>
+                    <span className="text-xs sm:text-sm font-mukta font-medium flex-1">{item}</span>
                   </div>
                 );
               })}

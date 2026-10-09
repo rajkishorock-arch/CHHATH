@@ -78,18 +78,18 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           )}
         </button>
 
-        {/* Tab 2: गीत / एक्सप्लोर हब (Premium Explore Compass Icon) */}
+        {/* Tab 2: एक्सप्लोर हब (Universal Vrat & Festival Explore) */}
         <button
-          onClick={() => handleNav('music')}
+          onClick={() => handleNav('all-vrats')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'music' || activeTab === 'all-vrats' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
+            activeTab === 'all-vrats' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <Compass className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'all-vrats' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
+          <Compass className={`w-5 h-5 ${activeTab === 'all-vrats' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
             {labels.explore}
           </span>
-          {(activeTab === 'music' || activeTab === 'all-vrats') && (
+          {activeTab === 'all-vrats' && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
           )}
         </button>

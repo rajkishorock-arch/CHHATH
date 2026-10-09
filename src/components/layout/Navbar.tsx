@@ -202,6 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'all-vrats', label: 'सनातन व्रत', href: '#all-vrats' },
     { id: 'vrat-katha', label: 'व्रत कथा', href: '#vrat-katha' },
     { id: 'aarti-sangrah', label: 'आरती', href: '#aarti-sangrah' },
+    { id: 'jap-mala', label: '108 जप माला', href: '#jap-mala', badge: '108' },
     { id: 'music', label: navText.music, href: '#music' }
   ];
 
@@ -346,7 +347,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           isVisible ? 'translate-y-0' : '-translate-y-full pointer-events-none'
         }`}
       >
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-14 sm:h-20 px-2 sm:px-4 md:px-6">
+      <div className="w-full lg:max-w-none flex items-center justify-between h-14 sm:h-20 px-2 sm:px-4 md:px-6 lg:px-8">
         
         {/* Mobile Full Header Search Bar Transformation */}
         {mobileSearchOpen ? (
@@ -374,12 +375,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           <>
             {/* Left: Sidebar Drawer Trigger + Brand Logo */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
-              {/* Hamburger / All Features Drawer Button (Available on all devices) */}
+              {/* Hamburger / All Features Button (Navigates directly to dedicated All Features page) */}
               <button
-                onClick={() => setSidebarDrawerOpen(true)}
+                onClick={(e) => handleNavClick(e, 'all-features')}
                 aria-label={navText.drawerLabel}
                 title={navText.drawerLabel}
-                className="w-10 h-10 rounded-2xl flex items-center justify-center text-stone-700 dark:text-stone-200 hover:bg-amber-500/15 hover:text-amber-600 active:scale-95 transition-all shrink-0 border border-stone-200/60 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50"
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all shrink-0 border cursor-pointer ${
+                  activeTab === 'all-features'
+                    ? 'bg-amber-500 text-stone-950 border-amber-500 shadow-sm'
+                    : 'text-stone-700 dark:text-stone-200 hover:bg-amber-500/15 hover:text-amber-600 border-stone-200/60 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50'
+                }`}
               >
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
@@ -417,7 +422,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
 
-            {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Drawer Button */}
+            {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Button */}
             <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 shrink-0" aria-label="मुख्य नेविगेशन">
               {primaryNavLinks.map((item) => {
                 const isActive = item.isReels ? reelsPlatformOpen : activeTab === item.id;
@@ -462,10 +467,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 );
               })}
 
-              {/* "सभी फीचर्स" Drawer Quick Trigger */}
+              {/* "सभी फीचर्स" Dedicated Page Trigger */}
               <button
-                onClick={() => setSidebarDrawerOpen(true)}
-                className="px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-900 dark:text-amber-200 border border-amber-500/40 shadow-xs group"
+                onClick={(e) => handleNavClick(e, 'all-features')}
+                className={`px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 border shadow-xs group cursor-pointer active:scale-95 ${
+                  activeTab === 'all-features'
+                    ? 'bg-amber-500 text-stone-950 border-amber-500 shadow-md font-bold'
+                    : 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-900 dark:text-amber-200 border-amber-500/40'
+                }`}
                 title={navText.allFeaturesDesc}
               >
                 <LayoutGrid className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform" />

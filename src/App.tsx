@@ -58,6 +58,8 @@ import { ChhathCalendarPage } from './components/pages/ChhathCalendarPage';
 import { ChhathDatePage } from './components/pages/ChhathDatePage';
 import { PatnaChhathPage } from './components/pages/PatnaChhathPage';
 import { SettingsPage } from './components/pages/SettingsPage';
+import { AllFeaturesPage } from './components/pages/AllFeaturesPage';
+import { JapMalaPage } from './components/pages/JapMalaPage';
 import { BlessingCertificatePage } from './components/pages/BlessingCertificatePage';
 import { MemoryAlbumPage } from './components/pages/MemoryAlbumPage';
 import { ChhathQuizPage } from './components/pages/ChhathQuizPage';
@@ -175,6 +177,8 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'chhath-puja-date-2026' || t === 'chhath-puja-date' || t === 'date') return 'chhath-puja-date-2026';
   if (t === 'patna-chhath-puja-2026' || t === 'patna-chhath' || t === 'patna') return 'patna-chhath-puja-2026';
   if (t === 'settings' || t === 'setting') return 'settings';
+  if (t === 'all-features' || t === 'features' || t === 'allfeatures' || t === 'menu') return 'all-features';
+  if (t === 'jap-mala' || t === 'jap_mala' || t === 'mala' || t === 'japa' || t === '108-jap') return 'jap-mala';
   if (t === 'blessing-certificate' || t === 'certificate' || t === 'ashirwad-patra') return 'blessing-certificate';
   if (t === 'chhath-memories' || t === 'memories' || t === 'sansmaran' || t === 'album') return 'chhath-memories';
   if (t === 'chhath-quiz' || t === 'quiz') return 'chhath-quiz';
@@ -319,7 +323,7 @@ const MainContent: React.FC = () => {
   const { openConnect } = useChat();
 
   useEffect(() => {
-    const handleOpenMala = () => setJapMalaModalOpen(true);
+    const handleOpenMala = () => handleNavigate('jap-mala');
     const handleOpenHub = (e: any) => {
       if (e.detail) {
         setSelectedFestivalBanner(e.detail);
@@ -478,8 +482,10 @@ const MainContent: React.FC = () => {
     if (query !== undefined) {
       setMusicInitialQuery(query);
     } else if (targetTab === 'home') {
-      setMusicInitialQuery('');
-      window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
+      if (musicInitialQuery) {
+        setMusicInitialQuery('');
+        window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
+      }
     }
 
     // Save scroll position for the current tab before navigating away
@@ -505,10 +511,10 @@ const MainContent: React.FC = () => {
     const rawBase = import.meta.env.BASE_URL || '/';
     const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 
-    const urlPath = targetTab === 'home' 
-      ? base 
-      : targetTab === 'music' && query 
-        ? `${base}#music?q=${encodeURIComponent(query)}` 
+    const urlPath = targetTab === 'home' && query
+      ? `${base}#home?q=${encodeURIComponent(query)}`
+      : targetTab === 'home' 
+        ? base 
         : `${base}#${targetTab}`;
 
     try {
@@ -558,9 +564,9 @@ const MainContent: React.FC = () => {
     if (featureModal) { setFeatureModal(null); return 'handled'; }
     if (japMalaModalOpen) { setJapMalaModalOpen(false); return 'handled'; }
 
-    // 5. Navigation: If user is on any vrat/puja section, return to music (where Vrat & Mahaparv Platform is shifted)
-    if (['festival-detail', 'puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples', 'all-vrats'].includes(activeTab)) {
-      handleNavigate('music');
+    // 5. Navigation: If user is on any festival/vrat sub-section, return to all-vrats (where Vrat & Mahaparv Platform is)
+    if (['festival-detail', 'puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples'].includes(activeTab)) {
+      handleNavigate('all-vrats');
       return 'handled';
     }
 
@@ -719,23 +725,24 @@ const MainContent: React.FC = () => {
               )}
             </div>
 
-            {/* 2. Sarv-Vrat & Mahaparv Platform (Shifted to where Song Section was!) */}
-            <div style={{ display: activeTab === 'music' || activeTab === 'all-vrats' ? 'block' : 'none' }}>
-              {musicInitialQuery && musicInitialQuery.trim().length > 0 ? (
-                <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-3">
-                  <SongsSection initialQuery={musicInitialQuery} />
-                </div>
-              ) : (
-                <VratHomeView
-                  onNavigate={handleNavigate}
-                  onSelectFestival={(banner) => {
-                    setSelectedFestivalBanner(banner);
-                  }}
-                  onOpenSidebarMenu={() => {
-                    window.dispatchEvent(new CustomEvent('open_sidebar_drawer'));
-                  }}
-                />
-              )}
+            {/* 2. Dedicated Chhath Sangeet / Songs Section (Pure Music View) */}
+            <div style={{ display: activeTab === 'music' ? 'block' : 'none' }}>
+              <div className="w-full max-w-6xl mx-auto px-1.5 sm:px-4 py-2 sm:py-6 space-y-4">
+                <SongsSection initialQuery={musicInitialQuery} />
+              </div>
+            </div>
+
+            {/* 3. Sarv-Vrat & Mahaparv Platform (Explore Hub - Movable Banner & 6 Cards) */}
+            <div style={{ display: activeTab === 'all-vrats' ? 'block' : 'none' }}>
+              <VratHomeView
+                onNavigate={handleNavigate}
+                onSelectFestival={(banner) => {
+                  setSelectedFestivalBanner(banner);
+                }}
+                onOpenSidebarMenu={() => {
+                  handleNavigate('all-features');
+                }}
+              />
             </div>
 
           {activeTab === 'chhath-puja-vidhi' && (
@@ -851,23 +858,23 @@ const MainContent: React.FC = () => {
             />
           )}
 
-          {activeTab === 'all-vrats' && (
-            <Suspense fallback={<ComponentLoader />}>
-              <AllVratsHub
-                onNavigateToKatha={() => handleNavigate('vrat-katha')}
-                onNavigateToAarti={() => handleNavigate('aarti-sangrah')}
-                onNavigateToChalisa={() => handleNavigate('paath-chalisa')}
-                onNavigateToTemples={() => handleNavigate('famous-temples')}
-                onNavigateToVichar={() => handleNavigate('shubh-vichar')}
-                onBackToHome={() => handleNavigate('home')}
-              />
-            </Suspense>
+          {activeTab === 'all-features' && (
+            <AllFeaturesPage
+              onNavigate={handleNavigate}
+              onOpenMixer={() => setMixerModalOpen(true)}
+              onOpenAssistant={() => handleNavigate('ai-pandit')}
+              onOpenJapMala={() => handleNavigate('jap-mala')}
+            />
+          )}
+
+          {activeTab === 'jap-mala' && (
+            <JapMalaPage onNavigate={handleNavigate} />
           )}
 
           {activeTab === 'puja-vidhi' && (
             <Suspense fallback={<ComponentLoader />}>
               <PujaVidhiListView
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -876,7 +883,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'vrat-katha' && (
             <Suspense fallback={<ComponentLoader />}>
               <VratKathaListView
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -885,7 +892,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'aarti-sangrah' && (
             <Suspense fallback={<ComponentLoader />}>
               <AartiSangrahListView
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -894,7 +901,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'samagri-list' && (
             <Suspense fallback={<ComponentLoader />}>
               <SamagriListView
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -903,7 +910,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'mantra-list' && (
             <Suspense fallback={<ComponentLoader />}>
               <MantraListView
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -930,7 +937,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'famous-temples' && (
             <Suspense fallback={<ComponentLoader />}>
               <FamousTemplesListView
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -940,9 +947,9 @@ const MainContent: React.FC = () => {
             <Suspense fallback={<ComponentLoader />}>
               <DedicatedFestivalHubView
                 festival={getCompleteFestivalHubData(selectedFestivalBanner)}
-                onBack={() => handleNavigate('music')}
+                onBack={() => handleNavigate('all-vrats')}
                 onGoHome={() => handleNavigate('home')}
-                onOpenJapMala={() => setJapMalaModalOpen(true)}
+                onOpenJapMala={() => handleNavigate('jap-mala')}
               />
             </Suspense>
           )}
@@ -966,16 +973,8 @@ const MainContent: React.FC = () => {
       <MobileNav 
         activeTab={activeTab} 
         onNavigate={handleNavigate} 
-        onOpenJapMala={() => setJapMalaModalOpen(true)} 
+        onOpenJapMala={() => handleNavigate('jap-mala')} 
       />
-
-      {/* 108 Digital Jap Mala Modal */}
-      {japMalaModalOpen && (
-        <DigitalJapMalaModal
-          isOpen={japMalaModalOpen}
-          onClose={() => setJapMalaModalOpen(false)}
-        />
-      )}
 
       {/* Global Modals */}
       {locationModalOpen && (
@@ -990,7 +989,7 @@ const MainContent: React.FC = () => {
           onSelectUser={handleSelectUserFromSearch}
           onSearchSubmit={(q) => {
             setMusicInitialQuery(q);
-            handleNavigate('music');
+            handleNavigate('home', q);
             setSearchModalOpen(false);
           }}
         />

@@ -100,7 +100,7 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
     <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
       {/* 1. TOP HEADER (Exact matching Screenshot Style: Back Arrow, Title, Home Button) */}
       <header className="sticky top-0 z-40 bg-[#fffaf5]/95 backdrop-blur-md border-b border-[#fed7aa]/60 shadow-xs px-3 sm:px-4 py-2.5">
-        <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-center justify-between gap-2">
           {/* Back Button */}
           <button
             onClick={() => {
@@ -141,7 +141,7 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
 
       {/* 2. AUDIO RECITATION & FONT TOOLBAR */}
       <div className="bg-[#fff7ed] border-b border-[#fed7aa]/50 px-3 sm:px-4 py-2 shadow-xs">
-        <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-center justify-between gap-2">
           {/* Audio TTS Listen / Pause */}
           <div className="flex items-center space-x-2">
             <button
@@ -215,7 +215,7 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
 
       {/* 3. SACRED TABS NAVIGATION (पूजा विधि • व्रत कथा • पूजन सामग्री • मंत्र • आरती) */}
       <div className="sticky top-[57px] z-30 bg-[#fffdfa]/95 backdrop-blur-md border-b border-[#fed7aa]/40 px-2 py-2">
-        <div className="max-w-xl mx-auto flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
+        <div className="max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
           {[
             { id: 'vidhi', label: 'पूजा विधि', icon: '📜' },
             { id: 'katha', label: 'व्रत कथा', icon: '📖' },
@@ -243,7 +243,7 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
       </div>
 
       {/* 4. MAIN READING CONTENT AREA */}
-      <main className="max-w-xl mx-auto w-full px-4 py-4 space-y-4">
+      <main className="max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full px-4 py-4 space-y-4">
         {/* Deity Banner Card */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#fff7ed] via-[#ffedd5] to-[#fed7aa] p-4 border border-[#fed7aa] shadow-xs flex items-center space-x-4">
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white p-1 shrink-0 shadow-md overflow-hidden ring-2 ring-[#ea580c]/30">

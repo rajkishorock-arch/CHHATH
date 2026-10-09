@@ -19,7 +19,7 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
       <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
         {/* Top Header */}
         <header className="sticky top-0 z-40 bg-[#fffaf5]/95 backdrop-blur-md border-b border-[#fed7aa]/60 shadow-xs px-3 sm:px-4 py-2.5">
-          <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
+          <div className="max-w-xl md:max-w-4xl lg:max-w-5xl mx-auto flex items-center justify-between gap-2">
             <button
               onClick={() => setSelectedTemple(null)}
               className="w-10 h-10 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a]"
@@ -50,14 +50,14 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
         </header>
 
         {/* Temple Image Hero */}
-        <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-stone-900">
+        <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden bg-stone-900">
           <img
             src={selectedTemple.image}
             alt={selectedTemple.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4 text-white max-w-xl mx-auto">
+          <div className="absolute bottom-4 left-4 right-4 text-white max-w-xl md:max-w-4xl lg:max-w-5xl mx-auto">
             <span className="px-2.5 py-1 rounded-full bg-[#ea580c] text-white text-xs font-bold shadow-xs">
               {selectedTemple.state}
             </span>
@@ -72,7 +72,7 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
         </div>
 
         {/* Full Details Content */}
-        <main className="max-w-xl mx-auto w-full px-4 py-5 space-y-4 flex-1">
+        <main className="max-w-xl md:max-w-4xl lg:max-w-5xl mx-auto w-full px-4 py-5 space-y-4 flex-1">
           <div className="p-4 bg-[#fff7ed] rounded-3xl border border-[#fed7aa] shadow-xs">
             <h4 className="text-xs font-bold text-[#9a3412] uppercase tracking-wider mb-1 flex items-center">
               <Sparkles className="w-4 h-4 mr-1 text-[#ea580c]" />
@@ -128,7 +128,7 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
     <div className="min-h-screen bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
       {/* 1. Header */}
       <header className="sticky top-0 z-30 bg-[#fdf6ed]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+        <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
             className="w-10 h-10 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a]"
@@ -153,8 +153,8 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
         </div>
       </header>
 
-      {/* Grid of Famous Temples */}
-      <main className="max-w-md mx-auto w-full px-4 py-4 space-y-3.5 flex-1">
+      {/* Grid of Famous Temples (Multi-column on Desktop) */}
+      <main className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-4 py-4 md:py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
         {FAMOUS_TEMPLES_DATA.map(temple => (
           <div
             key={temple.id}

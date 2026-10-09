@@ -29,7 +29,27 @@ export interface UserCloudData {
   memories?: UserMemoryItem[];
   favoriteSongs?: string[];
   favoriteGhats?: string[];
+  japMala?: JapMalaCloudData;
   updatedAt?: string;
+}
+
+export interface JapMalaCloudData {
+  totalMalas: number;
+  totalChants: number;
+  todayChants?: number;
+  lastChantedDate?: string;
+  favoriteMantraId?: string;
+  mantraBreakdown?: Record<string, number>;
+  sankalpTargetMalas?: number;
+  beadType?: 'rudraksha' | 'tulsi' | 'kamalgatta' | 'sphatik';
+  streakDays?: number;
+  history?: Array<{
+    date: string;
+    mantraId: string;
+    mantraName: string;
+    malasCompleted: number;
+    chantsCount: number;
+  }>;
 }
 
 // In-memory queue to prevent concurrency collisions on Cloud Storage PUT requests
@@ -334,6 +354,61 @@ export const UserSyncService = {
       } catch {}
 
       return saved;
+    });
+  },
+
+  /**
+   * Fetch Jap Mala count and history for a specific user from Cloud
+   */
+  async fetchJapMalaData(uid: string): Promise<JapMalaCloudData | null> {
+    if (!uid) return null;
+    try {
+      // 1. Try local cache first
+      const localCached = localStorage.getItem(`chhath_jap_mala_${uid}`);
+      if (localCached) {
+        const parsed = JSON.parse(localCached);
+        // Return cached immediately and refresh in background
+        this.fetchUserData(uid).then(cloudUser => {
+          if (cloudUser?.japMala) {
+            localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(cloudUser.japMala));
+          }
+        }).catch(() => {});
+        return parsed;
+      }
+
+      // 2. Fetch full user record
+      const cloudUser = await this.fetchUserData(uid);
+      if (cloudUser?.japMala) {
+        localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(cloudUser.japMala));
+        return cloudUser.japMala;
+      }
+    } catch (e) {
+      console.warn('[UserSync] fetchJapMalaData error:', e);
+    }
+    return null;
+  },
+
+  /**
+   * Save Jap Mala records and sync across all user devices
+   */
+  async saveJapMalaData(uid: string, japMala: JapMalaCloudData): Promise<boolean> {
+    if (!uid) return false;
+    // 1. Instant local cache update
+    try {
+      localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(japMala));
+      // Also update standard local completed count for backward compatibility
+      localStorage.setItem('digital_mala_completed', (japMala.totalMalas || 0).toString());
+    } catch {}
+
+    // 2. Queue cloud storage update
+    return enqueueOperation(async () => {
+      try {
+        await this.saveUserData(uid, { japMala });
+        return true;
+      } catch (e) {
+        console.warn('[UserSync] saveJapMalaData cloud sync warning:', e);
+        return false;
+      }
     });
   }
 };

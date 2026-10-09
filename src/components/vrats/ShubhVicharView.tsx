@@ -126,7 +126,7 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
       
       {/* 1. TOP HEADER (Exact Screenshot 1: Circular Back, Centered "शुभ विचार", Circular Home) */}
       <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+        <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">
           {/* Back Circular Button */}
           <button
             onClick={onBack}
@@ -142,7 +142,7 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
             <h1 className="font-serif font-black text-xl sm:text-2xl text-[#78350f] tracking-wide leading-tight">
               शुभ विचार
             </h1>
-            <span className="text-[10px] text-amber-700 font-bold font-mukta flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs text-amber-700 font-bold font-mukta flex items-center gap-1">
               <Globe className="w-2.5 h-2.5 text-emerald-600 animate-pulse" />
               {isInternetConnected ? 'लाइव इंटरनेट अमृत प्रवाह' : 'दैनिक पावन विचार प्रवाह'}
             </span>
@@ -160,9 +160,9 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
         </div>
       </header>
 
-      {/* 2. INFINITE DYNAMIC 2-COLUMN GRID (EXACT SCREENSHOT 1 CARDS) */}
-      <main className="max-w-md mx-auto w-full px-3 sm:px-4 py-3">
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+      {/* 2. INFINITE DYNAMIC GRID (2-Column on Mobile, 3 on Tablet, 4 on Desktop) */}
+      <main className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-3 sm:px-4 py-3 md:py-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
           {cards.map((card) => {
             const isLiked = likedIds.has(card.id);
             const isCopied = copiedId === card.id;

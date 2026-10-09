@@ -45,7 +45,7 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
     <div className="min-h-screen bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
       {/* 1. TOP HEADER */}
       <header className="sticky top-0 z-30 bg-[#fdf6ed]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+        <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
             className="w-10 h-10 rounded-full bg-[#fef3c7] hover:bg-[#fed7aa] active:scale-95 text-[#9a3412] flex items-center justify-center transition-all shadow-xs border border-[#fde68a]"
@@ -71,7 +71,7 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
       </header>
 
       {/* Search */}
-      <div className="max-w-md mx-auto w-full px-4 pt-3">
+      <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-4 pt-3 md:pt-5">
         <div className="relative">
           <Search className="w-4 h-4 text-[#9a3412] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -92,8 +92,8 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
         </div>
       </div>
 
-      {/* 2. CORAL PILL LIST */}
-      <main className="max-w-md mx-auto w-full px-4 py-4 space-y-3.5 flex-1">
+      {/* 2. CORAL PILL LIST (Multi-column on Desktop) */}
+      <main className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full px-4 py-4 md:py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 flex-1">
         {filteredList.map((item) => (
           <div
             key={item.id}

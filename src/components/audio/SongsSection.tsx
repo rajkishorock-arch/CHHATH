@@ -682,6 +682,17 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   const seenSignaturesRef = useRef<Set<string>>(new Set());
   const searchSeenIdsRef = useRef<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const searchRequestIdRef = useRef<number>(0);
+  const isLoadingMoreRef = useRef<boolean>(false);
+  const isLoadingMoreLiveRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    isLoadingMoreRef.current = isLoadingMore;
+  }, [isLoadingMore]);
+
+  useEffect(() => {
+    isLoadingMoreLiveRef.current = isLoadingMoreLive;
+  }, [isLoadingMoreLive]);
 
   // Helper to randomly shuffle an array (Fisher-Yates)
   const shuffleArray = <T,>(arr: T[]): T[] => {
@@ -874,6 +885,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     if (!trimmed) return;
 
     if (!token && !isContinuation) {
+      searchRequestIdRef.current += 1;
       currentSearchTermRef.current = trimmed;
       searchFacetIndexRef.current = 0;
       searchSeenIdsRef.current.clear();
@@ -883,10 +895,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       setErrorMessage(null);
     } else {
       setIsLoadingMore(true);
+      isLoadingMoreRef.current = true;
     }
+
+    const thisRequestId = searchRequestIdRef.current;
 
     try {
       const response = await searchYouTubeVideos(trimmed, token, 'video');
+
+      // If a newer search query was triggered while this was in flight, discard this result to prevent race conditions
+      if (!isContinuation && !token && thisRequestId !== searchRequestIdRef.current) {
+        return;
+      }
+
       setIsLiveApi(response.isLiveApi);
 
       if (response.results && response.results.length > 0) {
@@ -907,16 +928,23 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           searchFacetIndexRef.current += 1;
           const isSongIntent = /song|geet|gana|गाना|गीत|भजन|bhajan|music|audio/i.test(currentSearchTermRef.current || trimmed);
           const facets = isSongIntent
-            ? [`${currentSearchTermRef.current || trimmed} new songs`, `${currentSearchTermRef.current || trimmed} superhit`, `${currentSearchTermRef.current || trimmed} audio`]
-            : [`${currentSearchTermRef.current || trimmed} video`, `${currentSearchTermRef.current || trimmed} trending`];
+            ? [`${currentSearchTermRef.current || trimmed} new songs`, `${currentSearchTermRef.current || trimmed} superhit`, `${currentSearchTermRef.current || trimmed} audio`, `${currentSearchTermRef.current || trimmed} jukebox`]
+            : [`${currentSearchTermRef.current || trimmed} video`, `${currentSearchTermRef.current || trimmed} full episode`, `${currentSearchTermRef.current || trimmed} trending`, `${currentSearchTermRef.current || trimmed} latest`];
           const nextFacet = facets[searchFacetIndexRef.current % facets.length];
           setTimeout(() => handleExecuteSearch(nextFacet, '', true), 200);
           return;
         }
 
         setYtSearchResults(prev => (token || isContinuation) ? [...prev, ...cleanResults] : cleanResults);
-        setNextPageToken(response.nextPageToken);
+        setNextPageToken(response.nextPageToken || null);
         setSearchStatus('success');
+
+        // Auto-continuation: If initial search loaded < 6 videos, auto-chain continuation so viewport fills
+        if (!token && !isContinuation && cleanResults.length < 6) {
+          setTimeout(() => {
+            loadMoreSearchResults();
+          }, 350);
+        }
       } else {
         if (!token && !isContinuation) {
           setYtSearchResults([]);
@@ -924,6 +952,12 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
           setErrorMessage(response.error || 'कोई गाना या वीडियो नहीं मिला।');
         } else if (isContinuation) {
           searchFacetIndexRef.current += 1;
+          const isSongIntent = /song|geet|gana|गाना|गीत|भजन|bhajan|music|audio/i.test(currentSearchTermRef.current || trimmed);
+          const facets = isSongIntent
+            ? [`${currentSearchTermRef.current || trimmed} new songs`, `${currentSearchTermRef.current || trimmed} superhit`]
+            : [`${currentSearchTermRef.current || trimmed} video`, `${currentSearchTermRef.current || trimmed} trending`];
+          const nextFacet = facets[searchFacetIndexRef.current % facets.length];
+          setTimeout(() => handleExecuteSearch(nextFacet, '', true), 250);
         }
       }
     } catch (err: any) {
@@ -934,47 +968,59 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
       }
     } finally {
       setIsLoadingMore(false);
+      isLoadingMoreRef.current = false;
     }
   };
 
   // Continuous infinite scroll: never stops even if single-query page tokens run out!
   const loadMoreSearchResults = useCallback(async () => {
-    if (isLoadingMore || searchStatus !== 'success') return;
+    if (isLoadingMoreRef.current) return;
     const baseQuery = currentSearchTermRef.current || searchQuery.trim();
     if (!baseQuery) return;
 
-    // 1. If we have a nextPageToken from the current query, fetch next page
-    if (nextPageToken) {
-      await handleExecuteSearch(baseQuery, nextPageToken);
-      return;
+    isLoadingMoreRef.current = true;
+    setIsLoadingMore(true);
+
+    try {
+      // 1. If we have a nextPageToken from the current query, fetch next page
+      if (nextPageToken) {
+        await handleExecuteSearch(baseQuery, nextPageToken, true);
+        return;
+      }
+
+      // 2. If token exhausted or null, branch to related search facets so scrolling NEVER stops!
+      searchFacetIndexRef.current += 1;
+      const isSongIntent = /song|geet|gana|गाना|गीत|भजन|bhajan|music|audio/i.test(baseQuery);
+      const facets = isSongIntent
+        ? [
+            `${baseQuery} songs`,
+            `${baseQuery} full video`,
+            `${baseQuery} superhit`,
+            `${baseQuery} live`,
+            `${baseQuery} hits`,
+            `${baseQuery} jukebox`,
+            `${baseQuery} remix`
+          ]
+        : [
+            `${baseQuery} video`,
+            `${baseQuery} episode`,
+            `${baseQuery} latest`,
+            `${baseQuery} full video`,
+            `${baseQuery} trending`,
+            `${baseQuery} official`,
+            `${baseQuery} 2026`
+          ];
+      const nextFacetQuery = facets[searchFacetIndexRef.current % facets.length];
+      await handleExecuteSearch(nextFacetQuery, '', true);
+    } finally {
+      isLoadingMoreRef.current = false;
+      setIsLoadingMore(false);
     }
+  }, [nextPageToken, searchQuery]);
 
-    // 2. If token exhausted or null, branch to related search facets so scrolling NEVER stops!
-    searchFacetIndexRef.current += 1;
-    const isSongIntent = /song|geet|gana|गाना|गीत|भजन|bhajan|music|audio/i.test(baseQuery);
-    const facets = isSongIntent
-      ? [
-          `${baseQuery} songs`,
-          `${baseQuery} full video`,
-          `${baseQuery} superhit`,
-          `${baseQuery} live`,
-          `${baseQuery} hits`,
-          `${baseQuery} jukebox`,
-          `${baseQuery} remix`
-        ]
-      : [
-          `${baseQuery} video`,
-          `${baseQuery} latest`,
-          `${baseQuery} full video`,
-          `${baseQuery} trending`,
-          `${baseQuery} official`,
-          `${baseQuery} 2026`
-        ];
-    const nextFacetQuery = facets[searchFacetIndexRef.current % facets.length];
-    await handleExecuteSearch(nextFacetQuery, '', true);
-  }, [isLoadingMore, searchStatus, nextPageToken, searchQuery]);
-
-  const handleClearSearch = () => {
+  const handleClearSearch = (eOrBroadcast?: React.MouseEvent | boolean) => {
+    const broadcast = typeof eOrBroadcast === 'boolean' ? eOrBroadcast : true;
+    searchRequestIdRef.current += 1;
     searchSeenIdsRef.current.clear();
     currentSearchTermRef.current = '';
     searchFacetIndexRef.current = 0;
@@ -984,14 +1030,19 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     setNextPageToken(null);
     setErrorMessage(null);
     setActiveFilter('all');
-    window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
+    if (broadcast) {
+      window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query: '' } }));
+    }
   };
 
   // Sync initialQuery prop
   useEffect(() => {
     if (initialQuery && initialQuery.trim()) {
-      setSearchQuery(initialQuery.trim());
-      handleExecuteSearch(initialQuery.trim());
+      const q = initialQuery.trim();
+      if (q !== currentSearchTermRef.current || searchStatus === 'idle') {
+        setSearchQuery(q);
+        handleExecuteSearch(q);
+      }
     }
   }, [initialQuery]);
 
@@ -1000,36 +1051,35 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     const handleMusicSearchEvent = (e: any) => {
       const q = e.detail?.query;
       if (q && q.trim()) {
-        setSearchQuery(q.trim());
-        handleExecuteSearch(q.trim());
+        const clean = q.trim();
+        if (clean === currentSearchTermRef.current && (searchStatus === 'loading' || ytSearchResults.length > 0)) {
+          setTimeout(() => {
+            document.getElementById('songs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+          return;
+        }
+        setSearchQuery(clean);
+        handleExecuteSearch(clean);
         setTimeout(() => {
           document.getElementById('songs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
       } else if (q === '') {
-        searchSeenIdsRef.current.clear();
-        currentSearchTermRef.current = '';
-        searchFacetIndexRef.current = 0;
-        setSearchQuery('');
-        setSearchStatus('idle');
-        setYtSearchResults([]);
-        setNextPageToken(null);
-        setErrorMessage(null);
-        setActiveFilter('all');
+        handleClearSearch(false);
       }
     };
     window.addEventListener('chhath_music_search', handleMusicSearchEvent);
     return () => window.removeEventListener('chhath_music_search', handleMusicSearchEvent);
-  }, []);
+  }, [searchStatus, ytSearchResults.length]);
 
   // Inspect hash parameters on mount (e.g. #music?q=...)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const match = window.location.hash.match(/[?&]q=([^&]+)/);
       if (match) {
-        const decoded = decodeURIComponent(match[1]);
-        if (decoded.trim() && !searchQuery) {
-          setSearchQuery(decoded.trim());
-          handleExecuteSearch(decoded.trim());
+        const decoded = decodeURIComponent(match[1]).trim();
+        if (decoded && decoded !== currentSearchTermRef.current) {
+          setSearchQuery(decoded);
+          handleExecuteSearch(decoded);
         }
       }
     }
@@ -1043,19 +1093,49 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          if (searchStatus === 'success' && !isLoadingMore) {
+          if (searchStatus === 'success' && !isLoadingMoreRef.current) {
             loadMoreSearchResults();
-          } else if (searchStatus === 'idle' && !isLoadingMoreLive && !isLiveInitialLoading) {
+          } else if (searchStatus === 'idle' && !isLoadingMoreLiveRef.current && !isLiveInitialLoading) {
             loadMoreLiveSongs();
           }
         }
       },
-      { rootMargin: '600px' }
+      { rootMargin: '600px', threshold: 0.01 }
     );
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [searchStatus, activeFilter, isLoadingMore, loadMoreSearchResults, isLoadingMoreLive, isLiveInitialLoading, loadMoreLiveSongs]);
+  }, [searchStatus, isLiveInitialLoading, loadMoreSearchResults, loadMoreLiveSongs]);
+
+  // Window scroll and touch listener fallback to guarantee infinite scroll ALWAYS triggers on user scroll
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScrollOrTouch = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const scrollBottom = window.innerHeight + window.scrollY;
+        const threshold = document.documentElement.scrollHeight - 700;
+
+        if (scrollBottom >= threshold) {
+          if (searchStatus === 'success' && !isLoadingMoreRef.current) {
+            loadMoreSearchResults();
+          } else if (searchStatus === 'idle' && !isLoadingMoreLiveRef.current && !isLiveInitialLoading) {
+            loadMoreLiveSongs();
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScrollOrTouch, { passive: true });
+    window.addEventListener('touchmove', handleScrollOrTouch, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrTouch);
+      window.removeEventListener('touchmove', handleScrollOrTouch);
+    };
+  }, [searchStatus, isLiveInitialLoading, loadMoreSearchResults, loadMoreLiveSongs]);
 
   // Handle in-app pull to refresh without destructive full page reload
   useEffect(() => {
@@ -1068,7 +1148,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     };
     window.addEventListener('chhath-app-pull-refresh', handlePullRefresh);
     return () => window.removeEventListener('chhath-app-pull-refresh', handlePullRefresh);
-  }, [searchStatus, searchQuery, fetchInitialLiveSongs, handleExecuteSearch]);
+  }, [searchStatus, searchQuery, fetchInitialLiveSongs]);
 
   return (
     <section id="songs" className="py-0 sm:py-6 px-0 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta w-full">
@@ -1257,13 +1337,22 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
-        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex items-center justify-center">
-            {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) && (
-              <div className="p-3 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
-                <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
-              </div>
-            )}
-          </div>
+        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex flex-col items-center justify-center gap-3">
+          {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) ? (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
+              <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
+              <span className="text-xs font-semibold text-stone-600 dark:text-stone-300">और वीडियो लोड हो रहे हैं...</span>
+            </div>
+          ) : searchStatus === 'success' && ytSearchResults.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => loadMoreSearchResults()}
+              className="px-5 py-2.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-2"
+            >
+              <span>+ और वीडियो लोड करें (Load More)</span>
+            </button>
+          ) : null}
+        </div>
 
         {/* Floating Share Feedback Toast */}
         {shareFeedback && (

@@ -446,15 +446,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     if ((window as any).YT && (window as any).YT.Player) {
-      createGlobalYtPlayer();
+      if (pendingSongRef.current?.youtubeId) {
+        createGlobalYtPlayer();
+      }
     }
 
-    // Safety polling interval (guarantees player loads even if script is cached)
+    // Safety polling interval (clears as soon as YouTube API is ready)
     const pollInterval = setInterval(() => {
       if ((window as any).YT && (window as any).YT.Player) {
-        createGlobalYtPlayer();
-        if (ytPlayerRef.current) {
-          clearInterval(pollInterval);
+        clearInterval(pollInterval);
+        if (pendingSongRef.current?.youtubeId) {
+          createGlobalYtPlayer();
         }
       }
     }, 250);

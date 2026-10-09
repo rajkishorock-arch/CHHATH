@@ -7,6 +7,9 @@ import { handleAiAgentApiRequest } from './server/aiMiddleware.ts';
 import { handleChatApiRequest } from './server/chatMiddleware.ts';
 import { handleSocialApiRequest } from './server/socialMiddleware.ts';
 
+// @ts-ignore
+import ytSearchHandler from './api/yt-search.js';
+
 function youtubeSearchPlugin(): Plugin {
   return {
     name: 'youtube-search-middleware',
@@ -31,60 +34,10 @@ function youtubeSearchPlugin(): Plugin {
         await handleSearchApiRequest(req, res);
       });
 
+      // Dedicated High-Speed Live YouTube Search & Endless Pagination: GET /api/yt-search?q=...&pageToken=...
       server.middlewares.use('/api/yt-search', async (req, res) => {
         try {
-          const urlObj = new URL(req.url || '', 'http://localhost:5173');
-          const q = urlObj.searchParams.get('q');
-          if (!q) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ results: [] }));
-            return;
-          }
-
-          const response = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept-Language': 'hi,en-US;q=0.9,en;q=0.8'
-            }
-          });
-
-          const html = await response.text();
-          const match = html.match(/ytInitialData\s*=\s*({.+?});<\/script>/);
-          if (!match) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ results: [] }));
-            return;
-          }
-
-          const data = JSON.parse(match[1]);
-          const contents = data.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents;
-          const itemSection = contents?.find((c: any) => c.itemSectionRenderer)?.itemSectionRenderer?.contents;
-          const videos = [];
-
-          for (const item of itemSection || []) {
-            if (item.videoRenderer) {
-              const v = item.videoRenderer;
-              if (v.videoId) {
-                const title = v.title?.runs?.[0]?.text || '';
-                const channel = v.ownerText?.runs?.[0]?.text || '';
-                const thumb = v.thumbnail?.thumbnails?.[0]?.url || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`;
-                videos.push({
-                  id: v.videoId,
-                  youtubeId: v.videoId,
-                  videoId: v.videoId,
-                  title,
-                  singer: channel,
-                  channelTitle: channel,
-                  duration: v.lengthText?.simpleText || '5:00',
-                  thumbnail: thumb,
-                  thumbnailUrl: thumb
-                });
-              }
-            }
-          }
-
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ results: videos.slice(0, 15) }));
+          await ytSearchHandler(req, res);
         } catch (err: any) {
           res.statusCode = 500;
           res.setHeader('Content-Type', 'application/json');

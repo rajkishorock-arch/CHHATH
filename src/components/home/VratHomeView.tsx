@@ -396,7 +396,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
     <div className="min-h-[calc(100vh-65px)] bg-gradient-to-b from-[#fdf6ee] via-[#faebd7]/30 to-[#fdf6ee] text-[#451a03] flex flex-col justify-start">
       {/* 1. TOP SUB-HEADER (Matching Screenshot 1: 9-Dot Menu, Search Pill, Heart Button) */}
       <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md px-3 sm:px-4 py-2 border-b border-[#fed7aa]/50 shadow-xs">
-        <div className="max-w-md mx-auto flex items-center justify-between gap-2">
+        <div className="max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Left: 9-Dot Grid Menu Button */}
           <button
             onClick={onOpenSidebarMenu}
@@ -437,21 +437,31 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             )}
           </div>
 
-          {/* Right: Heart / Favorites Button */}
-          <button
-            onClick={() => onNavigate('my-chhath')}
-            className="w-9 h-9 rounded-2xl bg-white border border-[#fed7aa] shadow-xs flex items-center justify-center text-[#9a3412] hover:bg-[#fff7ed] active:scale-95 transition-all shrink-0 cursor-pointer"
-            aria-label="Favorites"
-            title="पसंदीदा व संकल्प"
-          >
-            <Heart className="w-4 h-4 text-[#9a3412]" />
-          </button>
+          {/* Right: 108 Jap Mala & Favorites Buttons */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => onNavigate('jap-mala')}
+              className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 shadow-xs flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shrink-0 cursor-pointer text-base"
+              aria-label="108 डिजिटल जप माला"
+              title="108 डिजिटल जप माला"
+            >
+              📿
+            </button>
+            <button
+              onClick={() => onNavigate('my-chhath')}
+              className="w-9 h-9 rounded-2xl bg-white border border-[#fed7aa] shadow-xs flex items-center justify-center text-[#9a3412] hover:bg-[#fff7ed] active:scale-95 transition-all shrink-0 cursor-pointer"
+              aria-label="Favorites"
+              title="पसंदीदा व संकल्प"
+            >
+              <Heart className="w-4 h-4 text-[#9a3412]" />
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Global Search Dropdown */}
       {searchResults && (
-        <div className="max-w-md mx-auto w-full px-3 py-2">
+        <div className="max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full px-3 py-2">
           <div className="bg-white rounded-2xl p-3 border border-[#f59e0b] shadow-lg space-y-2">
             <div className="flex items-center justify-between border-b border-[#fed7aa] pb-1.5">
               <span className="text-xs font-bold text-[#78350f]">
@@ -505,35 +515,35 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
         </div>
       )}
 
-      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Ultra-Clean + Touch Swipe + Manual Left/Right Controls + Clickable Dots) */}
-      <div className="max-w-md mx-auto w-full px-3 sm:px-4 pt-2">
+      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Full-Bleed Cover Image + Overlaid Typography + Swipe + Desktop Responsive) */}
+      <div className="max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full px-3 sm:px-4 pt-2 md:pt-4">
         <div 
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onMouseEnter={() => setIsBannerPaused(true)}
           onMouseLeave={() => setIsBannerPaused(false)}
-          className="relative rounded-2xl overflow-hidden border border-[#fed7aa] shadow-xs bg-gradient-to-r from-[#fffbeb] via-[#fff7ed] to-[#fef3c7] h-32 sm:h-36 group select-none"
+          className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-[#fed7aa] shadow-md bg-stone-900 h-44 sm:h-52 md:h-64 lg:h-72 xl:h-80 group select-none"
         >
           {/* Left Arrow: Manual Previous Festival */}
           <button
             type="button"
             onClick={handlePrevSlide}
-            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/80 hover:bg-white text-[#78350f] flex items-center justify-center shadow-xs border border-amber-200 cursor-pointer backdrop-blur-xs transition-all active:scale-90 opacity-70 group-hover:opacity-100"
+            className="absolute left-2 sm:left-3.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center shadow-lg border border-white/30 cursor-pointer backdrop-blur-md transition-all active:scale-90 opacity-80 group-hover:opacity-100"
             aria-label="पिछला पर्व"
             title="पिछला पर्व"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
 
           {/* Right Arrow: Manual Next Festival */}
           <button
             type="button"
             onClick={handleNextSlide}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/80 hover:bg-white text-[#78350f] flex items-center justify-center shadow-xs border border-amber-200 cursor-pointer backdrop-blur-xs transition-all active:scale-90 opacity-70 group-hover:opacity-100"
+            className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center shadow-lg border border-white/30 cursor-pointer backdrop-blur-md transition-all active:scale-90 opacity-80 group-hover:opacity-100"
             aria-label="अगला पर्व"
             title="अगला पर्व"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           </button>
 
           {calendarBanners.map((banner, idx) => {
@@ -545,56 +555,69 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
               <div
                 key={banner.id}
                 onClick={() => handleBannerClick(banner)}
-                className={`absolute inset-0 transition-all duration-700 cursor-pointer flex items-center justify-between px-7 py-3 sm:px-8 sm:py-3.5 ${
+                className={`absolute inset-0 transition-all duration-700 cursor-pointer overflow-hidden ${
                   isActive ? 'opacity-100 scale-100 z-10 pointer-events-auto' : 'opacity-0 scale-98 z-0 pointer-events-none'
                 }`}
               >
-                {/* Traditional Festive Background Glow */}
-                <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-amber-400/20 blur-2xl pointer-events-none" />
-                <div className="absolute -left-8 -bottom-8 w-36 h-36 rounded-full bg-orange-400/20 blur-xl pointer-events-none" />
+                {/* Full-Bleed High-Res Cover Image */}
+                <img
+                  src={banner.image}
+                  alt={banner.title}
+                  className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.82] transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
 
-                {/* Left Side: ONLY Status Indicator, Festival Name, and When It Occurs */}
-                <div className="relative z-10 space-y-1.5 max-w-[62%] sm:max-w-[65%]">
-                  {/* Status Indicator Badge (आज है / आगामी पर्व / सम्पन्न) */}
+                {/* Multi-Stop Dark Gradient Overlay for Maximum Text Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+
+                {/* Overlaid Sacred Content Directly On Top of the Photo */}
+                <div className="relative z-10 h-full flex flex-col justify-end p-4 sm:p-6 md:p-8 space-y-1 sm:space-y-2 max-w-3xl">
+                  {/* Status Indicator Badge (आज है / आगामी महापर्व / सम्पन्न) */}
                   <div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shadow-2xs ${
+                    <span className={`inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black shadow-md backdrop-blur-md ${
                       isToday
-                        ? 'bg-emerald-600 text-white animate-pulse'
+                        ? 'bg-emerald-600/90 text-white border border-emerald-400 ring-2 ring-emerald-400/40 animate-pulse'
                         : isPast
-                        ? 'bg-stone-600 text-amber-200'
-                        : 'bg-[#ea580c] text-white'
+                        ? 'bg-stone-900/80 text-amber-200 border border-amber-400/30'
+                        : 'bg-[#ea580c]/90 text-white border border-orange-400/40'
                     }`}>
-                      {isPast ? <CheckCircle2 className="w-2.5 h-2.5 mr-1 text-emerald-300" /> : <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-200" />}
-                      <span>{isToday ? '🌟 आज है' : isPast ? 'हाल ही में सम्पन्न' : '✨ आगामी पर्व'}</span>
+                      {isPast ? <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-300" /> : <Sparkles className="w-3 h-3 mr-1 text-amber-200" />}
+                      <span>{isToday ? '🌟 आज है' : isPast ? 'हाल ही में सम्पन्न' : '✨ आगामी महापर्व'}</span>
                     </span>
                   </div>
 
-                  {/* Big, Clean Festival Name */}
-                  <h2 className="text-lg sm:text-2xl font-black font-serif text-[#78350f] tracking-wide leading-tight drop-shadow-2xs">
+                  {/* Majestic Festival Title Overlaid on Image */}
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black font-serif text-white tracking-wide leading-tight drop-shadow-md">
                     {banner.title}
                   </h2>
 
-                  {/* When it occurs (Date) */}
-                  <p className="text-xs sm:text-sm font-bold text-[#9a3412] font-mukta flex items-center space-x-1">
-                    <span>🗓️ {banner.formattedDate}</span>
-                  </p>
-                </div>
+                  {/* Subtitle Description */}
+                  {banner.subtitle && (
+                    <p className="text-xs sm:text-sm md:text-base text-amber-100/90 font-mukta line-clamp-1 drop-shadow-xs max-w-2xl">
+                      {banner.subtitle}
+                    </p>
+                  )}
 
-                {/* Right Side: Festival Visual Artwork */}
-                <div className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center p-1">
-                  <img
-                    src={banner.image}
-                    alt={banner.title}
-                    className="w-full h-full object-cover rounded-xl shadow-md border-2 border-amber-300/80 drop-shadow-sm filter brightness-95"
-                    loading="lazy"
-                  />
+                  {/* Date Pill & Tithi */}
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <span className="px-2.5 py-0.5 sm:py-1 rounded-lg bg-black/50 backdrop-blur-md border border-amber-400/40 text-amber-200 font-bold text-xs sm:text-sm font-mukta drop-shadow-xs flex items-center gap-1">
+                      <span>🗓️</span>
+                      <span>{banner.formattedDate}</span>
+                    </span>
+                    {banner.tithi && (
+                      <span className="px-2.5 py-0.5 sm:py-1 rounded-lg bg-white/15 backdrop-blur-md border border-white/20 text-white/95 font-medium text-xs sm:text-sm font-mukta hidden sm:inline-block">
+                        {banner.tithi}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );
           })}
 
           {/* Clickable Indicator Dots */}
-          <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center space-x-1.5 z-20">
+          <div className="absolute bottom-2.5 left-0 right-0 flex items-center justify-center space-x-1.5 z-20">
             {calendarBanners.map((_, i) => (
               <button
                 key={i}
@@ -604,7 +627,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
                   setCurrentSlideIndex(i);
                 }}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  i === currentSlideIndex ? 'w-4 bg-[#ea580c]' : 'w-1.5 bg-[#fed7aa] hover:bg-amber-400'
+                  i === currentSlideIndex ? 'w-5 bg-amber-400 shadow-xs' : 'w-1.5 bg-white/40 hover:bg-white/80'
                 }`}
                 aria-label={`पर्व ${i + 1}`}
               />
@@ -613,56 +636,56 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
         </div>
       </div>
 
-      {/* 3. ALARM STRIP + 6 CORE CARDS (EXACT MATCH TO SCREENSHOT 1 & 2) */}
-      <main className="max-w-md mx-auto w-full px-3 sm:px-4 pt-2.5 pb-4 flex-1 flex flex-col gap-2.5 sm:gap-3">
+      {/* 3. ALARM STRIP + 6 CORE CARDS (Responsive Desktop & Pristine Mobile) */}
+      <main className="max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full px-3 sm:px-4 pt-2.5 md:pt-4 pb-6 flex-1 flex flex-col gap-3 sm:gap-4 md:gap-5">
         
-        {/* Daily Puja Alarm Strip (Screenshot 1 & 2: Deep Brown Gradient + Bell + Text + White "सेट करें" Button) */}
+        {/* Daily Puja Alarm Strip */}
         <div 
           onClick={() => setIsAlarmModalOpen(true)}
-          className="p-2 sm:p-2.5 bg-gradient-to-r from-[#6b2508] via-[#8c320d] to-[#aa4716] rounded-2xl text-white shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all border border-[#f59e0b]/40 shrink-0"
+          className="p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-[#6b2508] via-[#8c320d] to-[#aa4716] rounded-2xl md:rounded-3xl text-white shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all border border-[#f59e0b]/40 shrink-0"
         >
-          <div className="flex items-center space-x-2.5 min-w-0">
+          <div className="flex items-center space-x-2.5 sm:space-x-3.5 min-w-0">
             {/* Bell Circle Icon */}
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#fef3c7] text-[#9a3412] flex items-center justify-center shrink-0 shadow-inner">
-              <Bell className="w-4 h-4 animate-swing" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-[#fef3c7] text-[#9a3412] flex items-center justify-center shrink-0 shadow-inner">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 animate-swing" />
             </div>
             
             {/* Center Alarm Texts */}
             <div className="min-w-0">
-              <p className="text-[10px] text-[#fde68a] font-bold uppercase tracking-wider leading-none">
+              <p className="text-[10px] sm:text-xs text-[#fde68a] font-bold uppercase tracking-wider leading-none">
                 दैनिक पूजा अलार्म
               </p>
-              <h3 className="font-bold text-xs text-white truncate leading-tight mt-0.5">
+              <h3 className="font-bold text-xs sm:text-sm md:text-base text-white truncate leading-tight mt-0.5 sm:mt-1">
                 पूजा या आरती का समय याद दिलाएं...
               </h3>
-              <p className="text-[10px] text-[#fed7aa] truncate leading-none mt-0.5">
+              <p className="text-[10px] sm:text-xs text-[#fed7aa] truncate leading-none mt-0.5">
                 {alarmText}
               </p>
             </div>
           </div>
 
-          {/* Right: White "सेट करें" Pill Button (Exact Screenshot 1 & 2) */}
+          {/* Right: White "सेट करें" Pill Button */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               setIsAlarmModalOpen(true);
             }}
-            className="bg-white text-[#78350f] font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs hover:bg-[#fff7ed] active:scale-95 shrink-0 transition-all cursor-pointer font-mukta ml-2"
+            className="bg-white text-[#78350f] font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-xs hover:bg-[#fff7ed] active:scale-95 shrink-0 transition-all cursor-pointer font-mukta ml-2"
           >
             सेट करें
           </button>
         </div>
 
-        {/* 6 Core Feature Cards: 2 Columns x 3 Rows - Screen-filling elegant cards */}
-        <div className="grid grid-cols-2 grid-rows-3 gap-2.5 sm:gap-3 flex-1 min-h-[400px]">
+        {/* 6 Core Feature Cards: 2 Columns on Mobile, 3 on Tablet, 6 on Desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-5 flex-1 min-h-[380px] md:min-h-[220px] lg:min-h-[260px]">
           {HOME_6_FEATURE_CARDS.map((card) => (
             <div
               key={card.id}
               onClick={() => onNavigate(card.tab)}
-              className="group bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] border border-[#fbd8b3]/90 rounded-2xl shadow-xs hover:shadow-md hover:border-[#ea580c]/50 transition-all cursor-pointer flex flex-col justify-between overflow-hidden h-full min-h-[125px] sm:min-h-[140px] active:scale-[0.98]"
+              className="group bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] border border-[#fbd8b3]/90 rounded-2xl md:rounded-3xl shadow-xs hover:shadow-lg hover:border-[#ea580c]/60 transition-all cursor-pointer flex flex-col justify-between overflow-hidden h-full min-h-[130px] sm:min-h-[145px] md:min-h-[200px] lg:min-h-[230px] active:scale-[0.98]"
             >
-              {/* Photo / Illustration Container: Pure visual elegance, NO text or badges over image */}
+              {/* Photo / Illustration Container: Pure visual elegance */}
               <div className={`flex-1 flex items-center justify-center overflow-hidden w-full h-full min-h-0 ${card.image && card.image.trim() ? 'p-0' : 'p-2'}`}>
                 {card.image && card.image.trim() ? (
                   renderCardVisual(card)
@@ -673,9 +696,9 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
                 )}
               </div>
 
-              {/* Bottom Clean White/Cream Title Strip (Exact Screenshot 1 & 2) */}
-              <div className="bg-white/95 py-2 px-2 border-t border-[#fed7aa]/60 text-center shrink-0">
-                <span className="font-serif font-black text-xs sm:text-sm text-[#5c2409] tracking-wide group-hover:text-[#ea580c] transition-colors block truncate">
+              {/* Bottom Clean White/Cream Title Strip */}
+              <div className="bg-white/95 py-2 sm:py-2.5 md:py-3 px-2 border-t border-[#fed7aa]/60 text-center shrink-0">
+                <span className="font-serif font-black text-xs sm:text-sm md:text-base text-[#5c2409] tracking-wide group-hover:text-[#ea580c] transition-colors block truncate">
                   {card.title}
                 </span>
               </div>
