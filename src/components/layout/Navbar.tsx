@@ -200,6 +200,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: navText.home, href: '#home' },
     { id: 'chhath', label: 'छठ महापर्व', href: '#chhath' },
     { id: 'all-vrats', label: 'सनातन व्रत', href: '#all-vrats' },
+    { id: 'shubh-vichar', label: 'शुभ विचार', href: '#shubh-vichar' },
+    { id: 'paath-chalisa', label: 'पाठ व चालीसा', href: '#paath-chalisa' },
     { id: 'vrat-katha', label: 'व्रत कथा', href: '#vrat-katha' },
     { id: 'aarti-sangrah', label: 'आरती', href: '#aarti-sangrah' },
     { id: 'jap-mala', label: '108 जप माला', href: '#jap-mala', badge: '108' },

@@ -521,7 +521,7 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
       {/* 3. DEDICATED FULL-SCREEN NEW PAGE VIEW FOR SELECTED VICHAR (Matches 100% User Request) */}
       {selectedCard && (
         <div 
-          className="fixed inset-0 z-50 bg-black flex flex-col justify-between overflow-y-auto animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-[80] bg-black flex flex-col justify-between overflow-y-auto animate-in fade-in duration-200 select-none"
         >
           {/* THE HERO DEVOTIONAL IMAGE: Fills Entire Background Screen ("jisme bas wahi picture ho") */}
           <img

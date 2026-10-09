@@ -1093,6 +1093,19 @@ export const SEED_COMMENTS: ReelComment[] = [
   }
 ];
 
+function safeSetItem(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    try {
+      localStorage.removeItem(KEYS.YOUTUBE_CACHE);
+      localStorage.removeItem(KEYS.INSTAGRAM_CACHE);
+      localStorage.removeItem(KEYS.VIEWS);
+      localStorage.setItem(key, value);
+    } catch {}
+  }
+}
+
 // ==========================================
 // 4. STORAGE ACCESSOR METHODS
 // ==========================================
@@ -1102,7 +1115,7 @@ export const ReelsStorage = {
   getUsers(): ReelUser[] {
     const raw = localStorage.getItem(KEYS.USERS);
     if (!raw) {
-      localStorage.setItem(KEYS.USERS, JSON.stringify(SEED_USERS));
+      safeSetItem(KEYS.USERS, JSON.stringify(SEED_USERS));
       return SEED_USERS;
     }
     try {
@@ -1113,7 +1126,7 @@ export const ReelsStorage = {
   },
 
   saveUsers(users: ReelUser[]) {
-    localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+    safeSetItem(KEYS.USERS, JSON.stringify(users));
   },
 
   findUserByUsername(username: string): ReelUser | undefined {
@@ -1226,18 +1239,18 @@ export const ReelsStorage = {
           !r.id.startsWith('ig-chhath-')
         );
         const updated = [...userCreated, ...SEED_REELS];
-        localStorage.setItem(KEYS.REELS, JSON.stringify(updated));
+        safeSetItem(KEYS.REELS, JSON.stringify(updated));
         return updated;
       }
       return parsed;
     } catch {
-      localStorage.setItem(KEYS.REELS, JSON.stringify(SEED_REELS));
+      safeSetItem(KEYS.REELS, JSON.stringify(SEED_REELS));
       return SEED_REELS;
     }
   },
 
   saveReels(reels: DynamicReel[]) {
-    localStorage.setItem(KEYS.REELS, JSON.stringify(reels));
+    safeSetItem(KEYS.REELS, JSON.stringify(reels));
   },
 
   addReel(reel: DynamicReel) {

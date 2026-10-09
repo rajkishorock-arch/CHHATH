@@ -58,11 +58,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <nav 
       aria-label="सनातन मोबाइल मुख्य नेविगेशन"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 w-full m-0 bg-gradient-to-t from-[#fde6cf] via-[#fdf2e4]/98 to-[#fffaf3]/95 backdrop-blur-xl border-t border-[#fed7aa] rounded-t-[24px] rounded-b-none py-1.5 px-3 shadow-[0_-8px_25px_rgba(120,53,15,0.12)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 w-full m-0 bg-gradient-to-t from-[#fde6cf] via-[#fdf2e4]/98 to-[#fffaf3]/95 backdrop-blur-xl border-t border-[#fed7aa] rounded-t-[20px] rounded-b-none border-b-0 pt-1 pb-0 px-2 shadow-[0_-6px_20px_rgba(120,53,15,0.1)]"
       style={{
         bottom: 0,
         marginBottom: 0,
-        paddingBottom: 'max(0.35rem, env(safe-area-inset-bottom, 0px))'
+        paddingBottom: '2px'
       }}
     >
       <div className="flex items-center justify-between max-w-md mx-auto relative">
@@ -70,12 +70,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         {/* Tab 1: होम */}
         <button
           onClick={() => handleNav('home')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl min-w-[54px] transition-all active:scale-95 cursor-pointer ${
             activeTab === 'home' || activeTab === 'chhath' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
           <Home className={`w-5 h-5 ${activeTab === 'home' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
-          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+          <span className="text-[10.5px] font-mukta font-bold mt-0.5 leading-none">
             {labels.home}
           </span>
           {(activeTab === 'home' || activeTab === 'chhath') && (
@@ -86,12 +86,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         {/* Tab 2: एक्सप्लोर हब (Universal Vrat & Festival Explore) */}
         <button
           onClick={() => handleNav('all-vrats')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl min-w-[54px] transition-all active:scale-95 cursor-pointer ${
             activeTab === 'all-vrats' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
           <Compass className={`w-5 h-5 ${activeTab === 'all-vrats' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
-          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+          <span className="text-[10.5px] font-mukta font-bold mt-0.5 leading-none">
             {labels.explore}
           </span>
           {activeTab === 'all-vrats' && (
@@ -100,15 +100,15 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         </button>
 
         {/* Center: Floating Lotus ॐ Button with Scalloped Curved Cradle (Screenshot 1 & 2) */}
-        <div className="relative -top-4 flex flex-col items-center">
-          <div className="w-15 h-15 rounded-full bg-gradient-to-b from-[#fffaf3] via-[#fdf2e4] to-[#fde6cf] p-1 shadow-lg border border-[#fed7aa] flex items-center justify-center">
+        <div className="relative -top-3.5 flex flex-col items-center">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-b from-[#fffaf3] via-[#fdf2e4] to-[#fde6cf] p-1 shadow-lg border border-[#fed7aa] flex items-center justify-center">
             <button
               type="button"
               onClick={handleLotusClick}
-              className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-200 p-0.5 shadow-md flex items-center justify-center border-2 border-white ring-2 ring-orange-200/70 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-200 p-0.5 shadow-md flex items-center justify-center border-2 border-white ring-2 ring-orange-200/70 hover:scale-105 active:scale-95 transition-all cursor-pointer"
               title="108 डिजिटल जप माला"
             >
-              <LotusOmIcon className="w-9 h-9 drop-shadow-xs" />
+              <LotusOmIcon className="w-8 h-8 drop-shadow-xs" />
             </button>
           </div>
         </div>
@@ -116,12 +116,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         {/* Tab 3: विचार (Screenshot 1 & 2) */}
         <button
           onClick={() => handleNav('shubh-vichar')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl min-w-[54px] transition-all active:scale-95 cursor-pointer ${
             activeTab === 'shubh-vichar' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
           <MessageSquareQuote className={`w-5 h-5 ${activeTab === 'shubh-vichar' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
-          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+          <span className="text-[10.5px] font-mukta font-bold mt-0.5 leading-none">
             {labels.vichar}
           </span>
           {activeTab === 'shubh-vichar' && (
@@ -132,12 +132,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         {/* Tab 4: पाठ (Screenshot 1 & 2) */}
         <button
           onClick={() => handleNav('paath-chalisa')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl min-w-[54px] transition-all active:scale-95 cursor-pointer ${
             activeTab === 'paath-chalisa' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
           <BookOpenCheck className={`w-5 h-5 ${activeTab === 'paath-chalisa' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
-          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+          <span className="text-[10.5px] font-mukta font-bold mt-0.5 leading-none">
             {labels.paath}
           </span>
           {activeTab === 'paath-chalisa' && (
