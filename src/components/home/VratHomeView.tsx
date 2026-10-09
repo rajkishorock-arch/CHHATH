@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, Bell, Heart, X, 
-  ChevronRight, ArrowRight, Calendar, Sparkles, CheckCircle2 
+  ChevronRight, ArrowRight, Sparkles, CheckCircle2 
 } from 'lucide-react';
 import { ALL_VRATS_DATA } from '../../data/allVratsData';
 import { ALL_AARTIS_DATA } from '../../data/allAartisData';
@@ -13,63 +13,266 @@ interface VratHomeViewProps {
   onOpenSidebarMenu: () => void;
 }
 
-// 6 Core Features with REAL High-Resolution Devotional Photography
-const CORE_FEATURE_CARDS = [
+/**
+ * ==============================================================================================
+ * 🌟 [USER PHOTO CONFIGURATION / 6 मुख्य कार्ड्स की फोटो यहाँ बदलें]:
+ * ==============================================================================================
+ * प्रिय यूजर / डेवलपर, आप इन 6 कार्ड्स में अपनी मनपसंद फोटो बहुत आसानी से लगा सकते हैं:
+ *
+ * विकल्प 1 (इंटरनेट/वेबसाइट की फोटो):
+ * - किसी भी ऑनलाइन फोटो का सीधा URL नीचे दिए गए 'image' में पेस्ट करें।
+ *   उदा: image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f'
+ *
+ * विकल्प 2 (अपनी खुद की कंप्यूटर/फोन की फोटो):
+ * - अपनी फोटो को प्रोजेक्ट के 'public' फोल्डर में रखें (जैसे public/my-puja.png)
+ * - और नीचे 'image' में लिखें: image: '/my-puja.png'
+ *
+ * विकल्प 3 (डिफ़ॉल्ट ओरिजिनल चित्र - जैसा स्क्रीनशॉट 1 में है):
+ * - अगर आप 'image' को खाली छोड़ देंगे (image: ''), तो स्क्रीनशॉट 1 वाले सुंदर ओरिजिनल चित्र दिखेंगे!
+ * ==============================================================================================
+ */
+export const HOME_6_FEATURE_CARDS = [
   {
     id: 'puja-vidhi',
     title: 'पूजा विधि',
-    tagline: 'शास्त्रसम्मत संपूर्ण विधान',
-    badge: '12+ महापर्व',
-    icon: '📜',
     tab: 'puja-vidhi',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80'
+    // 👇 [कार्ड 1]: पूजा विधि की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला कलश दिखेगा)
+    image: '', 
   },
   {
     id: 'vrat-katha',
     title: 'व्रत कथा',
-    tagline: 'अमर पावन पौराणिक कथाएं',
-    badge: 'कथा संग्रह',
-    icon: '📖',
     tab: 'vrat-katha',
-    image: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=600&auto=format&fit=crop&q=80'
+    // 👇 [कार्ड 2]: व्रत कथा की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला कथा चित्र दिखेगा)
+    image: '', 
   },
   {
     id: 'aarti-sangrah',
     title: 'आरती',
-    tagline: 'नित्य वंदना व भक्ति स्तुति',
-    badge: 'सकल आरती',
-    icon: '🪔',
     tab: 'aarti-sangrah',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600&auto=format&fit=crop&q=80'
+    // 👇 [कार्ड 3]: आरती की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला आरती चित्र दिखेगा)
+    image: '', 
   },
   {
     id: 'samagri-list',
     title: 'पूजन सामग्री',
-    tagline: 'आवश्यक पूजा चेकलिस्ट',
-    badge: 'सामग्री सूची',
-    icon: '🧺',
     tab: 'samagri-list',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=600&auto=format&fit=crop&q=80'
+    // 👇 [कार्ड 4]: पूजन सामग्री की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाली थाली दिखेगी)
+    image: '', 
   },
   {
     id: 'mantra-list',
     title: 'मंत्र',
-    tagline: 'वैदिक महामंत्र व जप',
-    badge: 'वैदिक जप',
-    icon: 'ॐ',
     tab: 'mantra-list',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80'
+    // 👇 [कार्ड 5]: मंत्र की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला ध्यान चित्र दिखेगा)
+    image: '', 
   },
   {
     id: 'famous-temples',
     title: 'प्रसिद्ध मंदिर',
-    tagline: 'तीर्थ दर्शन, समय व इतिहास',
-    badge: 'पवित्र धाम',
-    icon: '🏛️',
     tab: 'famous-temples',
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600&auto=format&fit=crop&q=80'
+    // 👇 [कार्ड 6]: प्रसिद्ध मंदिर की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला मंदिर दिखेगा)
+    image: '', 
   }
 ];
+
+// ==============================================================================================
+// 🎨 SCREENSHOT 1 ORIGINAL SACRED VECTOR ILLUSTRATIONS (Clean, Radiant & High Quality)
+// ==============================================================================================
+
+// Card 1: Vedic Kalash with Coconut, Mango Leaves and Om (पूजा विधि)
+const KalashIllustration: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none">
+    {/* Coconut */}
+    <ellipse cx="50" cy="30" rx="13" ry="16" fill="#8B4513" />
+    <path d="M42 20 Q50 28 58 20" stroke="#713f12" strokeWidth="1.5" fill="none" />
+    {/* Mango leaves */}
+    <path d="M50 32 C30 25 18 16 18 8 C28 16 42 26 50 32 Z" fill="#22c55e" />
+    <path d="M50 32 C70 25 82 16 82 8 C72 16 58 26 50 32 Z" fill="#22c55e" />
+    <path d="M50 30 C35 18 35 4 50 -2 C65 4 65 18 50 30 Z" fill="#16a34a" />
+    <path d="M50 32 C38 28 28 24 26 18 C36 22 46 28 50 32 Z" fill="#15803d" />
+    <path d="M50 32 C62 28 72 24 74 18 C64 22 54 28 50 32 Z" fill="#15803d" />
+    {/* Kalash Pot (Brass/Gold) */}
+    <path d="M34 40 L66 40 L76 66 C78 75 72 84 59 85 L41 85 C28 84 22 75 24 66 Z" fill="url(#goldGradient)" stroke="#b45309" strokeWidth="2" />
+    {/* Neck of Kalash with Red sacred thread */}
+    <rect x="32" y="38" width="36" height="6" rx="2" fill="#dc2626" />
+    <line x1="32" y1="41" x2="68" y2="41" stroke="#fef08a" strokeWidth="1" strokeDasharray="3 2" />
+    {/* Sacred Swastik / Om on pot */}
+    <text x="50" y="67" textAnchor="middle" fill="#78350f" fontSize="18" fontWeight="bold" fontFamily="serif">ॐ</text>
+    {/* Base */}
+    <ellipse cx="50" cy="86" rx="17" ry="4" fill="#d97706" />
+    <defs>
+      <linearGradient id="goldGradient" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#fef08a" />
+        <stop offset="40%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#b45309" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+// Card 2: Worshiping Devotee Woman in Yellow Saree with Folded Hands (व्रत कथा)
+const VratKathaIllustration: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none">
+    {/* Radiant Halo */}
+    <circle cx="50" cy="46" r="38" fill="#fef3c7" opacity="0.7" />
+    {/* Hair Bun */}
+    <circle cx="50" cy="27" r="14" fill="#292524" />
+    {/* Saree Pallu (Yellow/Gold) */}
+    <path d="M35 28 C35 15 65 15 65 28 C65 44 72 62 76 85 L24 85 C28 62 35 44 35 28 Z" fill="#f59e0b" stroke="#d97706" strokeWidth="1.5" />
+    {/* Face */}
+    <circle cx="50" cy="29" r="10" fill="#fed7aa" />
+    {/* Red Bindi */}
+    <circle cx="50" cy="27" r="1.5" fill="#dc2626" />
+    {/* Saree Red Border */}
+    <path d="M35 26 C42 22 58 22 65 26" stroke="#dc2626" strokeWidth="2.5" />
+    {/* Folded Hands in Namaste */}
+    <path d="M46 54 L50 40 L54 54 Z" fill="#fed7aa" stroke="#ea580c" strokeWidth="1" />
+    {/* Bangles */}
+    <rect x="44" y="52" width="4" height="2" fill="#dc2626" />
+    <rect x="52" y="52" width="4" height="2" fill="#dc2626" />
+    {/* Diya in front */}
+    <ellipse cx="50" cy="85" rx="12" ry="4" fill="#b45309" />
+    <path d="M48 81 Q50 73 52 81 Z" fill="#f59e0b" />
+    <path d="M49 81 Q50 75 51 81 Z" fill="#fef08a" />
+  </svg>
+);
+
+// Card 3: Pious Devotee Woman in Red Saree Praying / Aarti (आरती)
+const AartiIllustration: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none">
+    {/* Radiant Aura */}
+    <circle cx="50" cy="46" r="38" fill="#fee2e2" opacity="0.7" />
+    {/* Hair Bun */}
+    <circle cx="50" cy="27" r="14" fill="#1c1917" />
+    {/* Saree Pallu (Auspicious Red) */}
+    <path d="M35 28 C35 15 65 15 65 28 C65 44 72 62 76 85 L24 85 C28 62 35 44 35 28 Z" fill="#dc2626" stroke="#991b1b" strokeWidth="1.5" />
+    {/* Face */}
+    <circle cx="50" cy="29" r="10" fill="#fed7aa" />
+    {/* Red Bindi & Sindoor */}
+    <circle cx="50" cy="26" r="1.5" fill="#7f1d1d" />
+    <line x1="50" y1="19" x2="50" y2="23" stroke="#b91c1c" strokeWidth="2" />
+    {/* Golden Saree Border */}
+    <path d="M35 26 C42 22 58 22 65 26" stroke="#fbbf24" strokeWidth="2.5" />
+    {/* Folded Hands in Prayer */}
+    <path d="M46 54 L50 40 L54 54 Z" fill="#fed7aa" stroke="#b45309" strokeWidth="1" />
+    {/* Gold Bangles */}
+    <rect x="44" y="52" width="4" height="2" fill="#fbbf24" />
+    <rect x="52" y="52" width="4" height="2" fill="#fbbf24" />
+  </svg>
+);
+
+// Card 4: Traditional Brass Puja Thali with Diya, Incense and Flowers (पूजन सामग्री)
+const SamagriIllustration: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none">
+    {/* Brass Puja Thali Plate */}
+    <ellipse cx="50" cy="62" rx="43" ry="19" fill="url(#thaliGold)" stroke="#b45309" strokeWidth="2" />
+    <ellipse cx="50" cy="61" rx="37" ry="15" fill="#fef08a" stroke="#d97706" strokeWidth="1" />
+    {/* Incense Sticks & Whimsical Smoke */}
+    <path d="M68 55 L75 35" stroke="#78350f" strokeWidth="2" strokeLinecap="round" />
+    <path d="M72 56 L79 37" stroke="#78350f" strokeWidth="2" strokeLinecap="round" />
+    <path d="M75 33 Q71 22 78 14" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.65" />
+    {/* Diya Lamp with Golden Flame */}
+    <ellipse cx="32" cy="60" rx="9" ry="4.5" fill="#b45309" />
+    <path d="M29 58 Q32 44 35 58 Z" fill="#f59e0b" />
+    <path d="M30.5 58 Q32 49 33.5 58 Z" fill="#fef08a" />
+    {/* Kumkum & Haldi Bowls */}
+    <circle cx="48" cy="57" r="5" fill="#dc2626" />
+    <circle cx="57" cy="61" r="4.5" fill="#eab308" />
+    {/* Marigold Flowers & Akshat */}
+    <circle cx="41" cy="65" r="4" fill="#f97316" />
+    <circle cx="63" cy="55" r="4" fill="#f43f5e" />
+    <circle cx="50" cy="67" r="3" fill="#ffffff" stroke="#e2e8f0" strokeWidth="0.5" />
+    <defs>
+      <linearGradient id="thaliGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#fef08a" />
+        <stop offset="50%" stopColor="#d97706" />
+        <stop offset="100%" stopColor="#78350f" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+// Card 5: Meditating Yogi Silhouette in Lotus Pose with Om Halo (मंत्र)
+const MantraIllustration: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none">
+    {/* Radiant Spiritual Halo */}
+    <circle cx="50" cy="50" r="36" fill="#fef3c7" opacity="0.8" />
+    <circle cx="50" cy="50" r="28" fill="#fde68a" opacity="0.6" />
+    {/* Head */}
+    <circle cx="50" cy="30" r="9.5" fill="#1c1917" />
+    {/* Neck */}
+    <rect x="47" y="38" width="6" height="5" fill="#1c1917" />
+    {/* Torso */}
+    <path d="M36 44 C42 42 58 42 64 44 L60 67 L40 67 Z" fill="#1c1917" />
+    {/* Arms in Dhyana Mudra */}
+    <path d="M36 44 L25 63 L42 67 Z" fill="#1c1917" />
+    <path d="M64 44 L75 63 L58 67 Z" fill="#1c1917" />
+    {/* Padmasana Folded Legs */}
+    <path d="M20 75 C20 67 36 67 50 69 C64 67 80 67 80 75 C80 81 20 81 20 75 Z" fill="#0c0a09" />
+    {/* Gyan Mudra Hands on Knees */}
+    <circle cx="26" cy="69" r="4" fill="#1c1917" />
+    <circle cx="74" cy="69" r="4" fill="#1c1917" />
+  </svg>
+);
+
+// Card 6: Sacred Grand Temple Mandir Shikhara with Flag (प्रसिद्ध मंदिर)
+const TempleIllustration: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none">
+    {/* Temple Base */}
+    <rect x="24" y="66" width="52" height="21" fill="#ea580c" stroke="#9a3412" strokeWidth="1.5" />
+    {/* Temple Gate / Garbhagriha */}
+    <path d="M42 87 L42 72 Q50 66 58 72 L58 87 Z" fill="#451a03" />
+    <circle cx="50" cy="74" r="2.5" fill="#fef08a" />
+    {/* Shikhara Tier 1 */}
+    <path d="M28 66 L34 50 L66 50 L72 66 Z" fill="#f97316" stroke="#c2410c" strokeWidth="1.5" />
+    {/* Shikhara Tier 2 */}
+    <path d="M34 50 L40 36 L60 36 L66 50 Z" fill="#ea580c" stroke="#9a3412" strokeWidth="1.5" />
+    {/* Shikhara Top Pyramid */}
+    <path d="M40 36 L46 22 L54 22 L60 36 Z" fill="#c2410c" stroke="#7c2d12" strokeWidth="1.5" />
+    {/* Golden Kalash on Top */}
+    <ellipse cx="50" cy="20" rx="4.5" ry="3.5" fill="#f59e0b" />
+    {/* Saffron Flag (भगवा ध्वज) */}
+    <line x1="50" y1="20" x2="50" y2="7" stroke="#78350f" strokeWidth="2" />
+    <path d="M50 7 L65 11 L50 15 Z" fill="#ea580c" />
+  </svg>
+);
+
+// Renders either the user's custom photo OR the exact Screenshot 1 vector illustration
+const renderCardVisual = (card: typeof HOME_6_FEATURE_CARDS[0]) => {
+  if (card.image && card.image.trim()) {
+    return (
+      <img
+        src={card.image.trim()}
+        alt={card.title}
+        className="max-h-[58px] sm:max-h-[66px] w-auto max-w-[85%] object-contain rounded-lg drop-shadow-xs group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+        onError={(e) => {
+          // If custom image link fails, fallback to vector illustration
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+    );
+  }
+
+  // Exact Screenshot 1 Vector Illustrations
+  switch (card.id) {
+    case 'puja-vidhi':
+      return <KalashIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+    case 'vrat-katha':
+      return <VratKathaIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+    case 'aarti-sangrah':
+      return <AartiIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+    case 'samagri-list':
+      return <SamagriIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+    case 'mantra-list':
+      return <MantraIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+    case 'famous-temples':
+      return <TempleIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+    default:
+      return <KalashIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+  }
+};
 
 export const VratHomeView: React.FC<VratHomeViewProps> = ({
   onNavigate,
@@ -148,13 +351,13 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
 
   return (
     <div className="min-h-[85vh] bg-gradient-to-b from-[#fdf6ee] via-[#faebd7]/30 to-[#fdf6ee] text-[#451a03] flex flex-col justify-start">
-      {/* 1. TOP SUB-HEADER (Matching Screenshot: 9-Dot Menu, Search Pill, Heart Button) */}
+      {/* 1. TOP SUB-HEADER (Matching Screenshot 1: 9-Dot Menu, Search Pill, Heart Button) */}
       <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md px-3 sm:px-4 py-2 border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-md mx-auto flex items-center justify-between gap-2">
           {/* Left: 9-Dot Grid Menu Button */}
           <button
             onClick={onOpenSidebarMenu}
-            className="w-9 h-9 rounded-2xl bg-white border border-[#fed7aa] shadow-xs flex items-center justify-center text-[#78350f] hover:bg-[#fff7ed] active:scale-95 transition-all shrink-0"
+            className="w-9 h-9 rounded-2xl bg-white border border-[#fed7aa] shadow-xs flex items-center justify-center text-[#78350f] hover:bg-[#fff7ed] active:scale-95 transition-all shrink-0 cursor-pointer"
             aria-label="Menu"
             title="सभी फीचर्स मेनू"
           >
@@ -171,7 +374,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             </div>
           </button>
 
-          {/* Center: Search Pill Bar ("पूजा, आरती, मंत्र खोजें") */}
+          {/* Center: Search Pill Bar ("पूजा, आरती, मंत्र खोजें...") */}
           <div className="flex-1 relative">
             <Search className="w-3.5 h-3.5 text-[#9a3412] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
@@ -184,7 +387,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9a3412] p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9a3412] p-0.5 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -194,7 +397,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
           {/* Right: Heart / Favorites Button */}
           <button
             onClick={() => onNavigate('my-chhath')}
-            className="w-9 h-9 rounded-2xl bg-white border border-[#fed7aa] shadow-xs flex items-center justify-center text-[#9a3412] hover:bg-[#fff7ed] active:scale-95 transition-all shrink-0"
+            className="w-9 h-9 rounded-2xl bg-white border border-[#fed7aa] shadow-xs flex items-center justify-center text-[#9a3412] hover:bg-[#fff7ed] active:scale-95 transition-all shrink-0 cursor-pointer"
             aria-label="Favorites"
             title="पसंदीदा व संकल्प"
           >
@@ -213,7 +416,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
               </span>
               <button
                 onClick={() => setSearchTerm('')}
-                className="text-xs text-[#9a3412] font-semibold"
+                className="text-xs text-[#9a3412] font-semibold cursor-pointer"
               >
                 बंद करें ✕
               </button>
@@ -259,9 +462,9 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
         </div>
       )}
 
-      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER CAROUSEL (Full Screen Width, Real HD Photos, 5 Past + 5 Upcoming Events) */}
-      <div className="w-full relative overflow-hidden bg-stone-950">
-        <div className="relative w-full h-36 sm:h-44 md:h-48 overflow-hidden">
+      {/* 2. DYNAMIC MOVABLE FESTIVAL BANNER (Matches Screenshot 1 - Festive Card Feel with Clear Recognition) */}
+      <div className="max-w-md mx-auto w-full px-3 sm:px-4 pt-2">
+        <div className="relative rounded-2xl overflow-hidden border border-[#fed7aa] shadow-sm bg-gradient-to-r from-[#fffbeb] via-[#fff7ed] to-[#fef3c7] h-36 sm:h-40">
           {calendarBanners.map((banner, idx) => {
             const isActive = idx === currentSlideIndex;
             const isPast = banner.status === 'past';
@@ -271,93 +474,98 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
               <div
                 key={banner.id}
                 onClick={() => handleBannerClick(banner)}
-                className={`absolute inset-0 transition-opacity duration-700 cursor-pointer flex items-center justify-between p-3.5 sm:p-5 ${
-                  isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+                className={`absolute inset-0 transition-all duration-700 cursor-pointer flex items-center justify-between p-3 sm:p-4 ${
+                  isActive ? 'opacity-100 scale-100 z-10 pointer-events-auto' : 'opacity-0 scale-98 z-0 pointer-events-none'
                 }`}
               >
-                {/* Real Authentic Festival Photo full cover */}
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.82]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent sm:via-black/50" />
+                {/* Traditional Festive Floral Background Glow */}
+                <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-amber-400/20 blur-2xl pointer-events-none" />
+                <div className="absolute -left-8 -bottom-8 w-36 h-36 rounded-full bg-orange-400/20 blur-xl pointer-events-none" />
 
-                {/* Banner Content on left */}
-                <div className="relative z-10 space-y-1 max-w-[74%] text-white">
+                {/* Left Side: Festival Title, Badges, Tagline */}
+                <div className="relative z-10 space-y-1 max-w-[62%] sm:max-w-[66%]">
                   {/* Status & Date Badge */}
                   <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow-xs ${
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow-2xs ${
                       isToday
-                        ? 'bg-emerald-500 text-white animate-pulse'
+                        ? 'bg-emerald-600 text-white animate-pulse'
                         : isPast
-                        ? 'bg-stone-700 text-amber-200 border border-amber-300/30'
-                        : 'bg-amber-500 text-stone-950'
+                        ? 'bg-stone-600 text-amber-200'
+                        : 'bg-[#ea580c] text-white'
                     }`}>
-                      {isPast ? <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 text-emerald-400" /> : <Sparkles className="w-2.5 h-2.5 mr-0.5 text-amber-300" />}
+                      {isPast ? <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 text-emerald-300" /> : <Sparkles className="w-2.5 h-2.5 mr-0.5 text-amber-200" />}
                       <span>{banner.badge}</span>
                     </span>
 
-                    <span className="text-[10px] font-bold text-amber-300/90 font-mukta">
+                    <span className="text-[10px] font-bold text-[#9a3412] font-mukta">
                       {banner.formattedDate}
                     </span>
                   </div>
 
-                  {/* Title */}
-                  <h2 className="text-base sm:text-2xl font-black font-serif text-white tracking-wide pt-0.5 drop-shadow-md truncate">
+                  {/* Big Prominent Calligraphic Festival Title (Instant Recognition like Screenshot 1) */}
+                  <h2 className="text-base sm:text-xl font-black font-serif text-[#78350f] tracking-wide leading-tight drop-shadow-2xs">
                     {banner.title}
                   </h2>
 
                   {/* Subtitle / Significance */}
-                  <p className="text-[11px] text-amber-100/90 line-clamp-2 leading-relaxed font-mukta">
+                  <p className="text-[10px] sm:text-[11px] text-[#9a3412]/90 line-clamp-2 leading-tight font-mukta">
                     {banner.subtitle}
                   </p>
 
-                  {/* CTA Pill */}
-                  <div className="flex items-center space-x-2 pt-0.5">
-                    <span className="text-[10px] text-amber-200 font-semibold truncate">
+                  {/* Action Pill */}
+                  <div className="flex items-center space-x-1.5 pt-0.5">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-[#b45309] truncate">
                       {banner.tithi}
                     </span>
-                    <span className="text-[10px] font-bold text-stone-950 bg-amber-400 hover:bg-amber-300 px-2 py-0.5 rounded-full shadow-xs inline-flex items-center shrink-0">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-white bg-gradient-to-r from-[#ea580c] to-[#d97706] px-2 py-0.5 rounded-full shadow-2xs inline-flex items-center shrink-0">
                       <span>{banner.isChhath ? 'छठ ऐप' : 'कथा व विधि'}</span>
                       <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
                     </span>
                   </div>
                 </div>
+
+                {/* Right Side: High Quality Festival Visual Artwork */}
+                <div className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center p-1">
+                  <img
+                    src={banner.image}
+                    alt={banner.title}
+                    className="w-full h-full object-cover rounded-xl shadow-md border-2 border-amber-300/80 drop-shadow-sm filter brightness-95"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             );
           })}
-        </div>
 
-        {/* Carousel Indicator Dots & Slide Counter */}
-        <div className="absolute bottom-1.5 left-0 right-0 flex items-center justify-between px-3 z-20 pointer-events-none">
-          <div className="flex items-center space-x-1">
+          {/* Carousel Indicator Dots (Centered at bottom like Screenshot 1) */}
+          <div className="absolute bottom-1.5 left-0 right-0 flex items-center justify-center space-x-1 z-20 pointer-events-none">
             {calendarBanners.map((_, i) => (
               <div
                 key={i}
-                className={`h-1 rounded-full transition-all ${
-                  i === currentSlideIndex ? 'w-3.5 bg-amber-400' : 'w-1 bg-white/40'
+                className={`h-1.5 rounded-full transition-all ${
+                  i === currentSlideIndex ? 'w-4 bg-[#ea580c]' : 'w-1.5 bg-[#fed7aa]'
                 }`}
               />
             ))}
           </div>
-          <span className="text-[9px] font-bold text-amber-200/80 bg-black/50 px-1.5 py-0.5 rounded-full">
-            {currentSlideIndex + 1} / {calendarBanners.length}
-          </span>
         </div>
       </div>
 
-      {/* 3. ALARM STRIP + 6 ULTRA-PREMIUM FEATURE CARDS WITH REAL PHOTOGRAPHY */}
+      {/* 3. ALARM STRIP + 6 CORE CARDS (EXACT MATCH TO SCREENSHOT 1) */}
       <main className="max-w-md mx-auto w-full px-3 sm:px-4 py-2 sm:py-2.5 space-y-2 sm:space-y-2.5 flex-1 flex flex-col justify-between">
-        {/* Daily Puja Alarm Strip */}
+        
+        {/* Daily Puja Alarm Strip (Screenshot 1: Deep Brown Gradient + Bell + Text + White "सेट करें" Button) */}
         <div 
           onClick={() => setIsAlarmModalOpen(true)}
-          className="p-2 sm:p-2.5 bg-gradient-to-r from-[#78350f] via-[#9a3412] to-[#b45309] rounded-2xl text-white shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all border border-[#f59e0b]/40 shrink-0"
+          className="p-2 sm:p-2.5 bg-gradient-to-r from-[#6b2508] via-[#8c320d] to-[#aa4716] rounded-2xl text-white shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all border border-[#f59e0b]/40 shrink-0"
         >
           <div className="flex items-center space-x-2.5 min-w-0">
+            {/* Bell Circle Icon */}
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#fef3c7] text-[#9a3412] flex items-center justify-center shrink-0 shadow-inner">
               <Bell className="w-4 h-4 animate-swing" />
             </div>
+            
+            {/* Center Alarm Texts */}
             <div className="min-w-0">
               <p className="text-[10px] text-[#fde68a] font-bold uppercase tracking-wider leading-none">
                 दैनिक पूजा अलार्म
@@ -371,49 +579,40 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             </div>
           </div>
 
+          {/* Right: White "सेट करें" Pill Button (Exact Screenshot 1) */}
           <button
             type="button"
-            className="px-2.5 py-1 bg-white text-[#78350f] rounded-full text-[11px] font-bold hover:bg-[#fff7ed] shadow-xs shrink-0 ml-1.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAlarmModalOpen(true);
+            }}
+            className="bg-white text-[#78350f] font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs hover:bg-[#fff7ed] active:scale-95 shrink-0 transition-all cursor-pointer font-mukta ml-2"
           >
             सेट करें
           </button>
         </div>
 
-        {/* 6 Core Feature Cards: 2 Columns x 3 Rows, REAL DEVOTIONAL PHOTOGRAPHY */}
+        {/* 6 Core Feature Cards: 2 Columns x 3 Rows (EXACT SCREENSHOT 1 LAYOUT) */}
+        {/* Top: Clean centered photo/illustration (NO overlay badges/text) | Bottom: Clean Title Strip */}
         <div className="grid grid-cols-2 gap-2 sm:gap-2.5 flex-1">
-          {CORE_FEATURE_CARDS.map((card) => (
+          {HOME_6_FEATURE_CARDS.map((card) => (
             <div
               key={card.id}
               onClick={() => onNavigate(card.tab)}
-              className="group relative overflow-hidden rounded-2xl border border-amber-500/35 shadow-xs hover:shadow-md cursor-pointer transition-all duration-300 active:scale-[0.98] h-[92px] sm:h-[102px] flex flex-col justify-end p-2.5 sm:p-3"
+              className="group bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] border border-[#fbd8b3]/90 rounded-2xl shadow-xs hover:shadow-md hover:border-[#ea580c]/50 transition-all cursor-pointer flex flex-col justify-between overflow-hidden h-[94px] sm:h-[104px] active:scale-[0.98]"
             >
-              {/* Real Devotional Photo Background */}
-              <img
-                src={card.image}
-                alt={card.title}
-                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 filter brightness-[0.88]"
-                loading="lazy"
-              />
-
-              {/* Radiant Vignette Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10 group-hover:via-black/35 transition-colors" />
-
-              {/* Card Foreground Content */}
-              <div className="relative z-10 space-y-0.5">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.2 rounded-full bg-amber-500 text-stone-950 shadow-xs inline-flex items-center space-x-0.5">
-                    <span>{card.icon}</span>
-                    <span>{card.badge}</span>
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-amber-300 group-hover:translate-x-0.5 transition-transform drop-shadow" />
+              {/* Photo / Illustration Container: Pure visual elegance, NO text or badges over image */}
+              <div className="flex-1 flex items-center justify-center p-1.5 overflow-hidden">
+                <div className="group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                  {renderCardVisual(card)}
                 </div>
+              </div>
 
-                <h3 className="font-serif font-black text-sm sm:text-base text-white tracking-wide drop-shadow-md leading-tight">
+              {/* Bottom Clean White/Cream Title Strip (Exact Screenshot 1) */}
+              <div className="bg-white/90 py-1 px-2 border-t border-[#fed7aa]/60 text-center shrink-0">
+                <span className="font-serif font-black text-xs sm:text-sm text-[#5c2409] tracking-wide group-hover:text-[#ea580c] transition-colors block truncate">
                   {card.title}
-                </h3>
-                <p className="text-[10px] sm:text-[11px] text-amber-200/90 font-medium truncate leading-tight drop-shadow-xs">
-                  {card.tagline}
-                </p>
+                </span>
               </div>
             </div>
           ))}
