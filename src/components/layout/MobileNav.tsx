@@ -1,102 +1,142 @@
 import React from 'react';
-import { Home, Film, Sun, Compass, User } from 'lucide-react';
-import { useReels } from '../../context/ReelsContext';
+import { Home, Sun, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
-// Professional Modern Reels Icon (Clapperboard with central play)
-const ReelsIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <rect width="18" height="18" x="3" y="3" rx="4" />
-    <path d="M3 9h18" />
-    <path d="m8.5 3 2.5 6" />
-    <path d="m14.5 3 2.5 6" />
-    <polygon points="10.5 12 15 15 10.5 18 10.5 12" fill="currentColor" stroke="none" />
+// Sacred Golden Lotus ॐ Icon for the floating center button (Screenshot 2)
+const LotusOmIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 100 100" className={className}>
+    {/* Lotus Petals Base Glow */}
+    <ellipse cx="50" cy="50" rx="46" ry="46" fill="#fffaf0" />
+    {/* Outer Sacred Orange Petals */}
+    <path d="M50 14 C 38 28, 38 50, 50 64 C 62 50, 62 28, 50 14 Z" fill="#ea580c" />
+    <path d="M24 30 C 18 46, 32 64, 48 68 C 42 54, 34 38, 24 30 Z" fill="#f97316" />
+    <path d="M76 30 C 82 46, 68 64, 52 68 C 58 54, 66 38, 76 30 Z" fill="#f97316" />
+    <path d="M12 55 C 18 68, 36 75, 48 72 C 36 67, 24 59, 12 55 Z" fill="#f59e0b" />
+    <path d="M88 55 C 82 68, 64 75, 52 72 C 64 67, 76 59, 88 55 Z" fill="#f59e0b" />
+    {/* Inner Golden Petals */}
+    <path d="M50 24 C 41 36, 41 52, 50 62 C 59 52, 59 36, 50 24 Z" fill="#fbbf24" />
+    {/* Center Sacred Om Symbol */}
+    <text x="50" y="58" textAnchor="middle" fill="#78350f" fontSize="26" fontWeight="bold" fontFamily="serif">ॐ</text>
   </svg>
 );
 
 interface MobileNavProps {
   activeTab?: string;
   onNavigate?: (tab: string) => void;
+  onOpenJapMala?: () => void;
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({
   activeTab = 'home',
-  onNavigate
+  onNavigate,
+  onOpenJapMala
 }) => {
-  const { reelsPlatformOpen, openReelsPlatform } = useReels();
   const { language } = useLanguage();
 
-  const mobileNavLabels = {
-    hi: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
-    en: { home: 'Home', reels: 'Reels', explore: 'Explore', arghya: 'Arghya', myChhath: 'My Chhath', navAria: 'Mobile Primary Navigation' },
-    bho: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अरघ', myChhath: 'हमार छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
-    mai: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'हमर छठि', navAria: 'मोबाइल मुख्य नेविगेशन' },
-    mag: { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'हमर छठ', navAria: 'मोबाइल मुख्य नेविगेशन' },
-  }[language] || { home: 'होम', reels: 'रील्स', explore: 'एक्सप्लोर', arghya: 'अर्घ्य', myChhath: 'मेरी छठ', navAria: 'मोबाइल मुख्य नेविगेशन' };
+  const labels = {
+    hi: { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' },
+    en: { home: 'Home', chhath: 'Chhath', vichar: 'Wisdom', paath: 'Paath' },
+    bho: { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' },
+    mai: { home: 'होम', chhath: 'छठि', vichar: 'विचार', paath: 'पाठ' },
+    mag: { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' },
+  }[language] || { home: 'होम', chhath: 'छठ', vichar: 'विचार', paath: 'पाठ' };
 
-  const items = [
-    { id: 'home', label: mobileNavLabels.home, icon: Home, href: '#home' },
-    { id: 'reels', label: mobileNavLabels.reels, icon: ReelsIcon, href: '#reels' },
-    { id: 'explore', label: mobileNavLabels.explore, icon: Compass, href: '#explore' },
-    { id: 'arghya', label: mobileNavLabels.arghya, icon: Sun, href: '#arghya' },
-    { id: 'my-chhath', label: mobileNavLabels.myChhath, icon: User, href: '#my-chhath' }
-  ];
-
-  const handleClick = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    if (id === 'reels') {
-      openReelsPlatform('foryou');
-      return;
-    }
+  const handleNav = (tab: string) => {
     if (onNavigate) {
-      onNavigate(id);
+      onNavigate(tab);
+    }
+  };
+
+  const handleLotusClick = () => {
+    if (onOpenJapMala) {
+      onOpenJapMala();
+    } else {
+      window.dispatchEvent(new CustomEvent('open_jap_mala'));
     }
   };
 
   return (
     <nav 
-      aria-label={mobileNavLabels.navAria}
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-950/95 backdrop-blur-xl border-t border-stone-200/90 dark:border-amber-500/20 py-1.5 px-2 shadow-2xl transition-all"
+      aria-label="सनातन मोबाइल मुख्य नेविगेशन"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#fdf6ee] via-[#fffaf5] to-[#fdf6ee]/95 backdrop-blur-xl border-t border-[#fed7aa]/80 py-1.5 px-3 shadow-2xl"
     >
-      <div className="flex items-center justify-around max-w-md mx-auto">
-        {items.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.id === 'reels' ? reelsPlatformOpen : (activeTab === item.id && !reelsPlatformOpen);
-          const isReels = item.id === 'reels';
+      <div className="flex items-center justify-between max-w-md mx-auto relative">
+        {/* Tab 1: होम (Screenshot 2) */}
+        <button
+          onClick={() => handleNav('home')}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
+            activeTab === 'home' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          }`}
+        >
+          <Home className={`w-5 h-5 ${activeTab === 'home' ? 'stroke-[2.5] scale-105 text-[#9a3412]' : 'stroke-2'}`} />
+          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+            {labels.home}
+          </span>
+          {activeTab === 'home' && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
+          )}
+        </button>
 
-          return (
-            <a
-              key={item.id}
-              href={item.href}
-              onClick={(e) => handleClick(e, item.id)}
-              aria-label={item.label}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[56px] min-h-[46px] text-decoration-none transition-all active:scale-95 ${
-                isActive 
-                  ? 'text-amber-600 dark:text-amber-400 font-bold bg-amber-500/15 shadow-xs' 
-                  : isReels
-                    ? 'text-stone-700 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400'
-                    : 'text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-400'
-              }`}
-            >
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'stroke-[2.5] scale-105' : 'stroke-2'}`} />
-              </div>
-              <span className={`text-[11px] font-mukta font-bold mt-0.5 leading-none ${isActive ? 'text-amber-700 dark:text-amber-300' : ''}`}>
-                {item.label}
-              </span>
-            </a>
-          );
-        })}
+        {/* Tab 2: छठ (Previous home setup shifted here next to home!) */}
+        <button
+          onClick={() => handleNav('chhath')}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
+            activeTab === 'chhath' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          }`}
+        >
+          <Sun className={`w-5 h-5 ${activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2'}`} />
+          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+            {labels.chhath}
+          </span>
+          {activeTab === 'chhath' && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
+          )}
+        </button>
+
+        {/* Center Floating Lotus ॐ Button (Screenshot 2) */}
+        <div className="relative -top-5 flex flex-col items-center">
+          <button
+            type="button"
+            onClick={handleLotusClick}
+            className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-amber-200 p-0.5 shadow-xl flex items-center justify-center border-2 border-white ring-4 ring-amber-100/70 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            title="108 डिजिटल जप माला"
+          >
+            <LotusOmIcon className="w-10 h-10 drop-shadow-sm" />
+          </button>
+        </div>
+
+        {/* Tab 3: विचार (Screenshot 2) */}
+        <button
+          onClick={() => handleNav('shubh-vichar')}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
+            activeTab === 'shubh-vichar' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          }`}
+        >
+          <MessageSquareQuote className={`w-5 h-5 ${activeTab === 'shubh-vichar' ? 'stroke-[2.5] scale-105 text-[#9a3412]' : 'stroke-2'}`} />
+          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+            {labels.vichar}
+          </span>
+          {activeTab === 'shubh-vichar' && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
+          )}
+        </button>
+
+        {/* Tab 4: पाठ (Screenshot 2) */}
+        <button
+          onClick={() => handleNav('paath-chalisa')}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 ${
+            activeTab === 'paath-chalisa' ? 'text-[#9a3412] font-bold' : 'text-[#78350f]/60 hover:text-[#9a3412]'
+          }`}
+        >
+          <BookOpenCheck className={`w-5 h-5 ${activeTab === 'paath-chalisa' ? 'stroke-[2.5] scale-105 text-[#9a3412]' : 'stroke-2'}`} />
+          <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
+            {labels.paath}
+          </span>
+          {activeTab === 'paath-chalisa' && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
+          )}
+        </button>
       </div>
     </nav>
   );
 };
-

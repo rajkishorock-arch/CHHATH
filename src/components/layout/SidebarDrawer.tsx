@@ -284,7 +284,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         title: 'मुख्य दर्शन व आज',
         subtitle: 'Home & Daily Darshan',
         items: [
-          { id: 'home', label: 'होम (मुख्य दर्शन)', sub: 'आज का पंचांग, अर्घ्य व अपडेट्स', icon: Home, highlight: true }
+          { id: 'home', label: 'होम (सनातन व्रत मंच)', sub: 'आज का पंचांग, व्रत व मुहूर्त', icon: Home, highlight: true },
+          { id: 'chhath', label: 'छठ महापर्व डिजिटल हब', sub: 'गीत, अर्घ्य समय, घाट व सामग्री', icon: Sun, highlight: true }
         ]
       },
       {

@@ -76,6 +76,8 @@ const AartiSangrahListView = lazy(() => import('./components/vrats/AartiSangrahL
 const PaathChalisaListView = lazy(() => import('./components/vrats/PaathChalisaListView').then(m => ({ default: m.PaathChalisaListView })));
 const ShubhVicharView = lazy(() => import('./components/vrats/ShubhVicharView').then(m => ({ default: m.ShubhVicharView })));
 const FamousTemplesListView = lazy(() => import('./components/vrats/FamousTemplesListView').then(m => ({ default: m.FamousTemplesListView })));
+import { VratHomeView } from './components/home/VratHomeView';
+import { DigitalJapMalaModal } from './components/vrats/DigitalJapMalaModal';
 import { ReelUser } from './types';
 import { ReelsStorage } from './services/reelsStorage';
 
@@ -185,6 +187,7 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'explore-detailed' || t === 'detailed-explore' || t === 'explore-hub') return 'explore-detailed';
   if (t === 'explore') return 'explore';
   if (t === 'my-chhath') return 'my-chhath';
+  if (t === 'chhath' || t === 'chhath-mahaparv' || t === 'chhath-puja' || t === 'reels') return 'chhath';
   if (t === 'home' || t === '') return 'home';
 
   return t;
@@ -247,9 +250,9 @@ const MainContent: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTabFromLocation);
 
-  // When switching away from music/home, stop any inline video so no audio leaks into other pages
+  // When switching away from music/home/chhath, stop any inline video so no audio leaks into other pages
   useEffect(() => {
-    if (activeTab !== 'music' && activeTab !== 'home') {
+    if (activeTab !== 'music' && activeTab !== 'home' && activeTab !== 'chhath') {
       setActiveInlineVideoId(null);
     }
   }, [activeTab, setActiveInlineVideoId]);
@@ -297,8 +300,15 @@ const MainContent: React.FC = () => {
   const [assistantModalOpen, setAssistantModalOpen] = useState(false);
   const [mixerModalOpen, setMixerModalOpen] = useState(false);
   const [featureModal, setFeatureModal] = useState<FeatureModalType>(null);
+  const [japMalaModalOpen, setJapMalaModalOpen] = useState(false);
   const [selectedDevoteeUser, setSelectedDevoteeUser] = useState<ReelUser | null>(null);
   const { openConnect } = useChat();
+
+  useEffect(() => {
+    const handleOpenMala = () => setJapMalaModalOpen(true);
+    window.addEventListener('open_jap_mala', handleOpenMala);
+    return () => window.removeEventListener('open_jap_mala', handleOpenMala);
+  }, []);
 
   const handleSelectUserFromSearch = (handleOrUsername: string) => {
     if (!handleOrUsername) return;
@@ -507,6 +517,7 @@ const MainContent: React.FC = () => {
     if (adminModalOpen) { setAdminModalOpen(false); return 'handled'; }
     if (locationModalOpen) { setLocationModalOpen(false); return 'handled'; }
     if (featureModal) { setFeatureModal(null); return 'handled'; }
+    if (japMalaModalOpen) { setJapMalaModalOpen(false); return 'handled'; }
 
     // 5. Navigation: If user is on any vrat sub-page, return to all-vrats first!
     if (['vrat-katha', 'aarti-sangrah', 'paath-chalisa', 'shubh-vichar', 'famous-temples'].includes(activeTab)) {
@@ -632,8 +643,18 @@ const MainContent: React.FC = () => {
       <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           <div className="w-full">
-            {/* Home Screen View (Preserved in DOM to prevent reloads & maintain scroll position) */}
+            {/* 1. Main Home Screen: Exact Screenshot 2 Vrat & Mahaparv Platform */}
             <div style={{ display: activeTab === 'home' ? 'block' : 'none' }}>
+              <VratHomeView
+                onNavigate={handleNavigate}
+                onOpenSidebarMenu={() => {
+                  window.dispatchEvent(new CustomEvent('open_sidebar_drawer'));
+                }}
+              />
+            </div>
+
+            {/* 2. Dedicated Chhath Mahaparv Hub (Previous Home setup shifted next to home as requested!) */}
+            <div style={{ display: activeTab === 'chhath' ? 'block' : 'none' }}>
               {isMobileScreen ? (
                 <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
                   <div className="px-2 sm:px-0 pt-1 sm:pt-0">
@@ -845,7 +866,19 @@ const MainContent: React.FC = () => {
       )}
 
       {/* Mobile Bottom Navigation */}
-      <MobileNav activeTab={activeTab} onNavigate={handleNavigate} />
+      <MobileNav 
+        activeTab={activeTab} 
+        onNavigate={handleNavigate} 
+        onOpenJapMala={() => setJapMalaModalOpen(true)} 
+      />
+
+      {/* 108 Digital Jap Mala Modal */}
+      {japMalaModalOpen && (
+        <DigitalJapMalaModal
+          isOpen={japMalaModalOpen}
+          onClose={() => setJapMalaModalOpen(false)}
+        />
+      )}
 
       {/* Global Modals */}
       {locationModalOpen && (

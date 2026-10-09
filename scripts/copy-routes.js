@@ -40,7 +40,8 @@ const routes = [
   'aarti-sangrah',
   'paath-chalisa',
   'shubh-vichar',
-  'famous-temples'
+  'famous-temples',
+  'chhath'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');
