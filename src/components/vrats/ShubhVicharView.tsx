@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Home, Share2, Copy, Check, Heart, Sparkles, X } from 'lucide-react';
-import { generateInfiniteVicharCards, ShubhVicharCardItem } from '../../data/shubhVicharData';
+import { ArrowLeft, Home, Share2, Copy, Check, Heart, Sparkles, X, Globe, RefreshCw } from 'lucide-react';
+import { 
+  getNextUniqueVicharBatch, 
+  fetchLiveInternetVichar, 
+  ShubhVicharCardItem 
+} from '../../data/shubhVicharData';
 
 interface ShubhVicharViewProps {
   onBack?: () => void;
@@ -11,13 +15,9 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
   onBack, 
   onGoHome = onBack 
 }) => {
-  // Session seed based on mount time so each app session generates a fresh order
-  const [sessionSeed] = useState<number>(() => Math.floor(Date.now() % 10000));
-  const [cards, setCards] = useState<ShubhVicharCardItem[]>(() => 
-    generateInfiniteVicharCards(0, 8, sessionSeed)
-  );
-  const [pageBatch, setPageBatch] = useState(1);
+  const [cards, setCards] = useState<ShubhVicharCardItem[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isInternetConnected, setIsInternetConnected] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [likedIds, setLikedIds] = useState<Set<string>>(() => new Set());
   const [selectedCard, setSelectedCard] = useState<ShubhVicharCardItem | null>(null);
@@ -26,28 +26,55 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const loadNextBatch = useCallback(() => {
+  // Initial Load from Live Internet + Curated Sanatan Pool
+  useEffect(() => {
+    let isMounted = true;
+
+    const initFeed = async () => {
+      // 1. Trigger live internet fetch in background
+      fetchLiveInternetVichar().then((liveQuotes) => {
+        if (isMounted && liveQuotes.length > 0) {
+          setIsInternetConnected(true);
+        }
+      }).catch(() => {});
+
+      // 2. Load first batch of guaranteed unique quotes
+      const initialCards = await getNextUniqueVicharBatch(8);
+      if (isMounted) {
+        setCards(initialCards);
+      }
+    };
+
+    initFeed();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Infinite Scroll Batch Loader
+  const loadNextBatch = useCallback(async () => {
     if (isLoadingMore) return;
     setIsLoadingMore(true);
 
-    setTimeout(() => {
-      setCards(prev => {
-        const nextBatch = generateInfiniteVicharCards(pageBatch, 6, sessionSeed);
-        return [...prev, ...nextBatch];
-      });
-      setPageBatch(prev => prev + 1);
+    try {
+      const nextBatch = await getNextUniqueVicharBatch(6);
+      setCards(prev => [...prev, ...nextBatch]);
+    } catch (err) {
+      console.warn('Error loading next batch:', err);
+    } finally {
       setIsLoadingMore(false);
-    }, 300);
-  }, [isLoadingMore, pageBatch, sessionSeed]);
+    }
+  }, [isLoadingMore]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
+      if (entries[0].isIntersecting && cards.length > 0) {
         loadNextBatch();
       }
-    }, { rootMargin: '300px' });
+    }, { rootMargin: '350px' });
 
     if (sentinelRef.current) {
       observerRef.current.observe(sentinelRef.current);
@@ -56,7 +83,7 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
     return () => {
       if (observerRef.current) observerRef.current.disconnect();
     };
-  }, [loadNextBatch]);
+  }, [loadNextBatch, cards.length]);
 
   // Copy Quote Handler
   const handleCopyQuote = (card: ShubhVicharCardItem, e?: React.MouseEvent) => {
@@ -110,10 +137,16 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
             <ArrowLeft className="w-5 h-5 text-[#9a3412]" />
           </button>
 
-          {/* Centered Title */}
-          <h1 className="font-serif font-black text-xl sm:text-2xl text-[#78350f] tracking-wide">
-            शुभ विचार
-          </h1>
+          {/* Centered Title with live internet indicator */}
+          <div className="flex flex-col items-center">
+            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#78350f] tracking-wide leading-tight">
+              शुभ विचार
+            </h1>
+            <span className="text-[10px] text-amber-700 font-bold font-mukta flex items-center gap-1">
+              <Globe className="w-2.5 h-2.5 text-emerald-600 animate-pulse" />
+              {isInternetConnected ? 'लाइव इंटरनेट अमृत प्रवाह' : 'दैनिक पावन विचार प्रवाह'}
+            </span>
+          </div>
 
           {/* Home Circular Button */}
           <button
@@ -138,9 +171,9 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
               <div
                 key={card.id}
                 onClick={() => setSelectedCard(card)}
-                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs border border-amber-300/40 bg-stone-900 cursor-pointer active:scale-[0.98] transition-all duration-300 h-[240px] sm:h-[270px] flex flex-col justify-end p-2.5 sm:p-3"
+                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs border border-amber-300/40 bg-stone-900 cursor-pointer active:scale-[0.98] transition-all duration-300 h-[250px] sm:h-[280px] flex flex-col justify-between p-2.5 sm:p-3"
               >
-                {/* Background Devotional Image */}
+                {/* Background Sacred Devotional Image (No corporate suits, only holy shrines, sunrise & nature) */}
                 <img
                   src={card.image}
                   alt="शुभ विचार"
@@ -149,40 +182,46 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
                 />
 
                 {/* Dark Vignette Overlay for Crisp Typography */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10 group-hover:via-black/50 transition-colors" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/25 group-hover:via-black/50 transition-colors" />
 
-                {/* Top Quick Actions (Floating Pill on Card) */}
-                <div className="absolute top-2 right-2 flex items-center space-x-1 z-10 opacity-90 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => handleToggleLike(card.id, e)}
-                    className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 active:scale-90 transition-all cursor-pointer"
-                    title="पसंद करें"
-                  >
-                    <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
-                  </button>
-                  <button
-                    onClick={(e) => handleShareQuote(card, e)}
-                    className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 active:scale-90 transition-all cursor-pointer"
-                    title="शेयर करें"
-                  >
-                    <Share2 className="w-3.5 h-3.5 text-amber-300" />
-                  </button>
+                {/* Top: Sacred Om Badge + Quick Actions */}
+                <div className="relative z-10 flex items-center justify-between w-full">
+                  <span className="w-6 h-6 rounded-full bg-amber-500/30 backdrop-blur-md border border-amber-300/40 text-amber-200 text-xs font-serif font-black flex items-center justify-center shadow-xs">
+                    ॐ
+                  </span>
+
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={(e) => handleToggleLike(card.id, e)}
+                      className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 active:scale-90 transition-all cursor-pointer"
+                      title="पसंद करें"
+                    >
+                      <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                    </button>
+                    <button
+                      onClick={(e) => handleShareQuote(card, e)}
+                      className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 active:scale-90 transition-all cursor-pointer"
+                      title="व्हाट्सएप शेयर करें"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-amber-300" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Bottom Quote Content (Exact Typography & Formatting as Screenshot 1) */}
-                <div className="relative z-10 space-y-1">
-                  <p className="font-mukta font-medium text-[11px] sm:text-xs text-amber-50 leading-relaxed drop-shadow-md whitespace-pre-line line-clamp-5 text-center sm:text-left">
+                <div className="relative z-10 space-y-1.5 pt-4">
+                  <p className="font-mukta font-medium text-[11px] sm:text-xs text-amber-50 leading-relaxed drop-shadow-md whitespace-pre-line line-clamp-5 text-center">
                     "{card.quoteText}"
                   </p>
 
                   {card.authorOrSource && (
-                    <div className="flex items-center justify-between pt-0.5 border-t border-amber-500/25">
-                      <span className="text-[9px] sm:text-[10px] text-amber-300/90 font-bold font-mukta truncate">
+                    <div className="flex items-center justify-between pt-1 border-t border-amber-500/25">
+                      <span className="text-[9px] sm:text-[10px] text-amber-300/95 font-bold font-mukta truncate">
                         — {card.authorOrSource}
                       </span>
                       <button
                         onClick={(e) => handleCopyQuote(card, e)}
-                        className="text-[9px] text-amber-200 hover:text-white flex items-center space-x-0.5 shrink-0"
+                        className="text-[9px] text-amber-200 hover:text-white flex items-center space-x-0.5 shrink-0 active:scale-95 transition-all"
                         title="कॉपी करें"
                       >
                         {isCopied ? (
@@ -204,16 +243,16 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
         </div>
 
         {/* Sentinel Anchor for Infinite Scrolling */}
-        <div ref={sentinelRef} className="py-6 flex flex-col items-center justify-center space-y-1 text-center">
+        <div ref={sentinelRef} className="py-6 flex flex-col items-center justify-center space-y-1.5 text-center">
           {isLoadingMore ? (
             <div className="flex items-center space-x-2 text-xs font-bold text-[#9a3412] animate-pulse">
               <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
-              <span>और प्रेरक विचार लोड हो रहे हैं...</span>
+              <span>इंटरनेट से नए विचार लोड हो रहे हैं...</span>
             </div>
           ) : (
             <div className="text-[11px] text-[#9a3412]/60 font-mukta flex items-center space-x-1">
               <span>🌸</span>
-              <span>नीचे स्क्रॉल करते रहें • अविरल विचार प्रवाह</span>
+              <span>अविरल पावन विचार प्रवाह • स्क्रॉल करते रहें</span>
               <span>🌸</span>
             </div>
           )}
@@ -254,6 +293,13 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
                 <span className="text-[10px] font-bold text-[#f59e0b] uppercase tracking-wider bg-amber-500/20 px-2 py-0.5 rounded-full inline-block">
                   {selectedCard.categoryLabel}
                 </span>
+
+                {selectedCard.sanskritVerse && (
+                  <p className="font-serif text-xs text-amber-200/90 italic leading-relaxed whitespace-pre-line border-l-2 border-amber-500/40 pl-2">
+                    {selectedCard.sanskritVerse}
+                  </p>
+                )}
+
                 <p className="font-serif font-black text-sm sm:text-base text-amber-100 leading-relaxed">
                   "{selectedCard.quoteText}"
                 </p>

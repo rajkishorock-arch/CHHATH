@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Image as ImageIcon, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
+import { Home, Music, MessageSquareQuote, BookOpenCheck } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 // Sacred Golden Lotus ॐ Icon for the floating center button (Matches Screenshots)
@@ -34,12 +34,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const { language } = useLanguage();
 
   const labels = {
-    hi: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
-    en: { home: 'Home', photo: 'Media', vichar: 'Vichar', paath: 'Paath' },
-    bho: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
-    mai: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
-    mag: { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' },
-  }[language] || { home: 'होम', photo: 'फोटो', vichar: 'विचार', paath: 'पाठ' };
+    hi: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
+    en: { home: 'Home', songs: 'Songs', vichar: 'Vichar', paath: 'Paath' },
+    bho: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
+    mai: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
+    mag: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
+  }[language] || { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' };
 
   const handleNav = (tab: string) => {
     if (onNavigate) {
@@ -62,7 +62,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     >
       <div className="flex items-center justify-between max-w-md mx-auto relative">
         
-        {/* Tab 1: होम (Screenshot 1 & 2) */}
+        {/* Tab 1: होम */}
         <button
           onClick={() => handleNav('home')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
@@ -78,16 +78,16 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           )}
         </button>
 
-        {/* Tab 2: फोटो / मीडिया (Screenshot 1 & 2 - Image Icon) */}
+        {/* Tab 2: गीत (User strictly instructed: Home के बगल में गीत का icon और 'गीत' नाम) */}
         <button
           onClick={() => handleNav('music')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
             activeTab === 'music' || activeTab === 'chhath' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <ImageIcon className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
+          <Music className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
-            {labels.photo}
+            {labels.songs}
           </span>
           {(activeTab === 'music' || activeTab === 'chhath') && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />

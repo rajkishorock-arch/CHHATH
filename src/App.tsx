@@ -650,15 +650,28 @@ const MainContent: React.FC = () => {
         <CinematicIntro onComplete={() => setShowCinematicIntro(false)} />
       )}
 
-      {/* Header Navigation */}
-      <Navbar
-        activeTab={activeTab}
-        onNavigate={handleNavigate}
-        onOpenSearch={() => setSearchModalOpen(true)}
-        onOpenAdmin={() => setAdminModalOpen(true)}
-        onOpenMixer={() => setMixerModalOpen(true)}
-        onOpenAssistant={() => handleNavigate('ai-pandit')}
-      />
+      {/* Header Navigation (Hidden on mobile dedicated views to avoid double headers and viewport squeeze) */}
+      {(!isMobileScreen || ![
+        'home',
+        'shubh-vichar', 
+        'paath-chalisa', 
+        'puja-vidhi', 
+        'vrat-katha', 
+        'aarti-sangrah', 
+        'samagri-list', 
+        'mantra-list', 
+        'famous-temples',
+        'all-vrats'
+      ].includes(activeTab)) && (
+        <Navbar
+          activeTab={activeTab}
+          onNavigate={handleNavigate}
+          onOpenSearch={() => setSearchModalOpen(true)}
+          onOpenAdmin={() => setAdminModalOpen(true)}
+          onOpenMixer={() => setMixerModalOpen(true)}
+          onOpenAssistant={() => handleNavigate('ai-pandit')}
+        />
+      )}
 
       {/* Main Content Area based on destination tab */}
       <main className="flex-1 pb-36 lg:pb-16">

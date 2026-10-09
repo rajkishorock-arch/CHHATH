@@ -245,7 +245,7 @@ const renderCardVisual = (card: typeof HOME_6_FEATURE_CARDS[0]) => {
       <img
         src={card.image.trim()}
         alt={card.title}
-        className="max-h-[58px] sm:max-h-[66px] w-auto max-w-[85%] object-contain rounded-lg drop-shadow-xs group-hover:scale-105 transition-transform duration-300"
+        className="max-h-[76px] sm:max-h-[88px] w-auto max-w-[88%] object-contain rounded-lg drop-shadow-xs group-hover:scale-105 transition-transform duration-300"
         loading="lazy"
         onError={(e) => {
           // If custom image link fails, fallback to vector illustration
@@ -255,22 +255,22 @@ const renderCardVisual = (card: typeof HOME_6_FEATURE_CARDS[0]) => {
     );
   }
 
-  // Exact Screenshot 1 Vector Illustrations
+  // Exact Screenshot 1 Vector Illustrations (Prominent and beautifully scaled)
   switch (card.id) {
     case 'puja-vidhi':
-      return <KalashIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <KalashIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
     case 'vrat-katha':
-      return <VratKathaIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <VratKathaIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
     case 'aarti-sangrah':
-      return <AartiIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <AartiIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
     case 'samagri-list':
-      return <SamagriIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <SamagriIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
     case 'mantra-list':
-      return <MantraIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <MantraIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
     case 'famous-temples':
-      return <TempleIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <TempleIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
     default:
-      return <KalashIllustration className="w-11 h-11 sm:w-13 sm:h-13 mx-auto drop-shadow-xs" />;
+      return <KalashIllustration className="w-16 h-16 sm:w-18 sm:h-18 mx-auto drop-shadow-xs" />;
   }
 };
 
@@ -350,7 +350,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
   }, [searchTerm]);
 
   return (
-    <div className="min-h-[85vh] bg-gradient-to-b from-[#fdf6ee] via-[#faebd7]/30 to-[#fdf6ee] text-[#451a03] flex flex-col justify-start">
+    <div className="min-h-[calc(100vh-65px)] bg-gradient-to-b from-[#fdf6ee] via-[#faebd7]/30 to-[#fdf6ee] text-[#451a03] flex flex-col justify-start">
       {/* 1. TOP SUB-HEADER (Matching Screenshot 1: 9-Dot Menu, Search Pill, Heart Button) */}
       <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md px-3 sm:px-4 py-2 border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-md mx-auto flex items-center justify-between gap-2">
@@ -536,10 +536,10 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
         </div>
       </div>
 
-      {/* 3. ALARM STRIP + 6 CORE CARDS (EXACT MATCH TO SCREENSHOT 1) */}
-      <main className="max-w-md mx-auto w-full px-3 sm:px-4 py-2 sm:py-2.5 space-y-2 sm:space-y-2.5 flex-1 flex flex-col justify-between">
+      {/* 3. ALARM STRIP + 6 CORE CARDS (EXACT MATCH TO SCREENSHOT 1 & 2) */}
+      <main className="max-w-md mx-auto w-full px-3 sm:px-4 pt-2.5 pb-4 flex-1 flex flex-col gap-2.5 sm:gap-3">
         
-        {/* Daily Puja Alarm Strip (Screenshot 1: Deep Brown Gradient + Bell + Text + White "सेट करें" Button) */}
+        {/* Daily Puja Alarm Strip (Screenshot 1 & 2: Deep Brown Gradient + Bell + Text + White "सेट करें" Button) */}
         <div 
           onClick={() => setIsAlarmModalOpen(true)}
           className="p-2 sm:p-2.5 bg-gradient-to-r from-[#6b2508] via-[#8c320d] to-[#aa4716] rounded-2xl text-white shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all border border-[#f59e0b]/40 shrink-0"
@@ -564,7 +564,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
             </div>
           </div>
 
-          {/* Right: White "सेट करें" Pill Button (Exact Screenshot 1) */}
+          {/* Right: White "सेट करें" Pill Button (Exact Screenshot 1 & 2) */}
           <button
             type="button"
             onClick={(e) => {
@@ -577,24 +577,23 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
           </button>
         </div>
 
-        {/* 6 Core Feature Cards: 2 Columns x 3 Rows (EXACT SCREENSHOT 1 LAYOUT) */}
-        {/* Top: Clean centered photo/illustration (NO overlay badges/text) | Bottom: Clean Title Strip */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-2.5 flex-1">
+        {/* 6 Core Feature Cards: 2 Columns x 3 Rows - Screen-filling elegant cards */}
+        <div className="grid grid-cols-2 grid-rows-3 gap-2.5 sm:gap-3 flex-1 min-h-[400px]">
           {HOME_6_FEATURE_CARDS.map((card) => (
             <div
               key={card.id}
               onClick={() => onNavigate(card.tab)}
-              className="group bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] border border-[#fbd8b3]/90 rounded-2xl shadow-xs hover:shadow-md hover:border-[#ea580c]/50 transition-all cursor-pointer flex flex-col justify-between overflow-hidden h-[94px] sm:h-[104px] active:scale-[0.98]"
+              className="group bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] border border-[#fbd8b3]/90 rounded-2xl shadow-xs hover:shadow-md hover:border-[#ea580c]/50 transition-all cursor-pointer flex flex-col justify-between overflow-hidden h-full min-h-[125px] sm:min-h-[140px] active:scale-[0.98]"
             >
               {/* Photo / Illustration Container: Pure visual elegance, NO text or badges over image */}
-              <div className="flex-1 flex items-center justify-center p-1.5 overflow-hidden">
+              <div className="flex-1 flex items-center justify-center p-2 overflow-hidden">
                 <div className="group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
                   {renderCardVisual(card)}
                 </div>
               </div>
 
-              {/* Bottom Clean White/Cream Title Strip (Exact Screenshot 1) */}
-              <div className="bg-white/90 py-1 px-2 border-t border-[#fed7aa]/60 text-center shrink-0">
+              {/* Bottom Clean White/Cream Title Strip (Exact Screenshot 1 & 2) */}
+              <div className="bg-white/95 py-2 px-2 border-t border-[#fed7aa]/60 text-center shrink-0">
                 <span className="font-serif font-black text-xs sm:text-sm text-[#5c2409] tracking-wide group-hover:text-[#ea580c] transition-colors block truncate">
                   {card.title}
                 </span>
