@@ -34,12 +34,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const { language } = useLanguage();
 
   const labels = {
-    hi: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
-    en: { home: 'Home', songs: 'Songs', vichar: 'Vichar', paath: 'Paath' },
-    bho: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
-    mai: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
-    mag: { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' },
-  }[language] || { home: 'होम', songs: 'गीत', vichar: 'विचार', paath: 'पाठ' };
+    hi: { home: 'होम', explore: 'एक्सप्लोर', vichar: 'विचार', paath: 'पाठ' },
+    en: { home: 'Home', explore: 'Explore', vichar: 'Wisdom', paath: 'Paath' },
+    bho: { home: 'होम', explore: 'एक्सप्लोर', vichar: 'विचार', paath: 'पाठ' },
+    mai: { home: 'होम', explore: 'एक्सप्लोर', vichar: 'विचार', paath: 'पाठ' },
+    mag: { home: 'होम', explore: 'एक्सप्लोर', vichar: 'विचार', paath: 'पाठ' },
+  }[language] || { home: 'होम', explore: 'एक्सप्लोर', vichar: 'विचार', paath: 'पाठ' };
 
   const handleNav = (tab: string) => {
     if (onNavigate) {
@@ -87,7 +87,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         >
           <Compass className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'all-vrats' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
-            {labels.songs}
+            {labels.explore}
           </span>
           {(activeTab === 'music' || activeTab === 'all-vrats') && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
