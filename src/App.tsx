@@ -341,8 +341,8 @@ const MainContent: React.FC = () => {
       if (q && typeof q === 'string' && q.trim()) {
         const cleanQ = q.trim();
         setMusicInitialQuery(cleanQ);
-        setActiveTab('music');
-        window.location.hash = `#music?q=${encodeURIComponent(cleanQ)}`;
+        setActiveTab('home');
+        window.location.hash = `#home?q=${encodeURIComponent(cleanQ)}`;
       }
     };
     window.addEventListener('chhath_music_search', handleGlobalMusicSearch);

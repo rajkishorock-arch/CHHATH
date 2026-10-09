@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Sun, 
-  Sunset, 
-  Sunrise, 
-  Calendar, 
-  Clock, 
-  ListChecks, 
-  CheckCircle2, 
-  ArrowRight, 
-  Sparkles, 
-  MapPin, 
-  BookOpen, 
-  Music, 
+import {
+  Sun,
+  Sunset,
+  Sunrise,
+  Calendar,
+  Clock,
+  ListChecks,
+  CheckCircle2,
+  ArrowRight,
+  Sparkles,
+  MapPin,
+  BookOpen,
+  Music,
   ExternalLink,
   ShieldCheck,
   Check,
@@ -583,7 +583,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
 
   return (
     <section aria-label="Chhath Mahaparv 2026 Command Center" className="w-full space-y-8 font-mukta">
-      
+
       {/* ==================================================
           1. HEADER & LIVE FESTIVAL STATUS BANNER
       ================================================== */}
@@ -619,9 +619,9 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
               {totalCheckedItems} / {totalCombinedItems}
             </div>
             <div className="w-full h-2 bg-stone-200 dark:bg-stone-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" 
-                style={{ width: `${overallPercent}%` }} 
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                style={{ width: `${overallPercent}%` }}
               />
             </div>
             <span className="text-xs font-bold text-stone-600 dark:text-stone-300 block">
@@ -635,7 +635,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
           GRID ROW 1: NEXT EVENT CARD & MY PREPARATION DASHBOARD
       ================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* 2. NEXT EVENT CARD ("अगला अनुष्ठान") */}
         <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-stone-900 border border-amber-500/25 shadow-md flex flex-col justify-between space-y-6">
           <div className="space-y-4">
@@ -705,7 +705,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
             </div>
 
             <div className="space-y-4">
-              
+
               {/* Samagri Progress */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-bold">
@@ -760,7 +760,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
           GRID ROW 2: CITY-WISE ARGHYA CARD & FOUR-DAY TIMELINE
       ================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* 4. CITY-WISE ARGHYA CARD ("मेरे शहर का अर्घ्य समय") */}
         <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-stone-900 border border-amber-500/25 shadow-md flex flex-col justify-between space-y-6">
           <div className="space-y-4">
@@ -795,7 +795,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
 
             {/* Sunset & Sunrise display boxes */}
             <div className="grid grid-cols-2 gap-3 pt-1">
-              
+
               {/* Sandhya Arghya */}
               <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-1.5 text-center">
                 <div className="flex items-center justify-center gap-1.5 text-amber-800 dark:text-amber-300 text-xs font-bold">
@@ -955,7 +955,7 @@ export const ChhathCommandCenter: React.FC<ChhathCommandCenterProps> = ({ onNavi
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          
+
           {/* Card 1: Calendar */}
           <a
             href="/CHHATH/chhath-calendar-2026/"

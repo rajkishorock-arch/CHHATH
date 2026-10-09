@@ -38,42 +38,42 @@ export const HOME_6_FEATURE_CARDS = [
     title: 'पूजा विधि',
     tab: 'puja-vidhi',
     // 👇 [कार्ड 1]: पूजा विधि की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला कलश दिखेगा)
-    image: '', 
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbN8vKV94SgxCRf-UJDV9mFzGGqwJE6DasZsGfqXMSYQ&s=10', 
   },
   {
     id: 'vrat-katha',
     title: 'व्रत कथा',
     tab: 'vrat-katha',
     // 👇 [कार्ड 2]: व्रत कथा की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला कथा चित्र दिखेगा)
-    image: '', 
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRinI9n5KbE0LBuK_-35dwo9a8j08bePg1_14urLROfBw&s=10', 
   },
   {
     id: 'aarti-sangrah',
     title: 'आरती',
     tab: 'aarti-sangrah',
     // 👇 [कार्ड 3]: आरती की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला आरती चित्र दिखेगा)
-    image: '', 
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVVG3-WlvcEwYYcdGzTG3VE5dKw6nufH_yfzV6UTEvtQ&s=10', 
   },
   {
     id: 'samagri-list',
     title: 'पूजन सामग्री',
     tab: 'samagri-list',
     // 👇 [कार्ड 4]: पूजन सामग्री की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाली थाली दिखेगी)
-    image: '', 
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqJjzijQHj7cVzHKKnYV7eDgJIzIlHZFbVzDAhzMqu3w&s=10', 
   },
   {
     id: 'mantra-list',
     title: 'मंत्र',
     tab: 'mantra-list',
     // 👇 [कार्ड 5]: मंत्र की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला ध्यान चित्र दिखेगा)
-    image: '', 
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_T6gRn1GSej94rqKCSAjaiW3r_UjWlxC_6LXWqgG-WQ&s=10', 
   },
   {
     id: 'famous-temples',
     title: 'प्रसिद्ध मंदिर',
     tab: 'famous-temples',
     // 👇 [कार्ड 6]: प्रसिद्ध मंदिर की फोटो का लिंक यहाँ डालें (खाली छोड़ने पर स्क्रीनशॉट 1 वाला मंदिर दिखेगा)
-    image: '', 
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ6mnUo3ISJQ2dguQ7krCuv5cwl_D1950QHfS2PvTlPg&s=10', 
   }
 ];
 
@@ -246,7 +246,7 @@ const renderCardVisual = (card: typeof HOME_6_FEATURE_CARDS[0]) => {
       <img
         src={card.image.trim()}
         alt={card.title}
-        className="max-h-[76px] sm:max-h-[88px] w-auto max-w-[88%] object-contain rounded-lg drop-shadow-xs group-hover:scale-105 transition-transform duration-300"
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         loading="lazy"
         onError={(e) => {
           // If custom image link fails, fallback to vector illustration
@@ -663,10 +663,14 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
               className="group bg-gradient-to-b from-[#fffaf3] to-[#fdeddc] border border-[#fbd8b3]/90 rounded-2xl shadow-xs hover:shadow-md hover:border-[#ea580c]/50 transition-all cursor-pointer flex flex-col justify-between overflow-hidden h-full min-h-[125px] sm:min-h-[140px] active:scale-[0.98]"
             >
               {/* Photo / Illustration Container: Pure visual elegance, NO text or badges over image */}
-              <div className="flex-1 flex items-center justify-center p-2 overflow-hidden">
-                <div className="group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                  {renderCardVisual(card)}
-                </div>
+              <div className={`flex-1 flex items-center justify-center overflow-hidden w-full h-full min-h-0 ${card.image && card.image.trim() ? 'p-0' : 'p-2'}`}>
+                {card.image && card.image.trim() ? (
+                  renderCardVisual(card)
+                ) : (
+                  <div className="group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                    {renderCardVisual(card)}
+                  </div>
+                )}
               </div>
 
               {/* Bottom Clean White/Cream Title Strip (Exact Screenshot 1 & 2) */}
