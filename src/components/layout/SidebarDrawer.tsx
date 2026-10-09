@@ -288,6 +288,18 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         ]
       },
       {
+        title: 'सनातन व्रत एवं महापर्व महामंच',
+        subtitle: 'Universal Hindu Vrat Platform',
+        items: [
+          { id: 'all-vrats', label: 'समस्त सनातन व्रत एवं महापर्व', sub: 'छठ, शिवरात्रि, जन्माष्टमी, नवरात्रि...', icon: Sparkles, badge: 'विशेष', highlight: true },
+          { id: 'vrat-katha', label: 'संपूर्ण व्रत कथा संग्रह', sub: 'अक्षय तृतीया, करवा चौथ, तीज, एकादशी कथाएं', icon: BookOpen },
+          { id: 'aarti-sangrah', label: 'संपूर्ण आरती संग्रह', sub: 'गणेश, शिव, दुर्गा, लक्ष्मी, सूर्य, राम, कृष्ण आरती', icon: Flame },
+          { id: 'paath-chalisa', label: 'नित्य पाठ व चालीसा', sub: 'हनुमान चालीसा, शिव चालीसा, देवी कवच', icon: FileText },
+          { id: 'shubh-vichar', label: 'दैनिक शुभ विचार व अमृत वचन', sub: 'गीता श्लोक, कबीर दोहे, वैदिक प्रेरणा', icon: Sun },
+          { id: 'famous-temples', label: 'प्रसिद्ध मंदिर व तीर्थ धाम', sub: 'देव सूर्य मंदिर, काशी, अयोध्या, वैष्णो देवी', icon: Compass }
+        ]
+      },
+      {
         title: 'पवित्र अनुष्ठान व नियम',
         subtitle: 'Core Rituals & Vidhi',
         items: [
@@ -368,6 +380,18 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         subtitle: 'Daily Updates & Timing',
         items: [
           { id: 'home', label: 'Home (Daily Darshan)', sub: "Today's Panchang, Arghya & Updates", icon: Home, highlight: true }
+        ]
+      },
+      {
+        title: 'Sanatan Vrat & Mahaparv Hub',
+        subtitle: 'All Hindu Vrats & Festivals',
+        items: [
+          { id: 'all-vrats', label: 'All Hindu Vrats & Mahaparv', sub: 'Chhath, Shivratri, Janmashtami, Navratri...', icon: Sparkles, badge: 'Special', highlight: true },
+          { id: 'vrat-katha', label: 'Complete Vrat Katha Sangrah', sub: 'Sacred fast stories & legends', icon: BookOpen },
+          { id: 'aarti-sangrah', label: 'Complete Aarti Sangrah', sub: 'Devotional prayers & hymns', icon: Flame },
+          { id: 'paath-chalisa', label: 'Daily Paath & Chalisas', sub: 'Hanuman Chalisa, Shiv Chalisa, Kavacham', icon: FileText },
+          { id: 'shubh-vichar', label: 'Daily Spiritual Wisdom', sub: 'Gita shlokas, Kabir dohas, Vedic thoughts', icon: Sun },
+          { id: 'famous-temples', label: 'Famous Holy Temples', sub: 'Deo Surya Mandir, Kashi, Ayodhya, Vaishno Devi', icon: Compass }
         ]
       },
       {

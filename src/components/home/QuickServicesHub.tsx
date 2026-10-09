@@ -222,6 +222,15 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       gradient: 'from-amber-500 via-orange-500 to-red-500',
       action: () => onNavigate('explore-detailed')
     },
+    // Sanatan All Vrats Platform Hub
+    {
+      id: 'all-vrats',
+      label: 'सनातन व्रत',
+      badge: 'महापर्व',
+      icon: Flame,
+      gradient: 'from-amber-600 via-orange-500 to-amber-700',
+      action: () => onNavigate('all-vrats')
+    },
     // 2. Puja Vidhi
     {
       id: 'vidhi',

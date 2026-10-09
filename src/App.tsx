@@ -70,6 +70,12 @@ const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').th
 const ReelsPlatformModal = lazy(() => import('./components/reels/ReelsPlatformModal').then(m => ({ default: m.ReelsPlatformModal })));
 const ShareToChatModal = lazy(() => import('./components/chat/ShareToChatModal').then(m => ({ default: m.ShareToChatModal })));
 const UserProfileModal = lazy(() => import('./components/reels/UserProfileModal').then(m => ({ default: m.UserProfileModal })));
+const AllVratsHub = lazy(() => import('./components/vrats/AllVratsHub').then(m => ({ default: m.AllVratsHub })));
+const VratKathaListView = lazy(() => import('./components/vrats/VratKathaListView').then(m => ({ default: m.VratKathaListView })));
+const AartiSangrahListView = lazy(() => import('./components/vrats/AartiSangrahListView').then(m => ({ default: m.AartiSangrahListView })));
+const PaathChalisaListView = lazy(() => import('./components/vrats/PaathChalisaListView').then(m => ({ default: m.PaathChalisaListView })));
+const ShubhVicharView = lazy(() => import('./components/vrats/ShubhVicharView').then(m => ({ default: m.ShubhVicharView })));
+const FamousTemplesListView = lazy(() => import('./components/vrats/FamousTemplesListView').then(m => ({ default: m.FamousTemplesListView })));
 import { ReelUser } from './types';
 import { ReelsStorage } from './services/reelsStorage';
 
@@ -170,6 +176,12 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'ghats' || t === 'ghat') return 'ghats';
   if (t === 'aarti' || t === 'mantra' || t === 'mantras') return 'aarti';
   if (t === 'music' || t === 'songs' || t === 'song') return 'music';
+  if (t === 'all-vrats' || t === 'vrats' || t === 'vrat' || t === 'all-vrat' || t === 'festivals' || t === 'festival' || t === 'parav') return 'all-vrats';
+  if (t === 'vrat-katha' || t === 'kathas' || t === 'vrat-kathayein') return 'vrat-katha';
+  if (t === 'aarti-sangrah' || t === 'aartis' || t === 'all-aarti') return 'aarti-sangrah';
+  if (t === 'paath-chalisa' || t === 'chalisa' || t === 'chalisas' || t === 'paath') return 'paath-chalisa';
+  if (t === 'shubh-vichar' || t === 'vichar' || t === 'suvichar') return 'shubh-vichar';
+  if (t === 'famous-temples' || t === 'temples' || t === 'mandir') return 'famous-temples';
   if (t === 'explore-detailed' || t === 'detailed-explore' || t === 'explore-hub') return 'explore-detailed';
   if (t === 'explore') return 'explore';
   if (t === 'my-chhath') return 'my-chhath';
@@ -496,7 +508,12 @@ const MainContent: React.FC = () => {
     if (locationModalOpen) { setLocationModalOpen(false); return 'handled'; }
     if (featureModal) { setFeatureModal(null); return 'handled'; }
 
-    // 5. Navigation: If user is on any other tab/page (explore, vidhi, etc.), return to home!
+    // 5. Navigation: If user is on any vrat sub-page, return to all-vrats first!
+    if (['vrat-katha', 'aarti-sangrah', 'paath-chalisa', 'shubh-vichar', 'famous-temples'].includes(activeTab)) {
+      handleNavigate('all-vrats');
+      return 'handled';
+    }
+
     if (activeTab !== 'home') {
       handleNavigate('home');
       return 'handled';
@@ -755,6 +772,61 @@ const MainContent: React.FC = () => {
               onOpenMixer={() => setMixerModalOpen(true)}
               onOpenAssistant={() => setAssistantModalOpen(true)}
             />
+          )}
+
+          {activeTab === 'all-vrats' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <AllVratsHub
+                onNavigateToKatha={() => handleNavigate('vrat-katha')}
+                onNavigateToAarti={() => handleNavigate('aarti-sangrah')}
+                onNavigateToChalisa={() => handleNavigate('paath-chalisa')}
+                onNavigateToTemples={() => handleNavigate('famous-temples')}
+                onNavigateToVichar={() => handleNavigate('shubh-vichar')}
+                onBackToHome={() => handleNavigate('home')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'vrat-katha' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <VratKathaListView
+                onBack={() => handleNavigate('all-vrats')}
+                onOpenAarti={() => handleNavigate('aarti-sangrah')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'aarti-sangrah' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <AartiSangrahListView
+                onBack={() => handleNavigate('all-vrats')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'paath-chalisa' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <PaathChalisaListView
+                onBack={() => handleNavigate('all-vrats')}
+                onOpenJapMala={() => handleNavigate('all-vrats')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'shubh-vichar' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <ShubhVicharView
+                onBack={() => handleNavigate('all-vrats')}
+              />
+            </Suspense>
+          )}
+
+          {activeTab === 'famous-temples' && (
+            <Suspense fallback={<ComponentLoader />}>
+              <FamousTemplesListView
+                onBack={() => handleNavigate('all-vrats')}
+              />
+            </Suspense>
           )}
           </div>
         </SectionErrorBoundary>

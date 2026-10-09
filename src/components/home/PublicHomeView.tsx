@@ -330,6 +330,52 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
         </section>
       )}
 
+      {/* Universal Sanatan Vrat & Mahaparv Platform Gateway */}
+      <section className="container-custom max-w-5xl mx-auto px-1.5 sm:px-4">
+        <div 
+          onClick={() => onNavigate('all-vrats')}
+          className="group relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-5 sm:p-7 shadow-lg cursor-pointer hover:shadow-xl transition-all border border-amber-300"
+        >
+          <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none -translate-y-12 translate-x-12" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold">
+                <span>🪔</span>
+                <span>सनातन व्रत एवं महापर्व महामंच</span>
+                <span className="px-1.5 py-0.2 bg-white text-amber-900 rounded-full text-[10px] font-black">नया</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black font-serif text-white tracking-wide">
+                समस्त भारतीय पर्व, व्रत कथा, पूजा विधि व पंचांग
+              </h2>
+              <p className="text-xs sm:text-sm text-amber-100 max-w-2xl leading-relaxed">
+                छठ महापर्व, जन्माष्टमी, महाशिवरात्रि, नवरात्रि, करवा चौथ, तीज, दिवाली, एकादशी सहित समस्त व्रतों की प्रामाणिक कथा, विधि, मुहूर्त 2026, नित्य पाठ व दैनिक पूजा अलार्म।
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-3 shrink-0">
+              <button 
+                type="button"
+                className="px-5 py-3 rounded-2xl bg-white text-amber-900 font-bold text-xs sm:text-sm shadow-md group-hover:bg-amber-50 transition-all flex items-center space-x-2 group-hover:scale-105 active:scale-95"
+              >
+                <span>व्रत मंच खोलें</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Quick festival tags */}
+          <div className="relative z-10 mt-4 pt-3 border-t border-white/20 flex flex-wrap gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-sm">☀️ छठ महापर्व</span>
+            <span className="px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-sm">🔱 महाशिवरात्रि</span>
+            <span className="px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-sm">🪷 श्री कृष्ण जन्माष्टमी</span>
+            <span className="px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-sm">⚔️ शारदीय नवरात्रि</span>
+            <span className="px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-sm">🌙 करवा चौथ</span>
+            <span className="px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-sm">🔔 108 डिजिटल जप माला</span>
+          </div>
+        </div>
+      </section>
+
       {/* If a search is active, show the YouTube Results Feed right at the top of the Home page */}
       {activeSearchQuery && (
         <section id="search-results-top" className="container-custom max-w-6xl mx-auto px-1.5 sm:px-4 space-y-4">

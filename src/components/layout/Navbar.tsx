@@ -198,6 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const primaryNavLinks: { id: string; label: string; href: string; badge?: string; isReels?: boolean }[] = [
     { id: 'home', label: navText.home, href: '#home' },
+    { id: 'all-vrats', label: 'सनातन व्रत', href: '#all-vrats' },
     { id: 'reels', label: navText.reels, href: '#reels', isReels: true },
     { id: 'guide', label: navText.guide, href: '#guide' },
     { id: 'arghya', label: navText.arghya, href: '#arghya' },

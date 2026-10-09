@@ -33,7 +33,14 @@ const routes = [
   'chat',
   'chhath-chat',
   'explore',
-  'explore-detailed'
+  'explore-detailed',
+  'all-vrats',
+  'vrats',
+  'vrat-katha',
+  'aarti-sangrah',
+  'paath-chalisa',
+  'shubh-vichar',
+  'famous-temples'
 ];
 
 const distDir = path.resolve(__dirname, '../dist');
