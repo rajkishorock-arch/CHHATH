@@ -363,25 +363,26 @@ export const UserSyncService = {
   async fetchJapMalaData(uid: string): Promise<JapMalaCloudData | null> {
     if (!uid) return null;
     try {
-      // 1. Try local cache first
+      // 1. Try devotee-specific local cache first
+      let localObj: JapMalaCloudData | null = null;
       const localCached = localStorage.getItem(`chhath_jap_mala_${uid}`);
       if (localCached) {
-        const parsed = JSON.parse(localCached);
-        // Return cached immediately and refresh in background
-        this.fetchUserData(uid).then(cloudUser => {
-          if (cloudUser?.japMala) {
-            localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(cloudUser.japMala));
-          }
-        }).catch(() => {});
-        return parsed;
+        try {
+          localObj = JSON.parse(localCached);
+        } catch {}
       }
 
-      // 2. Fetch full user record
+      // 2. Fetch fresh user record from cloud
       const cloudUser = await this.fetchUserData(uid);
       if (cloudUser?.japMala) {
-        localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(cloudUser.japMala));
+        try {
+          localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(cloudUser.japMala));
+        } catch {}
         return cloudUser.japMala;
       }
+
+      // If cloud does not have record yet, return user's local cache if present
+      if (localObj) return localObj;
     } catch (e) {
       console.warn('[UserSync] fetchJapMalaData error:', e);
     }
@@ -393,11 +394,9 @@ export const UserSyncService = {
    */
   async saveJapMalaData(uid: string, japMala: JapMalaCloudData): Promise<boolean> {
     if (!uid) return false;
-    // 1. Instant local cache update
+    // 1. Instant local devotee cache update strictly scoped to this user
     try {
       localStorage.setItem(`chhath_jap_mala_${uid}`, JSON.stringify(japMala));
-      // Also update standard local completed count for backward compatibility
-      localStorage.setItem('digital_mala_completed', (japMala.totalMalas || 0).toString());
     } catch {}
 
     // 2. Queue cloud storage update

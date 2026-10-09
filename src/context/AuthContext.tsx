@@ -96,6 +96,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     async function initSession() {
+      // Purge legacy un-scoped mala keys so they never contaminate guest or user sessions
+      try {
+        localStorage.removeItem('digital_mala_completed');
+        localStorage.removeItem('digital_mala_total_chants');
+        localStorage.removeItem('digital_mala_today_chants');
+        localStorage.removeItem('digital_mala_count');
+      } catch {}
+
       try {
         // 1. Check for real Google OAuth redirect result on first-party domain
         const redirectUser = await AuthService.handleRedirectResult();
@@ -256,6 +264,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     await AuthService.logout();
     ReelsStorage.setSession(null);
+    try {
+      localStorage.removeItem('digital_mala_completed');
+      localStorage.removeItem('digital_mala_total_chants');
+      localStorage.removeItem('digital_mala_today_chants');
+      localStorage.removeItem('digital_mala_count');
+    } catch {}
     setCurrentUser(null);
     setUserSettings(null);
     setActiveSessions([]);

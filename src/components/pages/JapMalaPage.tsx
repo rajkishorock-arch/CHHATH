@@ -182,77 +182,178 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const autoChantTimerRef = useRef<any>(null);
+  const cloudSaveTimerRef = useRef<any>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // 1. Initial Load & Cloud Sync on mount and user change
+  // 1. Initial Load & Cloud Sync on mount and devotee user change
   useEffect(() => {
+    let isCancelled = false;
+
+    // Purge legacy shared keys so they never leak across users or unauthenticated view
+    try {
+      localStorage.removeItem('digital_mala_completed');
+      localStorage.removeItem('digital_mala_total_chants');
+      localStorage.removeItem('digital_mala_today_chants');
+      localStorage.removeItem('digital_mala_count');
+    } catch {}
+
     async function loadUserData() {
-      if (currentUser?.id) {
-        // Fetch cloud data for logged-in user
-        const cloudData = await UserSyncService.fetchJapMalaData(currentUser.id);
-        if (cloudData) {
-          setCompletedMalas(cloudData.totalMalas || 0);
-          setTotalChants(cloudData.totalChants || 0);
-          setTodayChants(cloudData.todayChants || 0);
-          setStreakDays(cloudData.streakDays || 1);
-          if (cloudData.mantraBreakdown) setMantraBreakdown(cloudData.mantraBreakdown);
-          if (cloudData.sankalpTargetMalas) setSankalpTarget(cloudData.sankalpTargetMalas);
-          if (cloudData.beadType) setBeadType(cloudData.beadType);
-          if (cloudData.favoriteMantraId) {
-            const m = VEDIC_MANTRAS.find(v => v.id === cloudData.favoriteMantraId);
-            if (m) setSelectedMantra(m);
-          }
-          setCloudSynced(true);
-          return;
+      // Devotee is NOT logged in: strictly clean zero state (guest cannot see old user data)
+      if (!currentUser?.id) {
+        if (!isCancelled) {
+          setCount(0);
+          setCompletedMalas(0);
+          setTotalChants(0);
+          setTodayChants(0);
+          setStreakDays(0);
+          setMantraBreakdown({});
+          setCloudSynced(false);
         }
+        return;
       }
 
-      // Fallback: Read local completed malas
+      // Devotee IS logged in: Load this devotee's personal records!
+      const userKey = `chhath_jap_mala_${currentUser.id}`;
+      let hasCached = false;
+
+      // 1. Try local user-scoped cache for instant zero-latency load
       try {
-        const localMalas = parseInt(localStorage.getItem('digital_mala_completed') || '0', 10);
-        setCompletedMalas(localMalas);
-        const localChants = parseInt(localStorage.getItem('digital_mala_total_chants') || (localMalas * 108).toString(), 10);
-        setTotalChants(localChants);
-      } catch {}
+        const cachedRaw = localStorage.getItem(userKey);
+        if (cachedRaw) {
+          const cachedData: JapMalaCloudData = JSON.parse(cachedRaw);
+          if (!isCancelled) {
+            hasCached = true;
+            setCompletedMalas(cachedData.totalMalas || 0);
+            setTotalChants(cachedData.totalChants || 0);
+
+            // Date check for today's chants
+            const isToday = cachedData.lastChantedDate && 
+              new Date(cachedData.lastChantedDate).toDateString() === new Date().toDateString();
+            setTodayChants(isToday ? (cachedData.todayChants || 0) : 0);
+
+            setStreakDays(cachedData.streakDays || 1);
+            if (cachedData.mantraBreakdown) setMantraBreakdown(cachedData.mantraBreakdown);
+            if (cachedData.sankalpTargetMalas) setSankalpTarget(cachedData.sankalpTargetMalas);
+            if (cachedData.beadType) setBeadType(cachedData.beadType);
+            if (cachedData.favoriteMantraId) {
+              const m = VEDIC_MANTRAS.find(v => v.id === cachedData.favoriteMantraId);
+              if (m) setSelectedMantra(m);
+            }
+            setCloudSynced(true);
+          }
+        } else {
+          // New devotee without local cache -> clean 0 state
+          if (!isCancelled) {
+            setCount(0);
+            setCompletedMalas(0);
+            setTotalChants(0);
+            setTodayChants(0);
+            setStreakDays(1);
+            setMantraBreakdown({});
+            setCloudSynced(false);
+          }
+        }
+      } catch (err) {
+        console.warn('Error reading devotee local cache:', err);
+      }
+
+      // 2. Fetch authoritative cloud records for this devotee
+      try {
+        const cloudData = await UserSyncService.fetchJapMalaData(currentUser.id);
+        if (!isCancelled) {
+          if (cloudData) {
+            setCompletedMalas(cloudData.totalMalas || 0);
+            setTotalChants(cloudData.totalChants || 0);
+
+            const isToday = cloudData.lastChantedDate && 
+              new Date(cloudData.lastChantedDate).toDateString() === new Date().toDateString();
+            setTodayChants(isToday ? (cloudData.todayChants || 0) : 0);
+
+            setStreakDays(cloudData.streakDays || 1);
+            if (cloudData.mantraBreakdown) setMantraBreakdown(cloudData.mantraBreakdown);
+            if (cloudData.sankalpTargetMalas) setSankalpTarget(cloudData.sankalpTargetMalas);
+            if (cloudData.beadType) setBeadType(cloudData.beadType);
+            if (cloudData.favoriteMantraId) {
+              const m = VEDIC_MANTRAS.find(v => v.id === cloudData.favoriteMantraId);
+              if (m) setSelectedMantra(m);
+            }
+            setCloudSynced(true);
+          } else if (!hasCached) {
+            // Fresh account with 0 chants on cloud
+            setCompletedMalas(0);
+            setTotalChants(0);
+            setTodayChants(0);
+            setCloudSynced(true);
+          }
+        }
+      } catch (err) {
+        console.warn('Error fetching cloud data for devotee:', err);
+      }
     }
 
     loadUserData();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [currentUser?.id]);
 
-  // Clean up auto-chanting on unmount
+  // Clean up timers on unmount
   useEffect(() => {
     return () => {
       if (autoChantTimerRef.current) clearInterval(autoChantTimerRef.current);
+      if (cloudSaveTimerRef.current) clearTimeout(cloudSaveTimerRef.current);
     };
   }, []);
 
-  // 2. Persist to Cloud & Local Storage
-  const persistCounts = (newCount: number, newMalas: number, newTotal: number, newToday: number, newBreakdown: Record<string, number>) => {
+  // 2. Persist to Cloud & Local Storage (Strictly Scoped to Current Devotee)
+  const persistCounts = (
+    newCount: number, 
+    newMalas: number, 
+    newTotal: number, 
+    newToday: number, 
+    newBreakdown: Record<string, number>,
+    immediate = false
+  ) => {
+    if (!currentUser?.id) return;
+
+    const userKey = `chhath_jap_mala_${currentUser.id}`;
+    const payload: JapMalaCloudData = {
+      totalMalas: newMalas,
+      totalChants: newTotal,
+      todayChants: newToday,
+      lastChantedDate: new Date().toISOString(),
+      favoriteMantraId: selectedMantra.id,
+      mantraBreakdown: newBreakdown,
+      sankalpTargetMalas: sankalpTarget,
+      beadType,
+      streakDays
+    };
+
+    // 1. Instant local persistence strictly for this logged-in devotee
     try {
-      localStorage.setItem('digital_mala_completed', newMalas.toString());
-      localStorage.setItem('digital_mala_total_chants', newTotal.toString());
-      localStorage.setItem('digital_mala_today_chants', newToday.toString());
+      localStorage.setItem(userKey, JSON.stringify(payload));
     } catch {}
 
-    if (currentUser?.id) {
-      const payload: JapMalaCloudData = {
-        totalMalas: newMalas,
-        totalChants: newTotal,
-        todayChants: newToday,
-        lastChantedDate: new Date().toISOString(),
-        favoriteMantraId: selectedMantra.id,
-        mantraBreakdown: newBreakdown,
-        sankalpTargetMalas: sankalpTarget,
-        beadType,
-        streakDays
-      };
-      UserSyncService.saveJapMalaData(currentUser.id, payload).then(() => {
-        setCloudSynced(true);
+    // 2. Cloud sync queue with debounce
+    if (cloudSaveTimerRef.current) {
+      clearTimeout(cloudSaveTimerRef.current);
+    }
+
+    const doCloudSync = () => {
+      UserSyncService.saveJapMalaData(currentUser.id, payload).then((ok) => {
+        if (ok) setCloudSynced(true);
       });
+    };
+
+    if (immediate) {
+      doCloudSync();
+    } else {
+      cloudSaveTimerRef.current = setTimeout(doCloudSync, 600);
     }
   };
 
@@ -298,7 +399,7 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
       setTotalChants(nextTotalChants);
       setTodayChants(nextTodayChants);
 
-      persistCounts(0, nextMalas, nextTotalChants, nextTodayChants, nextBreakdown);
+      persistCounts(0, nextMalas, nextTotalChants, nextTodayChants, nextBreakdown, true);
 
       // Play sacred bell & shankh celebration
       spiritualAudio.playTempleBell();
@@ -772,10 +873,21 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
                   <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
                   आपकी साधना सांख्यिकी (Stats):
                 </span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-                  <Cloud className="w-3 h-3" />
-                  क्लाउड सुरक्षित
-                </span>
+                {isAuthenticated && currentUser ? (
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <Cloud className="w-3 h-3" />
+                    <span>क्लाउड सुरक्षित</span>
+                    <span className="hidden sm:inline">• {currentUser.name || 'खाता'}</span>
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => openAuthModal('login', '108 जप माला साधना शुरू करने और अपने सभी जप को अपने अकाउंट में सुरक्षित रखने के लिए कृपया लॉगिन करें।')}
+                    className="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 hover:underline cursor-pointer bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 transition-all active:scale-95"
+                  >
+                    <User className="w-3 h-3" />
+                    <span>लॉगिन आवश्यक</span>
+                  </button>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-2 text-center">
