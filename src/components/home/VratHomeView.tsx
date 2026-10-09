@@ -364,7 +364,7 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
   // Handle clicking on ANY festival banner -> Opens dedicated full-featured app section!
   const handleBannerClick = (banner: DynamicBannerItem) => {
     if (banner.isChhath || banner.id.startsWith('chhath')) {
-      onNavigate('chhath');
+      onNavigate('home');
     } else {
       if (onSelectFestival) {
         onSelectFestival(banner);

@@ -66,14 +66,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         <button
           onClick={() => handleNav('home')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'home' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
+            activeTab === 'home' || activeTab === 'chhath' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <Home className={`w-5 h-5 ${activeTab === 'home' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
+          <Home className={`w-5 h-5 ${activeTab === 'home' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
             {labels.home}
           </span>
-          {activeTab === 'home' && (
+          {(activeTab === 'home' || activeTab === 'chhath') && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
           )}
         </button>
@@ -82,14 +82,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         <button
           onClick={() => handleNav('music')}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl min-w-[58px] transition-all active:scale-95 cursor-pointer ${
-            activeTab === 'music' || activeTab === 'chhath' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
+            activeTab === 'music' || activeTab === 'all-vrats' ? 'text-[#ea580c] font-bold' : 'text-[#78350f]/70 hover:text-[#ea580c]'
           }`}
         >
-          <Music className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'chhath' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
+          <Music className={`w-5 h-5 ${activeTab === 'music' || activeTab === 'all-vrats' ? 'stroke-[2.5] scale-105 text-[#ea580c]' : 'stroke-2 text-[#78350f]'}`} />
           <span className="text-[11px] font-mukta font-bold mt-0.5 leading-none">
             {labels.songs}
           </span>
-          {(activeTab === 'music' || activeTab === 'chhath') && (
+          {(activeTab === 'music' || activeTab === 'all-vrats') && (
             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c] mt-0.5" />
           )}
         </button>

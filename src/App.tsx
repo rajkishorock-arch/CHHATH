@@ -558,9 +558,9 @@ const MainContent: React.FC = () => {
     if (featureModal) { setFeatureModal(null); return 'handled'; }
     if (japMalaModalOpen) { setJapMalaModalOpen(false); return 'handled'; }
 
-    // 5. Navigation: If user is on any vrat/puja section, return to home
-    if (['puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples', 'paath-chalisa', 'shubh-vichar', 'all-vrats'].includes(activeTab)) {
-      handleNavigate('home');
+    // 5. Navigation: If user is on any vrat/puja section, return to music (where Vrat & Mahaparv Platform is shifted)
+    if (['festival-detail', 'puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples', 'all-vrats'].includes(activeTab)) {
+      handleNavigate('music');
       return 'handled';
     }
 
@@ -670,7 +670,6 @@ const MainContent: React.FC = () => {
 
       {/* Header Navigation (Hidden on mobile dedicated views to avoid double headers and viewport squeeze) */}
       {(!isMobileScreen || ![
-        'home',
         'festival-detail',
         'shubh-vichar', 
         'paath-chalisa', 
@@ -680,7 +679,8 @@ const MainContent: React.FC = () => {
         'samagri-list', 
         'mantra-list', 
         'famous-temples',
-        'all-vrats'
+        'all-vrats',
+        ...(musicInitialQuery ? [] : ['music'])
       ].includes(activeTab)) && (
         <Navbar
           activeTab={activeTab}
@@ -696,21 +696,8 @@ const MainContent: React.FC = () => {
       <main className="flex-1 pb-36 lg:pb-16">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           <div className="w-full">
-            {/* 1. Main Home Screen: Exact Screenshot 2 Vrat & Mahaparv Platform */}
-            <div style={{ display: activeTab === 'home' ? 'block' : 'none' }}>
-              <VratHomeView
-                onNavigate={handleNavigate}
-                onSelectFestival={(banner) => {
-                  setSelectedFestivalBanner(banner);
-                }}
-                onOpenSidebarMenu={() => {
-                  window.dispatchEvent(new CustomEvent('open_sidebar_drawer'));
-                }}
-              />
-            </div>
-
-            {/* 2. Dedicated Chhath Mahaparv Hub (Previous Home setup shifted next to home as requested!) */}
-            <div style={{ display: activeTab === 'chhath' ? 'block' : 'none' }}>
+            {/* 1. Main Home Screen: Chhath Mahaparv Digital Hub (Restored to Home as requested!) */}
+            <div style={{ display: activeTab === 'home' || activeTab === 'chhath' ? 'block' : 'none' }}>
               {isMobileScreen ? (
                 <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-4">
                   <div className="px-2 sm:px-0 pt-1 sm:pt-0">
@@ -728,6 +715,25 @@ const MainContent: React.FC = () => {
                   onOpenFeatureModal={setFeatureModal}
                   onOpenAssistant={() => handleNavigate('ai-pandit')}
                   initialQuery={musicInitialQuery}
+                />
+              )}
+            </div>
+
+            {/* 2. Sarv-Vrat & Mahaparv Platform (Shifted to where Song Section was!) */}
+            <div style={{ display: activeTab === 'music' || activeTab === 'all-vrats' ? 'block' : 'none' }}>
+              {musicInitialQuery && musicInitialQuery.trim().length > 0 ? (
+                <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-3">
+                  <SongsSection initialQuery={musicInitialQuery} />
+                </div>
+              ) : (
+                <VratHomeView
+                  onNavigate={handleNavigate}
+                  onSelectFestival={(banner) => {
+                    setSelectedFestivalBanner(banner);
+                  }}
+                  onOpenSidebarMenu={() => {
+                    window.dispatchEvent(new CustomEvent('open_sidebar_drawer'));
+                  }}
                 />
               )}
             </div>
@@ -801,12 +807,6 @@ const MainContent: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'music' && (
-            <div className="w-full max-w-6xl mx-auto px-0 sm:px-4 py-0 sm:py-6 space-y-2 sm:space-y-3">
-              <SongsSection initialQuery={musicInitialQuery} />
-            </div>
-          )}
-
           {activeTab === 'my-chhath' && (
             <MyChhathDashboard onNavigate={handleNavigate} />
           )}
@@ -867,7 +867,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'puja-vidhi' && (
             <Suspense fallback={<ComponentLoader />}>
               <PujaVidhiListView
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -876,7 +876,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'vrat-katha' && (
             <Suspense fallback={<ComponentLoader />}>
               <VratKathaListView
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -885,7 +885,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'aarti-sangrah' && (
             <Suspense fallback={<ComponentLoader />}>
               <AartiSangrahListView
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -894,7 +894,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'samagri-list' && (
             <Suspense fallback={<ComponentLoader />}>
               <SamagriListView
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -903,7 +903,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'mantra-list' && (
             <Suspense fallback={<ComponentLoader />}>
               <MantraListView
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -930,7 +930,7 @@ const MainContent: React.FC = () => {
           {activeTab === 'famous-temples' && (
             <Suspense fallback={<ComponentLoader />}>
               <FamousTemplesListView
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
               />
             </Suspense>
@@ -940,7 +940,7 @@ const MainContent: React.FC = () => {
             <Suspense fallback={<ComponentLoader />}>
               <DedicatedFestivalHubView
                 festival={getCompleteFestivalHubData(selectedFestivalBanner)}
-                onBack={() => handleNavigate('home')}
+                onBack={() => handleNavigate('music')}
                 onGoHome={() => handleNavigate('home')}
                 onOpenJapMala={() => setJapMalaModalOpen(true)}
               />
