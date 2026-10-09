@@ -247,9 +247,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       window.dispatchEvent(new CustomEvent('chhath_music_search', { detail: { query } }));
     }
     if (onNavigate) {
-      onNavigate('home');
+      onNavigate('music');
     } else {
-      window.location.hash = query ? `#home?q=${encodeURIComponent(query)}` : '#home';
+      window.location.hash = query ? `#music?q=${encodeURIComponent(query)}` : '#music';
     }
   };
 

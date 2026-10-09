@@ -316,6 +316,21 @@ const MainContent: React.FC = () => {
     return () => window.removeEventListener('open_jap_mala', handleOpenMala);
   }, []);
 
+  // When any top search occurs, switch immediately to music tab and show results
+  useEffect(() => {
+    const handleGlobalMusicSearch = (e: any) => {
+      const q = e?.detail?.query;
+      if (q && typeof q === 'string' && q.trim()) {
+        const cleanQ = q.trim();
+        setMusicInitialQuery(cleanQ);
+        setActiveTab('music');
+        window.location.hash = `#music?q=${encodeURIComponent(cleanQ)}`;
+      }
+    };
+    window.addEventListener('chhath_music_search', handleGlobalMusicSearch);
+    return () => window.removeEventListener('chhath_music_search', handleGlobalMusicSearch);
+  }, []);
+
   const handleSelectUserFromSearch = (handleOrUsername: string) => {
     if (!handleOrUsername) return;
     const clean = handleOrUsername.trim().toLowerCase();
@@ -928,7 +943,7 @@ const MainContent: React.FC = () => {
           onSelectUser={handleSelectUserFromSearch}
           onSearchSubmit={(q) => {
             setMusicInitialQuery(q);
-            handleNavigate('home');
+            handleNavigate('music');
             setSearchModalOpen(false);
           }}
         />

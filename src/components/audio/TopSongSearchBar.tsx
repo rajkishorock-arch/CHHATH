@@ -78,7 +78,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
     if (onNavigateToMusic) {
       onNavigateToMusic(q);
     } else {
-      window.location.hash = `#home?q=${encodeURIComponent(q)}`;
+      window.location.hash = `#music?q=${encodeURIComponent(q)}`;
     }
 
     // Global event for immediate instant handling
