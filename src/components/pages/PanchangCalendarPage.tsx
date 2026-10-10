@@ -329,7 +329,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   const prevM = currentMonthIndex === 0 ? 12 : currentMonthIndex;
                   setSelectedDateStr(`2026-${String(prevM).padStart(2, '0')}-01`);
                 }}
-                className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 flex items-center justify-center transition-all shadow-xs cursor-pointer border border-amber-300/60"
+                className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-stone-800 hover:bg-amber-200 dark:hover:bg-stone-700 text-amber-950 dark:text-amber-300 flex items-center justify-center transition-all shadow-xs cursor-pointer border border-amber-300/60 dark:border-stone-700"
                 title="पिछला महीना"
                 aria-label="पिछला महीना"
               >
@@ -357,7 +357,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   const nextM = currentMonthIndex === 11 ? 1 : currentMonthIndex + 2;
                   setSelectedDateStr(`2026-${String(nextM).padStart(2, '0')}-01`);
                 }}
-                className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 flex items-center justify-center transition-all shadow-xs cursor-pointer border border-amber-300/60"
+                className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-stone-800 hover:bg-amber-200 dark:hover:bg-stone-700 text-amber-950 dark:text-amber-300 flex items-center justify-center transition-all shadow-xs cursor-pointer border border-amber-300/60 dark:border-stone-700"
                 title="अगला महीना"
                 aria-label="अगला महीना"
               >
@@ -375,9 +375,10 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   setCurrentMonthIndex(targetM);
                   setSelectedDateStr(`2026-${String(targetM + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-white dark:bg-stone-800 border border-amber-300 text-amber-950 dark:text-amber-300 text-xs font-bold shadow-xs hover:bg-amber-50 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-white dark:bg-stone-800 border border-amber-300 dark:border-stone-700 text-amber-950 dark:text-amber-300 text-xs font-bold shadow-xs hover:bg-amber-50 dark:hover:bg-stone-700 cursor-pointer flex items-center gap-1.5"
               >
-                📍 आज (Today)
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
+                <span>📍 आज (Today)</span>
               </button>
 
               <button
@@ -409,7 +410,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   className={`px-3 py-1.5 rounded-xl text-xs font-mukta font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border ${
                     isSelected
                       ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 border-amber-500 shadow-md scale-105 font-black'
-                      : 'bg-white/90 dark:bg-stone-800/80 hover:bg-amber-100 text-[#78350f] dark:text-stone-300 border-amber-200/60 dark:border-stone-700'
+                      : 'bg-white/90 dark:bg-stone-800/90 hover:bg-amber-100 dark:hover:bg-stone-700 text-[#78350f] dark:text-stone-200 border-amber-200/60 dark:border-stone-700'
                   }`}
                 >
                   <span>{m.icon}</span>
@@ -436,8 +437,8 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                     key={w.en} 
                     className={`py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-mukta font-black shadow-2xs ${
                       w.isSun 
-                        ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800' 
-                        : 'bg-amber-50/80 dark:bg-stone-800 text-[#78350f] dark:text-stone-300 border border-amber-200/50 dark:border-stone-700'
+                        ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60' 
+                        : 'bg-amber-50/80 dark:bg-stone-900 text-[#78350f] dark:text-stone-300 border border-amber-200/50 dark:border-stone-800'
                     }`}
                     title={w.full}
                   >
@@ -454,7 +455,14 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   const isSun = cell.panchang.isSunday;
                   const hasEvents = cell.events.length > 0;
                   const isChhath = cell.events.some(e => e.isChhath || e.id.includes('chhath'));
-                  const hasSpecialDay = hasEvents || cell.panchang.isPurnima || cell.panchang.isAmavasya;
+
+                  // Precise Today Detection (Current real system date or selected 2026 month match)
+                  const now = new Date();
+                  const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                  const isToday = cell.isCurrentMonth && (
+                    cell.dateStr === todayDateStr || 
+                    (selectedYear === 2026 && currentMonthIndex === now.getMonth() && cell.dayNumber === now.getDate())
+                  );
 
                   return (
                     <div
@@ -462,40 +470,85 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                       onClick={() => {
                         setSelectedDateStr(cell.dateStr);
                       }}
-                      className={`h-11 sm:h-14 md:h-16 rounded-xl sm:rounded-2xl transition-all flex flex-col items-center justify-center relative cursor-pointer select-none border ${
+                      className={`min-h-[58px] sm:min-h-[72px] md:min-h-[84px] rounded-xl sm:rounded-2xl transition-all flex flex-col justify-between items-center p-1 sm:p-1.5 relative cursor-pointer select-none border ${
                         !cell.isCurrentMonth
-                          ? 'opacity-20 pointer-events-none bg-stone-100/30 dark:bg-stone-900/10 border-transparent'
+                          ? 'opacity-20 pointer-events-none bg-stone-100/30 dark:bg-stone-900/10 border-transparent text-stone-400 dark:text-stone-600'
                           : isSelected
-                          ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-stone-950 border-amber-600 shadow-md scale-105 ring-2 ring-amber-400 font-black'
+                          ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-stone-950 border-amber-600 shadow-md scale-[1.03] ring-2 ring-amber-400 font-black'
+                          : isToday
+                          ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-2 border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-400 dark:ring-emerald-400 ring-offset-1 ring-offset-white dark:ring-offset-stone-950 shadow-[0_0_15px_rgba(16,185,129,0.45)]'
                           : isChhath
-                          ? 'bg-gradient-to-br from-amber-50 to-orange-100/90 dark:from-amber-950/40 dark:to-orange-950/40 border-amber-400 hover:shadow-xs'
+                          ? 'bg-gradient-to-b from-orange-100/95 via-amber-100/80 to-orange-50 dark:from-orange-950/80 dark:via-amber-950/60 dark:to-stone-900 border-2 border-orange-500 dark:border-orange-400 shadow-sm ring-1 ring-orange-400/50 hover:scale-[1.02]'
                           : hasEvents
-                          ? 'bg-amber-50/70 dark:bg-amber-950/20 border-amber-300/80 hover:bg-amber-100/60 dark:hover:bg-amber-900/30'
-                          : 'bg-white dark:bg-stone-850 hover:bg-amber-50/50 dark:hover:bg-stone-800 border-amber-200/50 dark:border-stone-800'
+                          ? 'bg-gradient-to-b from-amber-50 via-orange-50/90 to-amber-100/60 dark:from-amber-950/70 dark:via-stone-900 dark:to-orange-950/60 border-2 border-amber-400 dark:border-amber-500 shadow-xs dark:shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:scale-[1.02]'
+                          : cell.panchang.isPurnima
+                          ? 'bg-amber-50/80 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-600/60 hover:scale-[1.02]'
+                          : cell.panchang.isAmavasya
+                          ? 'bg-stone-100/80 dark:bg-stone-800/60 border border-stone-300 dark:border-stone-700 hover:scale-[1.02]'
+                          : 'bg-white dark:bg-stone-900/90 hover:bg-amber-50/60 dark:hover:bg-stone-800 border-amber-200/60 dark:border-stone-800 text-stone-900 dark:text-stone-100 shadow-2xs'
                       }`}
                     >
-                      {/* Solar Date Number in Clean English Numerals */}
-                      <span className={`text-sm sm:text-base md:text-lg font-bold font-mono leading-none ${
-                        isSelected
-                          ? 'text-stone-950 font-black'
-                          : isSun
-                          ? 'text-rose-600 dark:text-rose-400 font-black'
-                          : 'text-[#451a03] dark:text-stone-200'
-                      }`}>
-                        {cell.dayNumber}
-                      </span>
+                      {/* Animated TODAY Badge pinned to top-right */}
+                      {isToday && (
+                        <span className="absolute -top-2 -right-1 px-1.5 py-0.2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-md animate-bounce z-10">
+                          आज
+                        </span>
+                      )}
 
-                      {/* Clean Minimalist Indicator Dot (Zero text clutter) */}
-                      {cell.isCurrentMonth && hasSpecialDay && (
-                        <div className="flex items-center gap-1 mt-1">
-                          {isChhath ? (
-                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-orange-600 dark:bg-orange-400 ring-2 ring-orange-300 dark:ring-orange-800'}`} />
-                          ) : hasEvents ? (
-                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-amber-500 dark:bg-amber-400'}`} />
+                      {/* Top Row: Date Number + Sunday Dot */}
+                      <div className="w-full flex items-center justify-between px-0.5">
+                        <span className={`text-sm sm:text-base md:text-lg font-bold font-mono leading-none ${
+                          isSelected
+                            ? 'text-stone-950 font-black'
+                            : isSun
+                            ? 'text-rose-600 dark:text-rose-400 font-black'
+                            : isToday
+                            ? 'text-emerald-700 dark:text-emerald-300 font-black'
+                            : 'text-[#451a03] dark:text-stone-100'
+                        }`}>
+                          {cell.dayNumber}
+                        </span>
+
+                        {isSun && !isSelected && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" title="रविवार" />
+                        )}
+                      </div>
+
+                      {/* Bottom Section: Festival / Vrat Badge OR Tithi */}
+                      {cell.isCurrentMonth && (
+                        <div className="w-full flex flex-col items-center mt-auto">
+                          {hasEvents ? (
+                            <span 
+                              className={`w-full truncate px-1 py-0.5 rounded text-[8px] sm:text-[9px] md:text-[10px] font-black text-center leading-tight transition-transform ${
+                                isSelected
+                                  ? 'bg-stone-950 text-amber-300'
+                                  : isChhath
+                                  ? 'bg-orange-500 text-stone-950 font-black shadow-2xs ring-1 ring-orange-300'
+                                  : 'bg-amber-500/25 dark:bg-amber-400/25 text-amber-950 dark:text-amber-200 border border-amber-500/40'
+                              }`} 
+                              title={cell.events[0].title}
+                            >
+                              {isChhath ? '🪔 ' : '✨ '}
+                              {cell.events[0].hindiName || cell.events[0].title}
+                            </span>
                           ) : cell.panchang.isPurnima ? (
-                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-amber-400 ring-1 ring-amber-300'}`} />
+                            <span className={`w-full truncate px-0.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold text-center leading-tight ${
+                              isSelected ? 'text-stone-950' : 'bg-amber-400/20 text-amber-900 dark:text-amber-300'
+                            }`}>
+                              🌕 पूर्णिमा
+                            </span>
+                          ) : cell.panchang.isAmavasya ? (
+                            <span className={`w-full truncate px-0.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold text-center leading-tight ${
+                              isSelected ? 'text-stone-950' : 'bg-stone-300/40 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                            }`}>
+                              🌑 अमावस्या
+                            </span>
                           ) : (
-                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-stone-400'}`} />
+                            <span className={`text-[9px] sm:text-[10px] font-bold font-mukta truncate ${
+                              isSelected ? 'text-stone-950 opacity-90' : 'text-stone-400 dark:text-stone-500'
+                            }`}>
+                              {cell.panchang.tithiName}
+                            </span>
                           )}
                         </div>
                       )}
@@ -572,34 +625,34 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
               {/* 6 Core Limbs of Panchang (पंचांग के 5 अंग + सूर्य-चंद्र समय) */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs sm:text-sm font-mukta">
                 {/* 1. Tithi */}
-                <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
+                <div className="p-3 bg-white dark:bg-stone-800/90 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">🗓️ पावन तिथि</span>
                   <p className="font-serif font-black text-sm sm:text-base text-[#78350f] dark:text-stone-100">
                     {selectedDatePanchang.tithiName}
                   </p>
-                  <p className="text-[11px] text-gray-500">{selectedDatePanchang.pakshaFull}</p>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">{selectedDatePanchang.pakshaFull}</p>
                 </div>
 
                 {/* 2. Nakshatra */}
-                <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
+                <div className="p-3 bg-white dark:bg-stone-800/90 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">✨ नक्षत्र</span>
                   <p className="font-serif font-black text-sm sm:text-base text-[#78350f] dark:text-stone-100">
                     {selectedDatePanchang.nakshatra}
                   </p>
-                  <p className="text-[11px] text-gray-500">{selectedDatePanchang.nakshatraTiming}</p>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">{selectedDatePanchang.nakshatraTiming}</p>
                 </div>
 
                 {/* 3. Yoga & Karana */}
-                <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
+                <div className="p-3 bg-white dark:bg-stone-800/90 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">🧘 योग व करण</span>
                   <p className="font-serif font-black text-sm sm:text-base text-[#78350f] dark:text-stone-100">
                     {selectedDatePanchang.yoga}
                   </p>
-                  <p className="text-[11px] text-gray-500">करण: {selectedDatePanchang.karana}</p>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">करण: {selectedDatePanchang.karana}</p>
                 </div>
 
                 {/* 4. Sunrise & Sunset */}
-                <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
+                <div className="p-3 bg-white dark:bg-stone-800/90 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">🌅 सूर्योदय व सूर्यास्त</span>
                   <p className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
                     सूर्योदय: {selectedDatePanchang.sunrise}
@@ -610,7 +663,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 </div>
 
                 {/* 5. Moonrise & Moonset */}
-                <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
+                <div className="p-3 bg-white dark:bg-stone-800/90 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">🌙 चंद्रोदय व चंद्रास्त</span>
                   <p className="font-serif font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
                     चंद्रोदय: {selectedDatePanchang.moonrise}
@@ -621,7 +674,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 </div>
 
                 {/* 6. Abhijit Muhurat & Rahu Kaal */}
-                <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
+                <div className="p-3 bg-white dark:bg-stone-800/90 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
                   <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">⏰ शुभ व अशुभ काल</span>
                   <p className="text-[11px] text-emerald-800 dark:text-emerald-400 font-bold">
                     अभिजित: {selectedDatePanchang.abhijitMuhurat}
@@ -633,7 +686,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
               </div>
 
               {/* Auspicious Choghadiya Strip */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-300/80 flex items-center justify-between text-xs text-[#78350f] dark:text-amber-200 flex-wrap gap-2">
+              <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-amber-950/40 border border-amber-300/80 dark:border-stone-700 flex items-center justify-between text-xs text-[#78350f] dark:text-amber-200 flex-wrap gap-2">
                 <span className="font-bold flex items-center gap-1.5">
                   <Sun className="w-4 h-4 text-amber-600" />
                   <span>दिन का श्रेष्ठ चौघड़िया:</span>
@@ -689,7 +742,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                       isActive
                         ? 'bg-amber-500 text-stone-950 shadow-sm scale-105 font-black'
-                        : 'bg-white dark:bg-stone-900 border border-[#fed7aa] dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-amber-50'
+                        : 'bg-white dark:bg-stone-900 border border-[#fed7aa] dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-amber-50 dark:hover:bg-stone-800'
                     }`}
                   >
                     <span>{cat.label}</span>
@@ -710,7 +763,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                     className="group bg-white dark:bg-stone-900 rounded-2xl p-3.5 sm:p-4 border border-[#fed7aa] dark:border-stone-800 shadow-xs hover:shadow-md hover:border-amber-500 transition-all cursor-pointer flex gap-3.5 items-center select-none"
                   >
                     {/* Thumbnail Image */}
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-stone-950 border border-amber-200">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-stone-950 border border-amber-200 dark:border-stone-700">
                       <img
                         src={event.image}
                         alt={event.hindiName}
@@ -747,7 +800,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                       </p>
 
                       <div className="flex items-center justify-between pt-1">
-                        <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 font-bold text-[10px]">
+                        <span className="px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 font-bold text-[10px]">
                           शास्त्र सम्मत विधि व कथा
                         </span>
                         <span className="text-amber-600 dark:text-amber-400 font-black text-xs group-hover:translate-x-1 transition-transform">
@@ -774,7 +827,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold font-mukta whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
                     selectedMuhuratCat === cat.id
                       ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-black shadow-md scale-105'
-                      : 'bg-white dark:bg-stone-900 border border-[#fed7aa] text-[#78350f] hover:bg-amber-50'
+                      : 'bg-white dark:bg-stone-900 border border-[#fed7aa] dark:border-stone-800 text-[#78350f] dark:text-stone-300 hover:bg-amber-50 dark:hover:bg-stone-800'
                   }`}
                 >
                   <span>{cat.icon}</span>
@@ -817,7 +870,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                                 <span className="font-serif font-black text-sm text-[#78350f] dark:text-stone-100">
                                   {d.formatted}
                                 </span>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-300">
                                   {d.tithi}
                                 </span>
                               </div>

@@ -794,7 +794,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="flex-1 py-1.5 px-2.5 rounded-xl bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-750 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:border-amber-400/50 transition-all"
+            className="flex-1 py-1.5 px-2.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:border-amber-400/50 transition-all"
             title={theme === 'light' ? drawerUi.darkMode : drawerUi.lightMode}
           >
             {theme === 'light' ? (
@@ -814,7 +814,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           <div className="relative flex-1">
             <button
               onClick={() => setLangPickerOpen(!langPickerOpen)}
-              className="w-full py-1.5 px-2.5 rounded-xl bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-750 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:border-amber-400/50 transition-all"
+              className="w-full py-1.5 px-2.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:border-amber-400/50 transition-all"
             >
               <Languages className="w-3.5 h-3.5 text-amber-500" />
               <span>{langNames[language] || 'भाषा'}</span>
@@ -916,7 +916,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                             ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-500/20'
                             : item.highlight
                               ? 'bg-amber-500/10 hover:bg-amber-500/20 text-stone-900 dark:text-stone-100 border border-amber-500/25'
-                              : 'bg-white hover:bg-stone-100 dark:bg-stone-900/60 dark:hover:bg-stone-850 text-stone-800 dark:text-stone-200 border border-stone-200/80 dark:border-stone-800/80'
+                              : 'bg-white hover:bg-stone-100 dark:bg-stone-900/60 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200/80 dark:border-stone-800/80'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">

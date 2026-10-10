@@ -218,7 +218,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
           
           {/* Recent Searches (when query is empty) */}
           {!query && recentSearches.length > 0 && (
-            <div className="border-b border-stone-100 dark:border-stone-850 p-2">
+            <div className="border-b border-stone-100 dark:border-stone-800 p-2">
               <div className="flex items-center justify-between px-3 py-1 text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3 text-amber-500" />

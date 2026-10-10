@@ -355,7 +355,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
             </h4>
             <div className="space-y-3">
               {currentPrasad.method.map((step, idx) => (
-                <div key={idx} className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-850 border border-amber-500/15 flex items-start gap-3.5 shadow-2xs">
+                <div key={idx} className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800 border border-amber-500/15 flex items-start gap-3.5 shadow-2xs">
                   <span className="w-7 h-7 rounded-full bg-amber-500 text-stone-950 font-black text-sm flex items-center justify-center shrink-0 shadow">
                     {idx + 1}
                   </span>

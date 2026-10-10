@@ -58,7 +58,7 @@ export const SongList: React.FC<SongListProps> = ({ songs }) => {
             className={`group relative flex items-center justify-between p-3 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer shadow-sm ${
               isCurrent
                 ? 'bg-amber-50/90 dark:bg-gradient-to-r dark:from-amber-950/90 dark:via-stone-900 dark:to-amber-900/40 border-amber-400/70 shadow-lg shadow-amber-500/10 scale-[1.01]'
-                : 'bg-white dark:bg-stone-900/70 hover:bg-stone-50 dark:hover:bg-stone-850 border-stone-200 dark:border-amber-500/15 hover:border-amber-400/40'
+                : 'bg-white dark:bg-stone-900/70 hover:bg-stone-50 dark:hover:bg-stone-800 border-stone-200 dark:border-amber-500/15 hover:border-amber-400/40'
             }`}
           >
             {/* Track Left Info: Index + Image + Title + Singer */}

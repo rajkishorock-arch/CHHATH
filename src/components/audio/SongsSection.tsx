@@ -309,7 +309,7 @@ const YouTubeVideoCardComponent: React.FC<{
       className={`group rounded-none sm:rounded-2xl bg-white dark:bg-stone-900 border-y sm:border overflow-hidden transition-all duration-200 shadow-xs hover:shadow-md select-none flex flex-col justify-between ${
         isCurrent || isInlineActive
           ? 'border-amber-500 ring-2 ring-amber-500/50 shadow-md'
-          : 'border-stone-200 dark:border-stone-800/80 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-850'
+          : 'border-stone-200 dark:border-stone-800/80 hover:border-amber-500/40 hover:bg-stone-50 dark:hover:bg-stone-800'
       }`}
     >
       <div>
