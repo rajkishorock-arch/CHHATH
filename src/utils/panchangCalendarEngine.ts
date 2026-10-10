@@ -21,8 +21,8 @@ export interface DailyPanchangDetail {
   masaFull: string; // "कार्तिक - मार्गशीर्ष"
   ritu: string; // "हेमंत ऋतु"
   ayan: string; // "दक्षिणायन" | "उत्तरायण"
-  vikramSamvat: string; // "२०८३ (कालयुक्त)"
-  shakaSamvat: string; // "१९४८"
+  vikramSamvat: string; // "2083 (कालयुक्त)"
+  shakaSamvat: string; // "1948"
   moonPhase: 'purnima' | 'amavasya' | 'shukla' | 'krishna';
   moonPhaseIcon: string;
   isPurnima: boolean;
@@ -86,18 +86,18 @@ const TITHI_NAMES = [
 
 // Monthly Ritu & Ayan Mapping for 2026
 const MONTH_SEASONS = [
-  { month: 0, ritu: 'शिशिर ऋतु', ayan: 'उत्तरायण', masa: 'पौष - माघ', samvat: '२०८२' },
-  { month: 1, ritu: 'शिशिर ऋतु', ayan: 'उत्तरायण', masa: 'माघ - फाल्गुन', samvat: '२०८२' },
-  { month: 2, ritu: 'वसंत ऋतु', ayan: 'उत्तरायण', masa: 'फाल्गुन - चैत्र (नव संवत)', samvat: '२०८३' },
-  { month: 3, ritu: 'वसंत ऋतु', ayan: 'उत्तरायण', masa: 'चैत्र - वैशाख', samvat: '२०८३' },
-  { month: 4, ritu: 'ग्रीष्म ऋतु', ayan: 'उत्तरायण', masa: 'वैशाख - ज्येष्ठ', samvat: '२०८३' },
-  { month: 5, ritu: 'ग्रीष्म ऋतु', ayan: 'उत्तरायण/दक्षिणायन', masa: 'ज्येष्ठ - आषाढ़', samvat: '२०८३' },
-  { month: 6, ritu: 'वर्षा ऋतु', ayan: 'दक्षिणायन', masa: 'आषाढ़ - श्रावण', samvat: '२०८३' },
-  { month: 7, ritu: 'वर्षा ऋतु', ayan: 'दक्षिणायन', masa: 'श्रावण - भाद्रपद', samvat: '२०८३' },
-  { month: 8, ritu: 'शरद ऋतु', ayan: 'दक्षिणायन', masa: 'भाद्रपद - आश्विन', samvat: '२०८३' },
-  { month: 9, ritu: 'शरद ऋतु', ayan: 'दक्षिणायन', masa: 'आश्विन - कार्तिक', samvat: '२०८३' },
-  { month: 10, ritu: 'हेमंत ऋतु', ayan: 'दक्षिणायन', masa: 'कार्तिक - मार्गशीर्ष', samvat: '२०८३' },
-  { month: 11, ritu: 'हेमंत ऋतु', ayan: 'दक्षिणायन/उत्तरायण', masa: 'मार्गशीर्ष - पौष', samvat: '२०८३' }
+  { month: 0, ritu: 'शिशिर ऋतु', ayan: 'उत्तरायण', masa: 'पौष - माघ', samvat: '2082' },
+  { month: 1, ritu: 'शिशिर ऋतु', ayan: 'उत्तरायण', masa: 'माघ - फाल्गुन', samvat: '2082' },
+  { month: 2, ritu: 'वसंत ऋतु', ayan: 'उत्तरायण', masa: 'फाल्गुन - चैत्र (नव संवत)', samvat: '2083' },
+  { month: 3, ritu: 'वसंत ऋतु', ayan: 'उत्तरायण', masa: 'चैत्र - वैशाख', samvat: '2083' },
+  { month: 4, ritu: 'ग्रीष्म ऋतु', ayan: 'उत्तरायण', masa: 'वैशाख - ज्येष्ठ', samvat: '2083' },
+  { month: 5, ritu: 'ग्रीष्म ऋतु', ayan: 'उत्तरायण/दक्षिणायन', masa: 'ज्येष्ठ - आषाढ़', samvat: '2083' },
+  { month: 6, ritu: 'वर्षा ऋतु', ayan: 'दक्षिणायन', masa: 'आषाढ़ - श्रावण', samvat: '2083' },
+  { month: 7, ritu: 'वर्षा ऋतु', ayan: 'दक्षिणायन', masa: 'श्रावण - भाद्रपद', samvat: '2083' },
+  { month: 8, ritu: 'शरद ऋतु', ayan: 'दक्षिणायन', masa: 'भाद्रपद - आश्विन', samvat: '2083' },
+  { month: 9, ritu: 'शरद ऋतु', ayan: 'दक्षिणायन', masa: 'आश्विन - कार्तिक', samvat: '2083' },
+  { month: 10, ritu: 'हेमंत ऋतु', ayan: 'दक्षिणायन', masa: 'कार्तिक - मार्गशीर्ष', samvat: '2083' },
+  { month: 11, ritu: 'हेमंत ऋतु', ayan: 'दक्षिणायन/उत्तरायण', masa: 'मार्गशीर्ष - पौष', samvat: '2083' }
 ];
 
 // Known astronomical full moon (Purnima) and new moon (Amavasya) dates for 2026
@@ -351,8 +351,8 @@ export function getDailyPanchang(dateStr: string): DailyPanchangDetail {
     masaFull: seasonInfo.masa,
     ritu: seasonInfo.ritu,
     ayan: seasonInfo.ayan,
-    vikramSamvat: seasonInfo.samvat === '२०८३' ? '२०८३ (कालयुक्त संवत्सर)' : '२०८२ (क्रोधी संवत्सर)',
-    shakaSamvat: '१९४८ (शालिवाहन)',
+    vikramSamvat: seasonInfo.samvat === '2083' ? '2083 (कालयुक्त संवत्सर)' : '2082 (क्रोधी संवत्सर)',
+    shakaSamvat: '1948 (शालिवाहन)',
     moonPhase,
     moonPhaseIcon,
     isPurnima,

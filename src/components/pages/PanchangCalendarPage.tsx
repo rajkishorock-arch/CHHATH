@@ -214,10 +214,10 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
 
   const handleShareCalendar = async () => {
     const currentM = MONTH_NAMES_HINDI[currentMonthIndex];
-    const text = `🗓️ *सनातन पंचांग व कालनिर्णय २०२६*\n\nमाह: ${currentM.hi} (${currentM.masa})\nविक्रम संवत: २०८३ • ऋतु: ${currentM.ritu}\n\nप्रमुख पावन पर्व:\n${currentMonthEvents.map(e => `• ${e.hindiName} - ${e.formattedDate} (${e.tithi})`).join('\n')}\n\n📲 संपूर्ण पंचांग, पूजा विधि, कथा व मुहूर्त देखें: https://chhathvibes.vercel.app/#panchang-calendar`;
+    const text = `🗓️ *सनातन पंचांग व कालनिर्णय 2026*\n\nमाह: ${currentM.hi} (${currentM.masa})\nविक्रम संवत: 2083 • ऋतु: ${currentM.ritu}\n\nप्रमुख पावन पर्व:\n${currentMonthEvents.map(e => `• ${e.hindiName} - ${e.formattedDate} (${e.tithi})`).join('\n')}\n\n📲 संपूर्ण पंचांग, पूजा विधि, कथा व मुहूर्त देखें: https://chhathvibes.vercel.app/#panchang-calendar`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'सनातन पंचांग व कालनिर्णय २०२६', text });
+        await navigator.share({ title: 'सनातन पंचांग व कालनिर्णय 2026', text });
       } catch {}
     } else {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
@@ -261,10 +261,10 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
               <span>卐 शुभ लाभ</span>
             </div>
             <h1 className="font-serif text-lg sm:text-2xl font-black text-[#78350f] dark:text-amber-200 truncate leading-tight">
-              सनातन पंचांग व कालनिर्णय २०२६
+              सनातन पंचांग व कालनिर्णय 2026
             </h1>
             <p className="text-[10px] sm:text-xs text-[#9a3412] font-mukta font-bold truncate">
-              विक्रम संवत २०८३ • शक संवत १९४८ • कलि संवत ५१२७
+              विक्रम संवत 2083 • शक संवत 1948 • कलि संवत 5127
             </p>
           </div>
 
@@ -299,7 +299,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
           {[
             { id: 'wall-calendar', label: 'दीवार पंचांग कैलेंडर', icon: '🗓️' },
             { id: 'festival-list', label: 'मासिक पर्व व व्रत सूची', icon: '📋' },
-            { id: 'shubh-muhurat', label: 'शुभ मुहूर्त २०२६', icon: '💍' }
+            { id: 'shubh-muhurat', label: 'शुभ मुहूर्त 2026', icon: '💍' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -339,7 +339,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-serif text-xl sm:text-2xl font-black text-[#78350f] dark:text-amber-200 leading-tight">
-                    {activeMonthInfo.hi} २०२६
+                    {activeMonthInfo.hi} 2026
                   </h2>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 font-bold font-mono">
                     {activeMonthInfo.en}
@@ -447,14 +447,14 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 ))}
               </div>
 
-              {/* Real Authentic Calendar Grid */}
+              {/* Real Authentic Clean Calendar Grid */}
               <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
                 {monthCalendarGrid.map((cell, idx) => {
                   const isSelected = selectedDateStr === cell.dateStr;
                   const isSun = cell.panchang.isSunday;
                   const hasEvents = cell.events.length > 0;
-                  const primaryEvent = cell.events[0];
                   const isChhath = cell.events.some(e => e.isChhath || e.id.includes('chhath'));
+                  const hasSpecialDay = hasEvents || cell.panchang.isPurnima || cell.panchang.isAmavasya;
 
                   return (
                     <div
@@ -462,78 +462,43 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                       onClick={() => {
                         setSelectedDateStr(cell.dateStr);
                       }}
-                      className={`min-h-[74px] sm:min-h-[88px] md:min-h-[96px] p-1.5 sm:p-2 rounded-2xl transition-all flex flex-col justify-between items-stretch relative cursor-pointer select-none text-left border ${
+                      className={`h-11 sm:h-14 md:h-16 rounded-xl sm:rounded-2xl transition-all flex flex-col items-center justify-center relative cursor-pointer select-none border ${
                         !cell.isCurrentMonth
-                          ? 'opacity-25 pointer-events-none bg-stone-100/50 dark:bg-stone-900/20 border-transparent'
+                          ? 'opacity-20 pointer-events-none bg-stone-100/30 dark:bg-stone-900/10 border-transparent'
                           : isSelected
-                          ? 'bg-gradient-to-b from-amber-100 to-amber-200 dark:from-amber-950 dark:to-orange-950 border-2 border-amber-600 shadow-md scale-[1.02] ring-2 ring-amber-400/50'
+                          ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-stone-950 border-amber-600 shadow-md scale-105 ring-2 ring-amber-400 font-black'
                           : isChhath
-                          ? 'bg-gradient-to-b from-amber-50 to-orange-100/90 dark:from-amber-950/50 dark:to-orange-950/50 border-amber-400 hover:shadow-md'
+                          ? 'bg-gradient-to-br from-amber-50 to-orange-100/90 dark:from-amber-950/40 dark:to-orange-950/40 border-amber-400 hover:shadow-xs'
                           : hasEvents
-                          ? 'bg-gradient-to-b from-[#fffbf5] to-[#fef3c7]/60 dark:bg-amber-950/20 border-amber-300/80 hover:bg-amber-100/50'
-                          : cell.panchang.isPurnima
-                          ? 'bg-amber-50/70 border-amber-300'
-                          : cell.panchang.isAmavasya
-                          ? 'bg-stone-100/80 dark:bg-stone-850 border-stone-300'
-                          : 'bg-white dark:bg-stone-850 hover:bg-[#fef9f0] border-amber-200/50 dark:border-stone-800'
+                          ? 'bg-amber-50/70 dark:bg-amber-950/20 border-amber-300/80 hover:bg-amber-100/60 dark:hover:bg-amber-900/30'
+                          : 'bg-white dark:bg-stone-850 hover:bg-amber-50/50 dark:hover:bg-stone-800 border-amber-200/50 dark:border-stone-800'
                       }`}
                     >
-                      {/* Top Row: Solar Date Number & Moon Phase */}
-                      <div className="flex items-center justify-between leading-none">
-                        <span className={`text-sm sm:text-base md:text-lg font-serif font-black ${
-                          isSun 
-                            ? 'text-rose-600 dark:text-rose-400' 
-                            : isSelected 
-                            ? 'text-[#78350f] dark:text-amber-200' 
-                            : 'text-[#451a03] dark:text-stone-200'
-                        }`}>
-                          {cell.dayNumber}
-                        </span>
+                      {/* Solar Date Number in Clean English Numerals */}
+                      <span className={`text-sm sm:text-base md:text-lg font-bold font-mono leading-none ${
+                        isSelected
+                          ? 'text-stone-950 font-black'
+                          : isSun
+                          ? 'text-rose-600 dark:text-rose-400 font-black'
+                          : 'text-[#451a03] dark:text-stone-200'
+                      }`}>
+                        {cell.dayNumber}
+                      </span>
 
-                        <span className="text-[11px] sm:text-xs">
-                          {cell.panchang.moonPhaseIcon}
-                        </span>
-                      </div>
-
-                      {/* Middle Row: Accurate Tithi (e.g. शु. षष्ठी, पूर्णिमा, एकादशी) */}
-                      <div className="pt-0.5">
-                        <span className={`block text-[10px] sm:text-[11px] font-mukta font-bold truncate leading-tight ${
-                          cell.panchang.isPurnima 
-                            ? 'text-amber-700 font-black' 
-                            : cell.panchang.isAmavasya 
-                            ? 'text-stone-600 dark:text-stone-400 font-black' 
-                            : cell.panchang.tithiName === 'एकादशी' 
-                            ? 'text-emerald-700 font-black' 
-                            : 'text-stone-600 dark:text-stone-400'
-                        }`}>
-                          {cell.panchang.tithiShort}
-                        </span>
-                      </div>
-
-                      {/* Bottom Row: Festival / Vrat Ribbon Badge */}
-                      <div className="mt-auto pt-0.5">
-                        {hasEvents && primaryEvent ? (
-                          <div className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-mukta font-bold truncate text-center shadow-2xs ${
-                            isChhath
-                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-stone-950 font-black'
-                              : primaryEvent.category === 'mahaparv'
-                              ? 'bg-amber-500 text-stone-950 font-black'
-                              : 'bg-amber-100 text-[#78350f] border border-amber-300/70'
-                          }`}>
-                            {primaryEvent.hindiName}
-                          </div>
-                        ) : cell.panchang.specialVrat ? (
-                          <div className={`px-1 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-mukta font-bold truncate text-center ${
-                            cell.panchang.specialBadgeColor === 'green'
-                              ? 'bg-emerald-100 text-emerald-900 border border-emerald-200'
-                              : cell.panchang.specialBadgeColor === 'blue'
-                              ? 'bg-sky-100 text-sky-900 border border-sky-200'
-                              : 'bg-amber-100/70 text-amber-900'
-                          }`}>
-                            {cell.panchang.specialVrat.slice(0, 10)}
-                          </div>
-                        ) : null}
-                      </div>
+                      {/* Clean Minimalist Indicator Dot (Zero text clutter) */}
+                      {cell.isCurrentMonth && hasSpecialDay && (
+                        <div className="flex items-center gap-1 mt-1">
+                          {isChhath ? (
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-orange-600 dark:bg-orange-400 ring-2 ring-orange-300 dark:ring-orange-800'}`} />
+                          ) : hasEvents ? (
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-amber-500 dark:bg-amber-400'}`} />
+                          ) : cell.panchang.isPurnima ? (
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-amber-400 ring-1 ring-amber-300'}`} />
+                          ) : (
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-stone-950' : 'bg-stone-400'}`} />
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -549,7 +514,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="text-xl">🪔</span>
                     <h3 className="font-serif font-black text-lg sm:text-xl text-[#78350f] dark:text-amber-200">
-                      दैनिक पंचांग पत्रक: {selectedDatePanchang.dayName}, {selectedDatePanchang.dayNumber} {activeMonthInfo.hi} २०२६
+                      दैनिक पंचांग पत्रक: {selectedDatePanchang.dayName}, {selectedDatePanchang.dayNumber} {activeMonthInfo.hi} 2026
                     </h3>
                   </div>
                   <p className="text-xs sm:text-sm font-bold text-[#9a3412] dark:text-amber-400 font-mukta">
@@ -604,7 +569,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 </div>
               )}
 
-              {/* 6 Core Limbs of Panchang (पंचांग के ५ अंग + सूर्य-चंद्र समय) */}
+              {/* 6 Core Limbs of Panchang (पंचांग के 5 अंग + सूर्य-चंद्र समय) */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs sm:text-sm font-mukta">
                 {/* 1. Tithi */}
                 <div className="p-3 bg-white dark:bg-stone-800 rounded-2xl border border-amber-200 dark:border-stone-700 shadow-2xs space-y-0.5">
@@ -797,7 +762,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
           </div>
         )}
 
-        {/* 7. VIEW 3: SHUBH MUHURAT 2026 DIRECTORY (शुभ मुहूर्त २०२६) */}
+        {/* 7. VIEW 3: SHUBH MUHURAT 2026 DIRECTORY (शुभ मुहूर्त 2026) */}
         {activeView === 'shubh-muhurat' && (
           <div className="space-y-4 animate-fade-in">
             {/* Muhurat Category Tabs */}
