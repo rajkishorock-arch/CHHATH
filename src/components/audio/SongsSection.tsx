@@ -123,13 +123,13 @@ const YouTubeVideoCardComponent: React.FC<{
   };
 
   // Send control commands to YouTube iframe
-  const sendIframeCommand = useCallback((func: string, args: any = '') => {
+  const sendIframeCommand = useCallback((func: string, args: any[] = []) => {
     try {
       if (iframeRef.current && iframeRef.current.contentWindow) {
         const win = iframeRef.current.contentWindow;
-        const postArgs = Array.isArray(args) ? args : (args !== '' ? [args] : []);
+        const postArgs = Array.isArray(args) ? args : (args !== undefined && args !== '' ? [args] : []);
         win.postMessage(JSON.stringify({ event: 'command', func, args: postArgs }), '*');
-        win.postMessage(JSON.stringify({ event: 'command', func, args: typeof args === 'string' ? args : '' }), '*');
+        win.postMessage(JSON.stringify({ event: 'command', func, args: postArgs, id: 1 }), '*');
       }
     } catch (err) {
       console.warn('[InlineVideo] sendIframeCommand error:', err);
@@ -176,16 +176,41 @@ const YouTubeVideoCardComponent: React.FC<{
     return () => window.removeEventListener('message', handleMessage);
   }, [isInlineActive]);
 
+  // Periodic polling to query YouTube player for accurate time and duration
+  useEffect(() => {
+    if (!isInlineActive || isInlinePaused) return;
+    const interval = setInterval(() => {
+      sendIframeCommand('getCurrentTime', []);
+      sendIframeCommand('getDuration', []);
+    }, 250);
+    return () => clearInterval(interval);
+  }, [isInlineActive, isInlinePaused, sendIframeCommand]);
+
+  // Smooth local timer keeping videoCurrentTime updated in sync with playback
+  useEffect(() => {
+    if (!isInlineActive || isInlinePaused) return;
+    const timer = setInterval(() => {
+      setVideoCurrentTime((prev) => {
+        const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
+        if (prev >= total) return prev;
+        const next = Math.min(total, prev + 0.25);
+        videoCurrentTimeRef.current = next;
+        return next;
+      });
+    }, 250);
+    return () => clearInterval(timer);
+  }, [isInlineActive, isInlinePaused, videoTotalDuration, song.duration]);
+
   const handleToggleInlinePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     showMobileControlsTemporarily(2800);
     if (isInlinePaused) {
-      sendIframeCommand('unMute');
-      sendIframeCommand('playVideo');
+      sendIframeCommand('unMute', []);
+      sendIframeCommand('playVideo', []);
       setIsInlinePaused(false);
     } else {
-      sendIframeCommand('pauseVideo');
-      sendIframeCommand('mute');
+      sendIframeCommand('pauseVideo', []);
+      sendIframeCommand('mute', []);
       pauseSong();
       setIsInlinePaused(true);
     }
@@ -194,21 +219,23 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleSeekInline = (delta: number, e: React.MouseEvent) => {
     e.stopPropagation();
     showMobileControlsTemporarily(2800);
-    const nextTime = Math.max(0, videoCurrentTimeRef.current + delta);
-    sendIframeCommand('seekTo', [nextTime, true]);
+    const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
+    const current = videoCurrentTimeRef.current || videoCurrentTime || 0;
+    const nextTime = Math.max(0, Math.min(total, current + delta));
     videoCurrentTimeRef.current = nextTime;
     setVideoCurrentTime(nextTime);
+    sendIframeCommand('seekTo', [nextTime, true]);
   };
 
   const handleRestartInline = (e: React.MouseEvent) => {
     e.stopPropagation();
     showMobileControlsTemporarily(2800);
-    sendIframeCommand('seekTo', [0, true]);
-    sendIframeCommand('unMute');
-    sendIframeCommand('playVideo');
-    setIsInlinePaused(false);
     videoCurrentTimeRef.current = 0;
     setVideoCurrentTime(0);
+    sendIframeCommand('seekTo', [0, true]);
+    sendIframeCommand('unMute', []);
+    sendIframeCommand('playVideo', []);
+    setIsInlinePaused(false);
   };
 
   const handleStopVideo = (e: React.MouseEvent) => {
@@ -302,16 +329,16 @@ const YouTubeVideoCardComponent: React.FC<{
               <iframe
                 ref={iframeRef}
                 id={`yt-inline-frame-${song.youtubeId}`}
-                src={`https://www.youtube-nocookie.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0`}
+                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0${typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : ''}`}
                 title={song.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 onLoad={() => {
                   try {
-                    iframeRef.current?.contentWindow?.postMessage(
-                      JSON.stringify({ event: 'listening', id: song.youtubeId }),
-                      '*'
-                    );
+                    const win = iframeRef.current?.contentWindow;
+                    win?.postMessage(JSON.stringify({ event: 'listening' }), '*');
+                    win?.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
+                    win?.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }), '*');
                   } catch (e) {}
                 }}
                 className="w-full h-full border-0 absolute inset-0 z-10"
@@ -424,10 +451,10 @@ const YouTubeVideoCardComponent: React.FC<{
                       const clickX = e.clientX - rect.left;
                       const ratio = Math.max(0, Math.min(1, clickX / rect.width));
                       const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
-                      const targetTime = ratio * total;
-                      sendIframeCommand('seekTo', [targetTime, true]);
+                      const targetTime = Math.round(ratio * total);
                       videoCurrentTimeRef.current = targetTime;
                       setVideoCurrentTime(targetTime);
+                      sendIframeCommand('seekTo', [targetTime, true]);
                     }}
                     className="w-full bg-white/30 h-1.5 rounded-full overflow-hidden cursor-pointer relative"
                   >
