@@ -117,6 +117,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [activeInlineVideoId, setActiveInlineVideoId] = useState<string | null>(null);
   const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
   const seekFeedbackTimerRef = useRef<any>(null);
+  const bufferingTimeoutRef = useRef<any>(null);
   const lastTapRef = useRef<{ time: number; x: number }>({ time: 0, x: 0 });
 
   // Sync with browser native fullscreen change events (ESC key, Android Back, gestures)
@@ -333,8 +334,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           controls: 1,
           modestbranding: 1,
           rel: 0,
-          enablejsapi: 1,
-          origin: typeof window !== 'undefined' ? window.location.origin : undefined
+          enablejsapi: 1
         },
         events: {
           onReady: (event: any) => {
@@ -372,6 +372,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if (state === 1) {
               setIsPlaying(true);
               setIsVideoBuffering(false);
+              if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
               setPlaybackError(null);
               try {
                 if (ytPlayerRef.current?.unMute) {
@@ -389,12 +390,19 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             } else if (state === 3) {
               // Buffering state
               setIsVideoBuffering(true);
+              if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
+              bufferingTimeoutRef.current = setTimeout(() => {
+                setIsVideoBuffering(false);
+              }, 2000);
             } else if (state === 2) {
               setIsPlaying(false);
+              setIsVideoBuffering(false);
+              if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
               bgAudioRef.current?.pause();
             } else if (state === 0) {
               setIsPlaying(false);
               setIsVideoBuffering(false);
+              if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
               handleSongEnded();
             }
           },
@@ -472,6 +480,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           try {
             const time = Math.floor(ytPlayerRef.current.getCurrentTime() || 0);
             setCurrentTime(prev => (prev !== time ? time : prev));
+            if (time > 0) {
+              setIsVideoBuffering(false);
+            }
             if (ytPlayerRef.current.getDuration) {
               const dur = Math.floor(ytPlayerRef.current.getDuration() || 0);
               setDuration(prev => (prev !== dur ? dur : prev));
@@ -501,6 +512,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Authoritative Play Song Implementation
   const playSong = (song: Song, contextQueue?: Song[], startSeconds?: number) => {
     if (!song) return;
+
+    // Terminate any active inline thumbnail video immediately
+    window.dispatchEvent(new CustomEvent('pause_inline_video'));
+    setActiveInlineVideoId(null);
 
     if (!song.youtubeId) {
       if (song.id && song.id.startsWith('yt-live-')) {
@@ -538,6 +553,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       userRequestedPauseRef.current = false;
       hasStartedPlaybackRef.current = true;
       setPlaybackError(null);
+      setIsVideoBuffering(false);
+      if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
       setIsPlaying(true);
       startAudioKeepalive();
 
@@ -551,11 +568,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
         }
 
-        if (ytPlayerRef.current.playVideo) {
+        const playerState = ytPlayerRef.current.getPlayerState ? ytPlayerRef.current.getPlayerState() : -1;
+        if (playerState === -1 || playerState === 0 || playerState === 5) {
+          ytPlayerRef.current.loadVideoById(song.youtubeId);
+        } else if (ytPlayerRef.current.playVideo) {
           ytPlayerRef.current.playVideo();
         }
       } catch (e) {
-        console.warn('Same song play error:', e);
+        try {
+          ytPlayerRef.current.loadVideoById(song.youtubeId);
+        } catch {}
       }
       return;
     }
@@ -619,6 +641,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         const seekSec = typeof startSeconds === 'number' && startSeconds > 0 ? Math.floor(startSeconds) : 0;
         setIsVideoBuffering(true);
+        if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
+        bufferingTimeoutRef.current = setTimeout(() => {
+          setIsVideoBuffering(false);
+        }, 2000);
+
         if (seekSec > 0) {
           ytPlayerRef.current.loadVideoById({
             videoId: song.youtubeId,
@@ -660,13 +687,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.log('[YouTubePlayer] Player not ready yet. Queuing pending song and creating player:', song.youtubeId);
       (song as any)._startSeconds = startSeconds;
       setIsVideoBuffering(true);
+      if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
+      bufferingTimeoutRef.current = setTimeout(() => {
+        setIsVideoBuffering(false);
+      }, 2000);
       pendingSongRef.current = song;
       createGlobalYtPlayer();
     }
   };
 
   const playVideo = useCallback((song: Song, contextQueue?: Song[], startSeconds?: number) => {
+    window.dispatchEvent(new CustomEvent('pause_inline_video'));
+    setActiveInlineVideoId(null);
     setIsVideoBuffering(true);
+    if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
+    bufferingTimeoutRef.current = setTimeout(() => {
+      setIsVideoBuffering(false);
+    }, 2000);
     setShowVideo(true);
     setVideoExpanded(true);
     showVideoControlsTemporarily(2500);
@@ -745,10 +782,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // 1. Stop background global player so it NEVER competes with the inline video for audio focus or bandwidth!
     try {
-      if (ytPlayerRef.current?.stopVideo) {
-        ytPlayerRef.current.stopVideo();
-      } else if (ytPlayerRef.current?.pauseVideo) {
+      if (ytPlayerRef.current?.pauseVideo) {
         ytPlayerRef.current.pauseVideo();
+      }
+      if (ytPlayerRef.current?.mute) {
+        ytPlayerRef.current.mute();
       }
       if (bgAudioRef.current) {
         bgAudioRef.current.pause();
@@ -763,6 +801,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentSong(song);
     setIsPlaying(false);
     setShowVideo(false);
+    setIsVideoBuffering(false);
+    if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
     setActiveInlineVideoId(song ? song.youtubeId || null : null);
 
     // 3. Ensure song is in queue
@@ -779,14 +819,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const pauseSong = () => {
     userRequestedPauseRef.current = true;
     setIsPlaying(false);
+    setIsVideoBuffering(false);
+    if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
     bgAudioRef.current?.pause();
     if (bgAudioRef.current) {
       bgAudioRef.current.currentTime = 0;
     }
     window.dispatchEvent(new CustomEvent('pause_inline_video'));
-    if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
+    if (ytPlayerRef.current) {
       try {
-        ytPlayerRef.current.pauseVideo();
+        if (ytPlayerRef.current.pauseVideo) ytPlayerRef.current.pauseVideo();
+        if (ytPlayerRef.current.mute) ytPlayerRef.current.mute();
       } catch (e) {
         console.warn('YouTube pauseVideo error:', e);
       }

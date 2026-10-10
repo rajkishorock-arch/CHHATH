@@ -173,12 +173,19 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleStopVideo = (e: React.MouseEvent) => {
     e.stopPropagation();
     handleStopInline();
+    pauseSong();
   };
 
   const handleStartInline = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!song.youtubeId) return;
+    // 1. Terminate any other card's running inline video iframe
+    window.dispatchEvent(new CustomEvent('pause_inline_video'));
+    // 2. Stop and mute global background audio/video player completely
+    pauseSong();
+    // 3. Sync song state
     syncInlineVideoSong(song);
+    // 4. Activate inline video for this song
     setActiveInlineVideoId(song.youtubeId);
   };
 
@@ -187,12 +194,10 @@ const YouTubeVideoCardComponent: React.FC<{
     try {
       sendIframeCommand('pauseVideo');
       sendIframeCommand('mute');
-      sendIframeCommand('stopVideo');
       if (iframeRef.current) {
         iframeRef.current.src = 'about:blank';
       }
     } catch (err) {}
-    pauseSong();
     setActiveInlineVideoId(null);
   };
 
@@ -202,7 +207,6 @@ const YouTubeVideoCardComponent: React.FC<{
         try {
           sendIframeCommand('pauseVideo');
           sendIframeCommand('mute');
-          sendIframeCommand('stopVideo');
           if (iframeRef.current) {
             iframeRef.current.src = 'about:blank';
           }
@@ -257,7 +261,7 @@ const YouTubeVideoCardComponent: React.FC<{
               <iframe
                 ref={iframeRef}
                 id={`yt-inline-frame-${song.youtubeId}`}
-                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                src={`https://www.youtube-nocookie.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0`}
                 title={song.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -283,12 +287,11 @@ const YouTubeVideoCardComponent: React.FC<{
                 <button
                   type="button"
                   onClick={handleStopVideo}
-                  className="px-2.5 py-1 rounded-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold text-[11px] flex items-center gap-1 shadow-lg transition-transform cursor-pointer border border-white/20 shrink-0"
-                  title="वीडियो बंद करें"
-                  aria-label="वीडियो बंद करें"
+                  className="w-7 h-7 rounded-full bg-red-600/90 hover:bg-red-700 active:scale-90 text-white flex items-center justify-center shadow-lg transition-transform cursor-pointer border border-white/20 shrink-0"
+                  title="बंद करें"
+                  aria-label="बंद करें"
                 >
-                  <X className="w-3.5 h-3.5" />
-                  <span>बंद करें</span>
+                  <X className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
 
@@ -460,6 +463,7 @@ const YouTubeVideoCardComponent: React.FC<{
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStopInline();
+                    window.dispatchEvent(new CustomEvent('pause_inline_video'));
                     onPlayVideo();
                   }}
                   className="p-1.5 rounded-lg text-red-600 hover:bg-red-500/15 dark:text-red-400 transition-all cursor-pointer hover:scale-110 active:scale-95"
@@ -475,6 +479,7 @@ const YouTubeVideoCardComponent: React.FC<{
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStopInline();
+                    window.dispatchEvent(new CustomEvent('pause_inline_video'));
                     onPlay();
                   }}
                   className={`p-1.5 rounded-lg transition-all cursor-pointer hover:scale-110 active:scale-95 ${
