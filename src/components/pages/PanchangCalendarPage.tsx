@@ -162,13 +162,25 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
     return days;
   }, [selectedYear, currentMonthIndex]);
 
+  // Scope for Festival List: 'year' (सम्पूर्ण वर्ष 2026) | 'month' (केवल यह माह)
+  const [festivalScope, setFestivalScope] = useState<'year' | 'month'>('year');
+
   // Festivals in currently selected month
   const currentMonthEvents = useMemo(() => {
     const monthPrefix = `${selectedYear}-${String(currentMonthIndex + 1).padStart(2, '0')}`;
     return PANCHANG_CALENDAR_2026.filter(e => e.date.startsWith(monthPrefix));
   }, [selectedYear, currentMonthIndex]);
 
-  // Filtered festivals based on category and search query
+  // Festivals based on active scope (used for category count badges)
+  const scopeEvents = useMemo(() => {
+    if (festivalScope === 'month') {
+      const monthPrefix = `${selectedYear}-${String(currentMonthIndex + 1).padStart(2, '0')}`;
+      return PANCHANG_CALENDAR_2026.filter(e => e.date.startsWith(monthPrefix));
+    }
+    return PANCHANG_CALENDAR_2026;
+  }, [festivalScope, selectedYear, currentMonthIndex]);
+
+  // Filtered festivals based on scope, category, and search query
   const displayedEvents = useMemo(() => {
     return PANCHANG_CALENDAR_2026.filter(e => {
       if (searchQuery.trim()) {
@@ -180,7 +192,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
           e.tithi.toLowerCase().includes(q) ||
           e.formattedDate.toLowerCase().includes(q);
         if (!matchesQuery) return false;
-      } else {
+      } else if (festivalScope === 'month') {
         const monthPrefix = `${selectedYear}-${String(currentMonthIndex + 1).padStart(2, '0')}`;
         if (!e.date.startsWith(monthPrefix)) return false;
       }
@@ -191,7 +203,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
 
       return true;
     });
-  }, [searchQuery, selectedYear, currentMonthIndex, categoryFilter]);
+  }, [searchQuery, selectedYear, currentMonthIndex, categoryFilter, festivalScope]);
 
   // Upcoming major festival showcase
   const upcomingFestival = useMemo(() => {
@@ -380,17 +392,6 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
                 <span>📍 आज (Today)</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setCurrentMonthIndex(10); // November 2026
-                  setSelectedDateStr('2026-11-15'); // Chhath Sandhya Arghya
-                }}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-xs font-black shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
-              >
-                <span>✨ छठ महापर्व (नवंबर)</span>
-              </button>
             </div>
           </div>
 
@@ -488,13 +489,6 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                           : 'bg-white dark:bg-stone-900/90 hover:bg-amber-50/60 dark:hover:bg-stone-800 border-amber-200/60 dark:border-stone-800 text-stone-900 dark:text-stone-100 shadow-2xs'
                       }`}
                     >
-                      {/* Animated TODAY Badge pinned to top-right */}
-                      {isToday && (
-                        <span className="absolute -top-2 -right-1 px-1.5 py-0.2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-md animate-bounce z-10">
-                          आज
-                        </span>
-                      )}
-
                       {/* Top Row: Date Number + Sunday Dot */}
                       <div className="w-full flex items-center justify-between px-0.5">
                         <span className={`text-sm sm:text-base md:text-lg font-bold font-mono leading-none ${
@@ -528,20 +522,19 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                               }`} 
                               title={cell.events[0].title}
                             >
-                              {isChhath ? '🪔 ' : '✨ '}
                               {cell.events[0].hindiName || cell.events[0].title}
                             </span>
                           ) : cell.panchang.isPurnima ? (
                             <span className={`w-full truncate px-0.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold text-center leading-tight ${
                               isSelected ? 'text-stone-950' : 'bg-amber-400/20 text-amber-900 dark:text-amber-300'
                             }`}>
-                              🌕 पूर्णिमा
+                              पूर्णिमा
                             </span>
                           ) : cell.panchang.isAmavasya ? (
                             <span className={`w-full truncate px-0.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold text-center leading-tight ${
                               isSelected ? 'text-stone-950' : 'bg-stone-300/40 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
                             }`}>
-                              🌑 अमावस्या
+                              अमावस्या
                             </span>
                           ) : (
                             <span className={`text-[9px] sm:text-[10px] font-bold font-mukta truncate ${
@@ -703,6 +696,34 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
         {/* 6. VIEW 2: MONTHLY FESTIVALS DIRECTORY (मासिक पर्व व व्रत सूची) */}
         {activeView === 'festival-list' && (
           <div className="space-y-4 animate-fade-in">
+            {/* Scope Switcher: All 2026 vs Selected Month */}
+            <div className="flex items-center gap-2 p-1.5 bg-white/90 dark:bg-stone-900/90 rounded-2xl border border-amber-300 dark:border-stone-800 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setFestivalScope('year')}
+                className={`flex-1 py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold font-mukta transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  festivalScope === 'year'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-black shadow-md scale-[1.01]'
+                    : 'text-[#78350f] dark:text-stone-300 hover:bg-amber-100/60 dark:hover:bg-stone-800'
+                }`}
+              >
+                <span>🌟 सम्पूर्ण वर्ष 2026</span>
+                <span className="text-[11px] opacity-80 font-mono">({PANCHANG_CALENDAR_2026.length} पावन पर्व)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFestivalScope('month')}
+                className={`flex-1 py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold font-mukta transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  festivalScope === 'month'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-black shadow-md scale-[1.01]'
+                    : 'text-[#78350f] dark:text-stone-300 hover:bg-amber-100/60 dark:hover:bg-stone-800'
+                }`}
+              >
+                <span>📅 {activeMonthInfo.hi} 2026</span>
+                <span className="text-[11px] opacity-80 font-mono">({currentMonthEvents.length} पर्व)</span>
+              </button>
+            </div>
+
             {/* Search Bar */}
             <div className="relative">
               <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -710,7 +731,7 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="पर्व, व्रत या तिथि खोजें (उदा. छठ, दीपावली, एकादशी, शिवरात्रि)..."
+                placeholder="पर्व, व्रत या तिथि खोजें (उदा. छठ, दीपावली, एकादशी, शिवरात्रि, राम नवमी)..."
                 className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white dark:bg-stone-900 border border-[#fed7aa] dark:border-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm shadow-xs focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               />
               {searchQuery && (
@@ -727,11 +748,11 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
             {/* Category Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               {[
-                { id: 'all', label: '🌟 समस्त पावन पर्व', count: PANCHANG_CALENDAR_2026.length },
-                { id: 'mahaparv', label: '🔱 महापर्व', count: PANCHANG_CALENDAR_2026.filter(e => e.category === 'mahaparv').length },
-                { id: 'vrat', label: '🌸 व्रत व एकादशी', count: PANCHANG_CALENDAR_2026.filter(e => e.category === 'vrat').length },
-                { id: 'puja', label: '🪔 विशेष पूजा', count: PANCHANG_CALENDAR_2026.filter(e => e.category === 'puja').length },
-                { id: 'jayanti', label: '🚩 पावन जयंती', count: PANCHANG_CALENDAR_2026.filter(e => e.category === 'jayanti').length }
+                { id: 'all', label: '🌟 समस्त पावन पर्व', count: scopeEvents.length },
+                { id: 'mahaparv', label: '🔱 महापर्व', count: scopeEvents.filter(e => e.category === 'mahaparv').length },
+                { id: 'vrat', label: '🌸 व्रत व एकादशी', count: scopeEvents.filter(e => e.category === 'vrat').length },
+                { id: 'puja', label: '🪔 विशेष पूजा', count: scopeEvents.filter(e => e.category === 'puja').length },
+                { id: 'jayanti', label: '🚩 पावन जयंती', count: scopeEvents.filter(e => e.category === 'jayanti').length }
               ].map((cat) => {
                 const isActive = categoryFilter === cat.id;
                 return (
@@ -752,66 +773,91 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
               })}
             </div>
 
-            {/* Festival Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              {displayedEvents.map((event) => {
-                const isChhath = event.isChhath || event.id.includes('chhath');
-                return (
-                  <div
-                    key={event.id}
-                    onClick={() => handleOpenFestivalDetail(event)}
-                    className="group bg-white dark:bg-stone-900 rounded-2xl p-3.5 sm:p-4 border border-[#fed7aa] dark:border-stone-800 shadow-xs hover:shadow-md hover:border-amber-500 transition-all cursor-pointer flex gap-3.5 items-center select-none"
-                  >
-                    {/* Thumbnail Image */}
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-stone-950 border border-amber-200 dark:border-stone-700">
-                      <img
-                        src={event.image}
-                        alt={event.hindiName}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=800&q=80';
-                        }}
-                      />
-                      {isChhath && (
-                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-orange-500 text-stone-950 font-black text-[9px] shadow-sm">
-                          छठ
+            {/* Festival Cards Grid or Empty State */}
+            {displayedEvents.length === 0 ? (
+              <div className="text-center py-10 px-4 bg-white dark:bg-stone-900 rounded-3xl border border-amber-200 dark:border-stone-800 space-y-3">
+                <span className="text-3xl block">🔍</span>
+                <h4 className="font-serif font-black text-base text-amber-950 dark:text-amber-200">
+                  कोई पर्व या व्रत नहीं मिला
+                </h4>
+                <p className="text-xs text-stone-500 dark:text-stone-400">
+                  {festivalScope === 'month' 
+                    ? `${activeMonthInfo.hi} माह में इस श्रेणी का कोई पर्व नहीं है। सम्पूर्ण वर्ष 2026 की सूची देखें।` 
+                    : 'कृपया खोज शब्द बदलें अथवा समस्त पावन पर्व देखें।'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setCategoryFilter('all');
+                    setFestivalScope('year');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs cursor-pointer shadow-sm"
+                >
+                  सम्पूर्ण वर्ष 2026 के सभी पर्व देखें
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {displayedEvents.map((event) => {
+                  const isChhath = event.isChhath || event.id.includes('chhath');
+                  return (
+                    <div
+                      key={event.id}
+                      onClick={() => handleOpenFestivalDetail(event)}
+                      className="group bg-white dark:bg-stone-900 rounded-2xl p-3.5 sm:p-4 border border-[#fed7aa] dark:border-stone-800 shadow-xs hover:shadow-md hover:border-amber-500 transition-all cursor-pointer flex gap-3.5 items-center select-none"
+                    >
+                      {/* Thumbnail Image */}
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-stone-950 border border-amber-200 dark:border-stone-700">
+                        <img
+                          src={event.image}
+                          alt={event.hindiName}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=800&q=80';
+                          }}
+                        />
+                        {isChhath && (
+                          <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-orange-500 text-stone-950 font-black text-[9px] shadow-sm">
+                            छठ
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-amber-700 dark:text-amber-400">
+                          <span className="flex items-center gap-1 font-bold">
+                            <CalendarIcon className="w-3 h-3" />
+                            <span>{event.formattedDate}</span>
+                          </span>
+                          <span>•</span>
+                          <span className="truncate">{event.tithi}</span>
                         </div>
-                      )}
-                    </div>
 
-                    {/* Content */}
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono text-amber-700 dark:text-amber-400">
-                        <span className="flex items-center gap-1 font-bold">
-                          <CalendarIcon className="w-3 h-3" />
-                          <span>{event.formattedDate}</span>
-                        </span>
-                        <span>•</span>
-                        <span className="truncate">{event.tithi}</span>
-                      </div>
+                        <h4 className="font-serif text-base sm:text-lg font-black text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors leading-tight truncate">
+                          {event.title}
+                        </h4>
 
-                      <h4 className="font-serif text-base sm:text-lg font-black text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors leading-tight truncate">
-                        {event.title}
-                      </h4>
+                        <p className="font-mukta text-xs text-stone-500 dark:text-stone-400 line-clamp-1">
+                          {event.subtitle}
+                        </p>
 
-                      <p className="font-mukta text-xs text-stone-500 dark:text-stone-400 line-clamp-1">
-                        {event.subtitle}
-                      </p>
-
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 font-bold text-[10px]">
-                          शास्त्र सम्मत विधि व कथा
-                        </span>
-                        <span className="text-amber-600 dark:text-amber-400 font-black text-xs group-hover:translate-x-1 transition-transform">
-                          विस्तार देखें →
-                        </span>
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 font-bold text-[10px]">
+                            शास्त्र सम्मत विधि व कथा
+                          </span>
+                          <span className="text-amber-600 dark:text-amber-400 font-black text-xs group-hover:translate-x-1 transition-transform">
+                            विस्तार देखें →
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
