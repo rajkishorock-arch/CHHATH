@@ -24,6 +24,7 @@ interface AuthContextType {
   pendingFollowRequests: ReelUser[];
   signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   quickDevoteeLogin: (name?: string) => Promise<{ success: boolean }>;
+  getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
   signup: (data: SignUpData) => Promise<{ success: boolean; error?: string }>;
   login: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -91,6 +92,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = AuthService.subscribeToAuthChanges((fbUser) => {
       if (fbUser) {
         setCurrentUser(fbUser);
+      } else {
+        const currentToken = AuthService.getToken();
+        const storedSession = ReelsStorage.getSession();
+        const isGuest = AuthService.isDevoteeOrLocalToken(currentToken) || Boolean(storedSession?.id?.startsWith('usr_'));
+        if (!isGuest) {
+          setCurrentUser(null);
+        }
       }
       setAuthLoading(false);
     });
@@ -171,6 +179,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false };
     }
   };
+
+  const getIdToken = useCallback(async (forceRefresh = false): Promise<string | null> => {
+    return await AuthService.getIdToken(forceRefresh);
+  }, []);
 
   const openOnboarding = () => setOnboardingModalOpen(true);
   const closeOnboarding = () => setOnboardingModalOpen(false);
@@ -442,6 +454,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         pendingFollowRequests,
         signInWithGoogle,
         quickDevoteeLogin,
+        getIdToken,
         signup,
         login,
         logout,

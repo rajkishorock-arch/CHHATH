@@ -137,6 +137,40 @@ export const AuthService = {
     }
   },
 
+  isDevoteeOrLocalToken(token: string | null): boolean {
+    if (!token) return false;
+    return token.startsWith('devotee_token_') || token.startsWith('demo_token_') || token.startsWith('local_');
+  },
+
+  isSyntheticFirebaseToken(token: string | null): boolean {
+    if (!token) return false;
+    return token.startsWith('fb_token_');
+  },
+
+  isGenuineFirebaseToken(token: string | null): boolean {
+    if (!token) return false;
+    if (this.isDevoteeOrLocalToken(token) || this.isSyntheticFirebaseToken(token)) return false;
+    // Standard Firebase ID tokens are 3-part base64url signed JWTs
+    return token.includes('.') && token.length > 50;
+  },
+
+  async getIdToken(forceRefresh = false): Promise<string | null> {
+    try {
+      const auth = getFirebaseAuth();
+      if (auth?.currentUser) {
+        const idToken = await auth.currentUser.getIdToken(forceRefresh);
+        if (idToken) {
+          this.setToken(idToken);
+          return idToken;
+        }
+      }
+    } catch {
+      console.warn('[AuthService] Firebase ID token retrieval notice');
+    }
+
+    return null;
+  },
+
   createDevoteeSession(devoteeName?: string): { success: boolean; user: ReelUser; settings: UserSettings; token: string } {
     const rawName = (devoteeName && devoteeName.trim()) || 'छठ श्रद्धालु';
     const cleanUsername = `@devotee_${Date.now().toString().slice(-4)}`;
@@ -215,9 +249,14 @@ export const AuthService = {
       } catch (e) {}
 
       const settings = getDefaultSettings(mapped);
-      const sessionToken = `fb_token_${result.user.uid}`;
+      let genuineToken: string | null = null;
+      try {
+        genuineToken = await result.user.getIdToken();
+      } catch {
+        console.warn('[AuthService] ID token retrieval notice during Google sign-in');
+      }
       
-      this.setToken(sessionToken);
+      this.setToken(genuineToken);
       ReelsStorage.addUser(mapped);
       ReelsStorage.setSession(mapped);
 
@@ -225,7 +264,7 @@ export const AuthService = {
         success: true,
         user: mapped,
         settings,
-        token: sessionToken
+        token: genuineToken || undefined
       };
     } catch (err: any) {
       console.warn('[AuthService] Google sign-in error:', err);
@@ -301,8 +340,13 @@ export const AuthService = {
           }
         } catch (e) {}
 
-        const sessionToken = `fb_token_${result.user.uid}`;
-        this.setToken(sessionToken);
+        let genuineToken: string | null = null;
+        try {
+          genuineToken = await result.user.getIdToken();
+        } catch {
+          console.warn('[AuthService] ID token retrieval notice during redirect result');
+        }
+        this.setToken(genuineToken);
         ReelsStorage.addUser(mapped);
         ReelsStorage.setSession(mapped);
 
@@ -332,6 +376,15 @@ export const AuthService = {
     }
     return onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
+        try {
+          const genuineToken = await fbUser.getIdToken();
+          if (genuineToken) {
+            AuthService.setToken(genuineToken);
+          }
+        } catch {
+          console.warn('[AuthService] ID token sync notice during auth change');
+        }
+
         const mapped = mapFirebaseUserToReelUser(fbUser);
 
         try {
@@ -359,6 +412,20 @@ export const AuthService = {
         ReelsStorage.setSession(mapped);
         callback(mapped);
       } else {
+        const currentToken = AuthService.getToken();
+        const storedSession = ReelsStorage.getSession();
+        const isGuest = AuthService.isDevoteeOrLocalToken(currentToken) || Boolean(storedSession?.id?.startsWith('usr_'));
+
+        if (!isGuest) {
+          // Clear stale Firebase authentication token from localStorage
+          if (currentToken) {
+            AuthService.setToken(null);
+          }
+          // Clear stale non-guest stored session
+          if (storedSession) {
+            ReelsStorage.setSession(null);
+          }
+        }
         callback(null);
       }
     });
@@ -412,9 +479,15 @@ export const AuthService = {
       if (data.bio) mapped.bio = data.bio;
 
       const settings = getDefaultSettings(mapped);
-      const sessionToken = `fb_token_${userCredential.user.uid}`;
 
-      this.setToken(sessionToken);
+      let genuineToken: string | null = null;
+      try {
+        genuineToken = await userCredential.user.getIdToken();
+      } catch {
+        console.warn('[AuthService] ID token retrieval notice during signup');
+      }
+
+      this.setToken(genuineToken);
       ReelsStorage.addUser(mapped);
       ReelsStorage.setSession(mapped);
 
@@ -422,7 +495,7 @@ export const AuthService = {
         success: true,
         user: mapped,
         settings,
-        token: sessionToken
+        token: genuineToken || undefined
       };
     } catch (err: any) {
       console.warn('[AuthService] Firebase signup error:', err);
@@ -487,9 +560,15 @@ export const AuthService = {
       }
 
       const settings = getDefaultSettings(mapped);
-      const sessionToken = `fb_token_${userCredential.user.uid}`;
 
-      this.setToken(sessionToken);
+      let genuineToken: string | null = null;
+      try {
+        genuineToken = await userCredential.user.getIdToken();
+      } catch {
+        console.warn('[AuthService] ID token retrieval notice during login');
+      }
+
+      this.setToken(genuineToken);
       ReelsStorage.addUser(mapped);
       ReelsStorage.setSession(mapped);
 
@@ -497,7 +576,7 @@ export const AuthService = {
         success: true,
         user: mapped,
         settings,
-        token: sessionToken
+        token: genuineToken || undefined
       };
     } catch (err: any) {
       console.warn('[AuthService] Firebase login error:', err);
@@ -554,26 +633,50 @@ export const AuthService = {
 
   async getSession(): Promise<{ user: ReelUser; settings: UserSettings } | null> {
     const token = this.getToken();
-    if (!token || token.startsWith('demo_token_') || token.startsWith('local_')) {
+
+    // 1. Guest / devotee local sessions
+    if (!token || this.isDevoteeOrLocalToken(token)) {
       const local = ReelsStorage.getSession();
       return local ? { user: local, settings: getDefaultSettings(local) } : null;
     }
 
-    // 1. Try backend
-    const apiData = await safeFetchJson(`${API_BASE}/auth/session`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (apiData && apiData.success && apiData.user) {
-      const mapped = mapBackendProfileToReelUser(apiData.user);
-      ReelsStorage.setSession(mapped);
-      return {
-        user: mapped,
-        settings: apiData.settings || getDefaultSettings(mapped)
-      };
+    // 2. Do not treat synthetic fb_token_<uid> as valid Firebase ID token
+    if (this.isSyntheticFirebaseToken(token)) {
+      const auth = getFirebaseAuth();
+      if (auth?.currentUser) {
+        try {
+          const genuineToken = await auth.currentUser.getIdToken();
+          if (genuineToken) {
+            this.setToken(genuineToken);
+          } else {
+            this.setToken(null);
+          }
+        } catch {
+          this.setToken(null);
+        }
+      } else {
+        this.setToken(null);
+      }
     }
 
-    // 2. Client fallback
+    const currentToken = this.getToken();
+    if (currentToken && !this.isDevoteeOrLocalToken(currentToken) && !this.isSyntheticFirebaseToken(currentToken)) {
+      // Try backend session verification with genuine token
+      const apiData = await safeFetchJson(`${API_BASE}/auth/session`, {
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+      });
+
+      if (apiData && apiData.success && apiData.user) {
+        const mapped = mapBackendProfileToReelUser(apiData.user);
+        ReelsStorage.setSession(mapped);
+        return {
+          user: mapped,
+          settings: apiData.settings || getDefaultSettings(mapped)
+        };
+      }
+    }
+
+    // 3. Client fallback
     const local = ReelsStorage.getSession();
     if (local) {
       return {

@@ -118,7 +118,12 @@ export const UserSyncService = {
 
     // 2. Server API Fallback (if running locally or serverless backend)
     try {
-      const res = await fetch(`/api/v1/user/profile?uid=${encodeURIComponent(uid)}`);
+      const { AuthService } = await import('./authService');
+      const token = await AuthService.getIdToken();
+      if (token) {
+        const res = await fetch(`/api/v1/user/profile?uid=${encodeURIComponent(uid)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
       if (res.ok) {
         const json = await res.json();
         if (json?.data) {
@@ -128,6 +133,7 @@ export const UserSyncService = {
           return json.data;
         }
       }
+    }
     } catch {}
 
     // 3. Cached local record for this specific user
@@ -219,11 +225,18 @@ export const UserSyncService = {
 
       // 4. Sync to local backend API if available
       try {
-        await fetch('/api/v1/user/profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid, data: updates })
-        });
+        const { AuthService } = await import('./authService');
+        const token = await AuthService.getIdToken();
+        if (token) {
+          await fetch('/api/v1/user/profile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ uid, data: updates })
+          });
+        }
       } catch {}
 
       // 5. Firestore Direct Integration (if enabled in project)
