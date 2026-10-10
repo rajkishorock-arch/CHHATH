@@ -102,27 +102,25 @@ export const VratKathaListView: React.FC<VratKathaListViewProps> = ({
           <div
             key={item.id}
             onClick={() => setSelectedEntry(item)}
-            className="group cursor-pointer flex items-center justify-between p-3 sm:p-3.5 rounded-3xl bg-gradient-to-r from-[#ff6b52] via-[#ff5858] to-[#ff4767] shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all"
+            className="group w-full bg-[#fedec4]/85 dark:bg-stone-900 border border-[#fed7aa]/60 dark:border-stone-800 rounded-3xl p-3 sm:p-3.5 flex items-center justify-between gap-3 shadow-[0_4px_14px_rgba(234,88,12,0.06)] hover:shadow-md transition-all cursor-pointer active:scale-[0.99] select-none"
           >
             {/* Left: Round Avatar + Title */}
-            <div className="flex items-center space-x-3.5 min-w-0">
-              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white p-1 shrink-0 shadow-inner flex items-center justify-center overflow-hidden">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                 <img
                   src={item.avatarUrl}
                   alt={item.title}
-                  className="w-full h-full rounded-full object-cover"
+                  className="w-full h-full object-cover"
                   loading="lazy"
                 />
               </div>
-              <span className="text-white font-bold text-base sm:text-lg font-serif truncate drop-shadow-xs">
+              <span className="font-serif font-black text-base sm:text-lg text-[#78350f] dark:text-stone-100 truncate">
                 {item.title}
               </span>
             </div>
 
-            {/* Right: Chevron White Icon */}
-            <div className="p-1 shrink-0">
-              <ChevronRight className="w-6 h-6 text-white stroke-[2.5] drop-shadow-xs group-hover:translate-x-0.5 transition-transform" />
-            </div>
+            {/* Right: Chevron */}
+            <ChevronRight className="w-5 h-5 text-[#c2410c] dark:text-amber-400 shrink-0 stroke-[2.5]" />
           </div>
         ))}
 

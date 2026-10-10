@@ -584,69 +584,32 @@ export const AllVratsHub: React.FC<AllVratsHubProps> = ({
           </div>
 
           {/* Vrats Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
             {filteredVrats.map(vrat => (
               <div
                 key={vrat.id}
                 onClick={() => setSelectedVrat(vrat)}
-                className="group bg-white rounded-3xl overflow-hidden border border-gray-200/90 hover:border-amber-400 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between"
+                className="w-full bg-[#fedec4]/85 dark:bg-stone-900 border border-[#fed7aa]/60 dark:border-stone-800 rounded-3xl p-3 sm:p-3.5 flex items-center justify-between gap-3 shadow-[0_4px_14px_rgba(234,88,12,0.06)] hover:shadow-md transition-all cursor-pointer active:scale-[0.99] select-none"
               >
-                <div>
-                  {/* Card Image Banner */}
-                  <div className="relative h-40 overflow-hidden bg-amber-600">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img
                       src={vrat.image}
-                      alt={vrat.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      alt={vrat.hindiName}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-semibold">
-                        {vrat.month}
-                      </span>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 right-3 text-white">
-                      <h3 className="text-lg font-black font-serif drop-shadow-sm">
-                        {vrat.hindiName}
-                      </h3>
-                      <p className="text-xs text-amber-200 line-clamp-1 font-medium">
-                        ईष्ट देव: {vrat.deity}
-                      </p>
-                    </div>
                   </div>
-
-                  {/* Card Body */}
-                  <div className="p-4 space-y-2.5">
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span className="font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
-                        📅 {vrat.date2026}
-                      </span>
-                      <span>{vrat.tithi}</span>
-                    </div>
-
-                    <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-                      {vrat.shortDesc}
+                  <div className="min-w-0">
+                    <h3 className="font-serif font-black text-base sm:text-lg text-[#78350f] dark:text-stone-100 truncate">
+                      {vrat.hindiName}
+                    </h3>
+                    <p className="text-[11px] text-[#9a3412] dark:text-amber-400 font-bold truncate">
+                      {vrat.date2026} • {vrat.deity}
                     </p>
-
-                    <div className="p-2.5 bg-amber-50/50 rounded-xl border border-amber-100 text-[11px] text-amber-900">
-                      <span className="font-bold">मुहूर्त:</span> {vrat.muhurat2026.pujaTime}
-                    </div>
                   </div>
                 </div>
-
-                {/* Card Actions Footer */}
-                <div className="p-4 pt-0">
-                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
-                    <span className="text-gray-400 font-medium group-hover:text-amber-700 transition-colors">
-                      कथा • विधि • आरती
-                    </span>
-                    <span className="font-bold text-amber-600 flex items-center">
-                      संपूर्ण विवरण <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
-                    </span>
-                  </div>
-                </div>
+                <ChevronRight className="w-5 h-5 text-[#c2410c] dark:text-amber-400 shrink-0 stroke-[2.5]" />
               </div>
             ))}
           </div>

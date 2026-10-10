@@ -578,40 +578,33 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 </div>
               </div>
 
-              {/* If there is a festival on this date -> Big Prominent Showcase Card */}
+              {/* If there is a festival on this date -> Clean Elegant Pill Card */}
               {selectedDatePanchang.events.length > 0 && (
                 <div 
                   onClick={() => handleOpenFestivalDetail(selectedDatePanchang.events[0])}
-                  className="group relative rounded-2xl overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white shadow-lg cursor-pointer hover:shadow-xl transition-all border border-amber-300"
+                  className="w-full bg-[#fedec4]/85 dark:bg-stone-900 border border-[#fed7aa]/60 dark:border-stone-800 rounded-3xl p-3 sm:p-3.5 flex items-center justify-between gap-3 shadow-[0_4px_14px_rgba(234,88,12,0.06)] hover:shadow-md transition-all cursor-pointer active:scale-[0.99] select-none"
                 >
-                  <img
-                    src={selectedDatePanchang.events[0].image}
-                    alt={selectedDatePanchang.events[0].hindiName}
-                    className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-
-                  <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="space-y-1 max-w-xl">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-stone-950 uppercase tracking-wider">
-                        🌟 आज का पावन महापर्व
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
+                      <img
+                        src={selectedDatePanchang.events[0].image}
+                        alt={selectedDatePanchang.events[0].hindiName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-[#c2410c] dark:text-amber-400 block">
+                        🌟 आज का पावन पर्व
                       </span>
-                      <h4 className="font-serif text-xl sm:text-2xl font-black text-amber-200">
+                      <h4 className="font-serif font-black text-base sm:text-lg text-[#78350f] dark:text-stone-100 truncate">
                         {selectedDatePanchang.events[0].title}
                       </h4>
-                      <p className="text-xs sm:text-sm text-stone-200 line-clamp-2">
-                        {selectedDatePanchang.events[0].subtitle}
+                      <p className="text-[11px] text-[#9a3412] dark:text-amber-400 font-bold truncate">
+                        {selectedDatePanchang.events[0].formattedDate} • {selectedDatePanchang.events[0].tithi}
                       </p>
                     </div>
-
-                    <button
-                      type="button"
-                      className="px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 text-stone-950 font-black rounded-xl text-xs sm:text-sm shadow-md flex items-center gap-1.5 transition-transform group-hover:scale-105 shrink-0"
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      <span>संपूर्ण विधि, कथा व आरती देखें →</span>
-                    </button>
                   </div>
+                  <ChevronRight className="w-5 h-5 text-[#c2410c] dark:text-amber-400 shrink-0 stroke-[2.5]" />
                 </div>
               )}
 
@@ -798,61 +791,39 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
                 {displayedEvents.map((event) => {
-                  const isChhath = event.isChhath || event.id.includes('chhath');
                   return (
                     <div
                       key={event.id}
                       onClick={() => handleOpenFestivalDetail(event)}
-                      className="group bg-white dark:bg-stone-900 rounded-2xl p-3.5 sm:p-4 border border-[#fed7aa] dark:border-stone-800 shadow-xs hover:shadow-md hover:border-amber-500 transition-all cursor-pointer flex gap-3.5 items-center select-none"
+                      className="w-full bg-[#fedec4]/85 dark:bg-stone-900 border border-[#fed7aa]/60 dark:border-stone-800 rounded-3xl p-3 sm:p-3.5 flex items-center justify-between gap-3 shadow-[0_4px_14px_rgba(234,88,12,0.06)] hover:shadow-md transition-all cursor-pointer active:scale-[0.99] select-none"
                     >
-                      {/* Thumbnail Image */}
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-stone-950 border border-amber-200 dark:border-stone-700">
-                        <img
-                          src={event.image}
-                          alt={event.hindiName}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=800&q=80';
-                          }}
-                        />
-                        {isChhath && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-orange-500 text-stone-950 font-black text-[9px] shadow-sm">
-                            छठ
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content */}
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-amber-700 dark:text-amber-400">
-                          <span className="flex items-center gap-1 font-bold">
-                            <CalendarIcon className="w-3 h-3" />
-                            <span>{event.formattedDate}</span>
-                          </span>
-                          <span>•</span>
-                          <span className="truncate">{event.tithi}</span>
+                      {/* Left: Round Circular Avatar + Details */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
+                          <img
+                            src={event.image}
+                            alt={event.hindiName || event.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=800&q=80';
+                            }}
+                          />
                         </div>
-
-                        <h4 className="font-serif text-base sm:text-lg font-black text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors leading-tight truncate">
-                          {event.title}
-                        </h4>
-
-                        <p className="font-mukta text-xs text-stone-500 dark:text-stone-400 line-clamp-1">
-                          {event.subtitle}
-                        </p>
-
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 font-bold text-[10px]">
-                            शास्त्र सम्मत विधि व कथा
-                          </span>
-                          <span className="text-amber-600 dark:text-amber-400 font-black text-xs group-hover:translate-x-1 transition-transform">
-                            विस्तार देखें →
-                          </span>
+                        <div className="min-w-0">
+                          <h4 className="font-serif font-black text-base sm:text-lg text-[#78350f] dark:text-stone-100 truncate">
+                            {event.title}
+                          </h4>
+                          <p className="text-[11px] text-[#9a3412] dark:text-amber-400 font-bold truncate">
+                            {event.formattedDate} • {event.tithi}
+                          </p>
                         </div>
                       </div>
+
+                      {/* Right: Chevron */}
+                      <ChevronRight className="w-5 h-5 text-[#c2410c] dark:text-amber-400 shrink-0 stroke-[2.5]" />
                     </div>
                   );
                 })}

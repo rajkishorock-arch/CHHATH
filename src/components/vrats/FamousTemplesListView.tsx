@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Home, Landmark, MapPin, Clock, Calendar, Sparkles } from 'lucide-react';
+import { ArrowLeft, Home, Landmark, MapPin, Clock, Calendar, Sparkles, ChevronRight } from 'lucide-react';
 import { FAMOUS_TEMPLES_DATA, TempleItem } from '../../data/famousTemplesData';
 
 interface FamousTemplesListViewProps {
@@ -159,37 +159,28 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
           <div
             key={temple.id}
             onClick={() => setSelectedTemple(temple)}
-            className="group cursor-pointer bg-white rounded-3xl overflow-hidden border border-[#fed7aa] shadow-xs hover:shadow-md transition-all flex flex-col"
+            className="group w-full bg-[#fedec4]/85 dark:bg-stone-900 border border-[#fed7aa]/60 dark:border-stone-800 rounded-3xl p-3 sm:p-3.5 flex items-center justify-between gap-3 shadow-[0_4px_14px_rgba(234,88,12,0.06)] hover:shadow-md transition-all cursor-pointer active:scale-[0.99] select-none"
           >
-            <div className="relative h-40 overflow-hidden">
-              <img
-                src={temple.image}
-                alt={temple.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3 text-white">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#ea580c] font-bold">
-                  {temple.state}
-                </span>
-                <h3 className="text-base font-bold font-serif mt-1 truncate">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
+                <img
+                  src={temple.image}
+                  alt={temple.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-serif font-black text-base sm:text-lg text-[#78350f] dark:text-stone-100 truncate">
                   {temple.hindiName}
                 </h3>
-                <p className="text-[11px] text-[#fef3c7] truncate">
-                  {temple.location}
+                <p className="text-[11px] text-[#9a3412] dark:text-amber-400 font-bold truncate">
+                  {temple.deity} • {temple.location}
                 </p>
               </div>
             </div>
 
-            <div className="p-3 bg-[#fefaf6] flex items-center justify-between border-t border-[#fed7aa]/40">
-              <span className="text-xs font-semibold text-[#78350f] truncate">
-                {temple.deity}
-              </span>
-              <span className="text-xs font-bold text-[#ea580c] shrink-0">
-                दर्शन व विवरण →
-              </span>
-            </div>
+            <ChevronRight className="w-5 h-5 text-[#c2410c] dark:text-amber-400 shrink-0 stroke-[2.5]" />
           </div>
         ))}
       </main>
