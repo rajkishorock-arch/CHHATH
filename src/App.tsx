@@ -723,19 +723,23 @@ const MainContent: React.FC = () => {
                   <SongsSection initialQuery={musicInitialQuery} />
                 </div>
               ) : (
-                <PublicHomeView
-                  onNavigate={handleNavigate}
-                  onOpenFeatureModal={setFeatureModal}
-                  onOpenAssistant={() => handleNavigate('ai-pandit')}
-                  initialQuery={musicInitialQuery}
-                />
+                (activeTab === 'home' || activeTab === 'chhath') ? (
+                  <PublicHomeView
+                    onNavigate={handleNavigate}
+                    onOpenFeatureModal={setFeatureModal}
+                    onOpenAssistant={() => handleNavigate('ai-pandit')}
+                    initialQuery={musicInitialQuery}
+                  />
+                ) : null
               )}
             </div>
 
             {/* 2. Dedicated Chhath Sangeet / Songs Section (Pure Music View) */}
             <div style={{ display: activeTab === 'music' ? 'block' : 'none' }}>
               <div className="w-full max-w-6xl mx-auto px-1.5 sm:px-4 py-2 sm:py-6 space-y-4">
-                <SongsSection initialQuery={musicInitialQuery} />
+                {activeTab === 'music' && (
+                  <SongsSection initialQuery={musicInitialQuery} />
+                )}
               </div>
             </div>
 

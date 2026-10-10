@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
 import { useAudio } from '../../context/AudioContext';
 import { Song } from '../../types';
 import { 
@@ -82,7 +82,9 @@ const YouTubeVideoCardComponent: React.FC<{
     setThumbSrc(nextThumb);
   }, [song.thumbnail, song.youtubeId]);
 
-  const isInlineActive = Boolean(song.youtubeId && activeInlineVideoId === song.youtubeId);
+  const cardInstanceId = useId();
+  const activeKey = `${song.youtubeId}__${cardInstanceId}`;
+  const isInlineActive = Boolean(song.youtubeId && activeInlineVideoId === activeKey);
 
   // Send control commands to YouTube iframe
   const sendIframeCommand = useCallback((func: string, args: any = '') => {
@@ -185,8 +187,8 @@ const YouTubeVideoCardComponent: React.FC<{
     pauseSong();
     // 3. Sync song state
     syncInlineVideoSong(song);
-    // 4. Activate inline video for this song
-    setActiveInlineVideoId(song.youtubeId);
+    // 4. Activate inline video for this specific card instance ONLY
+    setActiveInlineVideoId(activeKey);
   };
 
   const handleStopInline = (e?: React.MouseEvent) => {

@@ -114,7 +114,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [lyricsSong, setLyricsSong] = useState<Song | null>(null);
   const [isFullscreenMode, setIsFullscreenMode] = useState<boolean>(false);
   const [isVideoBuffering, setIsVideoBuffering] = useState<boolean>(false);
-  const [activeInlineVideoId, setActiveInlineVideoId] = useState<string | null>(null);
+  const [activeInlineVideoId, setActiveInlineVideoIdState] = useState<string | null>(null);
+  const activeInlineVideoIdRef = useRef<string | null>(null);
+  const setActiveInlineVideoId = useCallback((id: string | null) => {
+    activeInlineVideoIdRef.current = id;
+    setActiveInlineVideoIdState(id);
+  }, []);
   const [seekFeedback, setSeekFeedback] = useState<'forward' | 'backward' | null>(null);
   const seekFeedbackTimerRef = useRef<any>(null);
   const bufferingTimeoutRef = useRef<any>(null);
@@ -370,6 +375,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             console.log('[YouTubePlayer] State Change:', state);
 
             if (state === 1) {
+              if (userRequestedPauseRef.current || Boolean(activeInlineVideoIdRef.current)) {
+                try {
+                  ytPlayerRef.current?.pauseVideo?.();
+                  ytPlayerRef.current?.mute?.();
+                  ytPlayerRef.current?.setVolume?.(0);
+                } catch {}
+                setIsPlaying(false);
+                return;
+              }
               setIsPlaying(true);
               setIsVideoBuffering(false);
               if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
@@ -788,6 +802,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (ytPlayerRef.current?.mute) {
         ytPlayerRef.current.mute();
       }
+      if (ytPlayerRef.current?.setVolume) {
+        ytPlayerRef.current.setVolume(0);
+      }
       if (bgAudioRef.current) {
         bgAudioRef.current.pause();
         bgAudioRef.current.currentTime = 0;
@@ -803,7 +820,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setShowVideo(false);
     setIsVideoBuffering(false);
     if (bufferingTimeoutRef.current) clearTimeout(bufferingTimeoutRef.current);
-    setActiveInlineVideoId(song ? song.youtubeId || null : null);
 
     // 3. Ensure song is in queue
     setQueueState(prev => {
@@ -830,6 +846,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         if (ytPlayerRef.current.pauseVideo) ytPlayerRef.current.pauseVideo();
         if (ytPlayerRef.current.mute) ytPlayerRef.current.mute();
+        if (ytPlayerRef.current.setVolume) ytPlayerRef.current.setVolume(0);
       } catch (e) {
         console.warn('YouTube pauseVideo error:', e);
       }
@@ -1127,10 +1144,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Resilience: Keep audio playing if Android or browser backgrounds or minimizes the app
   useEffect(() => {
     const handleKeepAlive = () => {
-      if (isPlaying && !userRequestedPauseRef.current && currentSongRef.current && !activeInlineVideoId) {
+      if (isPlaying && !userRequestedPauseRef.current && currentSongRef.current && !activeInlineVideoIdRef.current) {
         startAudioKeepalive();
         setTimeout(() => {
-          if (isPlaying && !userRequestedPauseRef.current && ytPlayerRef.current && !activeInlineVideoId) {
+          if (isPlaying && !userRequestedPauseRef.current && ytPlayerRef.current && !activeInlineVideoIdRef.current) {
             try {
               ytPlayerRef.current.playVideo();
             } catch (err) {}
@@ -1140,11 +1157,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     document.addEventListener('visibilitychange', handleKeepAlive);
-    window.addEventListener('blur', handleKeepAlive);
     window.addEventListener('pagehide', handleKeepAlive);
     return () => {
       document.removeEventListener('visibilitychange', handleKeepAlive);
-      window.removeEventListener('blur', handleKeepAlive);
       window.removeEventListener('pagehide', handleKeepAlive);
     };
   }, [isPlaying, startAudioKeepalive, activeInlineVideoId]);
