@@ -12,7 +12,8 @@ import {
   Camera,
   Bot,
   Flame,
-  Download
+  Download,
+  CalendarDays
 } from 'lucide-react';
 import { FeatureModalType } from './FeatureExperienceModal';
 import { isNativeApp, getApkDownloadUrl } from '../../utils/platform';
@@ -230,6 +231,15 @@ export const QuickServicesHub: React.FC<QuickServicesHubProps> = ({
       icon: Flame,
       gradient: 'from-amber-600 via-orange-500 to-amber-700',
       action: () => onNavigate('all-vrats')
+    },
+    // Real Hindu Panchang & Festival Calendar 2026
+    {
+      id: 'panchang-calendar',
+      label: 'सनातन कैलेंडर',
+      badge: '2026 पंचांग',
+      icon: CalendarDays,
+      gradient: 'from-rose-500 via-amber-500 to-orange-600',
+      action: () => onNavigate('panchang-calendar')
     },
     // 2. Puja Vidhi
     {

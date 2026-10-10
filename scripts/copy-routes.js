@@ -48,6 +48,8 @@ const routes = [
   'puja-vidhi',
   'samagri-list',
   'mantra-list',
+  'panchang-calendar',
+  'calendar',
   'chhath'
 ];
 

@@ -82,6 +82,7 @@ const PaathChalisaListView = lazy(() => import('./components/vrats/PaathChalisaL
 const ShubhVicharView = lazy(() => import('./components/vrats/ShubhVicharView').then(m => ({ default: m.ShubhVicharView })));
 const FamousTemplesListView = lazy(() => import('./components/vrats/FamousTemplesListView').then(m => ({ default: m.FamousTemplesListView })));
 const DedicatedFestivalHubView = lazy(() => import('./components/vrats/DedicatedFestivalHubView').then(m => ({ default: m.DedicatedFestivalHubView })));
+const PanchangCalendarPage = lazy(() => import('./components/pages/PanchangCalendarPage').then(m => ({ default: m.PanchangCalendarPage })));
 import { getCompleteFestivalHubData } from './data/festivalHubDetailsData';
 import { DynamicBannerItem, getDynamicCalendarBanners } from './data/panchangCalendarEvents';
 import { VratHomeView } from './components/home/VratHomeView';
@@ -201,6 +202,7 @@ export const normalizeTabKey = (rawTab: string): string => {
   if (t === 'explore') return 'explore';
   if (t === 'my-chhath') return 'my-chhath';
   if (t === 'chhath' || t === 'chhath-mahaparv' || t === 'chhath-puja' || t === 'reels') return 'chhath';
+  if (t === 'panchang-calendar' || t === 'calendar' || t === 'sanatan-calendar' || t === 'panchang' || t === 'hindu-calendar') return 'panchang-calendar';
   if (t === 'festival-detail' || t === 'festival-hub' || t === 'festival' || t === 'parv') return 'festival-detail';
   if (t === 'home' || t === '') return 'home';
 
@@ -320,6 +322,7 @@ const MainContent: React.FC = () => {
     const banners = getDynamicCalendarBanners(new Date());
     return banners[0] || null;
   });
+  const [festivalDetailReturnTab, setFestivalDetailReturnTab] = useState<string>('all-vrats');
   const { openConnect } = useChat();
 
   useEffect(() => {
@@ -327,6 +330,7 @@ const MainContent: React.FC = () => {
     const handleOpenHub = (e: any) => {
       if (e.detail) {
         setSelectedFestivalBanner(e.detail);
+        setFestivalDetailReturnTab(activeTab === 'panchang-calendar' ? 'panchang-calendar' : 'all-vrats');
         setActiveTab('festival-detail');
       }
     };
@@ -336,7 +340,7 @@ const MainContent: React.FC = () => {
       window.removeEventListener('open_jap_mala', handleOpenMala);
       window.removeEventListener('open_festival_hub', handleOpenHub);
     };
-  }, []);
+  }, [activeTab]);
 
   // When any top search occurs, switch immediately to music tab and show results
   useEffect(() => {
@@ -570,8 +574,16 @@ const MainContent: React.FC = () => {
     if (featureModal) { setFeatureModal(null); return 'handled'; }
     if (japMalaModalOpen) { setJapMalaModalOpen(false); return 'handled'; }
 
-    // 5. Navigation: If user is on any festival/vrat sub-section, return to all-vrats (where Vrat & Mahaparv Platform is)
-    if (['festival-detail', 'puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples'].includes(activeTab)) {
+    // 5. Navigation: Return to originating hub when on sub-sections
+    if (activeTab === 'festival-detail') {
+      handleNavigate(festivalDetailReturnTab || 'all-vrats');
+      return 'handled';
+    }
+    if (activeTab === 'panchang-calendar' || activeTab === 'calendar') {
+      handleNavigate('home');
+      return 'handled';
+    }
+    if (['puja-vidhi', 'vrat-katha', 'aarti-sangrah', 'samagri-list', 'mantra-list', 'famous-temples'].includes(activeTab)) {
       handleNavigate('all-vrats');
       return 'handled';
     }
@@ -954,11 +966,20 @@ const MainContent: React.FC = () => {
             </Suspense>
           )}
 
+          {(activeTab === 'panchang-calendar' || activeTab === 'calendar' || activeTab === 'sanatan-calendar') && (
+            <Suspense fallback={<ComponentLoader />}>
+              <PanchangCalendarPage
+                onNavigate={handleNavigate}
+                onOpenJapMala={() => handleNavigate('jap-mala')}
+              />
+            </Suspense>
+          )}
+
           {activeTab === 'festival-detail' && selectedFestivalBanner && (
             <Suspense fallback={<ComponentLoader />}>
               <DedicatedFestivalHubView
                 festival={getCompleteFestivalHubData(selectedFestivalBanner)}
-                onBack={() => handleNavigate('all-vrats')}
+                onBack={() => handleNavigate(festivalDetailReturnTab || 'all-vrats')}
                 onGoHome={() => handleNavigate('home')}
                 onOpenJapMala={() => handleNavigate('jap-mala')}
               />

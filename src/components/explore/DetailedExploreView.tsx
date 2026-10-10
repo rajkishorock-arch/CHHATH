@@ -3,9 +3,10 @@ import { Film, Award, HelpCircle, Compass, Sun, Layers } from 'lucide-react';
 import { useReels } from '../../context/ReelsContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-// Lazy loaded heavy secondary components (NO Interactive3DGhat - 3D Ghat excluded as requested)
-const VirtualArghyaSimulator = lazy(() => import('../spiritual/VirtualArghyaSimulator').then(m => ({ default: m.VirtualArghyaSimulator })));
-const VirtualDiyaExperience = lazy(() => import('../spiritual/VirtualDiyaExperience').then(m => ({ default: m.VirtualDiyaExperience })));
+import { VirtualArghyaSimulator } from '../spiritual/VirtualArghyaSimulator';
+import { VirtualDiyaExperience } from '../spiritual/VirtualDiyaExperience';
+
+// Lazy loaded secondary components with independent progressive loading
 const ChhathQuiz = lazy(() => import('../engagement/ChhathQuiz').then(m => ({ default: m.ChhathQuiz })));
 const ChhathKids = lazy(() => import('../engagement/ChhathKids').then(m => ({ default: m.ChhathKids })));
 const AIGreetingStudio = lazy(() => import('../engagement/AIGreetingStudio').then(m => ({ default: m.AIGreetingStudio })));
@@ -191,15 +192,14 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
         </a>
       </div>
 
-      <Suspense fallback={<ComponentLoader />}>
-        
-        {/* Virtual Simulators (Arghya & Diya - NO 3D Darshan) */}
-        <section id="virtual-arghya" className="space-y-6 sm:space-y-8 scroll-mt-24">
-          <VirtualArghyaSimulator />
-          <VirtualDiyaExperience />
-        </section>
+      {/* Virtual Simulators (Arghya & Diya - Immediate render, zero delay!) */}
+      <section id="virtual-arghya" className="space-y-6 sm:space-y-8 scroll-mt-24">
+        <VirtualArghyaSimulator />
+        <VirtualDiyaExperience />
+      </section>
 
-        {/* Greetings, Wishes & Blessing Certificate */}
+      {/* Greetings, Wishes & Blessing Certificate */}
+      <Suspense fallback={<ComponentLoader />}>
         <section className="space-y-6 sm:space-y-8">
           <div id="ai-greeting-generator" className="scroll-mt-24">
             <AIGreetingStudio />
@@ -211,28 +211,33 @@ export const DetailedExploreView: React.FC<DetailedExploreViewProps> = ({ onNavi
             <BlessingCertificate />
           </div>
         </section>
+      </Suspense>
 
-        {/* Memories & Photo/Video Gallery */}
+      {/* Memories & Photo/Video Gallery */}
+      <Suspense fallback={<ComponentLoader />}>
         <section className="space-y-6 sm:space-y-8">
           <MemoryAlbum />
           <PhotoGallery />
           <VideoSection />
         </section>
+      </Suspense>
 
-        {/* Quiz & Kids Zone */}
+      {/* Quiz & Kids Zone */}
+      <Suspense fallback={<ComponentLoader />}>
         <section id="quiz" className="space-y-6 sm:space-y-8 scroll-mt-24">
           <ChhathQuiz />
           <ChhathKids />
         </section>
+      </Suspense>
 
-        {/* Cultural Timeline, NRI Guide, Events & Archive */}
+      {/* Cultural Timeline, NRI Guide, Events & Archive */}
+      <Suspense fallback={<ComponentLoader />}>
         <section className="space-y-6 sm:space-y-8">
           <CulturalTimeline />
           <NRICreativeGuide />
           <EventDirectory />
           <ChhathArchiveReport />
         </section>
-
       </Suspense>
 
     </div>

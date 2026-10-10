@@ -3,9 +3,10 @@ import { Sparkles, Film, Heart, Award, HelpCircle, BookOpen, Layers, Compass, Im
 import { useReels } from '../../context/ReelsContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-// Lazy loaded heavy secondary components (NO Interactive3DGhat - 3D Ghat excluded as requested)
-const VirtualArghyaSimulator = lazy(() => import('../spiritual/VirtualArghyaSimulator').then(m => ({ default: m.VirtualArghyaSimulator })));
-const VirtualDiyaExperience = lazy(() => import('../spiritual/VirtualDiyaExperience').then(m => ({ default: m.VirtualDiyaExperience })));
+import { VirtualArghyaSimulator } from '../spiritual/VirtualArghyaSimulator';
+import { VirtualDiyaExperience } from '../spiritual/VirtualDiyaExperience';
+
+// Lazy loaded secondary components
 const ChhathQuiz = lazy(() => import('../engagement/ChhathQuiz').then(m => ({ default: m.ChhathQuiz })));
 const ChhathKids = lazy(() => import('../engagement/ChhathKids').then(m => ({ default: m.ChhathKids })));
 const AIGreetingStudio = lazy(() => import('../engagement/AIGreetingStudio').then(m => ({ default: m.AIGreetingStudio })));
