@@ -34,6 +34,7 @@ import {
   GitaTopicCategory
 } from '../../data/bhagavadGitaData';
 import { spiritualAudio } from '../../utils/spiritualAudio';
+import { SeoHead } from '../seo/SeoHead';
 
 interface PaathChalisaListViewProps {
   onBack?: () => void;
@@ -407,6 +408,11 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
 
   return (
     <div className="bg-[#fffbf7] dark:bg-stone-950 text-[#451a03] dark:text-stone-100 min-h-screen flex flex-col font-mukta pb-24 sm:pb-28 select-none transition-colors duration-200">
+      <SeoHead
+        title="सम्पूर्ण पाठ एवं चालीसा संग्रह | Chalisa Sangrah & Bhagavad Gita - ChhathVibes"
+        description="हनुमान चालीसा, श्रीमद्भगवद्गीता (18 अध्याय), श्री दुर्गा सप्तशती, शिव चालीसा, सुंदरकांड एवं पावन स्तोत्रों का संपूर्ण संग्रह।"
+        canonicalUrl="https://chhathvibes.vercel.app/paath-chalisa"
+      />
       
       {/* Toast Alert */}
       {toastMessage && (

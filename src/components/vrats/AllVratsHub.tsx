@@ -10,6 +10,7 @@ import { VratDetailModal } from './VratDetailModal';
 import { DailyPujaAlarmModal } from './DailyPujaAlarmModal';
 import { DigitalJapMalaModal } from './DigitalJapMalaModal';
 import { spiritualAudio } from '../../utils/spiritualAudio';
+import { SeoHead } from '../seo/SeoHead';
 
 interface AllVratsHubProps {
   onNavigateToKatha?: () => void;
@@ -93,6 +94,11 @@ export const AllVratsHub: React.FC<AllVratsHubProps> = ({
 
   return (
     <div className="bg-[#fdf6ee] text-[#451a03] pb-3">
+      <SeoHead
+        title="सनातन व्रत एवं महापर्व | All Hindu Vrats, Katha & Puja Vidhi - ChhathVibes"
+        description="समस्त सनातन व्रत एवं हिन्दू पर्वों की संपूर्ण सूची: व्रत कथा, शुभ मुहूर्त, पूजा विधि, नियम, सामग्री एवं पावन आरती संग्रह।"
+        canonicalUrl="https://chhathvibes.vercel.app/all-vrats"
+      />
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">

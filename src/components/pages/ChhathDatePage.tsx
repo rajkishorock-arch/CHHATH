@@ -12,12 +12,12 @@ interface PageProps {
 
 export const ChhathDatePage: React.FC<PageProps> = ({ onNavigate }) => {
   const { language } = useLanguage();
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-puja-date-2026/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-puja-date-2026';
   const title = 'Chhath Puja 2026 Date & Time | छठ पूजा 2026 तिथि, मुहूर्त व समय';
   const description = 'Chhath Puja 2026 की सटीक तारीख व समय देखें: नहाय-खाय 13 नवंबर, खरना 14 नवंबर, संध्या अर्घ्य 15 नवंबर और उषा अर्घ्य 16 नवंबर। तिथियों का संपूर्ण विवरण व मुहूर्त।';
 
   const breadcrumbs = [
-    { label: 'छठ पूजा 2026 तारीख व समय', url: '/CHHATH/chhath-puja-date-2026/' }
+    { label: 'छठ पूजा 2026 तारीख व समय', url: '/chhath-puja-date-2026' }
   ];
 
   const daysInfo = getChhathDays(language);
@@ -39,7 +39,7 @@ export const ChhathDatePage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

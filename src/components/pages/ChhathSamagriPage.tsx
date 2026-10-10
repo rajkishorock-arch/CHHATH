@@ -9,12 +9,12 @@ interface PageProps {
 }
 
 export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-samagri/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-samagri';
   const title = 'Chhath Puja Samagri 2026 | छठ पूजा सामग्री Checklist';
   const description = 'Chhath Puja 2026 की पूरी सामग्री सूची देखें और इंटरैक्टिव checklist से अपनी तैयारी पूरी करें। पूजा सामग्री, प्रसाद, फल, सूप-डाला और घाट की जरूरी सामग्री।';
 
   const breadcrumbs = [
-    { label: 'छठ पूजा सामग्री', url: '/CHHATH/chhath-samagri/' }
+    { label: 'छठ पूजा सामग्री', url: '/chhath-samagri' }
   ];
 
   const mainPoojaItems = [
@@ -89,7 +89,7 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

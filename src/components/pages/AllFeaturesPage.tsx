@@ -34,6 +34,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useReels } from '../../context/ReelsContext';
+import { SeoHead } from '../seo/SeoHead';
 
 interface AllFeaturesPageProps {
   onNavigate: (tab: string) => void;
@@ -381,6 +382,11 @@ export const AllFeaturesPage: React.FC<AllFeaturesPageProps> = ({
 
   return (
     <div className="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-3 pt-2 sm:pt-6 font-mukta transition-colors">
+      <SeoHead
+        title="छठ महापर्व एवं सनातन फीचर्स | All Features & Services - ChhathVibes"
+        description="छठ पूजा व सनातन धर्म के सभी डिजिटल फीचर्स: 3D घाट, अर्घ्य समय कैलकुलेटर, पूजा विधि, सामग्री चेकलिस्ट, ऑडियो मिक्सर व आरती संग्रह।"
+        canonicalUrl="https://chhathvibes.vercel.app/all-features"
+      />
       <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-2 sm:px-4 md:px-6">
 
         {/* Action Toast Alert */}

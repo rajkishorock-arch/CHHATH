@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Home, Landmark, MapPin, Clock, Calendar, Sparkles, ChevronRight } from 'lucide-react';
 import { FAMOUS_TEMPLES_DATA, TempleItem } from '../../data/famousTemplesData';
+import { SeoHead } from '../seo/SeoHead';
 
 interface FamousTemplesListViewProps {
   onBack: () => void;
@@ -126,6 +127,11 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
 
   return (
     <div className="bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
+      <SeoHead
+        title="भारत के प्रसिद्ध तीर्थ स्थल एवं सूर्य मंदिर | Famous Hindu & Surya Temples - ChhathVibes"
+        description="भारत के सुप्रसिद्ध सूर्य मंदिर और तीर्थ स्थल: देव सूर्य मंदिर औरंगाबाद, कोणार्क, उलार सूर्य मंदिर, काशी विश्वनाथ व प्रमुख तीर्थों का इतिहास व दर्शन समय।"
+        canonicalUrl="https://chhathvibes.vercel.app/famous-temples"
+      />
       {/* 1. Header */}
       <header className="sticky top-0 z-30 bg-[#fdf6ed]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">

@@ -123,7 +123,7 @@ export const SamagriChecklist: React.FC = () => {
       content += `\n`;
     });
 
-    content += `जय छठी मईया 🙏\nhttps://rajkishorock-arch.github.io/CHHATH/chhath-samagri/\n`;
+    content += `जय छठी मईया 🙏\nhttps://chhathvibes.vercel.app/chhath-samagri\n`;
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);

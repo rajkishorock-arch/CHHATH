@@ -23,6 +23,7 @@ import {
 import { spiritualAudio } from '../../utils/spiritualAudio';
 import { useAuth } from '../../context/AuthContext';
 import { UserSyncService, JapMalaCloudData } from '../../services/userSyncService';
+import { SeoHead } from '../seo/SeoHead';
 
 interface JapMalaPageProps {
   onNavigate: (tab: string) => void;
@@ -474,6 +475,11 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-3 pt-2 sm:pt-6 font-mukta transition-colors animate-in fade-in duration-300">
+      <SeoHead
+        title="108 डिजिटल जप माला | Digital Jap Mala Online Counter - ChhathVibes"
+        description="108 मनकों वाली डिजिटल जप माला: रुद्राक्ष, तुलसी व कमलगट्टा माला से गायत्री, महामृत्युंजय व शिव मंत्र जाप करें। ध्वनि एवं कंपन सहित।"
+        canonicalUrl="https://chhathvibes.vercel.app/jap-mala"
+      />
       
       {/* Toast Alert */}
       {toastMessage && (

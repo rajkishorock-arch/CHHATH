@@ -9,12 +9,12 @@ interface PageProps {
 }
 
 export const ChhathKathaPage: React.FC<PageProps> = ({ onNavigate }) => {
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-puja-katha/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-puja-katha';
   const title = 'Chhath Puja Katha 2026 | छठी मैया की कथा और छठ व्रत की कहानी';
   const description = 'छठ पूजा 2026 से जुड़ी प्रचलित लोककथाएं, छठी मैया की कथा, छठ व्रत की कहानी और सूर्य उपासना की परंपरा सरल हिंदी में जानें।';
 
   const breadcrumbs = [
-    { label: 'छठ पूजा कथा 2026', url: '/CHHATH/chhath-puja-katha/' }
+    { label: 'छठ पूजा कथा 2026', url: '/chhath-puja-katha' }
   ];
 
   const jsonLd = [
@@ -33,7 +33,7 @@ export const ChhathKathaPage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

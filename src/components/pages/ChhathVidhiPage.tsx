@@ -10,12 +10,12 @@ interface PageProps {
 }
 
 export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-puja-vidhi/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-puja-vidhi';
   const title = 'Chhath Puja Vidhi 2026 | छठ पूजा विधि, नहाय खाय से पारण तक';
   const description = 'Chhath Puja 2026 की पूरी विधि जानें। नहाय-खाय, खरना, संध्या अर्घ्य, उषा अर्घ्य और पारण की दिनवार तैयारी व पूजा विधि।';
 
   const breadcrumbs = [
-    { label: 'छठ पूजा विधि 2026', url: '/CHHATH/chhath-puja-vidhi/' }
+    { label: 'छठ पूजा विधि 2026', url: '/chhath-puja-vidhi' }
   ];
 
   const daysData = chhathDaysByLang.hi;
@@ -36,7 +36,7 @@ export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',
@@ -51,7 +51,7 @@ export const ChhathVidhiPage: React.FC<PageProps> = ({ onNavigate }) => {
       '@type': 'HowTo',
       'name': 'छठ पूजा विधि 2026 (Chhath Puja 4 Days Ritual Guide)',
       'description': description,
-      'image': 'https://rajkishorock-arch.github.io/CHHATH/images/hero_sunrise.jpg',
+      'image': 'https://chhathvibes.vercel.app/images/hero_sunrise.jpg',
       'step': [
         {
           '@type': 'HowToStep',

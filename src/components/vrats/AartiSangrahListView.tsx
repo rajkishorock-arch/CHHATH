@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Home, ChevronRight, Search, X } from 'lucide-react';
 import { VRAT_DIRECTORY_LIST, VratDirectoryEntry } from '../../data/vratDirectoryList';
 import { VratReadingPageView } from './VratReadingPageView';
+import { SeoHead } from '../seo/SeoHead';
 
 interface AartiSangrahListViewProps {
   onBack: () => void;
@@ -43,6 +44,11 @@ export const AartiSangrahListView: React.FC<AartiSangrahListViewProps> = ({
 
   return (
     <div className="bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
+      <SeoHead
+        title="सम्पूर्ण आरती संग्रह | All Hindu Aartis in Hindi - ChhathVibes"
+        description="देवी-देवताओं की पावन आरतियों का संपूर्ण संग्रह: सूर्य देव, गंगा मैया, छठी मैया, शिव जी, गणेश जी, हनुमान जी और लक्ष्मी जी की आरती लिरिक्स।"
+        canonicalUrl="https://chhathvibes.vercel.app/aarti-sangrah"
+      />
       {/* 1. TOP HEADER */}
       <header className="sticky top-0 z-30 bg-[#fdf6ed]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">

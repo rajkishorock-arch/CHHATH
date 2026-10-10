@@ -27,6 +27,7 @@ import {
   MoveDown
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { SeoHead } from '../seo/SeoHead';
 
 interface Ghat3DExperiencePageProps {
   onNavigate?: (tab: string) => void;
@@ -908,6 +909,11 @@ export const Ghat3DExperiencePage: React.FC<Ghat3DExperiencePageProps> = ({ onNa
 
   return (
     <div className="min-h-screen bg-[#faf9f5] text-stone-900 font-mukta overflow-y-auto selection:bg-amber-100 selection:text-amber-900 flex flex-col">
+      <SeoHead
+        title="3D छठ घाट वर्चुअल दर्शन | 3D Sacred Ghat Simulation - ChhathVibes"
+        description="पवित्र छठ घाटों का 3D वर्चुअल दर्शन: पटना, हरिद्वार व बनारस घाटों का त्रि-आयामी दृश्य, प्रातः व संध्या अर्घ्य प्रकाश और वर्चुअल दीपदान अनुभव।"
+        canonicalUrl="https://chhathvibes.vercel.app/3d-ghat"
+      />
       
       {/* Toast Alert */}
       {toastMessage && (

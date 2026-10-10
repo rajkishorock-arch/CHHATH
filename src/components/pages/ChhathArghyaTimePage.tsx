@@ -10,12 +10,12 @@ interface PageProps {
 }
 
 export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-arghya-time-2026/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-arghya-time-2026';
   const title = 'Chhath Arghya Time 2026 | शहरवार संध्या और उषा अर्घ्य समय';
   const description = 'छठ पूजा 2026 में 15 नवंबर संध्या अर्घ्य और 16 नवंबर उषा अर्घ्य का शहरवार समय देखें। पटना, वाराणसी, रांची, दिल्ली, मुंबई सहित प्रमुख शहरों के सूर्यास्त और सूर्योदय समय।';
 
   const breadcrumbs = [
-    { label: 'छठ अर्घ्य समय 2026', url: '/CHHATH/chhath-arghya-time-2026/' }
+    { label: 'छठ अर्घ्य समय 2026', url: '/chhath-arghya-time-2026' }
   ];
 
   const jsonLd = [
@@ -34,7 +34,7 @@ export const ChhathArghyaTimePage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

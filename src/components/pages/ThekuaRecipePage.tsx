@@ -36,7 +36,7 @@ interface VideoPlaylistItem {
 
 export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
   const { pauseSong } = useAudio();
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/thekua-recipe/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/thekua-recipe';
   const title = 'छठ पूजा के पावन पकवान व ठेकुआ रेसिपी | विधि, सामग्री व वीडियो प्लेलिस्ट';
   const description = 'छठ पूजा के मुख्य महाप्रसाद: पारंपरिक खस्ता ठेकुआ, खरना रसियाव (खीर) और कसार लड्डू बनाने की प्रामाणिक विधि, सामग्री की मात्रा एवं स्टेप-बाय-स्टेप वीडियो ट्यूटोरियल प्लेलिस्ट।';
 
@@ -101,7 +101,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
       '@context': 'https://schema.org',
       '@type': 'Recipe',
       'name': 'छठ पूजा का ठेकुआ व महाप्रसाद रेसिपी (Thekua & Prasad Recipe)',
-      'image': 'https://rajkishorock-arch.github.io/CHHATH/images/thekua_prasad.jpg',
+      'image': 'https://chhathvibes.vercel.app/images/thekua_prasad.jpg',
       'description': description,
       'recipeCategory': 'Dessert / Prasad',
       'recipeCuisine': 'Bihari / Traditional Indian',
@@ -128,7 +128,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',
@@ -146,7 +146,7 @@ export const ThekuaRecipePage: React.FC<PageProps> = ({ onNavigate }) => {
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
-        ogImage="https://rajkishorock-arch.github.io/CHHATH/images/thekua_prasad.jpg"
+        ogImage="https://chhathvibes.vercel.app/images/thekua_prasad.jpg"
         jsonLd={jsonLd}
       />
 

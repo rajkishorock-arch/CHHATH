@@ -11,12 +11,12 @@ interface PageProps {
 
 export const PatnaChhathPage: React.FC<PageProps> = ({ onNavigate }) => {
   const { language } = useLanguage();
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/patna-chhath-puja-2026/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/patna-chhath-puja-2026';
   const title = 'Patna Chhath Puja 2026 | पटना छठ पूजा 2026 - अर्घ्य समय व गंगा घाट गाइड';
   const description = 'Patna Chhath Puja 2026 की संपूर्ण गाइड: पटना के पवित्र गंगा घाट (कलेक्टरिएट, दीघा, बांस घाट), 15 व 16 नवंबर संध्या व उषा अर्घ्य सूर्यास्त-सूर्योदय समय और स्थानीय तैयारी।';
 
   const breadcrumbs = [
-    { label: 'पटना छठ पूजा 2026', url: '/CHHATH/patna-chhath-puja-2026/' }
+    { label: 'पटना छठ पूजा 2026', url: '/patna-chhath-puja-2026' }
   ];
 
   const patnaData = cityArghyaData.find(c => c.cityName.includes('पटना')) || cityArghyaData[0];
@@ -45,7 +45,7 @@ export const PatnaChhathPage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

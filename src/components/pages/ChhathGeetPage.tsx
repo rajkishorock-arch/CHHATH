@@ -9,12 +9,12 @@ interface PageProps {
 }
 
 export const ChhathGeetPage: React.FC<PageProps> = ({ onNavigate }) => {
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-puja-geet/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-puja-geet';
   const title = 'Chhath Puja Geet 2026 | छठ गीत, Chhath Maiya Bhajan & Songs';
   const description = 'छठ पूजा 2026 के लोकप्रिय छठ गीत, छठ मैया के भजन और Chhath Puja Songs सुनें। पारंपरिक छठ गीत खोजें और YouTube पर भक्तिमय गीतों का आनंद लें।';
 
   const breadcrumbs = [
-    { label: 'छठ पूजा के गीत 2026', url: '/CHHATH/chhath-puja-geet/' }
+    { label: 'छठ पूजा के गीत 2026', url: '/chhath-puja-geet' }
   ];
 
   const jsonLd = [
@@ -33,7 +33,7 @@ export const ChhathGeetPage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

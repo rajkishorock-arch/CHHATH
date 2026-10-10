@@ -412,7 +412,7 @@ export const ChhathQuizPage: React.FC<ChhathQuizPageProps> = ({ onNavigate }) =>
       <SeoHead
         title="छठ महापर्व ज्ञान क्विज | Chhath Quiz Master App"
         description="छठ महापर्व 2026 पर रियल AI आधारित प्रीमियम क्विज खेलें। लीडरबोर्ड, लाइव टाइमर, लाइफलाइन व डिजिटल प्रमाणपत्र।"
-        canonicalUrl="https://rajkishorock-arch.github.io/CHHATH/chhath-quiz/"
+        canonicalUrl="https://chhathvibes.vercel.app/chhath-quiz"
       />
 
       {/* Floating Toast Notification */}

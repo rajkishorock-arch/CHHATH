@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Home, ChevronRight, Search, X } from 'lucide-react';
 import { VRAT_DIRECTORY_LIST, VratDirectoryEntry } from '../../data/vratDirectoryList';
 import { VratReadingPageView } from './VratReadingPageView';
+import { SeoHead } from '../seo/SeoHead';
 
 interface PujaVidhiListViewProps {
   onBack: () => void;
@@ -43,6 +44,11 @@ export const PujaVidhiListView: React.FC<PujaVidhiListViewProps> = ({
 
   return (
     <div className="bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
+      <SeoHead
+        title="सनातन पूजा विधि निर्देशिका | Hindu Puja Vidhi & Rituals - ChhathVibes"
+        description="समस्त हिन्दू पर्वों एवं व्रतों की वैदिक पूजा विधि: छठ पूजा, सत्यनारायण कथा, महाशिवरात्रि, नवरात्रि, प्रदोष व एकादशी की चरणबद्ध विधि।"
+        canonicalUrl="https://chhathvibes.vercel.app/puja-vidhi"
+      />
       {/* 1. TOP HEADER (Exact Screenshot 1: Left Back Arrow, Center "पूजा विधि", Right Home Icon) */}
       <header className="sticky top-0 z-30 bg-[#fdf6ed]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">

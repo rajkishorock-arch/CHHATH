@@ -34,6 +34,7 @@ import {
   DailyPanchangDetail, 
   ShubhMuhuratCategory 
 } from '../../utils/panchangCalendarEngine';
+import { SeoHead } from '../seo/SeoHead';
 
 interface PanchangCalendarPageProps {
   onNavigate: (tab: string) => void;
@@ -250,6 +251,11 @@ export const PanchangCalendarPage: React.FC<PanchangCalendarPageProps> = ({
 
   return (
     <div className="min-h-screen bg-[#fdf6ee] dark:bg-stone-950 text-[#451a03] dark:text-stone-100 pb-16 animate-fadeIn select-none">
+      <SeoHead
+        title="सनातन पंचांग 2026 | Hindu Calendar, Tithi, Shubh Muhurat - ChhathVibes"
+        description="हिन्दू पंचांग 2026: दैनिक तिथि, वार, नक्षत्र, योग, करण, राहुकाल, शुभ मुहूर्त, विवाह मुहूर्त एवं 2026 के समस्त व्रत-त्योहारों की तिथियां।"
+        canonicalUrl="https://chhathvibes.vercel.app/panchang-calendar"
+      />
       
       {/* 1. TOP ROYAL HEADER & APP BAR */}
       <header className="sticky top-0 z-40 bg-[#fdf6ee]/95 dark:bg-stone-900/95 backdrop-blur-md px-3.5 sm:px-6 py-2.5 border-b border-[#fed7aa]/60 dark:border-stone-800 shadow-xs">

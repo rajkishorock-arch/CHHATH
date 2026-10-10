@@ -221,7 +221,7 @@ export const ChhathiAIPage: React.FC<ChhathiAIPageProps> = ({ onNavigate }) => {
       <SeoHead
         title="छठ AI पंडित व वैदिक सहायक | Chhath AI Pandit 2026"
         description="छठ महापर्व 2026 की संपूर्ण पूजा विधि, अर्घ्य समय, मंत्र एवं परंपराओं के लिए 24x7 AI पंडित परामर्श।"
-        canonicalUrl="https://rajkishorock-arch.github.io/CHHATH/ai-pandit/"
+        canonicalUrl="https://chhathvibes.vercel.app/ai-pandit"
       />
 
       {/* Toast Alert */}

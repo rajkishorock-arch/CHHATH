@@ -214,7 +214,7 @@ export const MemoryAlbumPage: React.FC<MemoryAlbumPageProps> = ({ onNavigate }) 
       <SeoHead
         title="छठ संस्मरण व फोटो एल्बम | Chhath Puja Family Memories"
         description="अपने परिवार की पावन छठ पूजा की यादें और फोटो एल्बम सुरक्षित रखें। व्यक्तिगत छठ संस्मरण डायरी।"
-        canonicalUrl="https://rajkishorock-arch.github.io/CHHATH/chhath-memories/"
+        canonicalUrl="https://chhathvibes.vercel.app/chhath-memories"
       />
 
       {/* Toast Alert */}

@@ -27,12 +27,12 @@ interface PageProps {
 
 export const ChhathCalendarPage: React.FC<PageProps> = ({ onNavigate }) => {
   const { language } = useLanguage();
-  const canonicalUrl = 'https://rajkishorock-arch.github.io/CHHATH/chhath-calendar-2026/';
+  const canonicalUrl = 'https://chhathvibes.vercel.app/chhath-calendar-2026';
   const title = 'Chhath Puja Calendar 2026 | छठ पूजा तारीख, नहाय खाय, खरना और अर्घ्य';
   const description = 'Chhath Puja 2026 का पूरा कैलेंडर देखें: नहाय खाय 13 नवंबर, खरना 14 नवंबर, संध्या अर्घ्य 15 नवंबर और उषा अर्घ्य व पारण 16 नवंबर।';
 
   const breadcrumbs = [
-    { label: 'छठ पूजा कैलेंडर 2026', url: '/CHHATH/chhath-calendar-2026/' }
+    { label: 'छठ पूजा कैलेंडर 2026', url: '/chhath-calendar-2026' }
   ];
 
   // Get current live festival status strictly in IST (Asia/Kolkata)
@@ -65,7 +65,7 @@ export const ChhathCalendarPage: React.FC<PageProps> = ({ onNavigate }) => {
           '@type': 'ListItem',
           'position': 1,
           'name': 'Home',
-          'item': 'https://rajkishorock-arch.github.io/CHHATH/'
+          'item': 'https://chhathvibes.vercel.app/'
         },
         {
           '@type': 'ListItem',

@@ -20,6 +20,7 @@ import {
   fetchLiveInternetVichar, 
   ShubhVicharCardItem 
 } from '../../data/shubhVicharData';
+import { SeoHead } from '../seo/SeoHead';
 
 interface ShubhVicharViewProps {
   onBack?: () => void;
@@ -351,6 +352,11 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
       onTouchEnd={handleTouchEnd}
       className="bg-[#fdf6ee] text-[#451a03] flex flex-col pb-3"
     >
+      <SeoHead
+        title="दैनिक शुभ विचार एवं सनातन सुविचार | Aaj Ka Shubh Vichar - ChhathVibes"
+        description="दैनिक प्रेरक एवं आध्यात्मिक शुभ विचार: वेदों, उपनिषदों, गीता और संतों के अनमोल वचन, सुविचार व सुभाषित हिंदी और संस्कृत में।"
+        canonicalUrl="https://chhathvibes.vercel.app/shubh-vichar"
+      />
       {/* Toast Notification Alert */}
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-stone-900/95 text-amber-200 border border-amber-500/40 px-4 py-2 rounded-full text-xs font-bold shadow-2xl backdrop-blur-md animate-in fade-in zoom-in duration-200 flex items-center gap-1.5">
