@@ -780,6 +780,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     userRequestedPauseRef.current = true;
     setIsPlaying(false);
     bgAudioRef.current?.pause();
+    if (bgAudioRef.current) {
+      bgAudioRef.current.currentTime = 0;
+    }
     window.dispatchEvent(new CustomEvent('pause_inline_video'));
     if (ytPlayerRef.current && ytPlayerRef.current.pauseVideo) {
       try {
@@ -941,21 +944,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // (Lock Screen & Notification Panel Controls)
   // ==========================================
 
-  // Prime audio on first touch/interaction on mobile devices
-  useEffect(() => {
-    const primeAudio = () => {
-      startAudioKeepalive();
-      window.removeEventListener('touchstart', primeAudio);
-      window.removeEventListener('click', primeAudio);
-    };
-    window.addEventListener('touchstart', primeAudio, { once: true, passive: true });
-    window.addEventListener('click', primeAudio, { once: true, passive: true });
-    return () => {
-      window.removeEventListener('touchstart', primeAudio);
-      window.removeEventListener('click', primeAudio);
-    };
-  }, [startAudioKeepalive]);
-
   // Synchronize with Native Android MediaNotification
   const syncWithAndroidNotification = useCallback((song: Song | null, playing: boolean) => {
     if (typeof window === 'undefined') return;
@@ -1096,11 +1084,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Resilience: Keep audio playing if Android or browser backgrounds or minimizes the app
   useEffect(() => {
     const handleKeepAlive = () => {
-      if (!userRequestedPauseRef.current && currentSongRef.current && !activeInlineVideoId) {
+      if (isPlaying && !userRequestedPauseRef.current && currentSongRef.current && !activeInlineVideoId) {
         startAudioKeepalive();
-        setIsPlaying(true);
         setTimeout(() => {
-          if (!userRequestedPauseRef.current && ytPlayerRef.current && !activeInlineVideoId) {
+          if (isPlaying && !userRequestedPauseRef.current && ytPlayerRef.current && !activeInlineVideoId) {
             try {
               ytPlayerRef.current.playVideo();
             } catch (err) {}
@@ -1117,7 +1104,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       window.removeEventListener('blur', handleKeepAlive);
       window.removeEventListener('pagehide', handleKeepAlive);
     };
-  }, [startAudioKeepalive, activeInlineVideoId]);
+  }, [isPlaying, startAudioKeepalive, activeInlineVideoId]);
 
 
 

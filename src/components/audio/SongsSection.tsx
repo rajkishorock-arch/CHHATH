@@ -67,10 +67,11 @@ const YouTubeVideoCardComponent: React.FC<{
   onToggleFav,
   onShareSong,
 }) => {
-  const { activeInlineVideoId, setActiveInlineVideoId, syncInlineVideoSong } = useAudio();
+  const { activeInlineVideoId, setActiveInlineVideoId, syncInlineVideoSong, pauseSong } = useAudio();
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
+  const inlinePlayerRef = useRef<any>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
   const [isInlinePaused, setIsInlinePaused] = useState<boolean>(false);
@@ -87,24 +88,13 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const isInlineActive = Boolean(song.youtubeId && activeInlineVideoId === song.youtubeId);
 
-  useEffect(() => {
-    if (!isInlineActive) {
-      setIframeLoaded(false);
-      setIsInlinePaused(false);
-      setMobileControlsVisible(false);
-      setVideoCurrentTime(0);
-      setVideoTotalDuration(0);
-      videoCurrentTimeRef.current = 0;
-      if (mobileTimerRef.current) {
-        clearTimeout(mobileTimerRef.current);
-        mobileTimerRef.current = null;
-      }
-    }
-  }, [isInlineActive]);
-
-  // Command sender via postMessage to YouTube Iframe
+  // Command sender via postMessage to YouTube Iframe (fallback)
   const sendIframeCommand = useCallback((func: string, args: any = '') => {
     try {
+      if (inlinePlayerRef.current?.[func]) {
+        inlinePlayerRef.current[func](args);
+        return;
+      }
       if (iframeRef.current && iframeRef.current.contentWindow) {
         const postArgs = Array.isArray(args) ? args : (args !== '' ? [args] : []);
         iframeRef.current.contentWindow.postMessage(
@@ -121,46 +111,118 @@ const YouTubeVideoCardComponent: React.FC<{
     }
   }, []);
 
-  // Sync state and time from YouTube iframe messages
+  // Initialize official YouTube Player API directly on inline card container
   useEffect(() => {
-    if (!isInlineActive) return;
+    if (!isInlineActive) {
+      if (inlinePlayerRef.current) {
+        try {
+          inlinePlayerRef.current.pauseVideo?.();
+          inlinePlayerRef.current.stopVideo?.();
+          inlinePlayerRef.current.destroy?.();
+        } catch (e) {}
+        inlinePlayerRef.current = null;
+      }
+      setIframeLoaded(false);
+      setIsInlinePaused(false);
+      setMobileControlsVisible(false);
+      setVideoCurrentTime(0);
+      setVideoTotalDuration(0);
+      videoCurrentTimeRef.current = 0;
+      if (mobileTimerRef.current) {
+        clearTimeout(mobileTimerRef.current);
+        mobileTimerRef.current = null;
+      }
+      return;
+    }
 
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        if (!data) return;
+    let isCancelled = false;
+    let pollTimer: any = null;
 
-        if (data.event === 'infoDelivery' && data.info) {
-          if (typeof data.info.currentTime === 'number') {
-            videoCurrentTimeRef.current = data.info.currentTime;
-            setVideoCurrentTime(data.info.currentTime);
-          }
-          if (typeof data.info.duration === 'number' && data.info.duration > 0) {
-            setVideoTotalDuration(data.info.duration);
-          }
-          if (typeof data.info.playerState === 'number') {
-            const state = data.info.playerState;
-            if (state === 1) { // Playing
-              setIsInlinePaused(false);
-            } else if (state === 2 || state === 0) { // Paused or Ended
-              setIsInlinePaused(true);
+    const initPlayer = () => {
+      const containerId = `yt-inline-player-box-${song.youtubeId}`;
+      const elem = document.getElementById(containerId);
+      if (!elem || isCancelled) return;
+
+      if ((window as any).YT && (window as any).YT.Player) {
+        try {
+          inlinePlayerRef.current = new (window as any).YT.Player(containerId, {
+            videoId: song.youtubeId,
+            width: '100%',
+            height: '100%',
+            playerVars: {
+              autoplay: 1,
+              playsinline: 1,
+              controls: 1,
+              rel: 0,
+              modestbranding: 1,
+              enablejsapi: 1,
+              origin: typeof window !== 'undefined' ? window.location.origin : undefined,
+            },
+            events: {
+              onReady: (event: any) => {
+                if (isCancelled) return;
+                inlinePlayerRef.current = event.target;
+                setIframeLoaded(true);
+                try {
+                  event.target.playVideo();
+                } catch (e) {}
+              },
+              onStateChange: (event: any) => {
+                if (isCancelled) return;
+                const state = event.data;
+                if (state === 1) { // Playing
+                  setIsInlinePaused(false);
+                } else if (state === 2 || state === 0) { // Paused or Ended
+                  setIsInlinePaused(true);
+                }
+              }
             }
-          }
-        } else if (data.event === 'onStateChange') {
-          const state = typeof data.info === 'number' ? data.info : data.info?.playerState;
-          if (state === 1) setIsInlinePaused(false);
-          else if (state === 2 || state === 0) setIsInlinePaused(true);
+          });
+        } catch (e) {
+          console.warn('[InlineVideo] YT.Player init error:', e);
         }
-      } catch {
-        // ignore non-json messages
+      } else {
+        pollTimer = setTimeout(initPlayer, 150);
       }
     };
 
-    window.addEventListener('message', handleMessage);
+    const timer = setTimeout(initPlayer, 50);
+
     return () => {
-      window.removeEventListener('message', handleMessage);
+      isCancelled = true;
+      clearTimeout(timer);
+      if (pollTimer) clearTimeout(pollTimer);
+      if (inlinePlayerRef.current) {
+        try {
+          inlinePlayerRef.current.pauseVideo?.();
+          inlinePlayerRef.current.stopVideo?.();
+          inlinePlayerRef.current.destroy?.();
+        } catch (e) {}
+        inlinePlayerRef.current = null;
+      }
     };
-  }, [isInlineActive]);
+  }, [isInlineActive, song.youtubeId]);
+
+  // Poll time updates from active inline player
+  useEffect(() => {
+    if (!isInlineActive || isInlinePaused) return;
+
+    const interval = setInterval(() => {
+      try {
+        if (inlinePlayerRef.current?.getCurrentTime) {
+          const cur = Math.floor(inlinePlayerRef.current.getCurrentTime() || 0);
+          setVideoCurrentTime(cur);
+          videoCurrentTimeRef.current = cur;
+        }
+        if (inlinePlayerRef.current?.getDuration) {
+          const dur = Math.floor(inlinePlayerRef.current.getDuration() || 0);
+          if (dur > 0) setVideoTotalDuration(dur);
+        }
+      } catch (err) {}
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isInlineActive, isInlinePaused]);
 
   // Mobile controls auto-dismiss timer
   const resetMobileControlsTimer = useCallback(() => {
@@ -173,11 +235,9 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleMobileOverlayTap = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (mobileControlsVisible) {
-      // If already visible, tapping anywhere dismisses immediately to leave screen 100% clean
       setMobileControlsVisible(false);
       if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
     } else {
-      // Tap to show controls with 3.5s timer
       setMobileControlsVisible(true);
       resetMobileControlsTimer();
     }
@@ -185,31 +245,49 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const handleToggleInlinePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isInlinePaused) {
-      sendIframeCommand('playVideo');
-      setIsInlinePaused(false);
-      resetMobileControlsTimer();
+    if (inlinePlayerRef.current) {
+      if (isInlinePaused) {
+        try {
+          inlinePlayerRef.current.playVideo?.();
+        } catch (err) {}
+        setIsInlinePaused(false);
+        resetMobileControlsTimer();
+      } else {
+        try {
+          inlinePlayerRef.current.pauseVideo?.();
+        } catch (err) {}
+        setIsInlinePaused(true);
+        if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
+      }
     } else {
-      sendIframeCommand('pauseVideo');
-      setIsInlinePaused(true);
-      // Keep controls visible while paused so user can easily unpause
-      if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
+      sendIframeCommand(isInlinePaused ? 'playVideo' : 'pauseVideo');
+      setIsInlinePaused(!isInlinePaused);
     }
   };
 
   const handleSeekInline = (delta: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    const nextTime = Math.max(0, videoCurrentTimeRef.current + delta);
-    sendIframeCommand('seekTo', [nextTime, true]);
-    videoCurrentTimeRef.current = nextTime;
-    setVideoCurrentTime(nextTime);
+    try {
+      const cur = inlinePlayerRef.current?.getCurrentTime?.() ?? videoCurrentTimeRef.current;
+      const nextTime = Math.max(0, cur + delta);
+      inlinePlayerRef.current?.seekTo?.(nextTime, true);
+      videoCurrentTimeRef.current = nextTime;
+      setVideoCurrentTime(nextTime);
+    } catch (err) {
+      sendIframeCommand('seekTo', [Math.max(0, videoCurrentTimeRef.current + delta), true]);
+    }
     resetMobileControlsTimer();
   };
 
   const handleRestartInline = (e: React.MouseEvent) => {
     e.stopPropagation();
-    sendIframeCommand('seekTo', [0, true]);
-    sendIframeCommand('playVideo');
+    try {
+      inlinePlayerRef.current?.seekTo?.(0, true);
+      inlinePlayerRef.current?.playVideo?.();
+    } catch (err) {
+      sendIframeCommand('seekTo', [0, true]);
+      sendIframeCommand('playVideo');
+    }
     setIsInlinePaused(false);
     videoCurrentTimeRef.current = 0;
     setVideoCurrentTime(0);
@@ -231,9 +309,18 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleStopInline = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
+      if (inlinePlayerRef.current) {
+        inlinePlayerRef.current.pauseVideo?.();
+        inlinePlayerRef.current.stopVideo?.();
+        inlinePlayerRef.current.destroy?.();
+        inlinePlayerRef.current = null;
+      }
+    } catch (err) {}
+    try {
       sendIframeCommand('pauseVideo');
       sendIframeCommand('stopVideo');
     } catch (err) {}
+    pauseSong();
     setActiveInlineVideoId(null);
   };
 
@@ -241,8 +328,12 @@ const YouTubeVideoCardComponent: React.FC<{
     const handleGlobalPause = () => {
       if (isInlineActive) {
         try {
-          sendIframeCommand('pauseVideo');
-          sendIframeCommand('stopVideo');
+          if (inlinePlayerRef.current) {
+            inlinePlayerRef.current.pauseVideo?.();
+            inlinePlayerRef.current.stopVideo?.();
+            inlinePlayerRef.current.destroy?.();
+            inlinePlayerRef.current = null;
+          }
         } catch (err) {}
         setActiveInlineVideoId(null);
       }
@@ -251,7 +342,7 @@ const YouTubeVideoCardComponent: React.FC<{
     return () => {
       window.removeEventListener('pause_inline_video', handleGlobalPause);
     };
-  }, [isInlineActive, sendIframeCommand, setActiveInlineVideoId]);
+  }, [isInlineActive, setActiveInlineVideoId]);
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -287,28 +378,12 @@ const YouTubeVideoCardComponent: React.FC<{
             }}
           />
 
-          {/* ACTIVE INLINE VIDEO IFRAME (Plays directly in thumbnail) */}
+          {/* ACTIVE INLINE VIDEO (Plays directly in thumbnail via official YouTube Player API) */}
           {isInlineActive ? (
             <div className="absolute inset-0 z-20 bg-black">
-              <iframe
-                ref={iframeRef}
-                id={`yt-inline-frame-${song.youtubeId}`}
-                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
-                title={song.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                onLoad={() => {
-                  setIframeLoaded(true);
-                  try {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: 'listening', id: song.youtubeId }),
-                        '*'
-                      );
-                    }
-                  } catch (e) {}
-                }}
-                className={`w-full h-full border-0 transition-opacity duration-300 ${
+              <div
+                id={`yt-inline-player-box-${song.youtubeId}`}
+                className={`w-full h-full transition-opacity duration-300 ${
                   iframeLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
               />
@@ -421,7 +496,11 @@ const YouTubeVideoCardComponent: React.FC<{
                           const ratio = Math.max(0, Math.min(1, clickX / rect.width));
                           const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
                           const targetTime = ratio * total;
-                          sendIframeCommand('seekTo', [targetTime, true]);
+                          try {
+                            inlinePlayerRef.current?.seekTo?.(targetTime, true);
+                          } catch (err) {
+                            sendIframeCommand('seekTo', [targetTime, true]);
+                          }
                           videoCurrentTimeRef.current = targetTime;
                           setVideoCurrentTime(targetTime);
                           resetMobileControlsTimer();
