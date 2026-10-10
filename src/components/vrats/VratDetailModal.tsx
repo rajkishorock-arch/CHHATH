@@ -78,6 +78,9 @@ export const VratDetailModal: React.FC<VratDetailModalProps> = ({
           <img
             src={vrat.image}
             alt={vrat.name}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=1200&auto=format&fit=crop&q=80';
+            }}
             className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
@@ -199,6 +202,25 @@ export const VratDetailModal: React.FC<VratDetailModalProps> = ({
                 </h3>
                 <p className="text-xs text-amber-800 mt-1">
                   श्रद्धापूर्वक कथा श्रवण से समस्त पापों का क्षय और मनोवांछित फल की प्राप्ति होती है।
+                </p>
+              </div>
+
+              {/* Shrimad Bhagavad Gita Shloka Card */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-300 space-y-2">
+                <div className="flex items-center space-x-1.5 border-b border-amber-200/80 pb-1">
+                  <span className="text-sm">🪔</span>
+                  <h4 className="font-serif font-black text-xs text-[#78350f]">
+                    श्रीमद्भगवद्गीता ज्ञान एवं श्लोक प्रमाण
+                  </h4>
+                </div>
+                <p className="font-serif font-black text-xs sm:text-sm text-[#9a3412] leading-relaxed text-center italic">
+                  "अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते। तेषां नित्याभियुक्तानां योगक्षेमं वहाम्यहम्॥"
+                </p>
+                <p className="text-[10px] font-bold text-[#b45309] text-center">
+                  — श्रीमद्भगवद्गीता (अध्याय ९, श्लोक २२)
+                </p>
+                <p className="text-xs text-[#451a03] font-mukta leading-relaxed bg-white/80 p-2 rounded-xl border border-amber-200/60">
+                  <strong>भावार्थ:</strong> जो निष्काम भक्त एकाग्र चित्त से परमात्मा का चिंतन करते हैं, उनके समस्त योग-क्षेम का भार भगवान स्वयं वहन करते हैं।
                 </p>
               </div>
 

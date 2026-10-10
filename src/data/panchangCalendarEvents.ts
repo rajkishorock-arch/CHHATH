@@ -223,7 +223,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '04 सितंबर 2026',
     tithi: 'भाद्रपद कृष्ण अष्टमी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1567591414240-e29035e4663a?w=1000&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=1200&auto=format&fit=crop&q=80',
     vratId: 'krishna-janmashtami'
   },
   {
@@ -247,7 +247,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '14 सितंबर 2026',
     tithi: 'भाद्रपद शुक्ल चतुर्थी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1567591414240-e29035e4663a?w=1000&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=1200&auto=format&fit=crop&q=80',
     vratId: 'shri-ganesh'
   },
   {
@@ -285,7 +285,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '11 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल प्रतिपदा',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1601055903647-87cb73dfcbb4?w=1200&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=1200&auto=format&fit=crop&q=80',
     vratId: 'shardiya-navratri-kalash'
   },
   {
@@ -297,7 +297,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '18 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल अष्टमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1603555501671-8f96b3fce8e4?w=1200&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1200&auto=format&fit=crop&q=80',
     vratId: 'durga-maha-ashtami'
   },
   {
@@ -359,7 +359,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '09 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल प्रतिपदा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1567591414240-e29035e4663a?w=1000&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80',
     vratId: 'krishna-janmashtami'
   },
   {
