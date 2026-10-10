@@ -14,7 +14,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   description,
   canonicalUrl,
   ogType = 'website',
-  ogImage = 'https://rajkishorock-arch.github.io/CHHATH/images/hero_sunrise.jpg',
+  ogImage = 'https://chhathvibes.vercel.app/images/hero_sunrise.jpg',
   jsonLd = []
 }) => {
   useEffect(() => {

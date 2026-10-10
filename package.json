@@ -2,7 +2,7 @@
   "name": "newkmd",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://rajkishorock-arch.github.io/CHHATH",
+  "homepage": "https://chhathvibes.vercel.app/",
   "type": "module",
   "scripts": {
     "dev": "vite",

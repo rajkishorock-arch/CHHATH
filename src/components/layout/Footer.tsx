@@ -78,7 +78,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               ].map((sec) => {
                 const basePath = import.meta.env.BASE_URL || '/';
                 const cleanBase = basePath.endsWith('/') ? basePath : `${basePath}/`;
-                const targetHref = sec.isAnchor ? `#${sec.id}` : `${cleanBase}${sec.id}/`;
+                const targetHref = sec.isAnchor ? `#${sec.id}` : `${cleanBase}${sec.id}`;
 
                 return (
                   <li key={sec.id}>

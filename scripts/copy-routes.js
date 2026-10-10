@@ -34,8 +34,6 @@ const routes = [
   'chhath-quiz',
   'quiz',
   'ai-pandit',
-  'chat',
-  'chhath-chat',
   'explore',
   'explore-detailed',
   'all-vrats',
@@ -58,13 +56,24 @@ const indexPath = path.join(distDir, 'index.html');
 
 if (fs.existsSync(indexPath)) {
   const indexHtml = fs.readFileSync(indexPath, 'utf-8');
+  const baseUrl = 'https://chhathvibes.vercel.app';
 
   routes.forEach((route) => {
     const routeDir = path.join(distDir, route);
     if (!fs.existsSync(routeDir)) {
       fs.mkdirSync(routeDir, { recursive: true });
     }
-    fs.writeFileSync(path.join(routeDir, 'index.html'), indexHtml, 'utf-8');
+    const routeCanonical = `${baseUrl}/${route}`;
+    const routeHtml = indexHtml
+      .replace(
+        '<link rel="canonical" href="https://chhathvibes.vercel.app/" />',
+        `<link rel="canonical" href="${routeCanonical}" />`
+      )
+      .replace(
+        '<meta property="og:url" content="https://chhathvibes.vercel.app/" />',
+        `<meta property="og:url" content="${routeCanonical}" />`
+      );
+    fs.writeFileSync(path.join(routeDir, 'index.html'), routeHtml, 'utf-8');
     console.log(`[post-build] Successfully created ${route}/index.html for clean route serving`);
   });
 
@@ -80,7 +89,17 @@ if (fs.existsSync(indexPath)) {
     if (!fs.existsSync(chhathRouteDir)) {
       fs.mkdirSync(chhathRouteDir, { recursive: true });
     }
-    fs.writeFileSync(path.join(chhathRouteDir, 'index.html'), indexHtml, 'utf-8');
+    const routeCanonical = `${baseUrl}/${route}`;
+    const routeHtml = indexHtml
+      .replace(
+        '<link rel="canonical" href="https://chhathvibes.vercel.app/" />',
+        `<link rel="canonical" href="${routeCanonical}" />`
+      )
+      .replace(
+        '<meta property="og:url" content="https://chhathvibes.vercel.app/" />',
+        `<meta property="og:url" content="${routeCanonical}" />`
+      );
+    fs.writeFileSync(path.join(chhathRouteDir, 'index.html'), routeHtml, 'utf-8');
   });
   console.log(`[post-build] Successfully mirrored routes to CHHATH/ prefix`);
 

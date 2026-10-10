@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://rajkishorock-arch.github.io/CHHATH/sitemap.xml
+Sitemap: https://chhathvibes.vercel.app/sitemap.xml
