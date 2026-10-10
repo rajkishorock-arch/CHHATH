@@ -71,15 +71,11 @@ const YouTubeVideoCardComponent: React.FC<{
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
-  const inlinePlayerRef = useRef<any>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
   const [isInlinePaused, setIsInlinePaused] = useState<boolean>(false);
-  const [mobileControlsVisible, setMobileControlsVisible] = useState<boolean>(false);
   const [videoCurrentTime, setVideoCurrentTime] = useState<number>(0);
   const [videoTotalDuration, setVideoTotalDuration] = useState<number>(0);
   const videoCurrentTimeRef = useRef<number>(0);
-  const mobileTimerRef = useRef<any>(null);
 
   useEffect(() => {
     const nextThumb = song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
@@ -88,210 +84,90 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const isInlineActive = Boolean(song.youtubeId && activeInlineVideoId === song.youtubeId);
 
-  // Command sender via postMessage to YouTube Iframe (fallback)
+  // Send control commands to YouTube iframe
   const sendIframeCommand = useCallback((func: string, args: any = '') => {
     try {
-      if (inlinePlayerRef.current?.[func]) {
-        inlinePlayerRef.current[func](args);
-        return;
-      }
       if (iframeRef.current && iframeRef.current.contentWindow) {
+        const win = iframeRef.current.contentWindow;
         const postArgs = Array.isArray(args) ? args : (args !== '' ? [args] : []);
-        iframeRef.current.contentWindow.postMessage(
-          JSON.stringify({
-            event: 'command',
-            func: func,
-            args: postArgs
-          }),
-          '*'
-        );
+        win.postMessage(JSON.stringify({ event: 'command', func, args: postArgs }), '*');
+        win.postMessage(JSON.stringify({ event: 'command', func, args: typeof args === 'string' ? args : '' }), '*');
       }
     } catch (err) {
       console.warn('[InlineVideo] sendIframeCommand error:', err);
     }
   }, []);
 
-  // Initialize official YouTube Player API directly on inline card container
+  // Sync state and time from YouTube iframe messages
   useEffect(() => {
     if (!isInlineActive) {
-      if (inlinePlayerRef.current) {
-        try {
-          inlinePlayerRef.current.pauseVideo?.();
-          inlinePlayerRef.current.stopVideo?.();
-          inlinePlayerRef.current.destroy?.();
-        } catch (e) {}
-        inlinePlayerRef.current = null;
-      }
-      setIframeLoaded(false);
       setIsInlinePaused(false);
-      setMobileControlsVisible(false);
       setVideoCurrentTime(0);
       setVideoTotalDuration(0);
       videoCurrentTimeRef.current = 0;
-      if (mobileTimerRef.current) {
-        clearTimeout(mobileTimerRef.current);
-        mobileTimerRef.current = null;
-      }
       return;
     }
 
-    let isCancelled = false;
-    let pollTimer: any = null;
-
-    const initPlayer = () => {
-      const containerId = `yt-inline-player-box-${song.youtubeId}`;
-      const elem = document.getElementById(containerId);
-      if (!elem || isCancelled) return;
-
-      if ((window as any).YT && (window as any).YT.Player) {
-        try {
-          inlinePlayerRef.current = new (window as any).YT.Player(containerId, {
-            videoId: song.youtubeId,
-            width: '100%',
-            height: '100%',
-            playerVars: {
-              autoplay: 1,
-              playsinline: 1,
-              controls: 1,
-              rel: 0,
-              modestbranding: 1,
-              enablejsapi: 1,
-              origin: typeof window !== 'undefined' ? window.location.origin : undefined,
-            },
-            events: {
-              onReady: (event: any) => {
-                if (isCancelled) return;
-                inlinePlayerRef.current = event.target;
-                setIframeLoaded(true);
-                try {
-                  event.target.playVideo();
-                } catch (e) {}
-              },
-              onStateChange: (event: any) => {
-                if (isCancelled) return;
-                const state = event.data;
-                if (state === 1) { // Playing
-                  setIsInlinePaused(false);
-                } else if (state === 2 || state === 0) { // Paused or Ended
-                  setIsInlinePaused(true);
-                }
-              }
-            }
-          });
-        } catch (e) {
-          console.warn('[InlineVideo] YT.Player init error:', e);
-        }
-      } else {
-        pollTimer = setTimeout(initPlayer, 150);
-      }
-    };
-
-    const timer = setTimeout(initPlayer, 50);
-
-    return () => {
-      isCancelled = true;
-      clearTimeout(timer);
-      if (pollTimer) clearTimeout(pollTimer);
-      if (inlinePlayerRef.current) {
-        try {
-          inlinePlayerRef.current.pauseVideo?.();
-          inlinePlayerRef.current.stopVideo?.();
-          inlinePlayerRef.current.destroy?.();
-        } catch (e) {}
-        inlinePlayerRef.current = null;
-      }
-    };
-  }, [isInlineActive, song.youtubeId]);
-
-  // Poll time updates from active inline player
-  useEffect(() => {
-    if (!isInlineActive || isInlinePaused) return;
-
-    const interval = setInterval(() => {
+    const handleMessage = (event: MessageEvent) => {
       try {
-        if (inlinePlayerRef.current?.getCurrentTime) {
-          const cur = Math.floor(inlinePlayerRef.current.getCurrentTime() || 0);
-          setVideoCurrentTime(cur);
-          videoCurrentTimeRef.current = cur;
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        if (!data) return;
+
+        if (data.event === 'infoDelivery' && data.info) {
+          if (typeof data.info.currentTime === 'number') {
+            videoCurrentTimeRef.current = data.info.currentTime;
+            setVideoCurrentTime(data.info.currentTime);
+          }
+          if (typeof data.info.duration === 'number' && data.info.duration > 0) {
+            setVideoTotalDuration(data.info.duration);
+          }
+          if (typeof data.info.playerState === 'number') {
+            const state = data.info.playerState;
+            if (state === 1) setIsInlinePaused(false);
+            else if (state === 2 || state === 0) setIsInlinePaused(true);
+          }
+        } else if (data.event === 'onStateChange') {
+          const state = typeof data.info === 'number' ? data.info : data.info?.playerState;
+          if (state === 1) setIsInlinePaused(false);
+          else if (state === 2 || state === 0) setIsInlinePaused(true);
         }
-        if (inlinePlayerRef.current?.getDuration) {
-          const dur = Math.floor(inlinePlayerRef.current.getDuration() || 0);
-          if (dur > 0) setVideoTotalDuration(dur);
-        }
-      } catch (err) {}
-    }, 500);
+      } catch {}
+    };
 
-    return () => clearInterval(interval);
-  }, [isInlineActive, isInlinePaused]);
-
-  // Mobile controls auto-dismiss timer
-  const resetMobileControlsTimer = useCallback(() => {
-    if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
-    mobileTimerRef.current = setTimeout(() => {
-      setMobileControlsVisible(false);
-    }, 3500);
-  }, []);
-
-  const handleMobileOverlayTap = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (mobileControlsVisible) {
-      setMobileControlsVisible(false);
-      if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
-    } else {
-      setMobileControlsVisible(true);
-      resetMobileControlsTimer();
-    }
-  };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [isInlineActive]);
 
   const handleToggleInlinePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (inlinePlayerRef.current) {
-      if (isInlinePaused) {
-        try {
-          inlinePlayerRef.current.playVideo?.();
-        } catch (err) {}
-        setIsInlinePaused(false);
-        resetMobileControlsTimer();
-      } else {
-        try {
-          inlinePlayerRef.current.pauseVideo?.();
-        } catch (err) {}
-        setIsInlinePaused(true);
-        if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
-      }
+    if (isInlinePaused) {
+      sendIframeCommand('unMute');
+      sendIframeCommand('playVideo');
+      setIsInlinePaused(false);
     } else {
-      sendIframeCommand(isInlinePaused ? 'playVideo' : 'pauseVideo');
-      setIsInlinePaused(!isInlinePaused);
+      sendIframeCommand('pauseVideo');
+      sendIframeCommand('mute');
+      pauseSong();
+      setIsInlinePaused(true);
     }
   };
 
   const handleSeekInline = (delta: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      const cur = inlinePlayerRef.current?.getCurrentTime?.() ?? videoCurrentTimeRef.current;
-      const nextTime = Math.max(0, cur + delta);
-      inlinePlayerRef.current?.seekTo?.(nextTime, true);
-      videoCurrentTimeRef.current = nextTime;
-      setVideoCurrentTime(nextTime);
-    } catch (err) {
-      sendIframeCommand('seekTo', [Math.max(0, videoCurrentTimeRef.current + delta), true]);
-    }
-    resetMobileControlsTimer();
+    const nextTime = Math.max(0, videoCurrentTimeRef.current + delta);
+    sendIframeCommand('seekTo', [nextTime, true]);
+    videoCurrentTimeRef.current = nextTime;
+    setVideoCurrentTime(nextTime);
   };
 
   const handleRestartInline = (e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      inlinePlayerRef.current?.seekTo?.(0, true);
-      inlinePlayerRef.current?.playVideo?.();
-    } catch (err) {
-      sendIframeCommand('seekTo', [0, true]);
-      sendIframeCommand('playVideo');
-    }
+    sendIframeCommand('seekTo', [0, true]);
+    sendIframeCommand('unMute');
+    sendIframeCommand('playVideo');
     setIsInlinePaused(false);
     videoCurrentTimeRef.current = 0;
     setVideoCurrentTime(0);
-    resetMobileControlsTimer();
   };
 
   const handleStopVideo = (e: React.MouseEvent) => {
@@ -309,16 +185,12 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleStopInline = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      if (inlinePlayerRef.current) {
-        inlinePlayerRef.current.pauseVideo?.();
-        inlinePlayerRef.current.stopVideo?.();
-        inlinePlayerRef.current.destroy?.();
-        inlinePlayerRef.current = null;
-      }
-    } catch (err) {}
-    try {
       sendIframeCommand('pauseVideo');
+      sendIframeCommand('mute');
       sendIframeCommand('stopVideo');
+      if (iframeRef.current) {
+        iframeRef.current.src = 'about:blank';
+      }
     } catch (err) {}
     pauseSong();
     setActiveInlineVideoId(null);
@@ -328,11 +200,11 @@ const YouTubeVideoCardComponent: React.FC<{
     const handleGlobalPause = () => {
       if (isInlineActive) {
         try {
-          if (inlinePlayerRef.current) {
-            inlinePlayerRef.current.pauseVideo?.();
-            inlinePlayerRef.current.stopVideo?.();
-            inlinePlayerRef.current.destroy?.();
-            inlinePlayerRef.current = null;
+          sendIframeCommand('pauseVideo');
+          sendIframeCommand('mute');
+          sendIframeCommand('stopVideo');
+          if (iframeRef.current) {
+            iframeRef.current.src = 'about:blank';
           }
         } catch (err) {}
         setActiveInlineVideoId(null);
@@ -342,7 +214,7 @@ const YouTubeVideoCardComponent: React.FC<{
     return () => {
       window.removeEventListener('pause_inline_video', handleGlobalPause);
     };
-  }, [isInlineActive, setActiveInlineVideoId]);
+  }, [isInlineActive, sendIframeCommand, setActiveInlineVideoId]);
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -378,167 +250,141 @@ const YouTubeVideoCardComponent: React.FC<{
             }}
           />
 
-          {/* ACTIVE INLINE VIDEO (Plays directly in thumbnail via official YouTube Player API) */}
+          {/* ACTIVE INLINE VIDEO (Plays directly in thumbnail) */}
           {isInlineActive ? (
-            <div className="absolute inset-0 z-20 bg-black">
-              <div
-                id={`yt-inline-player-box-${song.youtubeId}`}
-                className={`w-full h-full transition-opacity duration-300 ${
-                  iframeLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
+            <div className="absolute inset-0 z-20 bg-black flex flex-col justify-between">
+              {/* Reliable YouTube IFrame (Never black, always loaded) */}
+              <iframe
+                ref={iframeRef}
+                id={`yt-inline-frame-${song.youtubeId}`}
+                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                title={song.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                onLoad={() => {
+                  try {
+                    iframeRef.current?.contentWindow?.postMessage(
+                      JSON.stringify({ event: 'listening', id: song.youtubeId }),
+                      '*'
+                    );
+                  } catch (e) {}
+                }}
+                className="w-full h-full border-0 absolute inset-0 z-10"
               />
 
-              {/* Spinner while loading over thumbnail poster */}
-              {!iframeLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs pointer-events-none">
-                  <div className="w-10 h-10 rounded-full border-3 border-amber-500/30 border-t-amber-500 animate-spin" />
+              {/* ALWAYS-VISIBLE TOP BAR: Title & Close Button */}
+              <div className="relative z-30 flex items-center justify-between p-2 bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-auto">
+                <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${isInlinePaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'}`} />
+                  <p className="text-white text-xs font-semibold truncate drop-shadow-md">
+                    {song.title}
+                  </p>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={handleStopVideo}
+                  className="px-2.5 py-1 rounded-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold text-[11px] flex items-center gap-1 shadow-lg transition-transform cursor-pointer border border-white/20 shrink-0"
+                  title="वीडियो बंद करें"
+                  aria-label="वीडियो बंद करें"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>बंद करें</span>
+                </button>
+              </div>
 
-              {/* DESKTOP QUICK CLOSE BUTTON */}
-              <button
-                type="button"
-                onClick={handleStopVideo}
-                className="hidden md:flex absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-black/75 hover:bg-black text-white/90 hover:text-white items-center justify-center border border-white/20 shadow-lg transition-transform hover:scale-110 active:scale-95 cursor-pointer"
-                title="वीडियो बंद करें"
-                aria-label="वीडियो बंद करें"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              {/* MOBILE TOUCH CONTROL OVERLAY (Phone screen only - md:hidden) */}
-              {/* On Desktop (md:), this overlay is completely hidden, so desktop cursor hover controls remain 100% untouched */}
+              {/* ALWAYS-VISIBLE BOTTOM CONTROL PANEL: Play/Pause, Rewind, Forward, Scrubber */}
               <div 
-                onClick={handleMobileOverlayTap}
-                className={`absolute inset-0 z-30 md:hidden transition-all duration-300 select-none flex flex-col justify-between ${
-                  mobileControlsVisible 
-                    ? 'bg-black/60 backdrop-blur-[1px] opacity-100 pointer-events-auto' 
-                    : 'bg-transparent opacity-0 pointer-events-auto'
-                }`}
+                className="relative z-30 p-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent flex flex-col gap-1.5 pointer-events-auto"
+                onClick={(e) => e.stopPropagation()}
               >
-                {/* When controls are hidden on phone screen, this layer is 100% transparent.
-                    Tapping anywhere on it reveals the control panel immediately! */}
-                {mobileControlsVisible && (
-                  <>
-                    {/* Top Header Bar */}
-                    <div className="flex items-center justify-between p-2.5 bg-gradient-to-b from-black/85 via-black/40 to-transparent">
-                      <div className="flex items-center gap-1.5 min-w-0 pr-2">
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${isInlinePaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'}`} />
-                        <p className="text-white text-xs font-semibold truncate drop-shadow-md">
-                          {song.title}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleStopVideo}
-                        className="w-7 h-7 rounded-full bg-black/65 hover:bg-black/90 active:scale-95 text-white/90 hover:text-white flex items-center justify-center shrink-0 border border-white/15 transition-transform"
-                        title="वीडियो बंद करें"
-                        aria-label="वीडियो बंद करें"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
+                {/* Interactive Progress Bar */}
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+                    const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
+                    const targetTime = ratio * total;
+                    sendIframeCommand('seekTo', [targetTime, true]);
+                    videoCurrentTimeRef.current = targetTime;
+                    setVideoCurrentTime(targetTime);
+                  }}
+                  className="w-full bg-white/25 h-1.5 rounded-full overflow-hidden cursor-pointer relative"
+                >
+                  <div 
+                    className="bg-amber-500 h-full rounded-full transition-all duration-150"
+                    style={{
+                      width: `${videoTotalDuration > 0 ? Math.min(100, (videoCurrentTime / videoTotalDuration) * 100) : 0}%`
+                    }}
+                  />
+                </div>
 
-                    {/* Center Action Controls */}
-                    <div 
-                      className="flex items-center justify-center gap-5 px-4"
-                      onClick={(e) => e.stopPropagation()}
+                {/* Controls Row */}
+                <div className="flex items-center justify-between text-white">
+                  <div className="flex items-center gap-2">
+                    {/* Main Play / Pause Button */}
+                    <button
+                      type="button"
+                      onClick={handleToggleInlinePlay}
+                      className="px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-400 active:scale-90 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-lg transition-transform cursor-pointer"
+                      title={isInlinePaused ? "चलाएं (Play)" : "रोकें (Pause)"}
+                      aria-label={isInlinePaused ? "चलाएं" : "रोकें"}
                     >
-                      {/* Rewind -10s */}
-                      <button
-                        type="button"
-                        onClick={(e) => handleSeekInline(-10, e)}
-                        className="w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex flex-col items-center justify-center border border-white/15 shadow-md transition-transform"
-                        title="10 सेकंड पीछे"
-                        aria-label="10 सेकंड पीछे"
-                      >
-                        <span className="text-[10px] font-bold font-mono leading-none">-10s</span>
-                      </button>
+                      {isInlinePaused ? (
+                        <>
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <span>चलाएं</span>
+                        </>
+                      ) : (
+                        <>
+                          <Pause className="w-3.5 h-3.5 fill-current" />
+                          <span>रोकें</span>
+                        </>
+                      )}
+                    </button>
 
-                      {/* Main Play / Pause Button */}
-                      <button
-                        type="button"
-                        onClick={handleToggleInlinePlay}
-                        className="w-13 h-13 rounded-full bg-amber-500 hover:bg-amber-400 active:scale-90 text-stone-950 flex items-center justify-center shadow-xl ring-4 ring-amber-500/35 transition-transform cursor-pointer"
-                        title={isInlinePaused ? "चलाएं (Play)" : "रोकें (Pause)"}
-                        aria-label={isInlinePaused ? "चलाएं" : "रोकें"}
-                      >
-                        {isInlinePaused ? (
-                          <Play className="w-6 h-6 fill-current ml-0.5" />
-                        ) : (
-                          <Pause className="w-6 h-6 fill-current" />
-                        )}
-                      </button>
-
-                      {/* Forward +10s */}
-                      <button
-                        type="button"
-                        onClick={(e) => handleSeekInline(10, e)}
-                        className="w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 active:scale-90 text-white flex flex-col items-center justify-center border border-white/15 shadow-md transition-transform"
-                        title="10 सेकंड आगे"
-                        aria-label="10 सेकंड आगे"
-                      >
-                        <span className="text-[10px] font-bold font-mono leading-none">+10s</span>
-                      </button>
-                    </div>
-
-                    {/* Bottom Control Bar */}
-                    <div 
-                      className="p-2.5 bg-gradient-to-t from-black/85 via-black/45 to-transparent flex flex-col gap-1.5"
-                      onClick={(e) => e.stopPropagation()}
+                    {/* Rewind -10s */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleSeekInline(-10, e)}
+                      className="px-2 py-0.5 rounded-md bg-black/60 hover:bg-black/90 text-white/90 text-[10px] font-mono font-bold active:scale-95 border border-white/20 transition-transform cursor-pointer"
+                      title="10 सेकंड पीछे"
+                      aria-label="10 सेकंड पीछे"
                     >
-                      {/* Interactive Progress Bar */}
-                      <div 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const clickX = e.clientX - rect.left;
-                          const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-                          const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
-                          const targetTime = ratio * total;
-                          try {
-                            inlinePlayerRef.current?.seekTo?.(targetTime, true);
-                          } catch (err) {
-                            sendIframeCommand('seekTo', [targetTime, true]);
-                          }
-                          videoCurrentTimeRef.current = targetTime;
-                          setVideoCurrentTime(targetTime);
-                          resetMobileControlsTimer();
-                        }}
-                        className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden cursor-pointer relative"
-                      >
-                        <div 
-                          className="bg-amber-500 h-full rounded-full transition-all duration-150"
-                          style={{
-                            width: `${videoTotalDuration > 0 ? Math.min(100, (videoCurrentTime / videoTotalDuration) * 100) : 0}%`
-                          }}
-                        />
-                      </div>
+                      -10s
+                    </button>
 
-                      {/* Time & Quick Actions */}
-                      <div className="flex items-center justify-between text-white/90">
-                        <div className="text-[11px] font-mono font-medium tracking-tight">
-                          <span>{formatDuration(videoCurrentTime)}</span>
-                          <span className="mx-1 text-white/50">/</span>
-                          <span className="text-white/70">{formatDuration(videoTotalDuration || song.duration)}</span>
-                        </div>
+                    {/* Forward +10s */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleSeekInline(10, e)}
+                      className="px-2 py-0.5 rounded-md bg-black/60 hover:bg-black/90 text-white/90 text-[10px] font-mono font-bold active:scale-95 border border-white/20 transition-transform cursor-pointer"
+                      title="10 सेकंड आगे"
+                      aria-label="10 सेकंड आगे"
+                    >
+                      +10s
+                    </button>
 
-                        <div className="flex items-center gap-1.5">
-                          {/* Restart Button */}
-                          <button
-                            type="button"
-                            onClick={handleRestartInline}
-                            className="p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white active:scale-95 transition-transform"
-                            title="शुरू से चलाएं"
-                            aria-label="शुरू से चलाएं"
-                          >
-                            <RefreshCw className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
+                    {/* Restart */}
+                    <button
+                      type="button"
+                      onClick={handleRestartInline}
+                      className="p-1 rounded-md bg-black/60 hover:bg-black/90 text-white/90 active:scale-95 border border-white/20 transition-transform cursor-pointer"
+                      title="शुरू से चलाएं"
+                      aria-label="शुरू से चलाएं"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {/* Time Display */}
+                  <div className="text-[11px] font-mono font-medium text-white/80">
+                    <span>{formatDuration(videoCurrentTime)}</span>
+                    <span className="mx-1 text-white/40">/</span>
+                    <span className="text-white/60">{formatDuration(videoTotalDuration || song.duration)}</span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
