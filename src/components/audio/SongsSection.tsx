@@ -92,17 +92,23 @@ const YouTubeVideoCardComponent: React.FC<{
   const [mobileControlsVisible, setMobileControlsVisible] = useState<boolean>(true);
   const mobileControlsTimerRef = useRef<any>(null);
 
-  const showMobileControlsTemporarily = useCallback((durationMs = 2800) => {
+  const showMobileControlsTemporarily = useCallback((durationMs = 4000) => {
     setMobileControlsVisible(true);
     if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
     mobileControlsTimerRef.current = setTimeout(() => {
-      setMobileControlsVisible(false);
+      // Do not auto-hide while paused so user has full control panel access!
+      setIsInlinePaused((paused) => {
+        if (!paused) {
+          setMobileControlsVisible(false);
+        }
+        return paused;
+      });
     }, durationMs);
   }, []);
 
   useEffect(() => {
     if (isInlineActive) {
-      showMobileControlsTemporarily(3000);
+      showMobileControlsTemporarily(4000);
     } else {
       setMobileControlsVisible(true);
       if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
@@ -112,13 +118,19 @@ const YouTubeVideoCardComponent: React.FC<{
     };
   }, [isInlineActive, showMobileControlsTemporarily]);
 
-  const handleMobileOverlayTap = (e: React.MouseEvent) => {
+  const handleMobileOverlayTap = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     if (mobileControlsVisible) {
-      setMobileControlsVisible(false);
-      if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+      // If paused, keep control panel open; if playing, allow tap to hide controls
+      if (isInlinePaused) {
+        setMobileControlsVisible(true);
+      } else {
+        setMobileControlsVisible(false);
+        if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+      }
     } else {
-      showMobileControlsTemporarily(2800);
+      // When controls are hidden, tapping immediately opens / reveals the control panel!
+      showMobileControlsTemporarily(4000);
     }
   };
 
@@ -201,24 +213,26 @@ const YouTubeVideoCardComponent: React.FC<{
     return () => clearInterval(timer);
   }, [isInlineActive, isInlinePaused, videoTotalDuration, song.duration]);
 
-  const handleToggleInlinePlay = (e: React.MouseEvent) => {
+  const handleToggleInlinePlay = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
-    showMobileControlsTemporarily(2800);
     if (isInlinePaused) {
       sendIframeCommand('unMute', []);
       sendIframeCommand('playVideo', []);
       setIsInlinePaused(false);
+      showMobileControlsTemporarily(4000);
     } else {
       sendIframeCommand('pauseVideo', []);
       sendIframeCommand('mute', []);
-      pauseSong();
       setIsInlinePaused(true);
+      // Keep control panel visible when paused so user can clearly see and interact!
+      setMobileControlsVisible(true);
+      if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
     }
   };
 
-  const handleSeekInline = (delta: number, e: React.MouseEvent) => {
+  const handleSeekInline = (delta: number, e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
-    showMobileControlsTemporarily(2800);
+    showMobileControlsTemporarily(4000);
     const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
     const current = videoCurrentTimeRef.current || videoCurrentTime || 0;
     const nextTime = Math.max(0, Math.min(total, current + delta));
@@ -227,9 +241,9 @@ const YouTubeVideoCardComponent: React.FC<{
     sendIframeCommand('seekTo', [nextTime, true]);
   };
 
-  const handleRestartInline = (e: React.MouseEvent) => {
+  const handleRestartInline = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
-    showMobileControlsTemporarily(2800);
+    showMobileControlsTemporarily(4000);
     videoCurrentTimeRef.current = 0;
     setVideoCurrentTime(0);
     sendIframeCommand('seekTo', [0, true]);
@@ -357,24 +371,34 @@ const YouTubeVideoCardComponent: React.FC<{
                 </button>
               </div>
 
-              {/* MOBILE-ONLY: Premium YouTube-App Touch Controls (Auto-Hides after 2.8s, Tap to Reveal) */}
-              {/* 1. Transparent Tap Capture Backdrop (Mobile Only): Tapping video toggles controls show/hide */}
+              {/* MOBILE-ONLY: Premium YouTube-App Touch Controls (Auto-Hides after 4s when playing, Tap to Reveal) */}
+              {/* 1. Transparent Tap Capture Backdrop (Mobile Only): Tapping video reveals/toggles controls */}
               <div
-                className="sm:hidden absolute inset-0 z-20 cursor-pointer pointer-events-auto"
+                className="sm:hidden absolute inset-0 z-20 cursor-pointer pointer-events-auto touch-manipulation"
                 onClick={handleMobileOverlayTap}
               />
 
               {/* 2. YouTube-App Style Premium Floating Controls Overlay (Mobile Only) */}
               <div
-                className={`sm:hidden absolute inset-0 z-30 flex flex-col justify-between p-2.5 transition-opacity duration-300 select-none ${
+                className={`sm:hidden absolute inset-0 z-30 flex flex-col justify-between p-2.5 transition-opacity duration-300 select-none touch-manipulation ${
                   mobileControlsVisible
                     ? 'opacity-100 bg-gradient-to-t from-black/85 via-black/40 to-black/85 pointer-events-auto'
                     : 'opacity-0 pointer-events-none'
                 }`}
-                onClick={handleMobileOverlayTap}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Tapping the dark backdrop of the overlay when playing will dismiss it; if paused, keep it visible!
+                  if (!isInlinePaused) {
+                    setMobileControlsVisible(false);
+                    if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+                  }
+                }}
               >
                 {/* Top Row: Title + Close Button */}
-                <div className="flex items-center justify-between pointer-events-auto">
+                <div 
+                  className="flex items-center justify-between pointer-events-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="flex items-center gap-1.5 min-w-0 pr-2">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${isInlinePaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'}`} />
                     <p className="text-white text-xs font-semibold truncate drop-shadow-md">
@@ -387,7 +411,7 @@ const YouTubeVideoCardComponent: React.FC<{
                       e.stopPropagation();
                       handleStopVideo(e);
                     }}
-                    className="w-7 h-7 rounded-full bg-red-600/90 active:scale-90 text-white flex items-center justify-center shadow-lg transition-transform cursor-pointer border border-white/20 shrink-0"
+                    className="w-7 h-7 rounded-full bg-red-600/90 hover:bg-red-700 active:scale-90 text-white flex items-center justify-center shadow-lg transition-transform cursor-pointer border border-white/20 shrink-0"
                     title="बंद करें"
                     aria-label="बंद करें"
                   >
@@ -396,7 +420,10 @@ const YouTubeVideoCardComponent: React.FC<{
                 </div>
 
                 {/* Center Row: -10s, Big Play/Pause, +10s (Iconic YouTube Mobile Controls) */}
-                <div className="flex items-center justify-center gap-6 my-auto pointer-events-auto">
+                <div 
+                  className="flex items-center justify-center gap-6 my-auto pointer-events-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {/* Rewind -10s */}
                   <button
                     type="button"
@@ -446,7 +473,7 @@ const YouTubeVideoCardComponent: React.FC<{
                   <div 
                     onClick={(e) => {
                       e.stopPropagation();
-                      showMobileControlsTemporarily(2800);
+                      showMobileControlsTemporarily(4000);
                       const rect = e.currentTarget.getBoundingClientRect();
                       const clickX = e.clientX - rect.left;
                       const ratio = Math.max(0, Math.min(1, clickX / rect.width));
