@@ -97,7 +97,7 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
+    <div className="bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
       {/* 1. TOP HEADER (Exact matching Screenshot Style: Back Arrow, Title, Home Button) */}
       <header className="sticky top-0 z-40 bg-[#fffaf5]/95 backdrop-blur-md border-b border-[#fed7aa]/60 shadow-xs px-3 sm:px-4 py-2.5">
         <div className="max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-center justify-between gap-2">

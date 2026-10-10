@@ -171,7 +171,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] pb-24 flex flex-col font-mukta">
+    <div className="bg-[#fdf6ee] text-[#451a03] pb-3 flex flex-col font-mukta">
       {/* Toast Alert */}
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[100] bg-stone-900/95 text-amber-200 border border-amber-500/40 px-4 py-2 rounded-full text-xs font-bold shadow-2xl backdrop-blur-md animate-in fade-in zoom-in duration-200 flex items-center gap-1.5">

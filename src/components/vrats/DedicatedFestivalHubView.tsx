@@ -58,7 +58,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
   };
 
   return (
-    <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-28">
+    <div className="bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
       
       {/* 1. TOP DEDICATED HEADER */}
       <header className="sticky top-0 z-40 bg-[#fdf6ee]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/60 shadow-xs">

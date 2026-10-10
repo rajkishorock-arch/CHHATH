@@ -16,7 +16,7 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
   // If a temple is selected, render a clean dedicated full page view with iOS slide-in animation!
   if (selectedTemple) {
     return (
-      <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
+      <div className="bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
         {/* Top Header */}
         <header className="sticky top-0 z-40 bg-[#fffaf5]/95 backdrop-blur-md border-b border-[#fed7aa]/60 shadow-xs px-3 sm:px-4 py-2.5">
           <div className="max-w-xl md:max-w-4xl lg:max-w-5xl mx-auto flex items-center justify-between gap-2">
@@ -125,7 +125,7 @@ export const FamousTemplesListView: React.FC<FamousTemplesListViewProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-24">
+    <div className="bg-[#fdf6ed] text-[#451a03] animate-ios-slide-in flex flex-col pb-3">
       {/* 1. Header */}
       <header className="sticky top-0 z-30 bg-[#fdf6ed]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between">

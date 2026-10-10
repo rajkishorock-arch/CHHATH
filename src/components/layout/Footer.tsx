@@ -23,7 +23,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'deletion' | 'guidelines' | 'report' | null>(null);
 
   return (
-    <footer className="relative bg-stone-950 text-stone-300 pt-16 pb-28 lg:pb-16 border-t border-amber-500/30 overflow-hidden">
+    <footer className="relative bg-stone-950 text-stone-300 pt-12 pb-16 lg:pb-8 border-t border-amber-500/30 overflow-hidden">
       
       {/* Devotional Glow Accents */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>

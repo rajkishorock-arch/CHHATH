@@ -738,7 +738,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfbf7] text-stone-900 font-mukta flex flex-col pb-16">
+    <div className="bg-[#fcfbf7] text-stone-900 font-mukta flex flex-col pb-3">
       <SeoHead
         title="डिजिटल आशीर्वाद प्रमाण पत्र स्टूडियो | Chhath Puja Blessing Certificate Studio 2026"
         description="छठ महापर्व 2026 का 4 शाही थीम में अपना व्यक्तिगत डिजिटल आशीर्वाद प्रमाण पत्र बनाएं। फोटो अपलोड, पावन घाट, वैदिक मंत्र व QR कोड सहित HD डाउनलोड।"

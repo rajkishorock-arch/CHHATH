@@ -67,11 +67,12 @@ const YouTubeVideoCardComponent: React.FC<{
   onToggleFav,
   onShareSong,
 }) => {
-  const { activeInlineVideoId, setActiveInlineVideoId, syncInlineVideoSong } = useAudio();
+  const { activeInlineVideoId, setActiveInlineVideoId, syncInlineVideoSong, pauseSong } = useAudio();
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
     return song.thumbnail || (song.youtubeId ? `https://i.ytimg.com/vi/${song.youtubeId}/hqdefault.jpg` : '');
   });
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const ytPlayerInstanceRef = useRef<any>(null);
   const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
   const [isInlinePaused, setIsInlinePaused] = useState<boolean>(false);
   const [mobileControlsVisible, setMobileControlsVisible] = useState<boolean>(false);
@@ -99,18 +100,36 @@ const YouTubeVideoCardComponent: React.FC<{
         clearTimeout(mobileTimerRef.current);
         mobileTimerRef.current = null;
       }
+      if (ytPlayerInstanceRef.current) {
+        try {
+          if (ytPlayerInstanceRef.current.destroy) {
+            ytPlayerInstanceRef.current.destroy();
+          }
+        } catch (e) {}
+        ytPlayerInstanceRef.current = null;
+      }
     }
   }, [isInlineActive]);
 
-  // Command sender via postMessage to YouTube Iframe
+  // Command sender via postMessage and YT.Player API to YouTube Iframe
   const sendIframeCommand = useCallback((func: string, args: any = '') => {
     try {
+      // 1. Direct YT.Player API call if available
+      if (ytPlayerInstanceRef.current && typeof ytPlayerInstanceRef.current[func] === 'function') {
+        try {
+          const callArgs = Array.isArray(args) ? args : (args !== '' ? [args] : []);
+          ytPlayerInstanceRef.current[func](...callArgs);
+        } catch (e) {}
+      }
+
+      // 2. Fallback postMessage to iframe window
       if (iframeRef.current && iframeRef.current.contentWindow) {
+        const postArgs = Array.isArray(args) ? args : (args !== '' ? [args] : []);
         iframeRef.current.contentWindow.postMessage(
           JSON.stringify({
             event: 'command',
             func: func,
-            args: Array.isArray(args) ? args : (args !== '' ? [args] : [])
+            args: postArgs
           }),
           '*'
         );
@@ -185,11 +204,14 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleToggleInlinePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isInlinePaused) {
+      sendIframeCommand('unMute');
       sendIframeCommand('playVideo');
       setIsInlinePaused(false);
       resetMobileControlsTimer();
     } else {
       sendIframeCommand('pauseVideo');
+      sendIframeCommand('mute');
+      pauseSong();
       setIsInlinePaused(true);
       // Keep controls visible while paused so user can easily unpause
       if (mobileTimerRef.current) clearTimeout(mobileTimerRef.current);
@@ -208,6 +230,7 @@ const YouTubeVideoCardComponent: React.FC<{
   const handleRestartInline = (e: React.MouseEvent) => {
     e.stopPropagation();
     sendIframeCommand('seekTo', [0, true]);
+    sendIframeCommand('unMute');
     sendIframeCommand('playVideo');
     setIsInlinePaused(false);
     videoCurrentTimeRef.current = 0;
@@ -229,16 +252,46 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const handleStopInline = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    sendIframeCommand('pauseVideo');
-    sendIframeCommand('stopVideo');
+    try {
+      sendIframeCommand('pauseVideo');
+      sendIframeCommand('stopVideo');
+      sendIframeCommand('mute');
+      if (iframeRef.current) {
+        iframeRef.current.src = 'about:blank';
+      }
+      if (ytPlayerInstanceRef.current) {
+        try {
+          if (ytPlayerInstanceRef.current.destroy) {
+            ytPlayerInstanceRef.current.destroy();
+          }
+        } catch (err) {}
+        ytPlayerInstanceRef.current = null;
+      }
+    } catch (err) {}
+    pauseSong();
     setActiveInlineVideoId(null);
   };
 
   useEffect(() => {
     const handleGlobalPause = () => {
       if (isInlineActive) {
-        sendIframeCommand('pauseVideo');
-        sendIframeCommand('stopVideo');
+        try {
+          sendIframeCommand('pauseVideo');
+          sendIframeCommand('stopVideo');
+          sendIframeCommand('mute');
+          if (iframeRef.current) {
+            iframeRef.current.src = 'about:blank';
+          }
+          if (ytPlayerInstanceRef.current) {
+            try {
+              if (ytPlayerInstanceRef.current.destroy) {
+                ytPlayerInstanceRef.current.destroy();
+              }
+            } catch (err) {}
+            ytPlayerInstanceRef.current = null;
+          }
+        } catch (err) {}
+        pauseSong();
         setActiveInlineVideoId(null);
       }
     };
@@ -246,7 +299,7 @@ const YouTubeVideoCardComponent: React.FC<{
     return () => {
       window.removeEventListener('pause_inline_video', handleGlobalPause);
     };
-  }, [isInlineActive, sendIframeCommand, setActiveInlineVideoId]);
+  }, [isInlineActive, sendIframeCommand, setActiveInlineVideoId, pauseSong]);
 
   const singerInitial = song.singer ? song.singer.trim().charAt(0) : 'छ';
 
@@ -287,7 +340,8 @@ const YouTubeVideoCardComponent: React.FC<{
             <div className="absolute inset-0 z-20 bg-black">
               <iframe
                 ref={iframeRef}
-                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0&modestbranding=1`}
+                id={`yt-inline-frame-${song.youtubeId}`}
+                src={`https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&playsinline=1&controls=1&enablejsapi=1&rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? encodeURIComponent(window.location.origin) : ''}`}
                 title={song.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -299,6 +353,17 @@ const YouTubeVideoCardComponent: React.FC<{
                         JSON.stringify({ event: 'listening', id: song.youtubeId }),
                         '*'
                       );
+                    }
+                    if ((window as any).YT && (window as any).YT.Player && iframeRef.current) {
+                      ytPlayerInstanceRef.current = new (window as any).YT.Player(iframeRef.current, {
+                        events: {
+                          onStateChange: (event: any) => {
+                            const state = event.data;
+                            if (state === 1) setIsInlinePaused(false);
+                            else if (state === 2 || state === 0) setIsInlinePaused(true);
+                          }
+                        }
+                      });
                     }
                   } catch (e) {}
                 }}
@@ -1337,7 +1402,7 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         )}
 
         {/* Unified Automatic Infinite Scroll Bottom Sentinel & Loader */}
-        <div ref={sentinelRef} className="py-6 pb-28 sm:pb-36 flex flex-col items-center justify-center gap-3">
+        <div ref={sentinelRef} className="py-3 pb-3 sm:pb-4 flex flex-col items-center justify-center gap-3">
           {(isLoadingMore || (searchStatus === 'idle' && isLoadingMoreLive)) ? (
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-md">
               <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />

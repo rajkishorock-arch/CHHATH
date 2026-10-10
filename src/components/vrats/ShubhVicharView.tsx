@@ -349,7 +349,7 @@ export const ShubhVicharView: React.FC<ShubhVicharViewProps> = ({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="min-h-screen bg-[#fdf6ee] text-[#451a03] flex flex-col pb-24"
+      className="bg-[#fdf6ee] text-[#451a03] flex flex-col pb-3"
     >
       {/* Toast Notification Alert */}
       {toastMessage && (

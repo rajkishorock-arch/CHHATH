@@ -473,7 +473,7 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
   const sankalpProgress = Math.min(100, Math.round((completedMalas / sankalpTarget) * 100));
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-28 pt-2 sm:pt-6 font-mukta transition-colors animate-in fade-in duration-300">
+    <div className="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-3 pt-2 sm:pt-6 font-mukta transition-colors animate-in fade-in duration-300">
       
       {/* Toast Alert */}
       {toastMessage && (

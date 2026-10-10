@@ -92,7 +92,7 @@ export const AllVratsHub: React.FC<AllVratsHubProps> = ({
   }, [activeCategory]);
 
   return (
-    <div className="min-h-screen bg-[#fdf6ee] text-[#451a03] pb-28">
+    <div className="bg-[#fdf6ee] text-[#451a03] pb-3">
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-[#fdf6ee]/95 backdrop-blur-md border-b border-[#fed7aa]/50 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">

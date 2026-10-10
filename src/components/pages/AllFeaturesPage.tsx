@@ -380,7 +380,7 @@ export const AllFeaturesPage: React.FC<AllFeaturesPageProps> = ({
   }).filter(cat => cat.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-28 pt-2 sm:pt-6 font-mukta transition-colors">
+    <div className="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-3 pt-2 sm:pt-6 font-mukta transition-colors">
       <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-2 sm:px-4 md:px-6">
 
         {/* Action Toast Alert */}

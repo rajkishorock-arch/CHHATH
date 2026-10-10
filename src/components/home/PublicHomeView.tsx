@@ -315,7 +315,7 @@ export const PublicHomeView: React.FC<PublicHomeViewProps> = ({
   ];
 
   return (
-    <div className="space-y-12 pb-16">
+    <div className="space-y-12 pb-4">
       {/* 1. Hero Section */}
       <HeroSection onNavigate={onNavigate} />
 

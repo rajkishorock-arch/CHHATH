@@ -95,7 +95,7 @@ export const ChhathKathaPage: React.FC<PageProps> = ({ onNavigate }) => {
   const otherStories = chhathKathaStories.filter(s => s.id !== 'katha-priyavrata');
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] pb-16">
+    <div className="bg-[var(--bg-primary)] text-[var(--text-primary)] pb-3">
       <SeoHead
         title={title}
         description={description}

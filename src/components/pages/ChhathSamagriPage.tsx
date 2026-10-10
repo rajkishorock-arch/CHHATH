@@ -124,7 +124,7 @@ export const ChhathSamagriPage: React.FC<PageProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] pb-16">
+    <div className="bg-[var(--bg-primary)] text-[var(--text-primary)] pb-3">
       <SeoHead
         title={title}
         description={description}

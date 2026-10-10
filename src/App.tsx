@@ -706,7 +706,7 @@ const MainContent: React.FC = () => {
       )}
 
       {/* Main Content Area based on destination tab */}
-      <main className="flex-1 pb-36 lg:pb-16">
+      <main className="flex-1 pb-14 lg:pb-0">
         <SectionErrorBoundary onReset={() => handleNavigate('home')}>
           <div className="w-full">
             {/* 1. Main Home Screen: Chhath Mahaparv Digital Hub (Restored to Home as requested!) */}
