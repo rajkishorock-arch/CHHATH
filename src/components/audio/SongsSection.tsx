@@ -24,7 +24,9 @@ import {
   ChevronDown,
   Sparkles,
   Layers,
-  ArrowUpLeft
+  ArrowUpLeft,
+  RotateCcw,
+  RotateCw
 } from 'lucide-react';
 import { 
   searchYouTubeVideos, 
@@ -86,6 +88,40 @@ const YouTubeVideoCardComponent: React.FC<{
   const activeKey = `${song.youtubeId}__${cardInstanceId}`;
   const isInlineActive = Boolean(song.youtubeId && activeInlineVideoId === activeKey);
 
+  // Mobile-only auto-hide control overlay states (Just like YouTube Mobile App)
+  const [mobileControlsVisible, setMobileControlsVisible] = useState<boolean>(true);
+  const mobileControlsTimerRef = useRef<any>(null);
+
+  const showMobileControlsTemporarily = useCallback((durationMs = 2800) => {
+    setMobileControlsVisible(true);
+    if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+    mobileControlsTimerRef.current = setTimeout(() => {
+      setMobileControlsVisible(false);
+    }, durationMs);
+  }, []);
+
+  useEffect(() => {
+    if (isInlineActive) {
+      showMobileControlsTemporarily(3000);
+    } else {
+      setMobileControlsVisible(true);
+      if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+    }
+    return () => {
+      if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+    };
+  }, [isInlineActive, showMobileControlsTemporarily]);
+
+  const handleMobileOverlayTap = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (mobileControlsVisible) {
+      setMobileControlsVisible(false);
+      if (mobileControlsTimerRef.current) clearTimeout(mobileControlsTimerRef.current);
+    } else {
+      showMobileControlsTemporarily(2800);
+    }
+  };
+
   // Send control commands to YouTube iframe
   const sendIframeCommand = useCallback((func: string, args: any = '') => {
     try {
@@ -142,6 +178,7 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const handleToggleInlinePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
+    showMobileControlsTemporarily(2800);
     if (isInlinePaused) {
       sendIframeCommand('unMute');
       sendIframeCommand('playVideo');
@@ -156,6 +193,7 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const handleSeekInline = (delta: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    showMobileControlsTemporarily(2800);
     const nextTime = Math.max(0, videoCurrentTimeRef.current + delta);
     sendIframeCommand('seekTo', [nextTime, true]);
     videoCurrentTimeRef.current = nextTime;
@@ -164,6 +202,7 @@ const YouTubeVideoCardComponent: React.FC<{
 
   const handleRestartInline = (e: React.MouseEvent) => {
     e.stopPropagation();
+    showMobileControlsTemporarily(2800);
     sendIframeCommand('seekTo', [0, true]);
     sendIframeCommand('unMute');
     sendIframeCommand('playVideo');
@@ -278,14 +317,8 @@ const YouTubeVideoCardComponent: React.FC<{
                 className="w-full h-full border-0 absolute inset-0 z-10"
               />
 
-              {/* ALWAYS-VISIBLE TOP BAR: Title & Close Button */}
-              <div className="relative z-30 flex items-center justify-between p-2 bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-auto">
-                <div className="flex items-center gap-1.5 min-w-0 pr-2">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${isInlinePaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'}`} />
-                  <p className="text-white text-xs font-semibold truncate drop-shadow-md">
-                    {song.title}
-                  </p>
-                </div>
+              {/* DESKTOP-ONLY: Clean Floating Close Button at top-right (Zero clutter, YouTube native player operates unblocked!) */}
+              <div className="hidden sm:block absolute top-2 right-2 z-30 pointer-events-auto">
                 <button
                   type="button"
                   onClick={handleStopVideo}
@@ -297,97 +330,132 @@ const YouTubeVideoCardComponent: React.FC<{
                 </button>
               </div>
 
-              {/* ALWAYS-VISIBLE BOTTOM CONTROL PANEL: Play/Pause, Rewind, Forward, Scrubber */}
-              <div 
-                className="relative z-30 p-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent flex flex-col gap-1.5 pointer-events-auto"
-                onClick={(e) => e.stopPropagation()}
+              {/* MOBILE-ONLY: Premium YouTube-App Touch Controls (Auto-Hides after 2.8s, Tap to Reveal) */}
+              {/* 1. Transparent Tap Capture Backdrop (Mobile Only): Tapping video toggles controls show/hide */}
+              <div
+                className="sm:hidden absolute inset-0 z-20 cursor-pointer pointer-events-auto"
+                onClick={handleMobileOverlayTap}
+              />
+
+              {/* 2. YouTube-App Style Premium Floating Controls Overlay (Mobile Only) */}
+              <div
+                className={`sm:hidden absolute inset-0 z-30 flex flex-col justify-between p-2.5 transition-opacity duration-300 select-none ${
+                  mobileControlsVisible
+                    ? 'opacity-100 bg-gradient-to-t from-black/85 via-black/40 to-black/85 pointer-events-auto'
+                    : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={handleMobileOverlayTap}
               >
-                {/* Interactive Progress Bar */}
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-                    const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
-                    const targetTime = ratio * total;
-                    sendIframeCommand('seekTo', [targetTime, true]);
-                    videoCurrentTimeRef.current = targetTime;
-                    setVideoCurrentTime(targetTime);
-                  }}
-                  className="w-full bg-white/25 h-1.5 rounded-full overflow-hidden cursor-pointer relative"
-                >
-                  <div 
-                    className="bg-amber-500 h-full rounded-full transition-all duration-150"
-                    style={{
-                      width: `${videoTotalDuration > 0 ? Math.min(100, (videoCurrentTime / videoTotalDuration) * 100) : 0}%`
+                {/* Top Row: Title + Close Button */}
+                <div className="flex items-center justify-between pointer-events-auto">
+                  <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${isInlinePaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'}`} />
+                    <p className="text-white text-xs font-semibold truncate drop-shadow-md">
+                      {song.title}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStopVideo(e);
                     }}
-                  />
+                    className="w-7 h-7 rounded-full bg-red-600/90 active:scale-90 text-white flex items-center justify-center shadow-lg transition-transform cursor-pointer border border-white/20 shrink-0"
+                    title="बंद करें"
+                    aria-label="बंद करें"
+                  >
+                    <X className="w-4 h-4 stroke-[2.5]" />
+                  </button>
                 </div>
 
-                {/* Controls Row */}
-                <div className="flex items-center justify-between text-white">
-                  <div className="flex items-center gap-2">
-                    {/* Main Play / Pause Button */}
-                    <button
-                      type="button"
-                      onClick={handleToggleInlinePlay}
-                      className="px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-400 active:scale-90 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-lg transition-transform cursor-pointer"
-                      title={isInlinePaused ? "चलाएं (Play)" : "रोकें (Pause)"}
-                      aria-label={isInlinePaused ? "चलाएं" : "रोकें"}
-                    >
-                      {isInlinePaused ? (
-                        <>
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                          <span>चलाएं</span>
-                        </>
-                      ) : (
-                        <>
-                          <Pause className="w-3.5 h-3.5 fill-current" />
-                          <span>रोकें</span>
-                        </>
-                      )}
-                    </button>
+                {/* Center Row: -10s, Big Play/Pause, +10s (Iconic YouTube Mobile Controls) */}
+                <div className="flex items-center justify-center gap-6 my-auto pointer-events-auto">
+                  {/* Rewind -10s */}
+                  <button
+                    type="button"
+                    onClick={(e) => handleSeekInline(-10, e)}
+                    className="w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-white flex flex-col items-center justify-center border border-white/20 backdrop-blur-md shadow-lg transition-transform cursor-pointer"
+                    title="10 सेकंड पीछे"
+                    aria-label="10 सेकंड पीछे"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span className="text-[9px] font-bold font-mono leading-none mt-0.5">-10s</span>
+                  </button>
 
-                    {/* Rewind -10s */}
-                    <button
-                      type="button"
-                      onClick={(e) => handleSeekInline(-10, e)}
-                      className="px-2 py-0.5 rounded-md bg-black/60 hover:bg-black/90 text-white/90 text-[10px] font-mono font-bold active:scale-95 border border-white/20 transition-transform cursor-pointer"
-                      title="10 सेकंड पीछे"
-                      aria-label="10 सेकंड पीछे"
-                    >
-                      -10s
-                    </button>
+                  {/* Big Center Play / Pause */}
+                  <button
+                    type="button"
+                    onClick={handleToggleInlinePlay}
+                    className="w-12 h-12 rounded-full bg-amber-500 hover:bg-amber-400 active:scale-90 text-stone-950 flex items-center justify-center shadow-2xl border-2 border-white/30 transition-transform cursor-pointer"
+                    title={isInlinePaused ? "चलाएं (Play)" : "रोकें (Pause)"}
+                    aria-label={isInlinePaused ? "चलाएं" : "रोकें"}
+                  >
+                    {isInlinePaused ? (
+                      <Play className="w-6 h-6 fill-current ml-0.5" />
+                    ) : (
+                      <Pause className="w-6 h-6 fill-current" />
+                    )}
+                  </button>
 
-                    {/* Forward +10s */}
-                    <button
-                      type="button"
-                      onClick={(e) => handleSeekInline(10, e)}
-                      className="px-2 py-0.5 rounded-md bg-black/60 hover:bg-black/90 text-white/90 text-[10px] font-mono font-bold active:scale-95 border border-white/20 transition-transform cursor-pointer"
-                      title="10 सेकंड आगे"
-                      aria-label="10 सेकंड आगे"
-                    >
-                      +10s
-                    </button>
+                  {/* Forward +10s */}
+                  <button
+                    type="button"
+                    onClick={(e) => handleSeekInline(10, e)}
+                    className="w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-white flex flex-col items-center justify-center border border-white/20 backdrop-blur-md shadow-lg transition-transform cursor-pointer"
+                    title="10 सेकंड आगे"
+                    aria-label="10 सेकंड आगे"
+                  >
+                    <RotateCw className="w-4 h-4" />
+                    <span className="text-[9px] font-bold font-mono leading-none mt-0.5">+10s</span>
+                  </button>
+                </div>
 
-                    {/* Restart */}
+                {/* Bottom Row: Scrubber + Time + Restart */}
+                <div 
+                  className="flex flex-col gap-1 pointer-events-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Interactive Progress Bar */}
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      showMobileControlsTemporarily(2800);
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const clickX = e.clientX - rect.left;
+                      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+                      const total = videoTotalDuration || (typeof song.duration === 'number' ? song.duration : 240);
+                      const targetTime = ratio * total;
+                      sendIframeCommand('seekTo', [targetTime, true]);
+                      videoCurrentTimeRef.current = targetTime;
+                      setVideoCurrentTime(targetTime);
+                    }}
+                    className="w-full bg-white/30 h-1.5 rounded-full overflow-hidden cursor-pointer relative"
+                  >
+                    <div 
+                      className="bg-amber-500 h-full rounded-full transition-all duration-150"
+                      style={{
+                        width: `${videoTotalDuration > 0 ? Math.min(100, (videoCurrentTime / videoTotalDuration) * 100) : 0}%`
+                      }}
+                    />
+                  </div>
+
+                  {/* Time & Restart Row */}
+                  <div className="flex items-center justify-between text-white text-[11px] font-mono">
+                    <div className="flex items-center gap-1 font-semibold text-white/90">
+                      <span>{formatDuration(videoCurrentTime)}</span>
+                      <span className="text-white/40">/</span>
+                      <span className="text-white/60">{formatDuration(videoTotalDuration || song.duration)}</span>
+                    </div>
+
                     <button
                       type="button"
                       onClick={handleRestartInline}
-                      className="p-1 rounded-md bg-black/60 hover:bg-black/90 text-white/90 active:scale-95 border border-white/20 transition-transform cursor-pointer"
+                      className="p-1 rounded-md bg-black/50 hover:bg-black/80 text-white/90 active:scale-95 border border-white/15 transition-transform cursor-pointer"
                       title="शुरू से चलाएं"
                       aria-label="शुरू से चलाएं"
                     >
                       <RefreshCw className="w-3 h-3" />
                     </button>
-                  </div>
-
-                  {/* Time Display */}
-                  <div className="text-[11px] font-mono font-medium text-white/80">
-                    <span>{formatDuration(videoCurrentTime)}</span>
-                    <span className="mx-1 text-white/40">/</span>
-                    <span className="text-white/60">{formatDuration(videoTotalDuration || song.duration)}</span>
                   </div>
                 </div>
               </div>
