@@ -291,12 +291,14 @@ export const ChhathVidhiInteractive: React.FC<ChhathVidhiInteractiveProps> = ({ 
     return new Set();
   });
 
-  // Save to localStorage when state changes
+  // Save to localStorage when state changes with safe fallback
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checkedIds)));
-    } catch (e) {
-      console.warn('localStorage save error:', e);
+    } catch {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(checkedIds)));
+      } catch {}
     }
   }, [checkedIds]);
 

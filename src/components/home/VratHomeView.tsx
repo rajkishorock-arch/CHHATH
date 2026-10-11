@@ -7,6 +7,7 @@ import { ALL_VRATS_DATA } from '../../data/allVratsData';
 import { ALL_AARTIS_DATA } from '../../data/allAartisData';
 import { DailyPujaAlarmModal } from '../vrats/DailyPujaAlarmModal';
 import { getDynamicCalendarBanners, DynamicBannerItem } from '../../data/panchangCalendarEvents';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 interface VratHomeViewProps {
   onNavigate: (tab: string) => void;
@@ -559,57 +560,52 @@ export const VratHomeView: React.FC<VratHomeViewProps> = ({
                   isActive ? 'opacity-100 scale-100 z-10 pointer-events-auto' : 'opacity-0 scale-98 z-0 pointer-events-none'
                 }`}
               >
-                {/* Full-Bleed High-Res Cover Image */}
+                {/* Full-Bleed High-Res Sacred Cover Image */}
                 <img
-                  src={banner.image}
+                  src={getImageUrl(banner.image)}
                   alt={banner.title}
-                  className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.82] transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => handleImageError(e, '/images/deities/chhath.jpg')}
+                  className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.85] transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
 
                 {/* Multi-Stop Dark Gradient Overlay for Maximum Text Readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/20" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent pointer-events-none" />
 
-                {/* Overlaid Sacred Content Directly On Top of the Photo */}
-                <div className="relative z-10 h-full flex flex-col justify-end p-4 sm:p-6 md:p-8 space-y-1 sm:space-y-2 max-w-3xl">
-                  {/* Status Indicator Badge (आज है / आगामी महापर्व / सम्पन्न) */}
-                  <div>
-                    <span className={`inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black shadow-md backdrop-blur-md ${
+                {/* Clean, Radiant Minimalist Sacred Intro Overlay */}
+                <div className="relative z-10 h-full flex flex-col justify-end p-3.5 sm:p-5 md:p-6 space-y-1 sm:space-y-1.5 max-w-2xl">
+                  {/* Status Indicator & Date in a Compact Row */}
+                  <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black shadow-xs backdrop-blur-md ${
                       isToday
-                        ? 'bg-emerald-600/90 text-white border border-emerald-400 ring-2 ring-emerald-400/40 animate-pulse'
+                        ? 'bg-emerald-600/90 text-white border border-emerald-400 ring-1 ring-emerald-300'
                         : isPast
-                        ? 'bg-stone-900/80 text-amber-200 border border-amber-400/30'
+                        ? 'bg-black/60 text-amber-200 border border-amber-400/30'
                         : 'bg-[#ea580c]/90 text-white border border-orange-400/40'
                     }`}>
                       {isPast ? <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-300" /> : <Sparkles className="w-3 h-3 mr-1 text-amber-200" />}
-                      <span>{isToday ? '🌟 आज है' : isPast ? 'हाल ही में सम्पन्न' : '✨ आगामी महापर्व'}</span>
+                      <span>{isToday ? '🌟 आज है' : isPast ? 'सम्पन्न' : '✨ आगामी महापर्व'}</span>
+                    </span>
+
+                    <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-amber-400/30 text-amber-200 font-bold text-[10px] sm:text-xs font-mukta flex items-center gap-1 shadow-xs">
+                      <span>🗓️</span>
+                      <span>{banner.formattedDate}</span>
+                      {banner.tithi && <span className="hidden sm:inline">• {banner.tithi}</span>}
                     </span>
                   </div>
 
-                  {/* Majestic Festival Title Overlaid on Image */}
-                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black font-serif text-white tracking-wide leading-tight drop-shadow-md">
+                  {/* Majestic Festival Title */}
+                  <h2 className="text-lg sm:text-2xl md:text-3xl font-black font-serif text-white tracking-wide leading-tight drop-shadow-md">
                     {banner.title}
                   </h2>
 
-                  {/* Subtitle Description */}
-                  {banner.subtitle && (
-                    <p className="text-xs sm:text-sm md:text-base text-amber-100/90 font-mukta line-clamp-1 drop-shadow-xs max-w-2xl">
-                      {banner.subtitle}
-                    </p>
-                  )}
-
-                  {/* Date Pill & Tithi */}
-                  <div className="flex items-center gap-2 pt-0.5">
-                    <span className="px-2.5 py-0.5 sm:py-1 rounded-lg bg-black/50 backdrop-blur-md border border-amber-400/40 text-amber-200 font-bold text-xs sm:text-sm font-mukta drop-shadow-xs flex items-center gap-1">
-                      <span>🗓️</span>
-                      <span>{banner.formattedDate}</span>
+                  {/* Clean 1-Tap CTA Pill */}
+                  <div className="pt-0.5">
+                    <span className="inline-flex items-center text-[11px] sm:text-xs font-bold text-amber-300 hover:text-white transition-colors group-hover:translate-x-1 duration-200">
+                      <span>पूजा विधि, कथा व दर्शन</span>
+                      <ArrowRight className="w-3.5 h-3.5 ml-1" />
                     </span>
-                    {banner.tithi && (
-                      <span className="px-2.5 py-0.5 sm:py-1 rounded-lg bg-white/15 backdrop-blur-md border border-white/20 text-white/95 font-medium text-xs sm:text-sm font-mukta hidden sm:inline-block">
-                        {banner.tithi}
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Home, Volume2, VolumeX, Bell, ZoomIn, ZoomOut, 
-  Share2, CheckCircle2, BookOpen, Sparkles, Flame, Check, Copy
+  Share2, CheckCircle2, BookOpen, Sparkles, Flame, Check, Copy, Compass, Heart, ShieldCheck, Landmark
 } from 'lucide-react';
 import { VratDirectoryEntry } from '../../data/vratDirectoryList';
 import { spiritualAudio } from '../../utils/spiritualAudio';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 export type VratReadingTab = 'vidhi' | 'katha' | 'samagri' | 'mantra' | 'aarti';
 
@@ -248,8 +249,9 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#fff7ed] via-[#ffedd5] to-[#fed7aa] p-4 border border-[#fed7aa] shadow-xs flex items-center space-x-4">
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white p-1 shrink-0 shadow-md overflow-hidden ring-2 ring-[#ea580c]/30">
             <img
-              src={entry.avatarUrl}
+              src={getImageUrl(entry.avatarUrl)}
               alt={entry.title}
+              onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
               className="w-full h-full rounded-full object-cover"
             />
           </div>
@@ -302,28 +304,118 @@ export const VratReadingPageView: React.FC<VratReadingPageViewProps> = ({
           </div>
         )}
 
-        {/* TAB 2: व्रत कथा */}
+        {/* TAB 2: व्रत कथा एवं पर्व का संपूर्ण महत्व */}
         {activeTab === 'katha' && (
-          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#fed7aa] shadow-xs space-y-4">
-            <div className="border-b border-[#fed7aa] pb-3 text-center">
-              <span className="px-3 py-1 rounded-full bg-[#fef3c7] text-[#9a3412] text-xs font-bold inline-block mb-1">
-                📖 पावन पौराणिक प्रसंग
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black font-serif text-[#7c2d12]">
-                {entry.kathaTitle}
-              </h3>
+          <div className="space-y-4">
+            {/* 1. Motive, Target & Scriptural Background Card */}
+            {(entry.motiveAndSignificance || entry.whoPerformsAndWhy || entry.kathaContextAndOrigins) && (
+              <div className="bg-[#fffaf5] rounded-3xl p-4 sm:p-5 border-2 border-amber-300 shadow-xs space-y-3">
+                <div className="flex items-center gap-2 border-b border-amber-200 pb-2">
+                  <Sparkles className="w-5 h-5 text-amber-600 shrink-0" />
+                  <h4 className="font-serif font-black text-sm sm:text-base text-[#78350f]">
+                    पर्व का पावन उद्देश्य, महत्व एवं पृष्ठभूमि
+                  </h4>
+                </div>
+
+                {entry.motiveAndSignificance && (
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-[#9a3412] flex items-center gap-1.5">
+                      <Compass className="w-3.5 h-3.5" />
+                      पर्व का मूल उद्देश्य (Motive & Significance)
+                    </span>
+                    <p className="text-xs sm:text-sm text-stone-800 font-serif leading-relaxed">
+                      {entry.motiveAndSignificance}
+                    </p>
+                  </div>
+                )}
+
+                {entry.whoPerformsAndWhy && (
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-[#9a3412] flex items-center gap-1.5">
+                      <Heart className="w-3.5 h-3.5" />
+                      यह व्रत किसके लिए और कौन करता है (Target Benefits)
+                    </span>
+                    <p className="text-xs sm:text-sm text-stone-800 font-serif leading-relaxed">
+                      {entry.whoPerformsAndWhy}
+                    </p>
+                  </div>
+                )}
+
+                {entry.kathaContextAndOrigins && (
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-[#9a3412] flex items-center gap-1.5">
+                      <Landmark className="w-3.5 h-3.5" />
+                      कथा का पौराणिक संदर्भ व शास्त्र (Scriptural Lore)
+                    </span>
+                    <p className="text-xs sm:text-sm text-stone-800 font-serif leading-relaxed">
+                      {entry.kathaContextAndOrigins}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 2. Full Sacred Story Reading Card */}
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#fed7aa] shadow-xs space-y-4">
+              <div className="border-b border-[#fed7aa] pb-3 text-center">
+                <span className="px-3 py-1 rounded-full bg-[#fef3c7] text-[#9a3412] text-xs font-bold inline-block mb-1">
+                  📖 प्रामाणिक पौराणिक कथा
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black font-serif text-[#7c2d12]">
+                  {entry.kathaTitle}
+                </h3>
+              </div>
+
+              <div
+                className="text-[#292524] font-serif leading-loose whitespace-pre-line space-y-4"
+                style={{ fontSize: `${fontSize}px` }}
+              >
+                {entry.kathaStory}
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#fff7ed] border border-[#fed7aa] text-xs text-[#78350f] font-semibold text-center mt-4">
+                🙏 जो भी भक्त इस पावन कथा का पठन व श्रवण करता है, उसे मनोवांछित फल एवं भगवान का अनुग्रह प्राप्त होता है।
+              </div>
             </div>
 
-            <div
-              className="text-[#292524] font-serif leading-loose whitespace-pre-line space-y-4"
-              style={{ fontSize: `${fontSize}px` }}
-            >
-              {entry.kathaStory}
-            </div>
+            {/* 3. Fasting Rules & Spiritual Fruits Card */}
+            {((entry.pujaMuhuratAndRules && entry.pujaMuhuratAndRules.length > 0) || (entry.spiritualFruits && entry.spiritualFruits.length > 0)) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {entry.pujaMuhuratAndRules && entry.pujaMuhuratAndRules.length > 0 && (
+                  <div className="bg-[#fff7ed] rounded-3xl p-4 border border-[#fed7aa] shadow-xs space-y-2">
+                    <h5 className="text-xs font-bold text-[#9a3412] uppercase tracking-wider flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-amber-600" />
+                      उपवास के अनिवार्य नियम
+                    </h5>
+                    <ul className="space-y-1.5 text-xs text-stone-800 font-serif">
+                      {entry.pujaMuhuratAndRules.map((rule, ri) => (
+                        <li key={ri} className="flex items-start gap-1.5">
+                          <span className="text-amber-600 font-bold">•</span>
+                          <span>{rule}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-            <div className="p-3.5 rounded-2xl bg-[#fff7ed] border border-[#fed7aa] text-xs text-[#78350f] font-semibold text-center mt-4">
-              🙏 जो भी भक्त इस पावन कथा का पठन व श्रवण करता है, उसे मनोवांछित फल की प्राप्ति होती है।
-            </div>
+                {entry.spiritualFruits && entry.spiritualFruits.length > 0 && (
+                  <div className="bg-[#fff7ed] rounded-3xl p-4 border border-[#fed7aa] shadow-xs space-y-2">
+                    <h5 className="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-emerald-600" />
+                      आध्यात्मिक फल व लाभ
+                    </h5>
+                    <ul className="space-y-1.5 text-xs text-stone-800 font-serif">
+                      {entry.spiritualFruits.map((fruit, fi) => (
+                        <li key={fi} className="flex items-start gap-1.5">
+                          <span className="text-emerald-600 font-bold">✓</span>
+                          <span>{fruit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

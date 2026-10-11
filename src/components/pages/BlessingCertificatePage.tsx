@@ -22,17 +22,28 @@ import {
   FileText, 
   Sun,
   Flame,
-  X
+  X,
+  Compass,
+  CheckCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SeoHead } from '../seo/SeoHead';
+import { 
+  FESTIVAL_CERTIFICATE_CONFIGS, 
+  FestivalCertificateConfig 
+} from '../../data/certificateFestivalData';
 
 interface BlessingCertificatePageProps {
   onNavigate: (tab: string) => void;
 }
 
-// 4 Royal Themes
-type CertificateTheme = 'gold_obsidian' | 'vedic_saffron' | 'royal_ivory' | 'ganga_azure';
+// 5 Royal Vedic Themes
+export type CertificateTheme = 
+  | 'gold_obsidian' 
+  | 'vedic_saffron' 
+  | 'royal_ivory' 
+  | 'ganga_azure' 
+  | 'sacred_kesariya';
 
 interface ThemeConfig {
   id: CertificateTheme;
@@ -47,113 +58,52 @@ const THEMES: ThemeConfig[] = [
     id: 'gold_obsidian',
     name: '24K स्वर्ण व ऑब्सिडियन',
     subName: 'Royal 24K Gold & Obsidian',
-    badge: 'शाही लग्जरी',
+    badge: 'शाही स्वर्ण',
     borderPreview: 'from-amber-400 via-yellow-200 to-amber-600 bg-stone-950'
   },
   {
     id: 'vedic_saffron',
-    name: 'वैदिक केसरिया व रोली',
-    subName: 'Vedic Saffron & Crimson',
+    name: 'वैदिक सिंदूरी व रोली',
+    subName: 'Vedic Crimson & Temple Roli',
     badge: 'मंदिर पावन',
     borderPreview: 'from-amber-400 via-orange-300 to-red-600 bg-red-950'
   },
   {
     id: 'royal_ivory',
     name: 'शाही रेशम व भोजपत्र',
-    subName: 'Royal Silk Ivory & Parchment',
+    subName: 'Ancient Parchment & Silk',
     badge: 'प्राचीन भोजपत्र',
     borderPreview: 'from-amber-600 via-amber-300 to-amber-700 bg-stone-100'
   },
   {
     id: 'ganga_azure',
-    name: 'गंगा जल व नीलम',
-    subName: 'Ganga Jal Royal Azure',
+    name: 'शिव गंगा नील व नीलम',
+    subName: 'Ganga Jal Azure & Sapphire',
     badge: 'पवित्र धारा',
     borderPreview: 'from-sky-300 via-cyan-100 to-amber-400 bg-sky-950'
+  },
+  {
+    id: 'sacred_kesariya',
+    name: 'पावन केसरिया व चंदन',
+    subName: 'Sacred Saffron & Sandalwood',
+    badge: 'दिव्य केसरिया',
+    borderPreview: 'from-orange-400 via-amber-200 to-orange-600 bg-amber-950'
   }
 ];
 
-// Sacred Blessing Presets
-interface BlessingPreset {
-  id: string;
-  title: string;
-  icon: string;
-  line1: string;
-  line2: string;
-  mantra: string;
-}
-
-const BLESSING_PRESETS: BlessingPreset[] = [
-  {
-    id: 'arogya',
-    title: 'आरोग्य व दीर्घायु संकल्प',
-    icon: '🌟',
-    line1: 'भगवान सूर्य नारायण व छठी मईया आपके जीवन से समस्त व्याधि, रोग व संताप हरें।',
-    line2: '36 घंटे के अखंड निर्जला तप के पुण्य से आपको अक्षय स्वास्थ्य व नवऊर्जा प्राप्त हो।',
-    mantra: 'ॐ ह्रीं ह्रीं सूर्याय सहस्रकिरणाय मनोवांछित फलम् देहि देहि स्वाहा॥'
-  },
-  {
-    id: 'santan',
-    title: 'संतान रक्षा व कुल वृद्धि',
-    icon: '👶',
-    line1: 'छठी मईया आपकी संतति व परिवार को दीर्घायु, सुसंस्कार, विद्या व अखंड रक्षा का आशीष दें।',
-    line2: 'सच्ची निष्ठा से अर्पित अर्घ्य आपके कुल में यश, कीर्ति और सुख-समृद्धि का प्रकाश फैलाए।',
-    mantra: 'ॐ षष्ठी देव्यै नमः • संतानं पालय पालय सर्व कार्येषु विजयं देहि॥'
-  },
-  {
-    id: 'manokamna',
-    title: 'मनोकामना सिद्धि व सौभाग्य',
-    icon: '🪔',
-    line1: 'निर्मल मन व निष्कपट भाव से अर्पित सूप-दउरा के पुण्य से सर्व मनोकामनाएं पूर्ण हों।',
-    line2: 'भगवान भास्कर आपके घर-आंगन को अखंड सौभाग्य, ऐश्वर्य व शांति से परिपूर्ण रखें।',
-    mantra: 'ॐ सूर्याय नमः • आदित्य हृदयम् पुण्यं सर्वशत्रु विनाशनम् जयावहम्॥'
-  },
-  {
-    id: 'samriddhi',
-    title: 'सुख-समृद्धि व पावन अर्घ्य',
-    icon: '🌾',
-    line1: 'अस्ताचलगामी व उदीयमान सूर्य देव को समर्पित पावन अर्घ्य आपके जीवन को आलोकित करे।',
-    line2: 'ठेकुआ, ईख, फल व नवधान्य का दिव्य प्रसाद आपके कुल में अन्न-धन की अखंड वर्षा करे।',
-    mantra: 'ॐ नमो भगवते श्रीसूर्याय आदित्याय अमोघवीर्याय सर्वकष्ट निवारणाय॥'
-  }
-];
-
-// Divine Holy Avatars (for devotees who don't upload personal photo)
+// Authentic Holy Deity Avatars (Matching Local Repository Prints)
 const HOLY_AVATARS = [
-  {
-    id: 'chhathi_maiya',
-    name: 'छठी मईया',
-    icon: '🙏',
-    url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200'
-  },
-  {
-    id: 'surya_bhagwan',
-    name: 'भगवान सूर्य देव',
-    icon: '☀️',
-    url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=200'
-  },
-  {
-    id: 'pavitra_soop',
-    name: 'पावन सूप व अर्घ्य',
-    icon: '🌾',
-    url: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=200'
-  },
-  {
-    id: 'akhand_deep',
-    name: 'सूर्य कुंड दीप',
-    icon: '🪔',
-    url: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200'
-  }
-];
-
-const GHAT_PRESETS = [
-  'दीघा घाट, पटना',
-  'गंगा तट, वाराणसी',
-  'सूर्य मंदिर घाट, देव (औरंगाबाद)',
-  'कष्टहरणी घाट, मुंगेर',
-  'काली घाट, कोलकाता',
-  'हर की पौड़ी, हरिद्वार',
-  'स्थानीय पावन छठ घाट'
+  { id: 'chhath', name: 'छठी मैया व सूर्य देव', url: '/images/deities/chhath.jpg', icon: '☀️' },
+  { id: 'shiva', name: 'भगवान शिव (महादेव)', url: '/images/deities/shiva.jpg', icon: '🔱' },
+  { id: 'krishna', name: 'भगवान श्री कृष्ण', url: '/images/deities/krishna.jpg', icon: '🦚' },
+  { id: 'durga', name: 'माँ भगवती दुर्गा', url: '/images/deities/durga.jpg', icon: '🌺' },
+  { id: 'lakshmi', name: 'माँ महालक्ष्मी', url: '/images/deities/lakshmi.jpg', icon: '🪔' },
+  { id: 'ganesha', name: 'श्री गणेश जी', url: '/images/deities/ganesha.jpg', icon: '🐘' },
+  { id: 'ram', name: 'प्रभु श्री राम', url: '/images/deities/ram.jpg', icon: '🏹' },
+  { id: 'hanuman', name: 'श्री हनुमान जी', url: '/images/deities/hanuman.jpg', icon: '🚩' },
+  { id: 'surya', name: 'भगवान सूर्य नारायण', url: '/images/deities/surya.jpg', icon: '☀️' },
+  { id: 'satyanarayan', name: 'श्री लक्ष्मीनारायण', url: '/images/deities/satyanarayan.jpg', icon: '📜' },
+  { id: 'saraswati', name: 'माँ सरस्वती', url: '/images/deities/saraswati.jpg', icon: '🪕' }
 ];
 
 // Helper to draw realistic 2D procedural QR Code
@@ -229,27 +179,32 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // 1. Core Selection: Selected Festival Config (Default: Chhath Mahaparv)
+  const [selectedFestivalId, setSelectedFestivalId] = useState<string>('chhath');
+  const activeFestival = FESTIVAL_CERTIFICATE_CONFIGS.find(f => f.id === selectedFestivalId) || FESTIVAL_CERTIFICATE_CONFIGS[0];
+
   // Studio Customization States
   const [theme, setTheme] = useState<CertificateTheme>('gold_obsidian');
   const [devoteeName, setDevoteeName] = useState<string>('');
   const [cityOrGotra, setCityOrGotra] = useState<string>('');
-  const [ghatName, setGhatName] = useState<string>('दीघा घाट, पटना');
-  const [role, setRole] = useState<string>('छठ मुख्य व्रती (साधक)');
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('arogya');
+  const [dhamName, setDhamName] = useState<string>(activeFestival.dhams[0]);
+  const [role, setRole] = useState<string>(activeFestival.roles[0]);
+  const [selectedPresetId, setSelectedPresetId] = useState<string>(activeFestival.blessingPresets[0].id);
   const [customLine1, setCustomLine1] = useState<string>('');
   const [customLine2, setCustomLine2] = useState<string>('');
   const [devoteePhoto, setDevoteePhoto] = useState<string | null>(null);
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string>('chhathi_maiya');
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string>(activeFestival.id);
   const [loadedPhotoImg, setLoadedPhotoImg] = useState<HTMLImageElement | null>(null);
+  const [loadedBgDeityImg, setLoadedBgDeityImg] = useState<HTMLImageElement | null>(null);
 
-  // Verification Serial ID
-  const [serialId] = useState<string>(() => {
+  // Dynamic Serial Verification ID
+  const [serialId, setSerialId] = useState<string>(() => {
     const random = Math.floor(10000 + Math.random() * 90000);
-    return `CHHATH-2026-ARGH-${random}`;
+    return `SANATAN-2026-CHHATH-${random}`;
   });
 
   // UI Tabs & Feedback
-  const [activeTab, setActiveTab] = useState<'theme' | 'devotee' | 'blessing'>('theme');
+  const [activeTab, setActiveTab] = useState<'festival' | 'theme' | 'devotee' | 'blessing'>('festival');
   const [downloading, setDownloading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -257,6 +212,20 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // When festival changes, update default dham, role, blessing preset, serial, and avatar
+  const handleFestivalChange = (fest: FestivalCertificateConfig) => {
+    setSelectedFestivalId(fest.id);
+    setDhamName(fest.dhams[0]);
+    setRole(fest.roles[0]);
+    setSelectedPresetId(fest.blessingPresets[0].id);
+    setCustomLine1('');
+    setCustomLine2('');
+    setSelectedAvatarId(fest.id);
+    const random = Math.floor(10000 + Math.random() * 90000);
+    setSerialId(`SANATAN-2026-${fest.serialPrefix}-${random}`);
+    showToast(`🌸 ${fest.hindiName} आशीर्वाद पत्र चुना गया`);
   };
 
   // Sync authenticated user details
@@ -267,7 +236,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
         setCityOrGotra(
           currentUser.city && currentUser.state 
             ? `${currentUser.city}, ${currentUser.state}` 
-            : (currentUser.city || 'पटना, बिहार')
+            : (currentUser.city || 'वाराणसी, उत्तर प्रदेश')
         );
       }
       if (currentUser.avatarUrl && !devoteePhoto) {
@@ -276,9 +245,27 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     }
   }, [currentUser]);
 
-  // Load photo into HTMLImageElement
+  // Load Background Deity Artwork for the selected festival
   useEffect(() => {
-    const targetUrl = devoteePhoto || HOLY_AVATARS.find(a => a.id === selectedAvatarId)?.url;
+    if (!activeFestival.bgImage) {
+      setLoadedBgDeityImg(null);
+      return;
+    }
+    const bgImg = new Image();
+    bgImg.crossOrigin = 'anonymous';
+    bgImg.src = activeFestival.bgImage;
+    bgImg.onload = () => {
+      setLoadedBgDeityImg(bgImg);
+    };
+    bgImg.onerror = () => {
+      setLoadedBgDeityImg(null);
+    };
+  }, [activeFestival.bgImage]);
+
+  // Load Medallion Photo/Avatar into HTMLImageElement
+  useEffect(() => {
+    const avatarMatch = HOLY_AVATARS.find(a => a.id === selectedAvatarId);
+    const targetUrl = devoteePhoto || avatarMatch?.url || activeFestival.bgImage;
     if (!targetUrl) {
       setLoadedPhotoImg(null);
       return;
@@ -293,7 +280,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     img.onerror = () => {
       setLoadedPhotoImg(null);
     };
-  }, [devoteePhoto, selectedAvatarId]);
+  }, [devoteePhoto, selectedAvatarId, activeFestival.bgImage]);
 
   // Handle Photo File Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -320,7 +307,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
   };
 
   // Active Blessing Preset Content
-  const activePreset = BLESSING_PRESETS.find(p => p.id === selectedPresetId) || BLESSING_PRESETS[0];
+  const activePreset = activeFestival.blessingPresets.find(p => p.id === selectedPresetId) || activeFestival.blessingPresets[0];
   const blessingLine1 = customLine1.trim() || activePreset.line1;
   const blessingLine2 = customLine2.trim() || activePreset.line2;
   const sacredMantra = activePreset.mantra;
@@ -341,27 +328,28 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     const isSaffron = theme === 'vedic_saffron';
     const isAzure = theme === 'ganga_azure';
     const isObsidian = theme === 'gold_obsidian';
+    const isKesariya = theme === 'sacred_kesariya';
 
     // 1. Background Fill & Gradients
     if (isObsidian) {
       const grad = ctx.createLinearGradient(0, 0, 1200, 850);
-      grad.addColorStop(0, '#0a0c14');
-      grad.addColorStop(0.5, '#151928');
-      grad.addColorStop(1, '#080910');
+      grad.addColorStop(0, '#090b12');
+      grad.addColorStop(0.5, '#141828');
+      grad.addColorStop(1, '#07080e');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 1200, 850);
 
       const radial = ctx.createRadialGradient(600, 425, 40, 600, 425, 580);
-      radial.addColorStop(0, 'rgba(245, 158, 11, 0.18)');
-      radial.addColorStop(0.6, 'rgba(234, 88, 12, 0.05)');
+      radial.addColorStop(0, 'rgba(245, 158, 11, 0.20)');
+      radial.addColorStop(0.6, 'rgba(234, 88, 12, 0.06)');
       radial.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radial;
       ctx.fillRect(0, 0, 1200, 850);
     } else if (isSaffron) {
       const grad = ctx.createLinearGradient(0, 0, 1200, 850);
-      grad.addColorStop(0, '#2c0404');
-      grad.addColorStop(0.5, '#450a0a');
-      grad.addColorStop(1, '#200303');
+      grad.addColorStop(0, '#260404');
+      grad.addColorStop(0.5, '#420808');
+      grad.addColorStop(1, '#1c0202');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 1200, 850);
 
@@ -373,15 +361,29 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
       ctx.fillRect(0, 0, 1200, 850);
     } else if (isAzure) {
       const grad = ctx.createLinearGradient(0, 0, 1200, 850);
-      grad.addColorStop(0, '#041726');
-      grad.addColorStop(0.5, '#0c2e4e');
+      grad.addColorStop(0, '#031424');
+      grad.addColorStop(0.5, '#0b2b48');
       grad.addColorStop(1, '#020e18');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 1200, 850);
 
       const radial = ctx.createRadialGradient(600, 425, 40, 600, 425, 580);
-      radial.addColorStop(0, 'rgba(14, 165, 233, 0.18)');
+      radial.addColorStop(0, 'rgba(14, 165, 233, 0.20)');
       radial.addColorStop(0.6, 'rgba(245, 158, 11, 0.08)');
+      radial.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, 1200, 850);
+    } else if (isKesariya) {
+      const grad = ctx.createLinearGradient(0, 0, 1200, 850);
+      grad.addColorStop(0, '#361104');
+      grad.addColorStop(0.5, '#521905');
+      grad.addColorStop(1, '#240a02');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1200, 850);
+
+      const radial = ctx.createRadialGradient(600, 425, 40, 600, 425, 580);
+      radial.addColorStop(0, 'rgba(245, 158, 11, 0.25)');
+      radial.addColorStop(0.6, 'rgba(234, 88, 12, 0.10)');
       radial.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radial;
       ctx.fillRect(0, 0, 1200, 850);
@@ -389,19 +391,47 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
       // Royal Silk Ivory
       const grad = ctx.createLinearGradient(0, 0, 1200, 850);
       grad.addColorStop(0, '#fbf8f1');
-      grad.addColorStop(0.5, '#f5eee0');
-      grad.addColorStop(1, '#eee2cc');
+      grad.addColorStop(0.5, '#f4ece0');
+      grad.addColorStop(1, '#ebe0cc');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 1200, 850);
 
       const radial = ctx.createRadialGradient(600, 425, 40, 600, 425, 580);
-      radial.addColorStop(0, 'rgba(245, 158, 11, 0.08)');
-      radial.addColorStop(1, 'rgba(120, 53, 15, 0.03)');
+      radial.addColorStop(0, 'rgba(245, 158, 11, 0.12)');
+      radial.addColorStop(0.6, 'rgba(120, 53, 15, 0.04)');
+      radial.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radial;
       ctx.fillRect(0, 0, 1200, 850);
     }
 
-    // 2. 24K Gold Foil Borders & Corner Embellishments
+    // 2. REAL AUTHENTIC DEITY BACKGROUND WATERMARK
+    if (loadedBgDeityImg) {
+      ctx.save();
+      ctx.globalAlpha = isIvory ? 0.20 : 0.26;
+      // Position artwork centered across the canvas
+      const bgW = 1200;
+      const bgH = 850;
+      // Draw centered
+      const imgAspect = loadedBgDeityImg.width / loadedBgDeityImg.height;
+      let drawW = bgW;
+      let drawH = bgW / imgAspect;
+      if (drawH < bgH) {
+        drawH = bgH;
+        drawW = bgH * imgAspect;
+      }
+      const drawX = (bgW - drawW) / 2;
+      const drawY = (bgH - drawH) / 2;
+
+      ctx.drawImage(loadedBgDeityImg, drawX, drawY, drawW, drawH);
+
+      // Feathered Dark Overlay to maintain text contrast
+      ctx.globalAlpha = isIvory ? 0.35 : 0.45;
+      ctx.fillStyle = isIvory ? '#faf5ea' : '#0a0d17';
+      ctx.fillRect(0, 0, 1200, 850);
+      ctx.restore();
+    }
+
+    // 3. 24K Gold Foil Borders & Corner Embellishments
     const goldGrad = ctx.createLinearGradient(40, 40, 1160, 810);
     if (isIvory) {
       goldGrad.addColorStop(0, '#b45309');
@@ -435,21 +465,21 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     ctx.fillText('卐', 56, 784);
     ctx.fillText('卐', 1124, 784);
 
-    // 3. Top Header Inscription
+    // 4. Top Header Inscription (Dynamic based on selected festival)
     ctx.textAlign = 'center';
     ctx.font = 'bold 15px sans-serif';
     ctx.fillStyle = isIvory ? '#b45309' : '#fde047';
-    ctx.fillText('॥ श्री सूर्य षष्ठी महाव्रत • कार्तिक शुक्ल षष्ठी-सप्तमी 2026 ॥', 600, 95);
+    ctx.fillText(activeFestival.headerSanskrit, 600, 95);
 
     // Main Certificate Title
-    ctx.font = 'bold 42px serif';
+    ctx.font = 'bold 40px serif';
     ctx.fillStyle = isIvory ? '#78350f' : goldGrad;
-    ctx.fillText('छठ महापर्व — पुण्य आशीष पत्र', 600, 150);
+    ctx.fillText(activeFestival.title, 600, 150);
 
     ctx.font = '13px sans-serif';
     ctx.fillStyle = isIvory ? '#57534e' : '#cbd5e1';
     ctx.letterSpacing = '1px';
-    ctx.fillText('ROYAL DEVOTIONAL BLESSINGS OF BHAGWAN SURYA & CHHATHI MAIYA', 600, 180);
+    ctx.fillText(activeFestival.englishSub, 600, 180);
     ctx.letterSpacing = '0px';
 
     // Golden Divider Ribbon
@@ -460,7 +490,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     ctx.strokeStyle = goldGrad;
     ctx.stroke();
 
-    // 4. Center Medallion: Devotee Photo / Divine Avatar (Gold Framed Ring)
+    // 5. Center Medallion: Devotee Photo / Divine Deity Avatar
     const photoCenterX = 600;
     const photoCenterY = 278;
     const photoRadius = 54;
@@ -494,7 +524,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
       ctx.strokeStyle = isIvory ? 'rgba(180,83,9,0.3)' : 'rgba(250,204,21,0.4)';
       ctx.stroke();
     } else {
-      // Golden Sun Crest Default
+      // Golden Emblem Default
       ctx.beginPath();
       ctx.arc(photoCenterX, photoCenterY, photoRadius, 0, Math.PI * 2);
       ctx.fillStyle = isIvory ? 'rgba(245, 158, 11, 0.15)' : 'rgba(250, 204, 21, 0.15)';
@@ -503,17 +533,17 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
       ctx.strokeStyle = goldGrad;
       ctx.stroke();
 
-      ctx.font = '40px serif';
+      ctx.font = '38px serif';
       ctx.fillStyle = isIvory ? '#b45309' : '#fde047';
-      ctx.fillText('☀️', photoCenterX, photoCenterY + 14);
+      ctx.fillText(activeFestival.icon, photoCenterX, photoCenterY + 14);
     }
 
-    // 5. Devotee Salutation & Name
+    // 6. Devotee Salutation & Name
     ctx.font = '18px sans-serif';
     ctx.fillStyle = isIvory ? '#78350f' : '#fef08a';
     ctx.fillText('यह पावन प्रमाण पत्र गौरवपूर्वक समर्पित है:', 600, 368);
 
-    // Devotee Name (Grand Title)
+    // Devotee Name (Grand Typography)
     ctx.font = 'bold 46px serif';
     ctx.fillStyle = isIvory ? '#1c1917' : '#ffffff';
     if (!isIvory) {
@@ -523,12 +553,12 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     ctx.fillText(devoteeName || 'श्रद्धालु भक्त', 600, 428);
     ctx.shadowBlur = 0;
 
-    // Devotee Designation, City & Sacred Ghat
+    // Devotee Designation, City & Sacred Dham / Ghat
     ctx.font = 'bold 18px sans-serif';
     ctx.fillStyle = isIvory ? '#b45309' : '#facc15';
-    ctx.fillText(`[ ${role} • ${cityOrGotra || 'भारत'} • ${ghatName} ]`, 600, 468);
+    ctx.fillText(`[ ${role} • ${cityOrGotra || 'भारत'} • ${dhamName} ]`, 600, 468);
 
-    // 6. Sacred Blessing Lines
+    // 7. Sacred Blessing Lines (Festival-specific)
     ctx.font = '19px sans-serif';
     ctx.fillStyle = isIvory ? '#292524' : '#e2e8f0';
     ctx.fillText(blessingLine1, 600, 520);
@@ -537,16 +567,16 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     // Sacred Vedic Mantra Box
     const boxY = 590;
     ctx.fillStyle = isIvory ? 'rgba(217, 119, 6, 0.1)' : 'rgba(234, 179, 8, 0.12)';
-    ctx.fillRect(220, boxY, 760, 50);
+    ctx.fillRect(190, boxY, 820, 50);
     ctx.lineWidth = 1;
     ctx.strokeStyle = isIvory ? 'rgba(180, 83, 9, 0.35)' : 'rgba(250, 204, 21, 0.4)';
-    ctx.strokeRect(220, boxY, 760, 50);
+    ctx.strokeRect(190, boxY, 820, 50);
 
-    ctx.font = 'bold 17px serif';
+    ctx.font = 'bold 16px serif';
     ctx.fillStyle = isIvory ? '#78350f' : '#fef08a';
     ctx.fillText(sacredMantra, 600, boxY + 31);
 
-    // 7. Bottom Verification & Seal Row
+    // 8. Bottom Verification & Trust Row
     // Left: Real Procedural 2D QR Code & Verification ID
     drawProceduralQRCode(ctx, 80, 680, 80, serialId, !isIvory);
 
@@ -557,11 +587,11 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
 
     ctx.font = '13px sans-serif';
     ctx.fillStyle = isIvory ? '#78350f' : '#facc15';
-    ctx.fillText('सत्यापित डिजिटल पुण्य पत्र • Chhath 2026', 175, 730);
+    ctx.fillText(`सत्यापित डिजिटल पुण्य पत्र • ${activeFestival.hindiName} 2026`, 175, 730);
 
     ctx.font = '11px sans-serif';
     ctx.fillStyle = isIvory ? '#78716c' : '#64748b';
-    ctx.fillText(`स्थान: ${ghatName} • कार्तिक शुक्ल षष्ठी`, 175, 748);
+    ctx.fillText(`तीर्थ: ${dhamName} • संवत् 2083`, 175, 748);
 
     // Center: 24K Gold Embossed Seal / Stamp
     const sealCenterX = 600;
@@ -582,45 +612,47 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
     ctx.stroke();
 
     ctx.textAlign = 'center';
-    ctx.font = 'bold 10px sans-serif';
+    ctx.font = 'bold 9.5px sans-serif';
     ctx.fillStyle = isIvory ? '#92400e' : '#fef08a';
-    ctx.fillText('छठ महापर्व 2026', sealCenterX, sealCenterY - 10);
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillText('आधिकारिक मुहर', sealCenterX, sealCenterY + 6);
+    ctx.fillText(activeFestival.sealText, sealCenterX, sealCenterY - 10);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('सत्यापित मुहर', sealCenterX, sealCenterY + 5);
     ctx.font = '8px sans-serif';
-    ctx.fillText('★ VERIFIED SEAL ★', sealCenterX, sealCenterY + 20);
+    ctx.fillText('★ VERIFIED MUDRA ★', sealCenterX, sealCenterY + 19);
 
     // Right: Authorized Trust Digital Signatures
     ctx.textAlign = 'right';
     ctx.font = 'italic bold 18px serif';
     ctx.fillStyle = isIvory ? '#78350f' : '#fde047';
-    ctx.fillText('Acharya Vidyadhar', 1110, 706);
+    ctx.fillText('आचार्य पं. विद्याधर शास्त्री', 1110, 706);
 
     ctx.beginPath();
-    ctx.moveTo(960, 715);
+    ctx.moveTo(940, 715);
     ctx.lineTo(1110, 715);
     ctx.lineWidth = 1;
     ctx.strokeStyle = isIvory ? '#a8a29e' : '#475569';
     ctx.stroke();
 
-    ctx.font = 'bold 13px sans-serif';
+    ctx.font = 'bold 12.5px sans-serif';
     ctx.fillStyle = isIvory ? '#292524' : '#cbd5e1';
-    ctx.fillText('आचार्य / मुख्य पुरोहित', 1110, 734);
+    ctx.fillText('मुख्य धर्माधिकारी / प्रधान पुरोहित', 1110, 734);
 
-    ctx.font = '11px sans-serif';
+    ctx.font = '10.5px sans-serif';
     ctx.fillStyle = isIvory ? '#78716c' : '#94a3b8';
-    ctx.fillText('श्री सूर्य षष्ठी सेवा ट्रस्ट • पावन गंगा न्यास', 1110, 750);
+    ctx.fillText(activeFestival.trustName, 1110, 750);
 
   }, [
     theme, 
+    activeFestival,
     devoteeName, 
     cityOrGotra, 
-    ghatName, 
+    dhamName, 
     role, 
     blessingLine1, 
     blessingLine2, 
     sacredMantra, 
     loadedPhotoImg, 
+    loadedBgDeityImg,
     serialId
   ]);
 
@@ -639,25 +671,28 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
       const imageUri = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       const cleanName = (devoteeName || 'Devotee').replace(/\s+/g, '_');
-      link.download = `Chhath_Blessing_Certificate_${cleanName}_2026.png`;
+      const cleanFest = activeFestival.name.replace(/\s+/g, '_');
+      link.download = `${cleanFest}_Blessing_Certificate_${cleanName}_2026.png`;
       link.href = imageUri;
       link.click();
       setDownloading(false);
       showToast('📥 HD सर्टिफिकेट सफलतापूर्वक डाउनलोड हुआ!');
 
-      // Save record in localStorage
+      // Save record in localStorage quietly
       if (currentUser?.id) {
         try {
           const record = {
+            festivalId: activeFestival.id,
+            festivalName: activeFestival.hindiName,
             name: devoteeName,
             cityOrGotra,
-            ghatName,
+            dhamName,
             role,
             theme,
             serialId,
             date: new Date().toISOString()
           };
-          localStorage.setItem(`chhath_user_certificate_${currentUser.id}`, JSON.stringify(record));
+          localStorage.setItem(`sanatan_user_certificate_${currentUser.id}`, JSON.stringify(record));
         } catch {}
       }
     }, 250);
@@ -675,7 +710,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
         <!DOCTYPE html>
         <html>
           <head>
-            <title>छठ महापर्व 2026 आशीर्वाद प्रमाण पत्र - ${devoteeName || 'श्रद्धालु'}</title>
+            <title>${activeFestival.hindiName} 2026 आशीर्वाद प्रमाण पत्र - ${devoteeName || 'श्रद्धालु'}</title>
             <style>
               @page { size: landscape; margin: 0; }
               body { margin: 0; background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; }
@@ -695,17 +730,17 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
 
   // Direct WhatsApp Share
   const handleWhatsAppShare = () => {
-    const text = `🪔 जय छठी मईया! मैंने छठ महापर्व 2026 का 'डिजिटल आशीर्वाद प्रमाण पत्र' प्राप्त किया है।\n\nश्रद्धालु: ${devoteeName || 'भक्त'}\nआस्था पद: ${role}\nपावन घाट: ${ghatName}\nसत्यापन आईडी: ${serialId}\n\nआप भी अपना व्यक्तिगत आशीर्वाद पत्र बनाएं:\n${window.location.origin}/#blessing-certificate`;
+    const text = `🌸 *${activeFestival.hindiName} 2026* — दिव्य आशीर्वाद प्रमाण पत्र 🌸\n\nश्रद्धालु: ${devoteeName || 'भक्त'}\nआस्था पद: ${role}\nपावन धाम / तीर्थ: ${dhamName}\nसत्यापन आईडी: ${serialId}\n\n✨ प्रभु का पावन अनुग्रह आपके जीवन को सुख, शांति व समृद्धि से परिपूर्ण करे!\n\n📲 आप भी समस्त सनातन पर्वों का अपना डिजिटल आशीर्वाद पत्र बनाएं:\n${window.location.origin}/#blessing-certificate`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   };
 
   // Share / Copy Link
   const handleShare = () => {
-    const text = `मैंने छठ महापर्व 2026 का 'डिजिटल आशीर्वाद प्रमाण पत्र' प्राप्त किया है! जय छठी मईया 🙏\nअपना प्रमाण पत्र बनाएं: ${window.location.href}`;
+    const text = `मैंने ${activeFestival.hindiName} 2026 का 'डिजिटल आशीर्वाद प्रमाण पत्र' प्राप्त किया है! जय श्री राम 🙏\nअपना प्रमाण पत्र बनाएं: ${window.location.href}`;
     if (navigator.share) {
       navigator.share({
-        title: 'छठ महापर्व 2026 आशीर्वाद प्रमाण पत्र',
+        title: `${activeFestival.hindiName} 2026 आशीर्वाद प्रमाण पत्र`,
         text,
         url: window.location.href
       }).catch(() => {});
@@ -720,16 +755,16 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
   // Reset to Defaults
   const handleReset = () => {
     setTheme('gold_obsidian');
-    setRole('छठ मुख्य व्रती (साधक)');
-    setSelectedPresetId('arogya');
+    setRole(activeFestival.roles[0]);
+    setSelectedPresetId(activeFestival.blessingPresets[0].id);
     setCustomLine1('');
     setCustomLine2('');
-    setGhatName('दीघा घाट, पटना');
+    setDhamName(activeFestival.dhams[0]);
     setDevoteePhoto(null);
-    setSelectedAvatarId('chhathi_maiya');
+    setSelectedAvatarId(activeFestival.id);
     if (currentUser) {
       setDevoteeName(currentUser.name || '');
-      setCityOrGotra(currentUser.city || 'पटना, बिहार');
+      setCityOrGotra(currentUser.city || 'वाराणसी, उत्तर प्रदेश');
     } else {
       setDevoteeName('');
       setCityOrGotra('');
@@ -738,10 +773,10 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
   };
 
   return (
-    <div className="bg-[#fcfbf7] text-stone-900 font-mukta flex flex-col pb-3">
+    <div className="bg-[#fcfbf7] text-stone-900 font-mukta flex flex-col pb-3 sm:pb-4">
       <SeoHead
-        title="डिजिटल आशीर्वाद प्रमाण पत्र स्टूडियो | Chhath Puja Blessing Certificate Studio 2026"
-        description="छठ महापर्व 2026 का 4 शाही थीम में अपना व्यक्तिगत डिजिटल आशीर्वाद प्रमाण पत्र बनाएं। फोटो अपलोड, पावन घाट, वैदिक मंत्र व QR कोड सहित HD डाउनलोड।"
+        title="सर्व सनातन डिजिटल आशीर्वाद प्रमाण पत्र स्टूडियो | Hindu Festival Blessing Certificate Studio 2026"
+        description="छठ, महाशिवरात्रि, जन्माष्टमी, नवरात्रि, दीपावली, गणेश चतुर्थी, राम नवमी सहित समस्त सनातन पर्वों का व्यक्तिगत डिजिटल आशीर्वाद पत्र बनाएं। फोटो, वैदिक मंत्र व QR कोड सहित HD डाउनलोड।"
         canonicalUrl="https://chhathvibes.vercel.app/blessing-certificate"
       />
 
@@ -754,34 +789,34 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
       )}
 
       {/* Main Container */}
-      <main className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
+      <main className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-5 space-y-4 sm:space-y-5 flex-1">
 
         {/* Top Header & Navigation Bar */}
         <div className="flex items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-3 shadow-xs">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               type="button"
               onClick={() => onNavigate('home')}
-              className="p-2 rounded-xl text-stone-600 hover:text-stone-950 hover:bg-stone-100 active:scale-95 transition-all cursor-pointer"
+              className="p-2 rounded-xl text-stone-600 hover:text-stone-950 hover:bg-stone-100 active:scale-95 transition-all cursor-pointer shrink-0"
               title="वापस मुख्य पृष्ठ"
               aria-label="वापस मुख्य पृष्ठ"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center font-bold shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-stone-950 flex items-center justify-center font-bold shadow-xs shrink-0">
               <Award className="w-5 h-5" />
             </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold font-rozha text-stone-950 leading-tight">
-                आशीर्वाद प्रमाण पत्र स्टूडियो
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold font-rozha text-stone-950 leading-tight truncate">
+                सर्व सनातन आशीर्वाद प्रमाण पत्र स्टूडियो
               </h1>
-              <p className="text-[10px] sm:text-xs text-amber-700 font-semibold leading-none">
-                छठ महापर्व 2026 • 4K HD डिजिटल पुण्य पत्र
+              <p className="text-[10px] sm:text-xs text-amber-700 font-semibold leading-none truncate">
+                {activeFestival.hindiName} • 4K HD डिजिटल पुण्य पत्र
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={handleReset}
@@ -804,72 +839,149 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
                 className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>लॉगिन करें</span>
+                <span>लॉगिन</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Studio Customizer Tabs */}
-        <div className="bg-white border border-stone-200 rounded-3xl p-4 sm:p-5 shadow-xs space-y-4">
+        {/* Studio Customizer Tabs Container */}
+        <div className="bg-white border border-stone-200 rounded-3xl p-3.5 sm:p-5 shadow-xs space-y-4">
           
           {/* Tab Navigation Switches */}
-          <div className="flex items-center justify-between border-b border-stone-100 pb-3 gap-2">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-3 gap-2 overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab('festival')}
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'festival' 
+                    ? 'bg-amber-500 text-stone-950 shadow-xs' 
+                    : 'text-stone-600 hover:bg-stone-100'
+                }`}
+              >
+                <span>🌸</span>
+                <span>1. पर्व व आराध्य</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setActiveTab('theme')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === 'theme' 
                     ? 'bg-amber-500 text-stone-950 shadow-xs' 
                     : 'text-stone-600 hover:bg-stone-100'
                 }`}
               >
                 <Palette className="w-3.5 h-3.5" />
-                <span>1. थीम व शैली</span>
+                <span>2. थीम व शैली</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('devotee')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === 'devotee' 
                     ? 'bg-amber-500 text-stone-950 shadow-xs' 
                     : 'text-stone-600 hover:bg-stone-100'
                 }`}
               >
                 <User className="w-3.5 h-3.5" />
-                <span>2. श्रद्धालु व फ़ोटो</span>
+                <span>3. श्रद्धालु व फ़ोटो</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('blessing')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === 'blessing' 
                     ? 'bg-amber-500 text-stone-950 shadow-xs' 
                     : 'text-stone-600 hover:bg-stone-100'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>3. आशीर्वाद व घाट</span>
+                <span>4. संकल्प व धाम</span>
               </button>
             </div>
 
-            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">
+            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg shrink-0">
               <Sparkles className="w-3 h-3 text-amber-500" />
               <span>लाइव प्रिव्यू</span>
             </span>
           </div>
 
-          {/* TAB 1: ROYAL THEME SELECTOR */}
+          {/* TAB 1: UNIVERSAL SANATAN FESTIVAL SELECTOR */}
+          {activeTab === 'festival' && (
+            <div className="space-y-3 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-stone-600 font-semibold">
+                  जिस पावन पर्व या पूजा का प्रमाण पत्र बनाना है, उसे चुनें:
+                </p>
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-full">
+                  12 मुख्य सनातन पर्व
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
+                {FESTIVAL_CERTIFICATE_CONFIGS.map((fest) => {
+                  const isSelected = selectedFestivalId === fest.id;
+                  return (
+                    <button
+                      key={fest.id}
+                      type="button"
+                      onClick={() => handleFestivalChange(fest)}
+                      className={`p-2.5 sm:p-3 rounded-2xl border text-left transition-all relative flex flex-col justify-between cursor-pointer active:scale-95 ${
+                        isSelected 
+                          ? 'border-amber-500 ring-2 ring-amber-400 bg-gradient-to-br from-amber-50/80 to-orange-50/50 shadow-sm' 
+                          : 'border-stone-200 hover:border-amber-300 bg-stone-50/70'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1 mb-2">
+                        <div className="w-10 h-10 rounded-xl overflow-hidden border border-amber-300/60 shadow-xs shrink-0 bg-stone-900">
+                          <img 
+                            src={fest.bgImage} 
+                            alt={fest.hindiName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm">{fest.icon}</span>
+                      </div>
+
+                      <div>
+                        <span className="text-[9.5px] font-bold uppercase text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded block w-fit mb-1">
+                          {fest.badge}
+                        </span>
+                        <h4 className="text-xs sm:text-sm font-bold text-stone-950 leading-tight">
+                          {fest.hindiName}
+                        </h4>
+                        <p className="text-[10px] text-stone-500 truncate mt-0.5">
+                          {fest.deity}
+                        </p>
+                      </div>
+
+                      {isSelected && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle2 className="w-4 h-4 text-amber-600 fill-amber-100" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: ROYAL THEME SELECTOR */}
           {activeTab === 'theme' && (
             <div className="space-y-3 animate-in fade-in duration-200">
               <p className="text-xs text-stone-600 font-medium">
-                चार शाही प्रमाण पत्र शैलियों में से अपनी पसंदीदा थीम चुनें:
+                पाँच शाही वैदिक प्रमाण पत्र शैलियों में से अपनी पसंदीदा थीम चुनें:
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
                 {THEMES.map((th) => {
                   const isSelected = theme === th.id;
                   return (
@@ -877,7 +989,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
                       key={th.id}
                       type="button"
                       onClick={() => setTheme(th.id)}
-                      className={`p-3 rounded-2xl border text-left transition-all relative flex flex-col justify-between h-28 cursor-pointer ${
+                      className={`p-3 rounded-2xl border text-left transition-all relative flex flex-col justify-between h-28 cursor-pointer active:scale-95 ${
                         isSelected 
                           ? 'border-amber-500 ring-2 ring-amber-400 bg-amber-50/40 shadow-xs' 
                           : 'border-stone-200 hover:border-amber-300 bg-stone-50/60'
@@ -907,7 +1019,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
             </div>
           )}
 
-          {/* TAB 2: DEVOTEE DETAILS & DEVOTEE PHOTO / AVATAR */}
+          {/* TAB 3: DEVOTEE DETAILS & DEVOTEE PHOTO / AVATAR */}
           {activeTab === 'devotee' && (
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -919,7 +1031,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
                     type="text"
                     value={devoteeName}
                     onChange={(e) => setDevoteeName(e.target.value)}
-                    placeholder="उदा. राहुल कुमार झा / समस्त परिवार"
+                    placeholder="उदा. राहुल कुमार झा / सपरिवार"
                     className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
                   />
                 </div>
@@ -932,105 +1044,121 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
                     type="text"
                     value={cityOrGotra}
                     onChange={(e) => setCityOrGotra(e.target.value)}
-                    placeholder="उदा. पटना, बिहार (शांडिल्य गोत्र)"
+                    placeholder="उदा. वाराणसी (शांडिल्य गोत्र)"
                     className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold text-stone-700 mb-1">
-                    आस्था पद (Role)
+                    आस्था पद व साधना प्रकार (Role)
                   </label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500 cursor-pointer font-medium"
                   >
-                    <option value="छठ मुख्य व्रती (साधक)">छठ मुख्य व्रती (साधक)</option>
-                    <option value="सह-व्रती (सहायक)">सह-व्रती (सहायक)</option>
-                    <option value="श्रद्धालु भक्त">श्रद्धालु भक्त</option>
-                    <option value="पवित्र घाट सेवादार">पवित्र घाट सेवादार</option>
+                    {activeFestival.roles.map((r, i) => (
+                      <option key={i} value={r}>{r}</option>
+                    ))}
+                    <option value="सपरिवार उपासक">सपरिवार उपासक</option>
+                    <option value="अनन्य साधक (भक्त)">अनन्य साधक (भक्त)</option>
                   </select>
                 </div>
               </div>
 
-              {/* Devotee Photo / Divine Holy Avatar Selection */}
-              <div className="pt-3 border-t border-stone-100 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-stone-950 flex items-center gap-1.5">
-                    <Camera className="w-4 h-4 text-amber-500" />
-                    <span>सर्टिफिकेट पर फ़ोटो अथवा पावन प्रतीक चिन्ह</span>
-                  </label>
-                  {devoteePhoto && (
+              {/* Photo Upload or Holy Avatar Chooser */}
+              <div className="pt-3 border-t border-stone-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <div>
+                    <h4 className="text-xs font-bold text-stone-900">
+                      प्रमाण पत्र केंद्र छवि (Personal Photo or Divine Avatar)
+                    </h4>
+                    <p className="text-[11px] text-stone-500">
+                      अपनी व्यक्तिगत फ़ोटो अपलोड करें या नीचे दिए पावन देव स्वरूपों में से चुनें:
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
                     <button
                       type="button"
-                      onClick={handleRemovePhoto}
-                      className="text-[11px] text-red-600 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-all"
                     >
-                      <X className="w-3.5 h-3.5" />
-                      <span>फ़ोटो हटाएं</span>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>अपनी फ़ोटो लगाएं</span>
                     </button>
-                  )}
+
+                    {devoteePhoto && (
+                      <button
+                        type="button"
+                        onClick={handleRemovePhoto}
+                        className="p-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold cursor-pointer"
+                        title="फ़ोटो हटाएं"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* File Upload Button */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2.5 rounded-xl border border-dashed border-amber-500 hover:border-amber-600 bg-amber-50/50 hover:bg-amber-50 text-amber-950 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors shadow-2xs"
-                  >
-                    <Upload className="w-4 h-4 text-amber-600" />
-                    <span>अपनी फ़ोटो अपलोड करें</span>
-                  </button>
-
-                  <span className="text-xs text-stone-400 font-semibold">अथवा पावन अवतार चुनें:</span>
-
-                  {/* Holy Avatar Selection Chips */}
-                  <div className="flex items-center gap-2">
+                {/* Holy Avatar Choices */}
+                {!devoteePhoto && (
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {HOLY_AVATARS.map((av) => {
-                      const isSelected = !devoteePhoto && selectedAvatarId === av.id;
+                      const isSelected = selectedAvatarId === av.id;
                       return (
-                        <button
+                        <div
                           key={av.id}
-                          type="button"
                           onClick={() => {
-                            setDevoteePhoto(null);
                             setSelectedAvatarId(av.id);
+                            showToast(`${av.name} स्वरूप चुना गया`);
                           }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
-                            isSelected
-                              ? 'bg-amber-500 text-stone-950 border-amber-500 shadow-2xs'
-                              : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                          className={`p-2 rounded-xl border text-center cursor-pointer transition-all ${
+                            isSelected 
+                              ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-400' 
+                              : 'border-stone-200 hover:border-amber-300 bg-stone-50'
                           }`}
                         >
-                          <span>{av.icon}</span>
-                          <span>{av.name}</span>
-                        </button>
+                          <div className="w-9 h-9 mx-auto rounded-full overflow-hidden border border-amber-300/80 mb-1 bg-stone-900">
+                            <img src={av.url} alt={av.name} className="w-full h-full object-cover" />
+                          </div>
+                          <span className="text-[10px] font-bold text-stone-800 line-clamp-1 block">
+                            {av.name}
+                          </span>
+                        </div>
                       );
                     })}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* TAB 3: SACRED BLESSINGS PRESET & GHAT SELECTION */}
+          {/* TAB 4: BLESSING PRESET & SACRED DHAM / GHAT */}
           {activeTab === 'blessing' && (
             <div className="space-y-4 animate-in fade-in duration-200">
+              
+              {/* Presets Tailored to Festival */}
               <div>
-                <label className="block text-[11px] font-bold text-stone-700 mb-1.5">
-                  पावन आशीर्वाद संकल्प (Blessing Preset)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {BLESSING_PRESETS.map((p) => {
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[11px] font-bold text-stone-700">
+                    {activeFestival.hindiName} — पावन आशीर्वाद संकल्प
+                  </label>
+                  <span className="text-[10.5px] text-amber-700 font-semibold">
+                    शास्त्रोक्त फल व महामंत्र
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {activeFestival.blessingPresets.map((p) => {
                     const isSelected = selectedPresetId === p.id;
                     return (
                       <div
@@ -1038,7 +1166,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
                         onClick={() => setSelectedPresetId(p.id)}
                         className={`p-3 rounded-2xl border text-left cursor-pointer transition-all ${
                           isSelected
-                            ? 'border-amber-500 bg-amber-50/50 ring-1 ring-amber-400'
+                            ? 'border-amber-500 bg-amber-50/70 ring-1 ring-amber-400 shadow-xs'
                             : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
                         }`}
                       >
@@ -1058,35 +1186,64 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
                 </div>
               </div>
 
-              {/* Sacred Ghat Location */}
+              {/* Sacred Dham / Ghat Location */}
               <div className="pt-3 border-t border-stone-100">
                 <label className="block text-[11px] font-bold text-stone-700 mb-1.5">
-                  पावन छठ घाट (Sacred Ghat / Location)
+                  पावन तीर्थ / मंदिर / घाट (Sacred Dham / Location)
                 </label>
                 <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                  {GHAT_PRESETS.map((gh) => (
+                  {activeFestival.dhams.map((dh, idx) => (
                     <button
-                      key={gh}
+                      key={idx}
                       type="button"
-                      onClick={() => setGhatName(gh)}
+                      onClick={() => setDhamName(dh)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${
-                        ghatName === gh
+                        dhamName === dh
                           ? 'bg-amber-500 text-stone-950 font-bold'
                           : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                       }`}
                     >
-                      {gh}
+                      {dh}
                     </button>
                   ))}
                 </div>
                 <input
                   type="text"
-                  value={ghatName}
-                  onChange={(e) => setGhatName(e.target.value)}
-                  placeholder="अपना विशिष्ट घाट नाम लिखें..."
+                  value={dhamName}
+                  onChange={(e) => setDhamName(e.target.value)}
+                  placeholder="अपना विशिष्ट तीर्थ / मंदिर या घाट लिखें..."
                   className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
                 />
               </div>
+
+              {/* Custom Blessing Lines (Optional) */}
+              <div className="pt-3 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                    कस्टम आशीर्वाद पंक्ति 1 (वैकल्पिक)
+                  </label>
+                  <input
+                    type="text"
+                    value={customLine1}
+                    onChange={(e) => setCustomLine1(e.target.value)}
+                    placeholder="डिफ़ॉल्ट संकल्प बदलने के लिए यहां लिखें..."
+                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                    कस्टम आशीर्वाद पंक्ति 2 (वैकल्पिक)
+                  </label>
+                  <input
+                    type="text"
+                    value={customLine2}
+                    onChange={(e) => setCustomLine2(e.target.value)}
+                    placeholder="दूसरी पंक्ति यहां लिखें..."
+                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500 focus:bg-white font-medium"
+                  />
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -1109,7 +1266,7 @@ export const BlessingCertificatePage: React.FC<BlessingCertificatePageProps> = (
             className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>{downloading ? 'डाउनलोड जारी...' : 'HD सर्टिफिकेट डाउनलोड करें (PNG)'}</span>
+            <span>{downloading ? 'डाउनलोड जारी...' : `HD ${activeFestival.hindiName} सर्टिफिकेट डाउनलोड करें`}</span>
           </button>
 
           <button

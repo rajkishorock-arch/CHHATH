@@ -90,7 +90,7 @@ const SPECIALIZED_FESTIVAL_PROFILES: Record<string, Partial<CompleteFestivalHubD
   'ganesh-chaturthi': {
     deity: 'प्रथम पूज्य भगवान श्री गणेश (विनायक)',
     badge: '🌟 महापर्व महोत्सव',
-    image: 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/ganesha.jpg',
     significance: 'भाद्रपद मास के शुक्ल पक्ष की चतुर्थी को विघ्नहर्ता, बुद्धि-दाता श्री गणेश जी का पावन प्राकट्य हुआ था। इस दिन घर-घर में गणपति बप्पा की प्रतिमा स्थापित कर 10 दिनों तक गणेशोत्सव मनाया जाता है। गणेश जी ओंकार (प्रणव) के साक्षात् विग्रह हैं।',
     muhurat: {
       pujaTime: 'मध्याह्न गणेश पूजा मुहूर्त: 11:04 AM से 01:34 PM (2 घंटे 30 मिनट)',

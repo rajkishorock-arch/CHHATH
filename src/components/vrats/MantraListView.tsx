@@ -3,6 +3,7 @@ import { ArrowLeft, Home, ChevronRight, Search, X } from 'lucide-react';
 import { VRAT_DIRECTORY_LIST, VratDirectoryEntry } from '../../data/vratDirectoryList';
 import { VratReadingPageView } from './VratReadingPageView';
 import { SeoHead } from '../seo/SeoHead';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 interface MantraListViewProps {
   onBack: () => void;
@@ -109,7 +110,7 @@ export const MantraListView: React.FC<MantraListViewProps> = ({
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                 <img
-                  src={item.avatarUrl}
+                  src={getImageUrl(item.avatarUrl)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')}
                   alt={item.title}
                   className="w-full h-full object-cover"
                   loading="lazy"

@@ -18,12 +18,64 @@ import {
   TrendingUp,
   Share2,
   ChevronDown,
-  Info
+  Info,
+  Calendar,
+  History,
+  Clock
 } from 'lucide-react';
 import { spiritualAudio } from '../../utils/spiritualAudio';
 import { useAuth } from '../../context/AuthContext';
-import { UserSyncService, JapMalaCloudData } from '../../services/userSyncService';
+import { UserSyncService, JapMalaCloudData, JapMalaDailyRecord } from '../../services/userSyncService';
 import { SeoHead } from '../seo/SeoHead';
+
+const formatDevanagariDate = (dateObj: Date): string => {
+  const months = [
+    'जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून',
+    'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'
+  ];
+  return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+};
+
+const getRelativeDateLabel = (dateStr: string): string => {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  if (dateStr === todayStr) return 'आज';
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  if (dateStr === yesterdayStr) return 'कल';
+
+  return '';
+};
+
+const calculateStreak = (history: JapMalaDailyRecord[]): number => {
+  if (!history || history.length === 0) return 0;
+  const dates = Array.from(new Set(history.map(h => h.date))).sort().reverse();
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  if (dates[0] !== todayStr && dates[0] !== yesterdayStr) {
+    return 0;
+  }
+
+  let streak = 0;
+  let curr = new Date(dates[0]);
+
+  for (const dStr of dates) {
+    const expectedStr = curr.toISOString().split('T')[0];
+    if (dStr === expectedStr) {
+      streak++;
+      curr.setDate(curr.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak || 1;
+};
 
 interface JapMalaPageProps {
   onNavigate: (tab: string) => void;
@@ -164,6 +216,8 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
   const [completedMalas, setCompletedMalas] = useState<number>(0);
   const [totalChants, setTotalChants] = useState<number>(0);
   const [todayChants, setTodayChants] = useState<number>(0);
+  const [todayMalas, setTodayMalas] = useState<number>(0);
+  const [dailyHistory, setDailyHistory] = useState<JapMalaDailyRecord[]>([]);
   const [streakDays, setStreakDays] = useState<number>(1);
   const [mantraBreakdown, setMantraBreakdown] = useState<Record<string, number>>({});
   
@@ -202,6 +256,38 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
       localStorage.removeItem('digital_mala_count');
     } catch {}
 
+    const applyData = (data: JapMalaCloudData) => {
+      setCompletedMalas(data.totalMalas || 0);
+      setTotalChants(data.totalChants || 0);
+      setCount(data.currentBeadCount || 0);
+
+      const history: JapMalaDailyRecord[] = data.dailyHistory || [];
+      setDailyHistory(history);
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayEntry = history.find(h => h.date === todayStr);
+
+      if (todayEntry) {
+        setTodayChants(todayEntry.chantsCount || 0);
+        setTodayMalas(todayEntry.malasCompleted || 0);
+      } else {
+        const isToday = data.lastChantedDate && 
+          new Date(data.lastChantedDate).toDateString() === new Date().toDateString();
+        setTodayChants(isToday ? (data.todayChants || 0) : 0);
+        setTodayMalas(isToday ? (data.todayMalas || 0) : 0);
+      }
+
+      setStreakDays(calculateStreak(history));
+      if (data.mantraBreakdown) setMantraBreakdown(data.mantraBreakdown);
+      if (data.sankalpTargetMalas) setSankalpTarget(data.sankalpTargetMalas);
+      if (data.beadType) setBeadType(data.beadType);
+      if (data.favoriteMantraId) {
+        const m = VEDIC_MANTRAS.find(v => v.id === data.favoriteMantraId);
+        if (m) setSelectedMantra(m);
+      }
+      setCloudSynced(true);
+    };
+
     async function loadUserData() {
       // Devotee is NOT logged in: strictly clean zero state (guest cannot see old user data)
       if (!currentUser?.id) {
@@ -210,6 +296,8 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
           setCompletedMalas(0);
           setTotalChants(0);
           setTodayChants(0);
+          setTodayMalas(0);
+          setDailyHistory([]);
           setStreakDays(0);
           setMantraBreakdown({});
           setCloudSynced(false);
@@ -228,23 +316,7 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
           const cachedData: JapMalaCloudData = JSON.parse(cachedRaw);
           if (!isCancelled) {
             hasCached = true;
-            setCompletedMalas(cachedData.totalMalas || 0);
-            setTotalChants(cachedData.totalChants || 0);
-
-            // Date check for today's chants
-            const isToday = cachedData.lastChantedDate && 
-              new Date(cachedData.lastChantedDate).toDateString() === new Date().toDateString();
-            setTodayChants(isToday ? (cachedData.todayChants || 0) : 0);
-
-            setStreakDays(cachedData.streakDays || 1);
-            if (cachedData.mantraBreakdown) setMantraBreakdown(cachedData.mantraBreakdown);
-            if (cachedData.sankalpTargetMalas) setSankalpTarget(cachedData.sankalpTargetMalas);
-            if (cachedData.beadType) setBeadType(cachedData.beadType);
-            if (cachedData.favoriteMantraId) {
-              const m = VEDIC_MANTRAS.find(v => v.id === cachedData.favoriteMantraId);
-              if (m) setSelectedMantra(m);
-            }
-            setCloudSynced(true);
+            applyData(cachedData);
           }
         } else {
           // New devotee without local cache -> clean 0 state
@@ -253,6 +325,8 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
             setCompletedMalas(0);
             setTotalChants(0);
             setTodayChants(0);
+            setTodayMalas(0);
+            setDailyHistory([]);
             setStreakDays(1);
             setMantraBreakdown({});
             setCloudSynced(false);
@@ -267,27 +341,14 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
         const cloudData = await UserSyncService.fetchJapMalaData(currentUser.id);
         if (!isCancelled) {
           if (cloudData) {
-            setCompletedMalas(cloudData.totalMalas || 0);
-            setTotalChants(cloudData.totalChants || 0);
-
-            const isToday = cloudData.lastChantedDate && 
-              new Date(cloudData.lastChantedDate).toDateString() === new Date().toDateString();
-            setTodayChants(isToday ? (cloudData.todayChants || 0) : 0);
-
-            setStreakDays(cloudData.streakDays || 1);
-            if (cloudData.mantraBreakdown) setMantraBreakdown(cloudData.mantraBreakdown);
-            if (cloudData.sankalpTargetMalas) setSankalpTarget(cloudData.sankalpTargetMalas);
-            if (cloudData.beadType) setBeadType(cloudData.beadType);
-            if (cloudData.favoriteMantraId) {
-              const m = VEDIC_MANTRAS.find(v => v.id === cloudData.favoriteMantraId);
-              if (m) setSelectedMantra(m);
-            }
-            setCloudSynced(true);
+            applyData(cloudData);
           } else if (!hasCached) {
             // Fresh account with 0 chants on cloud
             setCompletedMalas(0);
             setTotalChants(0);
             setTodayChants(0);
+            setTodayMalas(0);
+            setDailyHistory([]);
             setCloudSynced(true);
           }
         }
@@ -317,22 +378,57 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
     newMalas: number, 
     newTotal: number, 
     newToday: number, 
+    newTodayMalas: number,
     newBreakdown: Record<string, number>,
     immediate = false
   ) => {
     if (!currentUser?.id) return;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayFormatted = formatDevanagariDate(new Date());
+
+    // Update organized dailyHistory
+    const updatedHistory: JapMalaDailyRecord[] = [...dailyHistory];
+    const idx = updatedHistory.findIndex(h => h.date === todayStr);
+
+    if (idx >= 0) {
+      updatedHistory[idx] = {
+        ...updatedHistory[idx],
+        chantsCount: newToday,
+        malasCompleted: newTodayMalas,
+        lastMantraId: selectedMantra.id,
+        lastMantraName: selectedMantra.name,
+        updatedAt: new Date().toISOString()
+      };
+    } else {
+      updatedHistory.unshift({
+        date: todayStr,
+        formattedDate: todayFormatted,
+        chantsCount: newToday,
+        malasCompleted: newTodayMalas,
+        lastMantraId: selectedMantra.id,
+        lastMantraName: selectedMantra.name,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    updatedHistory.sort((a, b) => b.date.localeCompare(a.date));
+    setDailyHistory(updatedHistory);
 
     const userKey = `chhath_jap_mala_${currentUser.id}`;
     const payload: JapMalaCloudData = {
       totalMalas: newMalas,
       totalChants: newTotal,
       todayChants: newToday,
+      todayMalas: newTodayMalas,
+      currentBeadCount: newCount,
       lastChantedDate: new Date().toISOString(),
       favoriteMantraId: selectedMantra.id,
       mantraBreakdown: newBreakdown,
       sankalpTargetMalas: sankalpTarget,
       beadType,
-      streakDays
+      streakDays: calculateStreak(updatedHistory),
+      dailyHistory: updatedHistory
     };
 
     // 1. Instant local persistence strictly for this logged-in devotee
@@ -396,11 +492,13 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
       // 108 Completion: Maha Sankalp Purna!
       setCount(0);
       const nextMalas = completedMalas + 1;
+      const nextTodayMalas = todayMalas + 1;
       setCompletedMalas(nextMalas);
+      setTodayMalas(nextTodayMalas);
       setTotalChants(nextTotalChants);
       setTodayChants(nextTodayChants);
 
-      persistCounts(0, nextMalas, nextTotalChants, nextTodayChants, nextBreakdown, true);
+      persistCounts(0, nextMalas, nextTotalChants, nextTodayChants, nextTodayMalas, nextBreakdown, true);
 
       // Play sacred bell & shankh celebration
       spiritualAudio.playTempleBell();
@@ -416,7 +514,7 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
       setCount(nextCount);
       setTotalChants(nextTotalChants);
       setTodayChants(nextTodayChants);
-      persistCounts(nextCount, completedMalas, nextTotalChants, nextTodayChants, nextBreakdown);
+      persistCounts(nextCount, completedMalas, nextTotalChants, nextTodayChants, todayMalas, nextBreakdown);
     }
   };
 
@@ -446,8 +544,9 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
 
   const handleResetCurrentMala = () => {
     if (count === 0) return;
-    if (window.confirm('क्या आप वर्तमान माला गणना को 0 पर रीसेट करना चाहते हैं? (पूर्ण हो चुकी मालाएं सुरक्षित रहेंगी)')) {
+    if (window.confirm('क्या आप वर्तमान माला गणना को 0 पर रीसेट करना चाहते हैं? (पूर्ण हो चुकी मालाएं और दैनिक इतिहास सुरक्षित रहेगा)')) {
       setCount(0);
+      persistCounts(0, completedMalas, totalChants, todayChants, todayMalas, mantraBreakdown, true);
       showToast('वर्तमान माला रीसेट की गई');
     }
   };
@@ -958,12 +1057,109 @@ export const JapMalaPage: React.FC<JapMalaPageProps> = ({ onNavigate }) => {
                   <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 font-sans">
                     {todayChants}
                   </span>
-                  <p className="text-[11px] font-bold text-stone-600 dark:text-stone-400">आज का जप</p>
+                  <p className="text-[11px] font-bold text-stone-600 dark:text-stone-400">
+                    आज का जप {todayMalas > 0 ? `(${todayMalas} माला)` : ''}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* 4. Daily Sankalp Target Tracker */}
+            {/* 4. Organized Daily Sadhana History (नित्य दैनिक साधना इतिहास) */}
+            <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span>दैनिक साधना इतिहास (Daily Chanting Log):</span>
+                </span>
+                <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                  {dailyHistory.length} दिन सुरक्षित
+                </span>
+              </div>
+
+              {/* Sadhana Milestone Summary Row */}
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-2 rounded-2xl bg-stone-50 dark:bg-stone-800 border border-stone-200/70 dark:border-stone-700">
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 font-semibold">निरंतर साधना</p>
+                  <p className="text-sm font-black text-orange-600 dark:text-orange-400 mt-0.5 font-sans">
+                    🔥 {streakDays} दिन
+                  </p>
+                </div>
+                <div className="p-2 rounded-2xl bg-stone-50 dark:bg-stone-800 border border-stone-200/70 dark:border-stone-700">
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 font-semibold">दैनिक औसत</p>
+                  <p className="text-sm font-black text-amber-600 dark:text-amber-400 mt-0.5 font-sans">
+                    {dailyHistory.length > 0 ? Math.round(totalChants / Math.max(1, dailyHistory.length)) : 0} जप/दिन
+                  </p>
+                </div>
+                <div className="p-2 rounded-2xl bg-stone-50 dark:bg-stone-800 border border-stone-200/70 dark:border-stone-700">
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 font-semibold">कुल साधना दिन</p>
+                  <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-0.5 font-sans">
+                    ✨ {dailyHistory.length} दिन
+                  </p>
+                </div>
+              </div>
+
+              {/* Day-by-Day Organized Log List */}
+              {dailyHistory.length === 0 ? (
+                <div className="py-5 text-center text-stone-500 dark:text-stone-400 font-serif">
+                  <div className="text-2xl mb-1">📿</div>
+                  <p className="text-xs font-bold text-stone-700 dark:text-stone-300">
+                    अभी कोई दैनिक रिकॉर्ड नहीं है
+                  </p>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    आज ॐ पर स्पर्श कर जप करें, प्रत्येक दिन का रिकॉर्ड यहाँ सुरक्षित रहेगा।
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {dailyHistory.map((rec) => {
+                    const relative = getRelativeDateLabel(rec.date);
+                    return (
+                      <div
+                        key={rec.date}
+                        className="p-3 rounded-2xl bg-stone-50 hover:bg-amber-50/40 dark:bg-stone-800/60 dark:hover:bg-stone-800 border border-stone-200/80 dark:border-stone-700 transition-all flex items-center justify-between"
+                      >
+                        <div className="space-y-0.5 min-w-0 pr-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-stone-900 dark:text-stone-100 font-serif">
+                              {rec.formattedDate || rec.date}
+                            </span>
+                            {relative && (
+                              <span className={`px-2 py-0.2 rounded-full text-[9px] font-black ${
+                                relative === 'आज' 
+                                  ? 'bg-emerald-600 text-white' 
+                                  : 'bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30'
+                              }`}>
+                                {relative}
+                              </span>
+                            )}
+                          </div>
+                          {rec.lastMantraName && (
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
+                              {rec.lastMantraName}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className="text-xs font-black text-orange-600 dark:text-orange-400 font-sans">
+                            {rec.chantsCount} जप
+                          </p>
+                          <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400">
+                            {rec.malasCompleted > 0 ? `${rec.malasCompleted} माला पूर्ण` : 'माला प्रगति में'}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="text-[10px] text-stone-400 dark:text-stone-500 text-center">
+                🔒 आपका साधना डेटा आपके खाते से सुरक्षित है • तारीख बदलने पर पुराना डेटा कभी नहीं हटेगा
+              </p>
+            </div>
+
+            {/* 5. Daily Sankalp Target Tracker */}
             <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">

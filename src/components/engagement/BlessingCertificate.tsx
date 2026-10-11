@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
 import { 
   Award, 
   Download, 
@@ -7,18 +6,39 @@ import {
   Check, 
   Sparkles, 
   RotateCcw, 
-  Flame 
+  Flame,
+  ArrowRight
 } from 'lucide-react';
+import { 
+  FESTIVAL_CERTIFICATE_CONFIGS, 
+  FestivalCertificateConfig 
+} from '../../data/certificateFestivalData';
 
 export const BlessingCertificate: React.FC = () => {
-  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [selectedFestId, setSelectedFestId] = useState<string>('chhath');
+  const activeFestival = FESTIVAL_CERTIFICATE_CONFIGS.find(f => f.id === selectedFestId) || FESTIVAL_CERTIFICATE_CONFIGS[0];
 
   const [devoteeName, setDevoteeName] = useState('श्रद्धा कुमारी');
   const [cityOrGotra, setCityOrGotra] = useState('पटना, बिहार');
-  const [role, setRole] = useState<'व्रती' | 'श्रद्धालु' | 'सेवादार'>('व्रती');
+  const [role, setRole] = useState<string>(activeFestival.roles[0] || 'व्रती');
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [loadedBgDeity, setLoadedBgDeity] = useState<HTMLImageElement | null>(null);
+
+  // Load background deity image
+  useEffect(() => {
+    if (!activeFestival.bgImage) {
+      setLoadedBgDeity(null);
+      return;
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = activeFestival.bgImage;
+    img.onload = () => setLoadedBgDeity(img);
+    img.onerror = () => setLoadedBgDeity(null);
+  }, [activeFestival.bgImage]);
 
   // Redraw certificate on changes
   useEffect(() => {
@@ -33,15 +53,35 @@ export const BlessingCertificate: React.FC = () => {
 
     // 1. Royal Obsidian Background
     const bgGrad = ctx.createLinearGradient(0, 0, 1200, 850);
-    bgGrad.addColorStop(0, '#0c0e18');
-    bgGrad.addColorStop(0.5, '#16192b');
-    bgGrad.addColorStop(1, '#080a12');
+    bgGrad.addColorStop(0, '#0a0c16');
+    bgGrad.addColorStop(0.5, '#15192c');
+    bgGrad.addColorStop(1, '#070912');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1200, 850);
 
+    // Deity background watermark
+    if (loadedBgDeity) {
+      ctx.save();
+      ctx.globalAlpha = 0.22;
+      const bgW = 1200;
+      const bgH = 850;
+      const imgAspect = loadedBgDeity.width / loadedBgDeity.height;
+      let drawW = bgW;
+      let drawH = bgW / imgAspect;
+      if (drawH < bgH) {
+        drawH = bgH;
+        drawW = bgH * imgAspect;
+      }
+      ctx.drawImage(loadedBgDeity, (bgW - drawW) / 2, (bgH - drawH) / 2, drawW, drawH);
+      ctx.globalAlpha = 0.4;
+      ctx.fillStyle = '#0a0d18';
+      ctx.fillRect(0, 0, 1200, 850);
+      ctx.restore();
+    }
+
     // Subtle radial aura in center
     const radial = ctx.createRadialGradient(600, 425, 40, 600, 425, 550);
-    radial.addColorStop(0, 'rgba(245, 158, 11, 0.14)');
+    radial.addColorStop(0, 'rgba(245, 158, 11, 0.18)');
     radial.addColorStop(0.6, 'rgba(234, 88, 12, 0.05)');
     radial.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = radial;
@@ -71,86 +111,119 @@ export const BlessingCertificate: React.FC = () => {
     ctx.fillText('卐', 55, 785);
     ctx.fillText('卐', 1125, 785);
 
-    // 3. Top Royal Surya Crest Inscription
+    // 3. Top Royal Crest Inscription
     ctx.textAlign = 'center';
-    ctx.font = 'bold 16px sans-serif';
+    ctx.font = 'bold 15px sans-serif';
     ctx.fillStyle = '#fde047';
-    ctx.letterSpacing = '4px';
-    ctx.fillText('॥ श्री सूर्य षष्ठी महाव्रत • कार्तिक मास 2026 ॥', 600, 105);
+    ctx.fillText(activeFestival.headerSanskrit, 600, 95);
 
     // Main Title
-    ctx.font = 'bold 44px serif';
+    ctx.font = 'bold 42px serif';
     ctx.fillStyle = goldGrad;
-    ctx.fillText('छठ महापर्व — पुण्य आशीष पत्र', 600, 165);
+    ctx.fillText(activeFestival.title, 600, 155);
 
-    ctx.font = '16px sans-serif';
+    ctx.font = '14px sans-serif';
     ctx.fillStyle = '#cbd5e1';
-    ctx.letterSpacing = '2px';
-    ctx.fillText('ROYAL DEVOTIONAL BLESSING OF SURYA DEV & CHHATHI MAIYA', 600, 200);
+    ctx.fillText(activeFestival.englishSub, 600, 190);
 
     // Golden Divider Line
     ctx.beginPath();
-    ctx.moveTo(350, 225);
-    ctx.lineTo(850, 225);
+    ctx.moveTo(350, 215);
+    ctx.lineTo(850, 215);
     ctx.lineWidth = 2;
     ctx.strokeStyle = goldGrad;
     ctx.stroke();
 
-    // 4. Salutation & Devotee Name Plaque
-    ctx.font = '22px sans-serif';
+    // 4. Center Medallion Emblem
+    const emblemY = 275;
+    ctx.beginPath();
+    ctx.arc(600, emblemY, 44, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(234, 179, 8, 0.15)';
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = goldGrad;
+    ctx.stroke();
+    ctx.font = '36px serif';
+    ctx.fillStyle = '#fde047';
+    ctx.fillText(activeFestival.icon, 600, emblemY + 12);
+
+    // 5. Salutation & Devotee Name Plaque
+    ctx.font = '19px sans-serif';
     ctx.fillStyle = '#fef08a';
-    ctx.letterSpacing = '1px';
-    ctx.fillText(`यह पावन प्रमाण पत्र गौरवपूर्वक समर्पित है:`, 600, 280);
+    ctx.fillText('यह पावन प्रमाण पत्र गौरवपूर्वक समर्पित है:', 600, 360);
 
-    // Devotee Name in Grand Serif
-    ctx.font = 'bold 54px serif';
+    // Grand Devotee Name with Aura
+    ctx.font = 'bold 48px serif';
     ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(250, 204, 21, 0.8)';
-    ctx.shadowBlur = 15;
-    ctx.fillText(devoteeName || 'आस्थावान व्रती', 600, 360);
-    ctx.shadowBlur = 0; // reset
+    ctx.shadowColor = 'rgba(250, 204, 21, 0.7)';
+    ctx.shadowBlur = 12;
+    ctx.fillText(devoteeName || 'श्रद्धालु भक्त', 600, 420);
+    ctx.shadowBlur = 0;
 
-    // City & Role
-    ctx.font = 'bold 22px sans-serif';
+    // Subtitle Line
+    ctx.font = 'bold 18px sans-serif';
     ctx.fillStyle = '#facc15';
-    ctx.fillText(`[ ${role} • ${cityOrGotra || 'भारत'} ]`, 600, 415);
+    ctx.fillText(`[ ${role} • ${cityOrGotra || 'भारत'} • ${activeFestival.dhams[0]} ]`, 600, 460);
 
-    // 5. Blessing Text Body
-    ctx.font = '20px sans-serif';
+    // 6. Sacred Blessing Lines
+    const preset = activeFestival.blessingPresets[0];
+    ctx.font = '18px sans-serif';
     ctx.fillStyle = '#e2e8f0';
-    ctx.fillText('सच्ची श्रद्धा, निर्मल मन और कठोर 36 घंटे के अखंड निर्जला तप से', 600, 480);
-    ctx.fillText('भगवान सूर्य नारायण व छठी मईया के चरणों में अर्घ्य व आराधना अर्पित की गई।', 600, 515);
-    ctx.fillText('छठी मईया आपके कुल, परिवार और संतति को उत्तम स्वास्थ्य, दीर्घायु व समृद्धि का आशीष दें।', 600, 550);
+    ctx.fillText(preset.line1, 600, 515);
+    ctx.fillText(preset.line2, 600, 545);
 
-    // Sacred Vedic Sloka in Gold Pod
+    // Sacred Vedic Mantra Box
+    const boxY = 585;
     ctx.fillStyle = 'rgba(234, 179, 8, 0.12)';
-    ctx.fillRect(250, 585, 700, 55);
+    ctx.fillRect(180, boxY, 840, 48);
     ctx.lineWidth = 1;
     ctx.strokeStyle = 'rgba(250, 204, 21, 0.4)';
-    ctx.strokeRect(250, 585, 700, 55);
+    ctx.strokeRect(180, boxY, 840, 48);
 
-    ctx.font = 'bold 18px serif';
+    ctx.font = 'bold 16px serif';
     ctx.fillStyle = '#fef08a';
-    ctx.fillText('ॐ ह्रीं ह्रीं सूर्याय सहस्रकिरणाय मनोवांछित फलम् देहि देहि स्वाहा॥', 600, 620);
+    ctx.fillText(preset.mantra, 600, boxY + 30);
 
-    // 6. Bottom Seals & Date
-    // Left: Issue Date
+    // 7. Bottom Verification & Trust Row
     ctx.textAlign = 'left';
-    ctx.font = '15px sans-serif';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = '#94a3b8';
-    ctx.fillText('पावन तिथि: कार्तिक शुक्ल षष्ठी-सप्तमी 2026', 100, 730);
-    ctx.fillText('स्थान: पावन गंगा-यमुना तट व तीर्थ स्थल', 100, 755);
-
-    // Right: Divine Seal Stamp
-    ctx.textAlign = 'right';
-    ctx.font = 'bold 16px sans-serif';
+    ctx.fillText(`SANATAN-2026-${activeFestival.serialPrefix}-78921`, 80, 715);
+    ctx.font = '12px sans-serif';
     ctx.fillStyle = '#facc15';
-    ctx.fillText('॥ जय छठी मईया • सूर्योपासना ॥', 1100, 730);
-    ctx.font = '14px sans-serif';
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillText('छठ महापर्व डिजिटल सेवा ट्रस्ट मुहर', 1100, 755);
+    ctx.fillText(`सत्यापित डिजिटल पुण्य पत्र • ${activeFestival.hindiName} 2026`, 80, 735);
 
-  }, [devoteeName, cityOrGotra, role]);
+    // Center Gold Seal
+    ctx.beginPath();
+    ctx.arc(600, 720, 36, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(234, 179, 8, 0.12)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = goldGrad;
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 9.5px sans-serif';
+    ctx.fillStyle = '#fef08a';
+    ctx.fillText(activeFestival.sealText, 600, 710);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('सत्यापित मुहर', 600, 725);
+    ctx.font = '8px sans-serif';
+    ctx.fillText('★ VERIFIED ★', 600, 738);
+
+    // Right Signature
+    ctx.textAlign = 'right';
+    ctx.font = 'italic bold 18px serif';
+    ctx.fillStyle = '#fde047';
+    ctx.fillText('Acharya Vidyadhar', 1110, 706);
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText('मुख्य धर्माधिकारी / प्रधान पुरोहित', 1110, 726);
+    ctx.font = '10px sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(activeFestival.trustName, 1110, 742);
+
+  }, [devoteeName, cityOrGotra, role, activeFestival, loadedBgDeity]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -158,47 +231,74 @@ export const BlessingCertificate: React.FC = () => {
     setDownloading(true);
 
     setTimeout(() => {
-      const imageUri = canvas.toDataURL('image/png');
+      const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
-      link.download = `Chhath_Blessing_Certificate_${devoteeName.replace(/\s+/g, '_')}.png`;
-      link.href = imageUri;
+      const cleanName = devoteeName.replace(/\s+/g, '_') || 'Devotee';
+      link.download = `${activeFestival.name}_Blessing_Certificate_${cleanName}_2026.png`;
+      link.href = image;
       link.click();
       setDownloading(false);
-    }, 400);
+    }, 200);
   };
 
   const handleShare = () => {
-    const text = `मैंने छठ महापर्व 2026 का 'पुण्य आशीष पत्र' प्राप्त किया है! जय छठी मईया 🙏\nआप भी अपना पत्र बनाएं: ${window.location.href}`;
+    const shareUrl = `${window.location.origin}/#blessing-certificate`;
+    const shareText = `🌸 *${activeFestival.hindiName} 2026* — दिव्य आशीर्वाद प्रमाण पत्र\n\nश्रद्धालु: ${devoteeName}\nस्थान: ${cityOrGotra}\n\nआप भी समस्त सनातन पर्वों का अपना पावन प्रमाण पत्र प्राप्त करें:\n${shareUrl}`;
+    
     if (navigator.share) {
       navigator.share({
-        title: 'छठ महापर्व पुण्य आशीष पत्र',
-        text,
-        url: window.location.href
+        title: `${activeFestival.hindiName} आशीर्वाद प्रमाण पत्र`,
+        text: shareText,
+        url: shareUrl
       }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   return (
-    <section id="blessing-certificate" className="py-8 relative overflow-hidden bg-transparent">
-      
-      <div className="container-custom relative z-10">
-        
+    <section className="py-6 sm:py-10 px-3 sm:px-6 bg-stone-50 dark:bg-stone-950 transition-colors">
+      <div className="max-w-6xl mx-auto space-y-6">
+
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-8 space-y-2">
+        <div className="text-center max-w-3xl mx-auto mb-6 space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold font-mukta">
             <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            <span>शाही डिजिटल वंदना • ROYAL BLESSING CERTIFICATE</span>
+            <span>सर्व सनातन डिजिटल आशीर्वाद पत्र • UNIVERSAL BLESSING CERTIFICATE</span>
           </div>
           <h2 className="font-rozha text-2xl sm:text-4xl font-bold text-stone-900 dark:text-stone-100">
-            वीआईपी छठ महापर्व पुण्य-आशीष पत्र
+            {activeFestival.hindiName} पुण्य-आशीष पत्र
           </h2>
           <p className="font-mukta text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-            व्रती व श्रद्धालु जन अपना नाम दर्ज करके 24 कैरेट स्वर्ण बॉर्डर वाला पावन आशीष पत्र तैयार करें और व्हाट्सएप या सोशल मीडिया पर साझा करें।
+            छठ, महाशिवरात्रि, जन्माष्टमी, नवरात्रि, दीपावली सहित समस्त सनातन पर्वों का अपना 24K स्वर्ण बॉर्डर वाला पावन आशीष पत्र तैयार करें।
           </p>
+        </div>
+
+        {/* Festival Quick Pill Switcher */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          {FESTIVAL_CERTIFICATE_CONFIGS.map((fest) => {
+            const isSelected = selectedFestId === fest.id;
+            return (
+              <button
+                key={fest.id}
+                type="button"
+                onClick={() => {
+                  setSelectedFestId(fest.id);
+                  setRole(fest.roles[0] || 'व्रती');
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                  isSelected
+                    ? 'bg-amber-500 text-stone-950 shadow-xs ring-1 ring-amber-400'
+                    : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-800 hover:border-amber-400'
+                }`}
+              >
+                <span>{fest.icon}</span>
+                <span>{fest.hindiName}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto items-center">
@@ -206,7 +306,7 @@ export const BlessingCertificate: React.FC = () => {
           {/* Controls Form */}
           <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm space-y-3.5 font-mukta">
             <h3 className="font-rozha text-lg text-stone-900 dark:text-stone-100 font-bold border-b border-stone-200 dark:border-stone-800 pb-2.5">
-              विवरण दर्ज करें
+              {activeFestival.hindiName} विवरण
             </h3>
 
             <div>
@@ -217,8 +317,8 @@ export const BlessingCertificate: React.FC = () => {
                 type="text"
                 value={devoteeName}
                 onChange={(e) => setDevoteeName(e.target.value)}
-                placeholder="उदा. आरती देवी"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
+                placeholder="उदा. आरती देवी / सपरिवार"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white font-medium"
               />
             </div>
 
@@ -231,21 +331,21 @@ export const BlessingCertificate: React.FC = () => {
                 value={cityOrGotra}
                 onChange={(e) => setCityOrGotra(e.target.value)}
                 placeholder="उदा. पटना, बिहार / कश्यप गोत्र"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white font-medium"
               />
             </div>
 
             <div>
               <label className="text-xs font-bold text-stone-700 dark:text-stone-300 block mb-1">
-                भूमिका चयन
+                साधना पद (Role)
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['व्रती', 'श्रद्धालु', 'सेवादार'] as const).map((r) => (
+              <div className="grid grid-cols-2 gap-2">
+                {activeFestival.roles.slice(0, 4).map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setRole(r)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer truncate ${
                       role === r
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 shadow-xs ring-1 ring-amber-400 font-extrabold'
                         : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:border-amber-400'
@@ -265,7 +365,7 @@ export const BlessingCertificate: React.FC = () => {
                 className="w-full py-2.5 rounded-xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:scale-[1.01] active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               >
                 <Download className="w-4 h-4" />
-                <span>{downloading ? 'तैयार हो रहा है...' : 'HD आशीष पत्र डाउनलोड करें'}</span>
+                <span>{downloading ? 'तैयार हो रहा है...' : `HD ${activeFestival.hindiName} पत्र डाउनलोड`}</span>
               </button>
 
               <button
@@ -288,7 +388,7 @@ export const BlessingCertificate: React.FC = () => {
             </div>
             <span className="text-[11px] text-amber-400/80 font-mukta mt-2 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>हाई-डेफिनिशन 1200x850 पिक्सल रेडी — स्टेटस व फ्रेमिंग हेतु उपयुक्त</span>
+              <span>1200x850 पिक्सल रेडी — देव स्वरूप पृष्ठभूमि व वैदिक मंत्र सहित</span>
             </span>
           </div>
 

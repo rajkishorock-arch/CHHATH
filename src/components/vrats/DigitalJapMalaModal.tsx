@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, RotateCcw, Volume2, VolumeX, Sparkles, Award } from 'lucide-react';
 import { spiritualAudio } from '../../utils/spiritualAudio';
+import { useAuth } from '../../context/AuthContext';
+import { UserSyncService, JapMalaCloudData, JapMalaDailyRecord } from '../../services/userSyncService';
 
 interface DigitalJapMalaModalProps {
   isOpen: boolean;
@@ -19,23 +21,96 @@ const MANTRAS = [
 ];
 
 export const DigitalJapMalaModal: React.FC<DigitalJapMalaModalProps> = ({ isOpen, onClose }) => {
+  const { currentUser, isAuthenticated } = useAuth();
   const [count, setCount] = useState(0);
   const [completedMalas, setCompletedMalas] = useState(0);
+  const [totalChants, setTotalChants] = useState(0);
+  const [todayChants, setTodayChants] = useState(0);
   const [selectedMantra, setSelectedMantra] = useState(MANTRAS[0]);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
-    // load saved count
+    if (!isOpen) return;
+
+    if (currentUser?.id) {
+      const userKey = `chhath_jap_mala_${currentUser.id}`;
+      try {
+        const raw = localStorage.getItem(userKey);
+        if (raw) {
+          const data: JapMalaCloudData = JSON.parse(raw);
+          setCompletedMalas(data.totalMalas || 0);
+          setTotalChants(data.totalChants || 0);
+          setCount(data.currentBeadCount || 0);
+          const history = data.dailyHistory || [];
+          const todayStr = new Date().toISOString().split('T')[0];
+          const todayEntry = history.find(h => h.date === todayStr);
+          setTodayChants(todayEntry ? todayEntry.chantsCount : (data.todayChants || 0));
+          return;
+        }
+      } catch {}
+    }
+
+    // fallback for guest
     try {
       const savedMala = localStorage.getItem('digital_mala_completed');
       if (savedMala) setCompletedMalas(parseInt(savedMala, 10) || 0);
-    } catch {
-      // ignore
-    }
-  }, []);
+    } catch {}
+  }, [isOpen, currentUser?.id]);
 
   if (!isOpen) return null;
+
+  const persistModalChant = (nextC: number, nextMalas: number, nextTot: number, nextTod: number) => {
+    if (currentUser?.id) {
+      const userKey = `chhath_jap_mala_${currentUser.id}`;
+      const todayStr = new Date().toISOString().split('T')[0];
+      let history: JapMalaDailyRecord[] = [];
+      try {
+        const raw = localStorage.getItem(userKey);
+        if (raw) {
+          const parsed: JapMalaCloudData = JSON.parse(raw);
+          history = parsed.dailyHistory || [];
+        }
+      } catch {}
+
+      const idx = history.findIndex(h => h.date === todayStr);
+      if (idx >= 0) {
+        history[idx].chantsCount = nextTod;
+        if (nextC === 0 && nextMalas > completedMalas) {
+          history[idx].malasCompleted = (history[idx].malasCompleted || 0) + 1;
+        }
+      } else {
+        history.unshift({
+          date: todayStr,
+          formattedDate: new Date().toLocaleDateString('hi-IN'),
+          chantsCount: nextTod,
+          malasCompleted: nextC === 0 && nextMalas > completedMalas ? 1 : 0,
+          lastMantraId: selectedMantra.id,
+          lastMantraName: selectedMantra.name,
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      const payload: JapMalaCloudData = {
+        totalMalas: nextMalas,
+        totalChants: nextTot,
+        todayChants: nextTod,
+        currentBeadCount: nextC,
+        lastChantedDate: new Date().toISOString(),
+        favoriteMantraId: selectedMantra.id,
+        dailyHistory: history
+      };
+
+      try {
+        localStorage.setItem(userKey, JSON.stringify(payload));
+      } catch {}
+      UserSyncService.saveJapMalaData(currentUser.id, payload).catch(() => null);
+    } else {
+      try {
+        localStorage.setItem('digital_mala_completed', nextMalas.toString());
+      } catch {}
+    }
+  };
 
   const handleTap = () => {
     setAnimating(true);
@@ -50,27 +125,32 @@ export const DigitalJapMalaModal: React.FC<DigitalJapMalaModalProps> = ({ isOpen
     }
 
     const nextCount = count + 1;
+    const nextTot = totalChants + 1;
+    const nextTod = todayChants + 1;
+
     if (nextCount >= 108) {
       setCount(0);
       const nextMala = completedMalas + 1;
       setCompletedMalas(nextMala);
-      try {
-        localStorage.setItem('digital_mala_completed', nextMala.toString());
-      } catch {
-        // ignore
-      }
+      setTotalChants(nextTot);
+      setTodayChants(nextTod);
+      persistModalChant(0, nextMala, nextTot, nextTod);
       spiritualAudio.playTempleBell();
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate([100, 50, 100]);
       }
     } else {
       setCount(nextCount);
+      setTotalChants(nextTot);
+      setTodayChants(nextTod);
+      persistModalChant(nextCount, completedMalas, nextTot, nextTod);
     }
   };
 
   const handleReset = () => {
     if (window.confirm('क्या आप वर्तमान जाप गणना को 0 पर रीसेट करना चाहते हैं?')) {
       setCount(0);
+      persistModalChant(0, completedMalas, totalChants, todayChants);
     }
   };
 

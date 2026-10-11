@@ -77,8 +77,46 @@ export const FollowService = {
       }
     }
 
-    // Fallback to Cloud Bin only if Firestore returned 0 users
+    // Fallback to internal profiles search or Cloud Bin if Firestore returned 0 users
     if (realUsers.length === 0) {
+      try {
+        const localRes = await fetch('/api/v1/profiles/search?limit=100').catch(() => null);
+        if (localRes && localRes.ok) {
+          const json = await localRes.json();
+          const list = json?.results || [];
+          for (const u of list) {
+            const uid = u.user_id || u.id;
+            if (uid && !seenIds.has(uid)) {
+              seenIds.add(uid);
+              realUsers.push({
+                id: uid,
+                user_id: uid,
+                name: u.name || 'छठ श्रद्धालु',
+                username: u.username || `@devotee_${uid.slice(0, 5)}`,
+                email: u.email || '',
+                avatarUrl: u.avatar_url || u.avatarUrl || '',
+                bio: u.bio || 'जय छठी मइया 🙏',
+                city: u.city || 'बिहार',
+                state: u.state || 'बिहार',
+                country: 'India',
+                language: 'hi',
+                role: 'user',
+                followersCount: u.followers_count || 0,
+                followingCount: u.following_count || 0,
+                totalLikesCount: 0,
+                reelsCount: 0,
+                verified: false,
+                interests: [],
+                onboardingCompleted: true,
+                createdAt: u.created_at || new Date().toISOString()
+              });
+            }
+          }
+        }
+      } catch {}
+    }
+
+    if (realUsers.length === 0 && typeof window === 'undefined') {
       try {
         const res = await fetch(CLOUD_STORAGE_URL, { headers: { 'Cache-Control': 'no-cache' } }).catch(() => null);
         if (res && res.ok) {

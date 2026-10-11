@@ -35,6 +35,7 @@ import {
 } from '../../data/bhagavadGitaData';
 import { spiritualAudio } from '../../utils/spiritualAudio';
 import { SeoHead } from '../seo/SeoHead';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 interface PaathChalisaListViewProps {
   onBack?: () => void;
@@ -49,52 +50,58 @@ type SubGroup = 'hanuman' | 'durga' | 'shiva' | 'chhath' | 'gita' | null;
 // High quality deity visuals for avatars and reader artwork
 const DEITY_MEDIA = {
   hanuman: {
-    avatar: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=240&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&auto=format&fit=crop&q=80',
+    avatar: '/images/deities/hanuman.jpg',
+    banner: '/images/deities/hanuman.jpg',
     title: 'श्री हनुमान',
     subtitle: 'संकटमोचन श्री हनुमान जी के सिद्ध पाठ, चालीसा व स्तोत्र'
   },
   durga: {
-    avatar: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=240&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=800&auto=format&fit=crop&q=80',
+    avatar: '/images/deities/durga.jpg',
+    banner: '/images/deities/durga.jpg',
     title: 'दुर्गा सप्तशती अध्याय',
     subtitle: 'श्री दुर्गा सप्तशती सम्पूर्ण 13 अध्याय व दुर्गा चालीसा'
   },
   shiva: {
-    avatar: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=240&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=800&auto=format&fit=crop&q=80',
+    avatar: '/images/deities/shiva.jpg',
+    banner: '/images/deities/shiva.jpg',
     title: 'श्री शिव चालीसा',
     subtitle: 'देवाधिदेव महादेव शिव जी की दिव्य स्तुति व तांडव स्तोत्रम्'
   },
   chhath: {
-    avatar: '/images/surya_chhathi_divine.jpg',
-    banner: '/images/surya_chhathi_divine.jpg',
+    avatar: '/images/deities/chhath.jpg',
+    banner: '/images/deities/chhath.jpg',
     title: 'छठ पूजा',
     subtitle: 'छठी मईया आरती, व्रत कथा एवं भुवन भास्कर सूर्य चालीसा'
   },
   gita: {
-    avatar: 'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=240&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=800&auto=format&fit=crop&q=80',
+    avatar: '/images/deities/krishna.jpg',
+    banner: '/images/deities/krishna.jpg',
     title: 'श्रीमद्भगवद्गीता',
     subtitle: 'सम्पूर्ण 18 अध्याय, 700 प्रामाणिक श्लोक, जीवन सूत्र एवं आरती'
   },
   ram: {
-    avatar: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=240&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800&auto=format&fit=crop&q=80',
+    avatar: '/images/deities/ram.jpg',
+    banner: '/images/deities/ram.jpg',
     title: 'श्री राम',
     subtitle: 'मर्यादा पुरुषोत्तम भगवान श्री राम'
   },
   lakshmi: {
-    avatar: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=240&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=80',
+    avatar: '/images/deities/lakshmi.jpg',
+    banner: '/images/deities/lakshmi.jpg',
     title: 'माँ लक्ष्मी',
     subtitle: 'धन-वैभव व सौभाग्य प्रदायिनी माँ महालक्ष्मी'
   },
   surya: {
-    avatar: '/images/hero_sunrise.jpg',
-    banner: '/images/hero_sunrise.jpg',
+    avatar: '/images/deities/surya.jpg',
+    banner: '/images/deities/surya.jpg',
     title: 'भगवान सूर्य',
     subtitle: 'प्रत्यक्ष देव भुवन भास्कर सूर्य नारायण'
+  },
+  ganesha: {
+    avatar: '/images/deities/ganesha.jpg',
+    banner: '/images/deities/ganesha.jpg',
+    title: 'श्री गणेश',
+    subtitle: 'विघ्नहर्ता भगवान श्री गणेश'
   }
 };
 
@@ -378,6 +385,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
 
   // Handle open reader directly
   const openReader = (item: ChalisaPaathItem, gitaChapter: number = 1) => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     setSelectedItem(item);
     setCompletedChantsCount(0);
     setIsAutoScrolling(false);
@@ -387,8 +395,16 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
     }
   };
 
+  // Scroll to top whenever selected reader item or subgroup changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [selectedItem, activeSubGroup]);
+
   // Clean Header Action Handlers
   const handleBackClick = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     if (isPlayingAudio) spiritualAudio.stopSpeaking();
     setIsPlayingAudio(false);
     setIsAutoScrolling(false);
@@ -407,7 +423,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
   };
 
   return (
-    <div className="bg-[#fffbf7] dark:bg-stone-950 text-[#451a03] dark:text-stone-100 min-h-screen flex flex-col font-mukta pb-24 sm:pb-28 select-none transition-colors duration-200">
+    <div className="bg-[#fffbf7] dark:bg-stone-950 text-[#451a03] dark:text-stone-100 flex flex-col font-mukta pb-3 sm:pb-4 select-none transition-colors duration-200">
       <SeoHead
         title="सम्पूर्ण पाठ एवं चालीसा संग्रह | Chalisa Sangrah & Bhagavad Gita - ChhathVibes"
         description="हनुमान चालीसा, श्रीमद्भगवद्गीता (18 अध्याय), श्री दुर्गा सप्तशती, शिव चालीसा, सुंदरकांड एवं पावन स्तोत्रों का संपूर्ण संग्रह।"
@@ -507,7 +523,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                         <img 
-                          src={getItemMedia(item).avatar} 
+                          src={getImageUrl(getItemMedia(item).avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                           alt={item.hindiTitle}
                           className="w-full h-full object-cover"
                           loading="lazy"
@@ -538,7 +554,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.hanuman.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.hanuman.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री हनुमान"
                       className="w-full h-full object-cover"
                     />
@@ -558,7 +574,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.durga.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.durga.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="दुर्गा सप्तशती अध्याय"
                       className="w-full h-full object-cover"
                     />
@@ -581,7 +597,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.shiva.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.shiva.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री शिव चालीसा"
                       className="w-full h-full object-cover"
                     />
@@ -601,7 +617,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.chhath.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.chhath.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="छठ पूजा"
                       className="w-full h-full object-cover"
                     />
@@ -621,7 +637,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.gita.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.gita.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्रीमद्भगवद्गीता"
                       className="w-full h-full object-cover"
                     />
@@ -649,7 +665,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.hanuman.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.hanuman.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री सुंदरकांड पाठ"
                       className="w-full h-full object-cover"
                     />
@@ -672,7 +688,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.hanuman.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.hanuman.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री बजरंग बाण"
                       className="w-full h-full object-cover"
                     />
@@ -695,7 +711,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.ram.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.ram.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री राम रक्षा स्तोत्रम्"
                       className="w-full h-full object-cover"
                     />
@@ -718,7 +734,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.shiva.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.shiva.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री शिव तांडव स्तोत्रम्"
                       className="w-full h-full object-cover"
                     />
@@ -741,7 +757,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.lakshmi.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.lakshmi.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री कनकधारा स्तोत्रम्"
                       className="w-full h-full object-cover"
                     />
@@ -764,7 +780,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.surya.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.surya.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री आदित्य हृदय स्तोत्रम्"
                       className="w-full h-full object-cover"
                     />
@@ -803,7 +819,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.hanuman.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.hanuman.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="हनुमान चालीसा"
                       className="w-full h-full object-cover"
                     />
@@ -826,7 +842,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.hanuman.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.hanuman.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री बजरंग बाण"
                       className="w-full h-full object-cover"
                     />
@@ -849,7 +865,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.hanuman.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.hanuman.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री सुंदरकांड पाठ"
                       className="w-full h-full object-cover"
                     />
@@ -894,7 +910,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                       <img 
-                        src={DEITY_MEDIA.durga.avatar} 
+                        src={getImageUrl(DEITY_MEDIA.durga.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                         alt={ch.title}
                         className="w-full h-full object-cover"
                       />
@@ -918,7 +934,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                     <img 
-                      src={DEITY_MEDIA.durga.avatar} 
+                      src={getImageUrl(DEITY_MEDIA.durga.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                       alt="श्री दुर्गा चालीसा"
                       className="w-full h-full object-cover"
                     />
@@ -974,7 +990,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100 flex items-center justify-center">
                           <img 
-                            src={DEITY_MEDIA.gita.avatar} 
+                            src={getImageUrl(DEITY_MEDIA.gita.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                             alt={`अध्याय ${ch.chapterNumber}`}
                             className="w-full h-full object-cover"
                           />
@@ -1120,7 +1136,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-stone-700 shadow-sm bg-amber-100">
                       <img 
-                        src={DEITY_MEDIA.chhath.avatar} 
+                        src={getImageUrl(DEITY_MEDIA.chhath.avatar)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
                         alt={itemDef.title}
                         className="w-full h-full object-cover"
                       />
@@ -1224,7 +1240,7 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
           {/* 3. DEITY ARTWORK ILLUSTRATION CARD (Matches Image 3) */}
           <div className="w-full rounded-3xl overflow-hidden border-2 border-white dark:border-stone-700 shadow-md aspect-[16/10] sm:aspect-[16/9] relative bg-amber-100 dark:bg-stone-900">
             <img 
-              src={getItemMedia(selectedItem).banner} 
+              src={getImageUrl(getItemMedia(selectedItem).banner)} onError={(e) => handleImageError(e, '/images/hero_sunrise.jpg')} 
               alt={selectedItem.hindiTitle}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -1237,6 +1253,73 @@ export const PaathChalisaListView: React.FC<PaathChalisaListViewProps> = ({
               </span>
             </div>
           </div>
+
+          {/* 3B. COMPREHENSIVE PATH / PARV GLORY, MOTIVE & RULES CARD */}
+          {(selectedItem.motive || selectedItem.whoShouldRecite || selectedItem.vidhiAndRules || (selectedItem.benefits && selectedItem.benefits.length > 0)) && (
+            <div className="w-full bg-[#fffaf5] dark:bg-stone-900 border-2 border-amber-300 dark:border-amber-800/60 rounded-3xl p-4 sm:p-5 shadow-xs space-y-3.5">
+              <div className="flex items-center gap-2 border-b border-amber-200 dark:border-stone-800 pb-2">
+                <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <h3 className="font-serif font-black text-sm sm:text-base text-[#78350f] dark:text-amber-300">
+                  पावन उद्देश्य, प्रामाणिक विधि एवं महात्म्य
+                </h3>
+              </div>
+
+              {selectedItem.motive && (
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#9a3412] dark:text-amber-400 flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5" />
+                    पाठ व पर्व का मूल उद्देश्य (Motive)
+                  </span>
+                  <p className="text-xs sm:text-sm text-stone-800 dark:text-stone-200 font-serif leading-relaxed">
+                    {selectedItem.motive}
+                  </p>
+                </div>
+              )}
+
+              {selectedItem.whoShouldRecite && (
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#9a3412] dark:text-amber-400 flex items-center gap-1.5">
+                    <Heart className="w-3.5 h-3.5" />
+                    यह पाठ किसके लिए सर्वाधिक फलदायी है (For Whom)
+                  </span>
+                  <p className="text-xs sm:text-sm text-stone-800 dark:text-stone-200 font-serif leading-relaxed">
+                    {selectedItem.whoShouldRecite}
+                  </p>
+                </div>
+              )}
+
+              {selectedItem.vidhiAndRules && (
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-[#9a3412] dark:text-amber-400 flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5" />
+                    पाठ की प्रामाणिक विधि व नियम (Vidhi & Rules)
+                  </span>
+                  <p className="text-xs sm:text-sm text-stone-800 dark:text-stone-200 font-serif leading-relaxed">
+                    {selectedItem.vidhiAndRules}
+                  </p>
+                </div>
+              )}
+
+              {selectedItem.benefits && selectedItem.benefits.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-xs font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+                    ✨ अलौकिक आध्यात्मिक फल (Divine Blessings)
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedItem.benefits.map((b, bi) => (
+                      <span
+                        key={bi}
+                        className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-900 dark:text-emerald-300 border border-emerald-500/20 text-[11px] font-bold"
+                      >
+                        • {b}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
 
           {/* For Gita: Chapter Navigation bar */}
           {selectedItem.id === 'gita-mahatmya-saar' && (

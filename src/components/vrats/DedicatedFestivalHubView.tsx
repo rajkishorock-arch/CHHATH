@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Home, Share2, Calendar, Clock, BookOpen, 
   Flame, CheckCircle2, Circle, Sparkles, Heart, BellRing, 
@@ -22,6 +22,13 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
   const [activeTab, setActiveTab] = useState<'vidhi' | 'katha' | 'aarti' | 'samagri' | 'muhurat' | 'prasad' | 'mantra'>('vidhi');
   const [checkedSamagri, setCheckedSamagri] = useState<Set<number>>(() => new Set());
   const [isCopied, setIsCopied] = useState(false);
+
+  // Scroll to top immediately on mount and tab switch
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [festival.id, activeTab]);
 
   const toggleSamagri = (index: number) => {
     setCheckedSamagri(prev => {
@@ -66,7 +73,7 @@ export const DedicatedFestivalHubView: React.FC<DedicatedFestivalHubViewProps> =
   const samagriPercentage = totalSamagri > 0 ? Math.round((checkedCount / totalSamagri) * 100) : 0;
 
   return (
-    <div className="bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-6">
+    <div className="bg-[#fdf6ee] text-[#451a03] animate-ios-slide-in flex flex-col pb-3 sm:pb-4">
       
       {/* 1. TOP DEDICATED HEADER */}
       <header className="sticky top-0 z-40 bg-[#fdf6ee]/95 backdrop-blur-md px-4 py-3 border-b border-[#fed7aa]/60 shadow-xs">

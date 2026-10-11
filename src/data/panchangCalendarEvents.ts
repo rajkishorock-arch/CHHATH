@@ -29,7 +29,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '03 जनवरी 2026',
     tithi: 'पौष शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -41,7 +41,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '14 जनवरी 2026',
     tithi: 'पौष शुक्ल द्वादशी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/surya.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -53,7 +53,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '18 जनवरी 2026',
     tithi: 'माघ कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -65,7 +65,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '23 जनवरी 2026',
     tithi: 'माघ शुक्ल पंचमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/saraswati.jpg',
     vratId: 'maa-annapurna'
   },
   {
@@ -77,7 +77,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '31 जनवरी 2026',
     tithi: 'माघ शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
 
@@ -91,7 +91,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '01 फरवरी 2026',
     tithi: 'माघ पूर्णिमा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/satyanarayan.jpg',
     vratId: 'maa-ganga'
   },
   {
@@ -103,7 +103,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '13 फरवरी 2026',
     tithi: 'फाल्गुन कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -115,7 +115,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '15 फरवरी 2026',
     tithi: 'फाल्गुन कृष्ण चतुर्दशी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'mahashivratri'
   },
   {
@@ -127,7 +127,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '27 फरवरी 2026',
     tithi: 'फाल्गुन शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
 
@@ -141,7 +141,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '03 मार्च 2026',
     tithi: 'फाल्गुन पूर्णिमा',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1512418490979-92798cec1380?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -153,7 +153,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '04 मार्च 2026',
     tithi: 'चैत्र कृष्ण प्रतिपदा',
     category: 'holiday',
-    image: 'https://images.unsplash.com/photo-1512418490979-92798cec1380?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -165,7 +165,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '15 मार्च 2026',
     tithi: 'चैत्र कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -177,7 +177,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '20 मार्च 2026',
     tithi: 'चैत्र शुक्ल प्रतिपदा',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/durga.jpg',
     vratId: 'maa-durga'
   },
   {
@@ -189,7 +189,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '28 मार्च 2026',
     tithi: 'चैत्र शुक्ल नवमी',
     category: 'jayanti',
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/ram.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -201,7 +201,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '29 मार्च 2026',
     tithi: 'चैत्र शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
 
@@ -215,7 +215,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '02 अप्रैल 2026',
     tithi: 'चैत्र पूर्णिमा',
     category: 'jayanti',
-    image: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/hanuman.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -227,7 +227,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '13 अप्रैल 2026',
     tithi: 'वैशाख कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -239,7 +239,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '20 अप्रैल 2026',
     tithi: 'वैशाख शुक्ल तृतीया',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/lakshmi.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -251,7 +251,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '27 अप्रैल 2026',
     tithi: 'वैशाख शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
 
@@ -265,7 +265,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '01 मई 2026',
     tithi: 'वैशाख पूर्णिमा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/satyanarayan.jpg',
     vratId: 'maa-ganga'
   },
   {
@@ -277,7 +277,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '12 मई 2026',
     tithi: 'ज्येष्ठ कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -289,7 +289,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '16 मई 2026',
     tithi: 'ज्येष्ठ अमावस्या',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/lakshmi.jpg',
     vratId: 'karwa-chauth'
   },
   {
@@ -301,7 +301,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '26 मई 2026',
     tithi: 'ज्येष्ठ शुक्ल दशमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'maa-ganga'
   },
   {
@@ -313,7 +313,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '27 मई 2026',
     tithi: 'ज्येष्ठ शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
 
@@ -327,7 +327,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '11 जून 2026',
     tithi: 'आषाढ़ कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -339,7 +339,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '16 जून 2026',
     tithi: 'आषाढ़ शुक्ल द्वितीया',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -351,7 +351,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '25 जून 2026',
     tithi: 'आषाढ़ शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -363,7 +363,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '29 जून 2026',
     tithi: 'आषाढ़ पूर्णिमा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/satyanarayan.jpg',
     vratId: 'bhoomi-pujan'
   },
 
@@ -377,7 +377,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '06 जुलाई 2026',
     tithi: 'श्रावण कृष्ण सप्तमी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'mahashivratri'
   },
   {
@@ -389,7 +389,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '10 जुलाई 2026',
     tithi: 'श्रावण कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -401,7 +401,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '14 जुलाई 2026',
     tithi: 'श्रावण अमावस्या',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'maa-ganga'
   },
   {
@@ -413,7 +413,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '25 जुलाई 2026',
     tithi: 'श्रावण शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
 
@@ -427,7 +427,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '15 अगस्त 2026',
     tithi: 'श्रावण शुक्ल तृतीया',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'gangaur'
   },
   {
@@ -439,7 +439,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '18 अगस्त 2026',
     tithi: 'श्रावण शुक्ल पंचमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'mahashivratri'
   },
   {
@@ -451,7 +451,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '28 अगस्त 2026',
     tithi: 'श्रावण पूर्णिमा',
     category: 'holiday',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -463,7 +463,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '31 अगस्त 2026',
     tithi: 'भाद्रपद कृष्ण तृतीया',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'gangaur'
   },
 
@@ -477,7 +477,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '04 सितंबर 2026',
     tithi: 'भाद्रपद कृष्ण अष्टमी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'krishna-janmashtami'
   },
   {
@@ -489,7 +489,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '08 सितंबर 2026',
     tithi: 'भाद्रपद कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -501,7 +501,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '14 सितंबर 2026',
     tithi: 'भाद्रपद शुक्ल तृतीया',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'karwa-chauth'
   },
   {
@@ -513,7 +513,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '15 सितंबर 2026',
     tithi: 'भाद्रपद शुक्ल चतुर्थी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/ganesha.jpg',
     vratId: 'shri-ganesh'
   },
   {
@@ -525,7 +525,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '16 सितंबर 2026',
     tithi: 'भाद्रपद शुक्ल पंचमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'bhoomi-pujan'
   },
   {
@@ -537,7 +537,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '20 सितंबर 2026',
     tithi: 'भाद्रपद शुक्ल अष्टमी',
     category: 'jayanti',
-    image: 'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'krishna-janmashtami'
   },
   {
@@ -549,7 +549,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '25 सितंबर 2026',
     tithi: 'भाद्रपद शुक्ल चतुर्दशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -561,7 +561,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '26 सितंबर 2026',
     tithi: 'भाद्रपद पूर्णिमा / आश्विन कृष्ण प्रतिपदा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/ram.jpg',
     vratId: 'maa-ganga'
   },
 
@@ -575,7 +575,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '03 अक्टूबर 2026',
     tithi: 'आश्विन कृष्ण अष्टमी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/surya.jpg',
     vratId: 'jitiya-vrat'
   },
   {
@@ -587,7 +587,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '06 अक्टूबर 2026',
     tithi: 'आश्विन कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -599,7 +599,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '10 अक्टूबर 2026',
     tithi: 'आश्विन अमावस्या',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'maa-ganga'
   },
   {
@@ -611,7 +611,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '11 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल प्रतिपदा',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/durga.jpg',
     vratId: 'shardiya-navratri-kalash'
   },
   {
@@ -623,7 +623,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '18 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल अष्टमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/durga.jpg',
     vratId: 'durga-maha-ashtami'
   },
   {
@@ -635,7 +635,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '19 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल नवमी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/durga.jpg',
     vratId: 'durga-maha-ashtami'
   },
   {
@@ -647,7 +647,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '20 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल दशमी',
     category: 'holiday',
-    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/ram.jpg',
     vratId: 'vijayadashami-dussehra'
   },
   {
@@ -659,7 +659,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '22 अक्टूबर 2026',
     tithi: 'आश्विन शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -671,7 +671,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '25 अक्टूबर 2026',
     tithi: 'आश्विन पूर्णिमा',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/satyanarayan.jpg',
     vratId: 'diwali-lakshmi-puja'
   },
   {
@@ -683,7 +683,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '29 अक्टूबर 2026',
     tithi: 'कार्तिक कृष्ण चतुर्थी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/shiva.jpg',
     vratId: 'karwa-chauth'
   },
 
@@ -697,7 +697,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '02 नवंबर 2026',
     tithi: 'कार्तिक कृष्ण अष्टमी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/durga.jpg',
     vratId: 'karwa-chauth'
   },
   {
@@ -709,7 +709,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '05 नवंबर 2026',
     tithi: 'कार्तिक कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -721,7 +721,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '06 नवंबर 2026',
     tithi: 'कार्तिक कृष्ण त्रयोदशी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/lakshmi.jpg',
     vratId: 'dhanteras-kuber'
   },
   {
@@ -733,7 +733,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '07 नवंबर 2026',
     tithi: 'कार्तिक कृष्ण चतुर्दशी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'diwali-lakshmi-puja'
   },
   {
@@ -745,7 +745,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '08 नवंबर 2026',
     tithi: 'कार्तिक अमावस्या',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/lakshmi.jpg',
     vratId: 'diwali-lakshmi-puja'
   },
   {
@@ -757,7 +757,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '09 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल प्रतिपदा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'krishna-janmashtami'
   },
   {
@@ -769,7 +769,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '10 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल द्वितीया',
     category: 'holiday',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/surya.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -781,7 +781,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '13 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल चतुर्थी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/chhath.jpg',
     isChhath: true,
     vratId: 'chhath-mahaparv-nahay-khay'
   },
@@ -794,7 +794,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '14 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल पंचमी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/chhath.jpg',
     isChhath: true,
     vratId: 'chhath-mahaparv-kharna'
   },
@@ -807,7 +807,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '15 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल षष्ठी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/chhath.jpg',
     isChhath: true,
     vratId: 'chhath-mahaparv-sandhya-arghya'
   },
@@ -820,7 +820,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '16 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल सप्तमी',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/deities/chhath.jpg',
     isChhath: true,
     vratId: 'chhath-mahaparv-usha-arghya'
   },
@@ -833,7 +833,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '20 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -845,7 +845,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '21 नवंबर 2026',
     tithi: 'कार्तिक शुक्ल द्वादशी',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'akshaya-tritiya'
   },
   {
@@ -857,7 +857,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '24 नवंबर 2026',
     tithi: 'कार्तिक पूर्णिमा',
     category: 'mahaparv',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/satyanarayan.jpg',
     vratId: 'maa-ganga'
   },
 
@@ -871,7 +871,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '05 दिसंबर 2026',
     tithi: 'मार्गशीर्ष कृष्ण एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -883,7 +883,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '19 दिसंबर 2026',
     tithi: 'मार्गशीर्ष शुक्ल एकादशी',
     category: 'vrat',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'anant-chaturdashi'
   },
   {
@@ -895,7 +895,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '20 दिसंबर 2026',
     tithi: 'मार्गशीर्ष शुक्ल एकादशी / द्वादशी',
     category: 'jayanti',
-    image: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/krishna.jpg',
     vratId: 'krishna-janmashtami'
   },
   {
@@ -907,7 +907,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '23 दिसंबर 2026',
     tithi: 'मार्गशीर्ष पूर्णिमा',
     category: 'jayanti',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/vishnu.jpg',
     vratId: 'bhoomi-pujan'
   },
   {
@@ -919,7 +919,7 @@ export const PANCHANG_CALENDAR_2026: CalendarEventItem[] = [
     formattedDate: '24 दिसंबर 2026',
     tithi: 'मार्गशीर्ष पूर्णिमा',
     category: 'puja',
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80',
+    image: '/images/deities/satyanarayan.jpg',
     vratId: 'maa-ganga'
   }
 ];

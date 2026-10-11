@@ -17,7 +17,6 @@ import {
   Sliders,
   LogIn,
   Settings,
-  LayoutGrid,
   Film,
   Download,
   ArrowLeft
@@ -417,14 +416,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* Center: YouTube Top Song Search Bar (Desktop / Large Tablet) */}
-            <div className="hidden md:block flex-1 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-3">
+            <div className="hidden md:block flex-1 min-w-0 max-w-xs lg:max-w-sm xl:max-w-md mx-2 lg:mx-3">
               <TopSongSearchBar 
                 onNavigateToMusic={handleSearchNavigate} 
                 onOpenFullSearch={() => setMobileSearchOpen(true)}
               />
             </div>
 
-            {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels + "सभी फीचर्स" Button */}
+            {/* Desktop Primary Nav Items: Essential Links + 1-Tap Reels */}
             <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 shrink-0" aria-label="मुख्य नेविगेशन">
               {primaryNavLinks.map((item) => {
                 const isActive = item.isReels ? reelsPlatformOpen : activeTab === item.id;
@@ -468,20 +467,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </a>
                 );
               })}
-
-              {/* "सभी फीचर्स" Dedicated Page Trigger */}
-              <button
-                onClick={(e) => handleNavClick(e, 'all-features')}
-                className={`px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-mukta font-extrabold transition-all duration-200 flex items-center gap-1.5 border shadow-xs group cursor-pointer active:scale-95 ${
-                  activeTab === 'all-features'
-                    ? 'bg-amber-500 text-stone-950 border-amber-500 shadow-md font-bold'
-                    : 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-900 dark:text-amber-200 border-amber-500/40'
-                }`}
-                title={navText.allFeaturesDesc}
-              >
-                <LayoutGrid className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover:rotate-12 transition-transform" />
-                <span>{navText.allFeatures}</span>
-              </button>
             </nav>
 
             {/* Right Header Actions */}

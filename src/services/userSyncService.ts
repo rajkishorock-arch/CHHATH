@@ -33,16 +33,29 @@ export interface UserCloudData {
   updatedAt?: string;
 }
 
+export interface JapMalaDailyRecord {
+  date: string; // ISO date YYYY-MM-DD
+  formattedDate: string; // e.g. "12 अक्टूबर 2026"
+  chantsCount: number; // chants count on this day
+  malasCompleted: number; // malas completed on this day
+  lastMantraId?: string;
+  lastMantraName?: string;
+  updatedAt?: string;
+}
+
 export interface JapMalaCloudData {
   totalMalas: number;
   totalChants: number;
   todayChants?: number;
+  todayMalas?: number;
+  currentBeadCount?: number;
   lastChantedDate?: string;
   favoriteMantraId?: string;
   mantraBreakdown?: Record<string, number>;
   sankalpTargetMalas?: number;
   beadType?: 'rudraksha' | 'tulsi' | 'kamalgatta' | 'sphatik';
   streakDays?: number;
+  dailyHistory?: JapMalaDailyRecord[];
   history?: Array<{
     date: string;
     mantraId: string;
@@ -95,26 +108,21 @@ export const UserSyncService = {
       console.warn('[UserSync] Firestore fetch notice:', e);
     }
 
-    // 1. Direct Cloud Bin (Fastest & Cross-device universal fallback)
-    try {
-      const directRes = await fetch(CLOUD_STORAGE_URL, {
-        headers: { 'Cache-Control': 'no-cache' }
-      }).catch(() => null);
-      if (directRes && directRes.ok) {
-        const data = await directRes.json().catch(() => null);
-        const userRec = data?.users?.[uid];
-        if (userRec) {
-          // Update local cache
-          try {
-            localStorage.setItem(`chhath_cloud_user_${uid}`, JSON.stringify(userRec));
-            if (userRec.avatarUrl) {
-              localStorage.setItem(`chhath_avatar_${uid}`, userRec.avatarUrl);
-            }
-          } catch {}
-          return userRec;
+    // 1. Direct Cloud Bin (Only for server-side where CORS is not enforced)
+    if (typeof window === 'undefined') {
+      try {
+        const directRes = await fetch(CLOUD_STORAGE_URL, {
+          headers: { 'Cache-Control': 'no-cache' }
+        }).catch(() => null);
+        if (directRes && directRes.ok) {
+          const data = await directRes.json().catch(() => null);
+          const userRec = data?.users?.[uid];
+          if (userRec) {
+            return userRec;
+          }
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     // 2. Server API Fallback (if running locally or serverless backend)
     try {
@@ -191,9 +199,8 @@ export const UserSyncService = {
         console.warn('[UserSync] Firebase native profile sync notice:', e);
       }
 
-      // 3. Save to Master Cloud Bin with retry (skip external PUT on web origins where third-party CORS preflight fails)
-      const isExternalBrowserOrigin = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
-      if (!isExternalBrowserOrigin) {
+      // 3. Save to Master Cloud Bin (Server-side only where CORS is not enforced)
+      if (typeof window === 'undefined') {
         for (let attempt = 0; attempt < 2; attempt++) {
           try {
             const directRes = await fetch(CLOUD_STORAGE_URL, {

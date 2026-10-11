@@ -1,6 +1,11 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { handleSearchApiRequest } from './server/searchMiddleware.ts';
 import { handleAiAgentApiRequest } from './server/aiMiddleware.ts';
@@ -14,6 +19,28 @@ function youtubeSearchPlugin(): Plugin {
   return {
     name: 'youtube-search-middleware',
     configureServer(server) {
+      // Direct static fallback: Serve /images and /icons directly from public if requested at origin root
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split('?')[0];
+        if (url && (url.startsWith('/images/') || url.startsWith('/icons/') || url.startsWith('/my-puja.png') || url.startsWith('/favicon.ico'))) {
+          const filePath = path.join(__dirname, 'public', url);
+          if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            const ext = path.extname(filePath).toLowerCase();
+            const mimeTypes: Record<string, string> = {
+              '.jpg': 'image/jpeg',
+              '.jpeg': 'image/jpeg',
+              '.png': 'image/png',
+              '.webp': 'image/webp',
+              '.svg': 'image/svg+xml',
+              '.ico': 'image/x-icon'
+            };
+            res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+            return fs.createReadStream(filePath).pipe(res);
+          }
+        }
+        next();
+      });
+
       // Backend Social Architecture REST API Endpoint: /api/v1/*
       server.middlewares.use('/api/v1', async (req, res) => {
         await handleSocialApiRequest(req, res);
