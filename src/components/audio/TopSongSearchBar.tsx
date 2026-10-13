@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X, Mic, MicOff, ArrowUpLeft, Clock, Flame, Trash2 } from 'lucide-react';
+import { Search, X, Mic, MicOff, ArrowUpLeft, Clock, Flame, Trash2, Sparkles } from 'lucide-react';
 import { YouTubeSuggestService } from '../../services/youtubeSuggestService';
 
 interface TopSongSearchBarProps {
@@ -175,7 +175,7 @@ export const TopSongSearchBar: React.FC<TopSongSearchBarProps> = ({
             setQuery(e.target.value);
             setIsFocused(true);
           }}
-          placeholder="YouTube पर कोई भी गाना, वीडियो या भजन खोजें..."
+          placeholder="छठ गीत, भजन, आरती या कोई भी गाना खोजें..."
           className="w-full pl-10 pr-20 py-2 sm:py-2.5 rounded-full bg-stone-100/90 dark:bg-stone-900/90 hover:bg-white dark:hover:bg-stone-900 border border-stone-200 dark:border-amber-500/30 hover:border-amber-400 focus:border-amber-500 focus:bg-white dark:focus:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/25 transition-all shadow-inner"
           aria-label="गाना या वीडियो खोजें"
         />

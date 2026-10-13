@@ -6,13 +6,22 @@ const CLOUD_STORAGE_URL = `https://extendsclass.com/api/json-storage/bin/${MASTE
 
 export interface UserMemoryItem {
   id: string;
-  year: '2026' | '2025' | '2024';
+  year: '2026' | '2025' | '2024' | string;
   title: string;
   caption: string;
-  category: 'Family' | 'Ghat' | 'Prasad' | 'Arghya';
+  category: 'Family' | 'Ghat' | 'Prasad' | 'Arghya' | 'NahayKhay' | 'Kharna' | string;
   imageUrl: string;
   date: string;
   createdAt?: string;
+  ghatLocation?: string;
+  riverName?: string;
+  frameStyle?: 'gold_royal' | 'vedic_saffron' | 'ganga_arghya' | 'diya_garland' | 'bamboo_soop' | 'pure';
+  audioNoteUrl?: string;
+  audioNoteDuration?: number;
+  audioNoteTitle?: string;
+  familyMembers?: string;
+  shlokaTag?: string;
+  isFavorite?: boolean;
 }
 
 export interface UserCloudData {

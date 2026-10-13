@@ -196,7 +196,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="YouTube पर कोई भी गाना, वीडियो या भजन खोजें..."
+                placeholder="छठ गीत, भजन, आरती या कोई भी गाना खोजें..."
                 className="w-full pl-10 pr-10 py-2 sm:py-2.5 bg-transparent text-sm sm:text-base text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none"
               />
 

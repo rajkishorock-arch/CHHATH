@@ -133,7 +133,6 @@ const getFallbackCatalogResults = (query: string): YouTubeSearchSong[] => {
     });
   });
 
-  // If user searched for specific non-Chhath tokens (e.g. "pw", "news"), never inject unrelated songs!
   if (matched.length === 0) {
     return [];
   }

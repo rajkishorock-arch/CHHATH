@@ -156,33 +156,56 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
+  const isPlayingRef = useRef<boolean>(isPlaying);
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+    if (!isPlaying && showVideo && videoExpanded) {
+      setVideoOverlayVisible(true);
+      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    }
+  }, [isPlaying, showVideo, videoExpanded]);
+
   const showVideoControlsTemporarily = useCallback((durationMs = 2500) => {
     setVideoOverlayVisible(true);
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    overlayTimerRef.current = setTimeout(() => {
-      setVideoOverlayVisible(false);
-    }, durationMs);
+    if (isPlayingRef.current) {
+      overlayTimerRef.current = setTimeout(() => {
+        if (isPlayingRef.current) {
+          setVideoOverlayVisible(false);
+        }
+      }, durationMs);
+    }
   }, []);
 
   const handleVideoMouseMove = useCallback(() => {
     setVideoOverlayVisible(true);
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    overlayTimerRef.current = setTimeout(() => {
-      setVideoOverlayVisible(false);
-    }, 2500);
+    if (isPlayingRef.current) {
+      overlayTimerRef.current = setTimeout(() => {
+        if (isPlayingRef.current) {
+          setVideoOverlayVisible(false);
+        }
+      }, 2500);
+    }
   }, []);
 
   const handleVideoMouseEnter = useCallback(() => {
     setVideoOverlayVisible(true);
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    overlayTimerRef.current = setTimeout(() => {
-      setVideoOverlayVisible(false);
-    }, 2500);
+    if (isPlayingRef.current) {
+      overlayTimerRef.current = setTimeout(() => {
+        if (isPlayingRef.current) {
+          setVideoOverlayVisible(false);
+        }
+      }, 2500);
+    }
   }, []);
 
   const handleVideoMouseLeave = useCallback(() => {
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-    setVideoOverlayVisible(false);
+    if (isPlayingRef.current) {
+      setVideoOverlayVisible(false);
+    }
   }, []);
 
   const toggleNativeFullscreen = useCallback(() => {
@@ -769,17 +792,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       lastTapRef.current = { time: 0, x: 0 };
     } else {
-      // Single tap on mobile/touch screen -> toggle overlay visibility
+      // Single tap on mobile/touch screen -> toggle play/pause immediately & show controls
       lastTapRef.current = { time: now, x: clientX };
-      setVideoOverlayVisible(prev => {
-        const next = !prev;
-        if (next) {
-          showVideoControlsTemporarily(3000);
-        } else {
-          if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
-        }
-        return next;
-      });
+      togglePlay();
+      showVideoControlsTemporarily(3000);
     }
   }, [handleSeekRelative, togglePlay, showVideoControlsTemporarily]);
 
@@ -1244,17 +1260,39 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         This guarantees continuous playback with zero reloading!
       */}
       <div
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setVideoOverlayVisible(prev => !prev);
+          }
+        }}
         className={
           showVideo
             ? videoExpanded
               ? isFullscreenMode
                 ? "fixed inset-0 z-[1000] w-screen h-screen bg-black flex items-center justify-center p-0 transition-all"
-                : "fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 transition-all animate-in fade-in"
+                : "fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 transition-all animate-in fade-in cursor-pointer"
               : "fixed z-[90] bottom-20 sm:bottom-24 right-2 sm:right-4 w-72 sm:w-88 aspect-video rounded-2xl overflow-hidden shadow-2xl border-2 border-amber-500/60 bg-black transition-all flex flex-col animate-in slide-in-from-bottom"
             : "fixed bottom-0 right-0 w-16 h-9 pointer-events-none opacity-[0.01] z-[-1] overflow-hidden"
         }
         aria-hidden={!showVideo}
       >
+        {/* Universal Top-Right Close Button - Always Accessible on Mobile and Desktop */}
+        {showVideo && videoExpanded && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowVideo(false);
+              pauseSong();
+            }}
+            className="fixed top-3 right-3 sm:top-5 sm:right-5 z-[1050] w-10 h-10 rounded-full bg-black/80 hover:bg-black text-white flex items-center justify-center border border-white/20 shadow-2xl transition-all cursor-pointer active:scale-90"
+            title="वीडियो बंद करें"
+            aria-label="वीडियो बंद करें"
+          >
+            <X className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        )}
+
         <div
           ref={theaterVideoBoxRef}
           onMouseEnter={handleVideoMouseEnter}
@@ -1290,17 +1328,19 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           {/* THE SINGLE PERSISTENT YOUTUBE PLAYER CONTAINER - NEVER UNMOUNTS */}
           <div id="global-yt-player-container" className="w-full h-full pointer-events-auto" />
 
-          {/* ZERO BLACK SCREEN: Display crisp song thumbnail poster with YouTube spinner while video loads/buffers */}
-          {showVideo && (isVideoBuffering || !isPlaying) && currentSong && (
-            <div className="absolute inset-0 z-5 bg-black flex items-center justify-center pointer-events-none transition-opacity duration-300">
-              <img
-                src={currentSong.thumbnail || (currentSong.youtubeId ? `https://i.ytimg.com/vi/${currentSong.youtubeId}/hqdefault.jpg` : '')}
-                alt={currentSong.title}
-                className="w-full h-full object-contain filter brightness-95"
-              />
-              <div className="absolute inset-0 bg-black/35 flex flex-col items-center justify-center gap-3">
-                <div className="w-12 h-12 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin" />
-                <span className="text-white text-xs font-semibold drop-shadow tracking-wide">लोड हो रहा है...</span>
+          {/* LOADER SPINNER: ONLY when actively buffering / loading video */}
+          {showVideo && isVideoBuffering && (
+            <div className="absolute inset-0 z-5 bg-black/45 flex flex-col items-center justify-center gap-3 pointer-events-none transition-opacity duration-300">
+              <div className="w-12 h-12 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin" />
+              <span className="text-white text-xs font-semibold drop-shadow tracking-wide">लोड हो रहा है...</span>
+            </div>
+          )}
+
+          {/* PAUSE SIGN: Cleanly shown when video is paused (Only icon, no text) */}
+          {showVideo && !isPlaying && !isVideoBuffering && currentSong && (
+            <div className="absolute inset-0 z-5 bg-black/30 flex items-center justify-center pointer-events-none animate-in fade-in duration-200">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/75 backdrop-blur-md border border-white/25 flex items-center justify-center text-white shadow-2xl">
+                <Pause className="w-8 h-8 sm:w-10 sm:h-10 fill-white" />
               </div>
             </div>
           )}
@@ -1312,6 +1352,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 handleVideoBackdropTap(e.clientX, rect);
+              }}
+              onTouchEnd={(e) => {
+                const touch = e.changedTouches[0];
+                if (touch) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  handleVideoBackdropTap(touch.clientX, rect);
+                }
               }}
             />
           )}

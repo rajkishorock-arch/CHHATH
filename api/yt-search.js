@@ -308,7 +308,6 @@ export default async function handler(req, res) {
     }
 
     // Tier 3: Verified Fallback (Safe fallback if network completely offline)
-    const lowerQ = q.toLowerCase();
     let fallbackResults = [];
 
     if (type === 'shorts') {

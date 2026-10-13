@@ -140,8 +140,24 @@ export const FeatureExperienceModal: React.FC<FeatureExperienceModalProps> = ({
                 <VirtualArghyaSimulator />
               </div>
             )}
-            {activeModal === 'quiz' && <ChhathQuiz />}
-            {activeModal === 'memories' && <MemoryAlbum />}
+            {activeModal === 'memories' && (
+              <div className="space-y-4">
+                <div className="flex justify-center mb-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      window.location.hash = '#chhath-memories';
+                    }}
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl active:scale-95 transition-all inline-flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>🌟 पूरा समर्पित संस्मरण स्टूडियो खोलें (Open Dedicated Memory Page)</span>
+                    <Camera className="w-4 h-4" />
+                  </button>
+                </div>
+                <MemoryAlbum />
+              </div>
+            )}
           </Suspense>
         </div>
       </div>

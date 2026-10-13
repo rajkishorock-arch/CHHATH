@@ -14,6 +14,8 @@ import { handleSocialApiRequest } from './server/socialMiddleware.ts';
 
 // @ts-ignore
 import ytSearchHandler from './api/yt-search.js';
+// @ts-ignore
+import ytSuggestHandler from './api/yt-suggest.js';
 
 function youtubeSearchPlugin(): Plugin {
   return {
@@ -69,6 +71,17 @@ function youtubeSearchPlugin(): Plugin {
           res.statusCode = 500;
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ error: err.message, results: [] }));
+        }
+      });
+
+      // Real-time YouTube Autocomplete Suggestions: GET /api/yt-suggest?q=...
+      server.middlewares.use('/api/yt-suggest', async (req, res) => {
+        try {
+          await ytSuggestHandler(req, res);
+        } catch (err: any) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: err.message, suggestions: [] }));
         }
       });
     }

@@ -38,7 +38,14 @@ const CULTURAL_DICTIONARY: string[] = [
   'Koshi Bharai Vidhi',
   'Bhojpuri Chhath Song 2026',
   'Chhath Puja Aarti',
-  'Surya Dev Mantra Arghya'
+  'Surya Dev Mantra Arghya',
+  'YouTube',
+  'YouTube Trending',
+  'YouTube Music',
+  'YouTube Bhakti & Bhajan',
+  'YouTube Podcasts',
+  'YouTube Bhojpuri Hits',
+  'YouTube Live Darshan'
 ];
 
 class YouTubeSuggestEngine {
