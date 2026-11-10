@@ -34,6 +34,19 @@ import {
   YouTubeSearchSong 
 } from '../../services/youtubeSearchService';
 import { YouTubeSuggestService } from '../../services/youtubeSuggestService';
+import { MusicCategoryFilter } from './MusicCategoryFilter';
+import { PopularArtistsFilter } from './PopularArtistsFilter';
+
+const MUSIC_CATEGORIES = ['सभी', 'पसंदीदा', 'पारंपरिक', 'अर्घ्य', 'भक्ति'];
+
+const POPULAR_ARTISTS = [
+  'शारदा सिन्हा',
+  'अनुराधा पौडवाल',
+  'पवन सिंह',
+  'खेसारी लाल यादव',
+  'कल्पना पटवारी',
+  'मनोज तिवारी'
+];
 
 // Format seconds or strings into MM:SS
 const formatDuration = (val?: string | number) => {
@@ -56,6 +69,7 @@ const YouTubeVideoCardComponent: React.FC<{
   onToggleQueue?: () => void;
   onToggleFav?: () => void;
   onShareSong?: () => void;
+  onOpenLyrics?: () => void;
   isLiveApi?: boolean;
 }> = ({
   song,
@@ -68,6 +82,7 @@ const YouTubeVideoCardComponent: React.FC<{
   onToggleQueue,
   onToggleFav,
   onShareSong,
+  onOpenLyrics,
 }) => {
   const { activeInlineVideoId, setActiveInlineVideoId, syncInlineVideoSong, pauseSong } = useAudio();
   const [thumbSrc, setThumbSrc] = useState<string>(() => {
@@ -384,6 +399,22 @@ const YouTubeVideoCardComponent: React.FC<{
                   </button>
                 )}
 
+                {/* Lyrics Sign */}
+                {onOpenLyrics && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenLyrics();
+                    }}
+                    className="p-1.5 rounded-lg text-stone-400 hover:text-amber-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-all cursor-pointer hover:scale-110 active:scale-95"
+                    title="गीत के बोल (Lyrics)"
+                    aria-label="गीत के बोल"
+                  >
+                    <FileText className="w-4 h-4" />
+                  </button>
+                )}
+
                 {/* Favorite Sign */}
                 {onToggleFav && (
                   <button
@@ -436,6 +467,8 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('सभी');
+  const [selectedSinger, setSelectedSinger] = useState<string>('');
 
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'success' | 'no_results' | 'error'>('idle');
   const [ytSearchResults, setYtSearchResults] = useState<YouTubeSearchSong[]>([]);
@@ -639,6 +672,52 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
   useEffect(() => {
     fetchInitialLiveSongs();
   }, [fetchInitialLiveSongs]);
+
+  // Intelligent Multi-facet Filter Engine for Categories & Popular Artists
+  const filterSongsByCriteria = useCallback((songsList: Song[]) => {
+    let result = songsList;
+
+    // 1. Category Filter
+    if (selectedCategory === 'पसंदीदा') {
+      result = result.filter(s => favorites.includes(s.id) || (s.youtubeId && favorites.includes(s.youtubeId)));
+    } else if (selectedCategory === 'पारंपरिक') {
+      result = result.filter(s => {
+        const str = `${s.title} ${s.category || ''} ${s.description || ''} ${s.singer || ''}`.toLowerCase();
+        return str.includes('पारंपरिक') || str.includes('traditional') || str.includes('पहिले') || str.includes('केलवा') || str.includes('काँच') || str.includes('बहंगी') || str.includes('दउरा') || str.includes('सुगवा') || str.includes('केरवा') || str.includes('शारदा');
+      });
+    } else if (selectedCategory === 'अर्घ्य') {
+      result = result.filter(s => {
+        const str = `${s.title} ${s.category || ''} ${s.description || ''}`.toLowerCase();
+        return str.includes('अर्घ्य') || str.includes('arghya') || str.includes('दीनानाथ') || str.includes('सुरुज') || str.includes('उग') || str.includes('संध्या') || str.includes('उषा');
+      });
+    } else if (selectedCategory === 'भक्ति') {
+      result = result.filter(s => {
+        const str = `${s.title} ${s.category || ''} ${s.description || ''}`.toLowerCase();
+        return str.includes('भक्ति') || str.includes('आरती') || str.includes('मईया') || str.includes('भजन') || str.includes('जय') || str.includes('महिमा') || str.includes('सूर्य');
+      });
+    }
+
+    // 2. Singer / Artist Filter
+    if (selectedSinger) {
+      const singerTarget = selectedSinger.toLowerCase();
+      result = result.filter(s => {
+        const sName = (s.singer || '').toLowerCase();
+        const tName = (s.title || '').toLowerCase();
+        return sName.includes(singerTarget) || tName.includes(singerTarget);
+      });
+    }
+
+    return result;
+  }, [selectedCategory, selectedSinger, favorites]);
+
+  const displayedSearchResults = useMemo(() => {
+    const raw = ytSearchResults.map(convertToSongModel);
+    return filterSongsByCriteria(raw);
+  }, [ytSearchResults, filterSongsByCriteria]);
+
+  const displayedLiveSongs = useMemo(() => {
+    return filterSongsByCriteria(liveSongs);
+  }, [liveSongs, filterSongsByCriteria]);
 
   // Load more real-time live songs when user scrolls down
   const loadMoreLiveSongs = useCallback(async () => {
@@ -961,6 +1040,21 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
     <section id="songs" className="py-0 sm:py-6 px-0 sm:px-4 bg-transparent text-stone-900 dark:text-stone-100 font-mukta w-full">
       <div className="w-full max-w-6xl mx-auto space-y-2 sm:space-y-4">
 
+        {/* CATEGORY & ARTIST FILTERS */}
+        <div className="space-y-2.5 px-2 sm:px-0 pt-1">
+          <MusicCategoryFilter
+            categories={MUSIC_CATEGORIES}
+            selectedCategory={selectedCategory}
+            onSelectCategory={(cat) => setSelectedCategory(cat)}
+            favoritesCount={favorites.length}
+          />
+          <PopularArtistsFilter
+            singers={POPULAR_ARTISTS}
+            selectedSinger={selectedSinger}
+            onSelectSinger={(singer) => setSelectedSinger(singer)}
+          />
+        </div>
+
         {/* SKELETON LOADERS WHILE SEARCHING */}
         {searchStatus === 'loading' && (
           <div className="space-y-4 pt-2">
@@ -1020,16 +1114,15 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
         {searchStatus === 'success' && ytSearchResults.length > 0 && (
           <div className="space-y-3 pt-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
-              {ytSearchResults.map((ytSong) => {
-                const songObj = convertToSongModel(ytSong);
-                const isCurrent = (currentSong?.youtubeId && currentSong.youtubeId === ytSong.youtubeId) || currentSong?.id === songObj.id;
+              {displayedSearchResults.map((songObj) => {
+                const isCurrent = (currentSong?.youtubeId && currentSong.youtubeId === songObj.youtubeId) || currentSong?.id === songObj.id;
                 const isPlayingThis = isCurrent && isPlaying;
-                const inQueue = queue.some(q => (q.youtubeId && q.youtubeId === ytSong.youtubeId) || q.id === songObj.id);
+                const inQueue = queue.some(q => (q.youtubeId && q.youtubeId === songObj.youtubeId) || q.id === songObj.id);
                 const isFav = favorites.includes(songObj.id);
 
                 return (
                   <YouTubeVideoCard
-                    key={ytSong.youtubeId}
+                    key={songObj.youtubeId || songObj.id}
                     song={songObj}
                     isCurrent={isCurrent}
                     isPlayingThis={isPlayingThis}
@@ -1039,22 +1132,35 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                       if (isCurrent && isPlaying) {
                         togglePlay();
                       } else {
-                        playSong(songObj, ytSearchResults.map(convertToSongModel));
+                        playSong(songObj, displayedSearchResults);
                       }
                     }}
                     onPlayVideo={() => {
-                      playVideo(songObj, ytSearchResults.map(convertToSongModel));
+                      playVideo(songObj, displayedSearchResults);
                     }}
                     onToggleQueue={() => {
                       if (!inQueue) addToQueue(songObj);
                     }}
                     onToggleFav={() => toggleFavorite(songObj.id, songObj)}
+                    onOpenLyrics={() => setLyricsSong(songObj)}
                     onShareSong={() => handleShareSong(songObj)}
                     isLiveApi={isLiveApi}
                   />
                 );
               })}
             </div>
+
+            {displayedSearchResults.length === 0 && (
+              <div className="text-center py-8 px-4 rounded-2xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-2">
+                <p className="text-xs text-stone-600 dark:text-stone-400">चयनित फ़िल्टर के अनुसार कोई गीत नहीं मिला।</p>
+                <button
+                  onClick={() => { setSelectedCategory('सभी'); setSelectedSinger(''); }}
+                  className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-500/30 transition-colors cursor-pointer"
+                >
+                  सभी फ़िल्टर हटाएं
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -1088,9 +1194,9 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
             )}
 
             {/* Live Real-Time YouTube Songs Grid */}
-            {!isLiveInitialLoading && liveSongs.length > 0 && (
+            {!isLiveInitialLoading && displayedLiveSongs.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
-                {liveSongs.map((song) => {
+                {displayedLiveSongs.map((song) => {
                   const cardKey = song.youtubeId || song.id;
                   const isCurrent = (currentSong?.youtubeId && song.youtubeId && currentSong.youtubeId === song.youtubeId) || currentSong?.id === song.id;
                   const isPlayingThis = isCurrent && isPlaying;
@@ -1109,20 +1215,58 @@ export const SongsSection: React.FC<SongsSectionProps> = ({ initialQuery }) => {
                         if (isCurrent && isPlaying) {
                           togglePlay();
                         } else {
-                          playSong(song, liveSongs);
+                          playSong(song, displayedLiveSongs);
                         }
                       }}
                       onPlayVideo={() => {
-                        playVideo(song, liveSongs);
+                        playVideo(song, displayedLiveSongs);
                       }}
                       onToggleQueue={() => {
                         if (!inQueue) addToQueue(song);
                       }}
                       onToggleFav={() => toggleFavorite(song.id, song)}
+                      onOpenLyrics={() => setLyricsSong(song)}
                       onShareSong={() => handleShareSong(song)}
                     />
                   );
                 })}
+              </div>
+            )}
+
+            {/* If filter active and 0 results found in live songs */}
+            {!isLiveInitialLoading && liveSongs.length > 0 && displayedLiveSongs.length === 0 && (
+              <div className="text-center py-8 px-4 rounded-2xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-3">
+                <Music className="w-8 h-8 text-amber-500 mx-auto" />
+                <h4 className="font-bold text-stone-800 dark:text-stone-200 text-sm">
+                  {selectedCategory === 'पसंदीदा' && favorites.length === 0
+                    ? 'आपने अभी कोई पसंदीदा गीत नहीं जोड़ा है'
+                    : 'चयनित फ़िल्टर के अनुसार गीत नहीं मिला'}
+                </h4>
+                <p className="text-xs text-stone-500 dark:text-stone-400">
+                  {selectedCategory === 'पसंदीदा' && favorites.length === 0
+                    ? 'गीतों के आगे बने दिल (❤️) आइकन पर क्लिक करके अपने पसंदीदा गीत जोड़ें।'
+                    : 'आप सभी गीत देख सकते हैं या YouTube पर खोज सकते हैं।'}
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <button
+                    onClick={() => { setSelectedCategory('सभी'); setSelectedSinger(''); }}
+                    className="px-4 py-1.5 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-500/30 transition-colors cursor-pointer"
+                  >
+                    सभी गीत देखें
+                  </button>
+                  {selectedSinger && (
+                    <button
+                      onClick={() => {
+                        const q = `${selectedSinger} छठ गीत`;
+                        setSearchQuery(q);
+                        handleExecuteSearch(q);
+                      }}
+                      className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 text-xs font-bold shadow hover:opacity-95 transition-opacity cursor-pointer"
+                    >
+                      YouTube पर &ldquo;{selectedSinger}&rdquo; खोजें
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 

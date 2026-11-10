@@ -16,6 +16,7 @@ import { SearchModal } from './components/layout/SearchModal';
 import { StickyPlayer } from './components/audio/StickyPlayer';
 import { ExpandedPlayerModal } from './components/audio/ExpandedPlayerModal';
 import { PlaybackQueueModal } from './components/audio/PlaybackQueueModal';
+import { SongLyricsModal } from './components/audio/SongLyricsModal';
 import { Breadcrumbs } from './components/common/Breadcrumbs';
 import { PullToRefresh } from './components/common/PullToRefresh';
 
@@ -1026,6 +1027,14 @@ const MainContent: React.FC = () => {
 
       {mixerModalOpen && (
         <AtmosphereAudioMixer isOpen={mixerModalOpen} onClose={() => setMixerModalOpen(false)} />
+      )}
+
+      {lyricsSong && (
+        <SongLyricsModal
+          song={lyricsSong}
+          isOpen={Boolean(lyricsSong)}
+          onClose={() => setLyricsSong(null)}
+        />
       )}
 
       <AuthModal />
