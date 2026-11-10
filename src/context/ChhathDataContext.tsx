@@ -6,6 +6,7 @@ import { chhathSongs as defaultSongs } from '../data/songs';
 import { chhathGhatsData as defaultGhats } from '../data/ghats';
 import { chhathBlogPosts as defaultBlogs } from '../data/blog';
 import { chhathWishesData as defaultWishes } from '../data/wishes';
+import { setOfflineItem, STORES } from '../utils/offlineStorage';
 
 const DEFAULT_DIYAS: DedicatedVirtualDiya[] = [
   {
@@ -228,11 +229,13 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     localStorage.setItem('chhath_user_location', JSON.stringify(userLocation));
+    setOfflineItem(STORES.USER_PREFERENCES, 'user_location', userLocation);
   }, [userLocation]);
 
   useEffect(() => {
     localStorage.setItem('chhath_favorite_songs', JSON.stringify(favoriteSongs));
     localStorage.setItem('chhath_music_favorites', JSON.stringify(favoriteSongs));
+    setOfflineItem(STORES.USER_DATA, 'favorite_songs', favoriteSongs);
     const session = ReelsStorage.getSession();
     if (session?.id && !session.id.startsWith('demo_') && !session.id.startsWith('local_')) {
       UserSyncService.saveUserData(session.id, { favoriteSongs }).catch(() => {});
@@ -241,6 +244,7 @@ export const ChhathDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     localStorage.setItem('chhath_favorite_ghats', JSON.stringify(favoriteGhats));
+    setOfflineItem(STORES.USER_DATA, 'favorite_ghats', favoriteGhats);
     const session = ReelsStorage.getSession();
     if (session?.id && !session.id.startsWith('demo_') && !session.id.startsWith('local_')) {
       UserSyncService.saveUserData(session.id, { favoriteGhats }).catch(() => {});

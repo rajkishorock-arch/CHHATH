@@ -570,6 +570,19 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    // Graceful Offline Handling for YouTube streaming
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setCurrentSong(song);
+      currentSongRef.current = song;
+      setPlaybackError({
+        songId: song.id,
+        youtubeId: song.youtubeId,
+        message: 'ऑफ़लाइन मोड: यूट्यूब संगीत बजाने के लिए इंटरनेट आवश्यक है। आपके पसंदीदा गीत, लिरिक्स और सामग्री सूची ऑफ़लाइन उपलब्ध हैं।',
+        code: 999
+      });
+      return;
+    }
+
     const prevSong = currentSongRef.current;
 
     // Fast-path: If the SAME song is already active in player AND actually loaded, switch mode seamlessly with ZERO reloading!
@@ -753,6 +766,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (isPlaying) {
       pauseSong();
     } else {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setPlaybackError({
+          songId: currentSong.id,
+          youtubeId: currentSong.youtubeId,
+          message: 'ऑफ़लाइन मोड: यूट्यूब संगीत बजाने के लिए इंटरनेट आवश्यक है। आपके पसंदीदा गीत, लिरिक्स और सामग्री सूची ऑफ़लाइन उपलब्ध हैं।',
+          code: 999
+        });
+        return;
+      }
       userRequestedPauseRef.current = false;
       setIsPlaying(true);
       startAudioKeepalive();

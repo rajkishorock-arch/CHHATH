@@ -111,6 +111,16 @@ if (fs.existsSync(indexPath)) {
     console.log(`[post-build] Copied chhath-app-debug.apk to CHHATH/ prefix`);
   }
 
+  // Mirror PWA files to CHHATH/ prefix for GitHub Pages
+  ['sw.js', 'manifest.webmanifest', 'manifest.json'].forEach((file) => {
+    const src = path.join(distDir, file);
+    const dest = path.join(chhathDir, file);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+      console.log(`[post-build] Copied ${file} to CHHATH/ prefix`);
+    }
+  });
+
   // Ensure gh-pages branch has a safe vercel.json so Vercel doesn't fail with vite not found
   const distVercelConfig = {
     cleanUrls: true,

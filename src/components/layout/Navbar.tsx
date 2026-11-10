@@ -19,10 +19,12 @@ import {
   Settings,
   Film,
   Download,
-  ArrowLeft
+  ArrowLeft,
+  WifiOff
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useReels } from '../../context/ReelsContext';
+import { useConnectivity } from '../../utils/useConnectivity';
 import { AccountCenterModal } from '../settings/AccountCenterModal';
 import { AppSettingsModal } from '../settings/AppSettingsModal';
 import { TopSongSearchBar } from '../audio/TopSongSearchBar';
@@ -61,6 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     closeAccountCenter,
     accountCenterTab 
   } = useAuth();
+  const { isOnline } = useConnectivity();
 
   const [sidebarDrawerOpen, setSidebarDrawerOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -471,6 +474,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Right Header Actions */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+
+              {/* Subtle Unobtrusive Offline Indicator (Only visible when connection drops) */}
+              {!isOnline && (
+                <div 
+                  title="ऑफ़लाइन मोड (स्थानीय डेटा सुरक्षित)"
+                  aria-label="Offline Mode Active"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 sm:py-1 rounded-full text-[11px] font-mukta font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0 select-none animate-in fade-in duration-200"
+                >
+                  <WifiOff className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                  <span className="hidden sm:inline">ऑफ़लाइन</span>
+                </div>
+              )}
               
               {/* Top YouTube Search Button (Mobile & Desktop) */}
               <button

@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Flame
 } from 'lucide-react';
+import { getOfflineItem, setOfflineItem, STORES } from '../../utils/offlineStorage';
 
 const STORAGE_KEY = 'chhath-samagri-checklist-2026-v1';
 
@@ -48,12 +49,25 @@ export const SamagriChecklist: React.FC = () => {
   const [showOnlyRemaining, setShowOnlyRemaining] = useState<boolean>(false);
   const [copiedState, setCopiedState] = useState<boolean>(false);
 
+  // Hydrate from IndexedDB if localStorage was empty/cleared
+  useEffect(() => {
+    if (checkedIds.length === 0) {
+      getOfflineItem<string[]>(STORES.USER_DATA, STORAGE_KEY).then((stored) => {
+        if (stored && Array.isArray(stored) && stored.length > 0) {
+          setCheckedIds(stored);
+        }
+      });
+    }
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedIds));
     } catch {
       // ignore quota / permission errors
     }
+    // Also mirror to persistent IndexedDB
+    setOfflineItem(STORES.USER_DATA, STORAGE_KEY, checkedIds);
   }, [checkedIds]);
 
   const toggleItem = (id: string) => {

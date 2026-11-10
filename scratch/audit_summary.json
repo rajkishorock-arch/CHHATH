@@ -1,0 +1,237 @@
+{
+  "results": {
+    "buildValidation": [
+      {
+        "status": "PASS",
+        "title": "npm run build executes cleanly with exit code 0",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Core artifact dist/sw.js generated and non-empty",
+        "details": "(6560 bytes)"
+      },
+      {
+        "status": "PASS",
+        "title": "Core artifact dist/manifest.webmanifest generated and non-empty",
+        "details": "(855 bytes)"
+      },
+      {
+        "status": "PASS",
+        "title": "Core artifact dist/manifest.json generated and non-empty",
+        "details": "(1039 bytes)"
+      },
+      {
+        "status": "PASS",
+        "title": "Core artifact dist/index.html generated and non-empty",
+        "details": "(7542 bytes)"
+      },
+      {
+        "status": "PASS",
+        "title": "Core artifact dist/robots.txt generated and non-empty",
+        "details": "(80 bytes)"
+      },
+      {
+        "status": "PASS",
+        "title": "Core artifact dist/sitemap.xml generated and non-empty",
+        "details": "(3997 bytes)"
+      },
+      {
+        "status": "PASS",
+        "title": "Workbox runtime generated: dist/workbox-3be31bb3.js",
+        "details": ""
+      }
+    ],
+    "manifestValidation": [
+      {
+        "status": "PASS",
+        "title": "Manifest contains all required PWA fields",
+        "details": "name: \"छठ महापर्व | Chhath Vibes\", display: \"standalone\""
+      },
+      {
+        "status": "PASS",
+        "title": "All 3 manifest icons exist on disk in dist/",
+        "details": ""
+      }
+    ],
+    "serviceWorkerSecurity": [
+      {
+        "status": "PASS",
+        "title": "Precache manifest populated with 70 entries",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "NavigationRoute fallback to /index.html is active for offline navigation",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "NavigationRoute denylist protects /api/ from being intercepted as HTML",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Strict NetworkOnly handler enforced for: Auth endpoints",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Strict NetworkOnly handler enforced for: Session endpoints",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Strict NetworkOnly handler enforced for: AI endpoints",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Strict NetworkOnly handler enforced for: Chat endpoints",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Strict NetworkOnly handler enforced for: YouTube streaming audio/video",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Strict NetworkOnly handler enforced for: YouTube direct search/suggest API",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "cleanupOutdatedCaches() is actively registered",
+        "details": ""
+      }
+    ],
+    "seoAndCrawlers": [
+      {
+        "status": "PASS",
+        "title": "robots.txt allows all crawlers and provides canonical sitemap link",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "sitemap.xml is valid XML and contains production URL mappings",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid canonical",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid title",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid description",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid og:title",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid og:description",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid og:image",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Root index.html contains valid json-ld schema",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Route /chhath-puja-vidhi has correct distinct canonical link tag",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Route /thekua-recipe has correct distinct canonical link tag",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Route /panchang-calendar has correct distinct canonical link tag",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Route /all-vrats has correct distinct canonical link tag",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Route /patna-chhath-puja-2026 has correct distinct canonical link tag",
+        "details": ""
+      }
+    ],
+    "storageSafety": [
+      {
+        "status": "PASS",
+        "title": "Non-destructive restore pattern verified (never overwrites existing user data)",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "IndexedDB methods wrapped in defensive try/catch blocks for quota errors",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Object store \"app_data\" properly defined",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Object store \"user_data\" properly defined",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Object store \"user_preferences\" properly defined",
+        "details": ""
+      }
+    ],
+    "existingRegression": [
+      {
+        "status": "PASS",
+        "title": "Audio player handles offline state gracefully via existing playback error banner",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Oxlint validation passed with 0 errors",
+        "details": ""
+      }
+    ],
+    "visualIntegrity": [
+      {
+        "status": "PASS",
+        "title": "Only subtle conditional WifiOff offline indicator introduced in Navbar",
+        "details": ""
+      },
+      {
+        "status": "PASS",
+        "title": "Zero decorative banners or intrusive modal dialogs introduced",
+        "details": ""
+      }
+    ]
+  },
+  "summary": {
+    "totalPassed": 43,
+    "totalFailed": 0
+  }
+}

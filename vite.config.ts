@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -94,6 +95,147 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      includeAssets: [
+        'favicon.png',
+        'favicon.svg',
+        'apple-touch-icon.png',
+        'icons.svg',
+        'images/*',
+        'silent.wav',
+        'robots.txt',
+        'sitemap.xml'
+      ],
+      manifest: {
+        id: '/',
+        name: 'छठ महापर्व | Chhath Vibes',
+        short_name: 'छठ महापर्व',
+        description: 'सूर्य उपासना एवं आस्था के महापर्व छठ की संपूर्ण जानकारी, पूजा विधि, अर्घ्य समय, लोकगीत एवं पंचांग',
+        theme_color: '#E65100',
+        background_color: '#0c0a09',
+        display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
+        lang: 'hi',
+        categories: ['lifestyle', 'social', 'music'],
+        icons: [
+          {
+            src: '/favicon.png',
+            sizes: '64x64 96x96',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/apple-touch-icon.png',
+            sizes: '180x180 192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/images/chhath_app_logo.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,wav,json}'],
+        globIgnores: ['**/*.apk', '**/*.mp4'],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/__\/auth\//, /\.[a-z0-9]+$/i],
+        cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            // Google Fonts Stylesheets
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
+          },
+          {
+            // Google Fonts Webfonts
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Local and static image assets
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-images-cache',
+              expiration: {
+                maxEntries: 150,
+                maxAgeSeconds: 60 * 60 * 24 * 60 // 60 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // YouTube Thumbnails (for offline display of saved playlists/favorites)
+            urlPattern: /^https:\/\/i\.ytimg\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'yt-thumbnails-cache',
+              expiration: {
+                maxEntries: 80,
+                maxAgeSeconds: 60 * 60 * 24 * 14 // 14 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // CRITICAL NETWORK ONLY: YouTube streaming audio and video
+            urlPattern: /^https:\/\/(?:www\.)?youtube(?:-nocookie)?\.com\/.*|^https:\/\/.*\.googlevideo\.com\/.*/i,
+            handler: 'NetworkOnly'
+          },
+          {
+            // CRITICAL NETWORK ONLY: Auth, AI, Chat, Search endpoints
+            urlPattern: /\/api\/(?:v1\/auth|v1\/sessions|ai|chat|yt-search|yt-suggest).*/i,
+            handler: 'NetworkOnly'
+          },
+          {
+            // Non-sensitive APIs: NetworkFirst with cache fallback
+            urlPattern: /\/api\/(?:search|v1\/profiles).*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-content-cache',
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      }
+    }),
     youtubeSearchPlugin()
   ],
 })
