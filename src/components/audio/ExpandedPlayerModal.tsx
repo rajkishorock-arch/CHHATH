@@ -285,13 +285,12 @@ export const ExpandedPlayerModal: React.FC = () => {
           <span>{isFav ? 'पसंदीदा' : 'पसंद करें'}</span>
         </button>
 
-        {currentSong && (
+        {currentSong.lyrics && (
           <button
             onClick={() => setLyricsSong(currentSong)}
-            className="flex flex-col items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300 transition-colors"
-            title="गीत के बोल व कराओके देखें"
+            className="flex flex-col items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-300"
           >
-            <FileText className="w-5 h-5 text-amber-500" />
+            <FileText className="w-5 h-5" />
             <span>गीत के बोल</span>
           </button>
         )}
